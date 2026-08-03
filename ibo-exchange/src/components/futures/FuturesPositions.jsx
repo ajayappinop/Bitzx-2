@@ -83,7 +83,7 @@ export default function FuturesPositions() {
   return (
     <div className="h-full min-h-0 overflow-auto scrollbar-hide">
       <table className="w-full min-w-[980px] border-collapse text-[12px]">
-        <thead className="sticky top-0 z-[1] bg-[color:var(--ibo-surface)]">
+        <thead className="sticky top-0 z-[1] bg-transparent">
           <tr className="text-[11px] text-[color:var(--ibo-muted)] border-b border-[color:var(--ibo-border)]">
             <th className="text-left font-medium px-3 py-2 whitespace-nowrap">Contract</th>
             <th className="text-right font-medium px-3 py-2 whitespace-nowrap">Size</th>
@@ -133,7 +133,7 @@ export default function FuturesPositions() {
                 <td className="px-3 py-2.5 text-right font-mono tabular-nums text-[color:var(--ibo-ink)]">
                   {fmtPx(mark)}
                 </td>
-                <td className="px-3 py-2.5 text-right font-mono tabular-nums text-[#C5E35B]">
+                <td className="px-3 py-2.5 text-right font-mono tabular-nums text-[color:var(--ibo-positive)]">
                   {fmtPx(p.liquidation_price)}
                 </td>
                 <td className="px-3 py-2.5 text-right font-mono tabular-nums text-[color:var(--ibo-ink)]">

@@ -4,17 +4,16 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Plus Jakarta Sans', 'sans-serif'],
-        display: ['Syne', 'system-ui', 'sans-serif'],
-        /* Numbers / prices / tickers — Inter only (replaces JetBrains Mono) */
-        mono: ['Inter', 'Plus Jakarta Sans', 'sans-serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['Inter', 'system-ui', 'sans-serif'],
       },
       colors: {
-        /* Brand accents mapped from IBO logo gradient (blue → cyan → lime) */
+        /* Brand accents — Delta India orange primary + green positive */
         gold: {
-          DEFAULT: '#0EA4AB',
-          light:   '#C5E35B',
-          dark:    '#1B5FFF',
+          DEFAULT: '#FE6C02',
+          light:   '#00A876',
+          dark:    '#B44D01',
         },
         /* Theme-aware surfaces — flip via data-theme CSS variables */
         surface: {
@@ -56,8 +55,8 @@ export default {
           to:   { opacity: '1', transform: 'translateY(0)' },
         },
         glow: {
-          '0%,100%': { boxShadow: '0 0 20px rgba(14,164,171,0.25)' },
-          '50%':     { boxShadow: '0 0 50px rgba(197,227,91,0.35)' },
+          '0%,100%': { boxShadow: '0 0 20px rgba(254, 108, 2,0.25)' },
+          '50%':     { boxShadow: '0 0 50px rgba(0, 168, 118,0.35)' },
         },
         pulseGold: {
           '0%,100%': { opacity: '1' },
@@ -68,3 +67,4 @@ export default {
   },
   plugins: [],
 };
+

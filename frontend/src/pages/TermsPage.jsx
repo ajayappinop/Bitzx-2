@@ -6,7 +6,7 @@ const sections = [
   {
     title: "Website Use",
     body:
-      "The IBO website is provided for informational purposes. Users are responsible for independently verifying token details, contract addresses, and third-party links before making any decisions.",
+      "The Delta website is provided for informational purposes. Users are responsible for independently verifying token details, contract addresses, and third-party links before making any decisions.",
   },
   {
     title: "No Financial Advice",
@@ -16,7 +16,7 @@ const sections = [
   {
     title: "Third-Party Services",
     body:
-      "Access to third-party services such as explorers, social channels, wallets, or swap platforms is outside IBO website control and subject to those services' own terms.",
+      "Access to third-party services such as explorers, social channels, wallets, or swap platforms is outside Delta website control and subject to those services' own terms.",
   },
   {
     title: "Accuracy of Information",
@@ -47,11 +47,11 @@ export default function TermsPage() {
         <div className="mb-10">
           <div className="inline-flex items-center gap-2 bg-[#0EA4AB]/10 border border-[#0EA4AB]/25 px-4 py-2 rounded-full text-sm text-ink-accent mb-4">
             <FileText size={16} />
-            IBO Terms
+            Delta Terms
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Terms of Service</h1>
           <p className="text-ink-muted max-w-3xl leading-relaxed">
-            These terms cover access to the public IBO website and project
+            These terms cover access to the public Delta website and project
             materials. They should be reviewed and finalized with the official
             operating entity details before public launch.
           </p>

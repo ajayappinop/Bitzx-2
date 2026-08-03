@@ -14,7 +14,6 @@ import { tradingApi } from '@/services/api';
 /**
  * Scroll without any native scrollbar: Windows/Edge often ignore scrollbar-hiding CSS.
  * Viewport is overflow:hidden; wheel deltas move the inner block with translateY.
- * Wheel listener is non-passive so we can preventDefault (required for nested scroll).
  */
 function ObWheelScroll({ className, style, children }) {
   const viewportRef = useRef(null);
@@ -25,13 +24,6 @@ function ObWheelScroll({ className, style, children }) {
   useEffect(() => {
     offsetRef.current = offset;
   }, [offset]);
-
-  const measure = useCallback(() => {
-    const v = viewportRef.current;
-    const c = contentRef.current;
-    if (!v || !c) return 0;
-    return Math.max(0, c.scrollHeight - v.clientHeight);
-  }, []);
 
   useLayoutEffect(() => {
     const v = viewportRef.current;
@@ -82,9 +74,7 @@ function ObWheelScroll({ className, style, children }) {
       <div
         ref={contentRef}
         className="order-book-wheel-content"
-        style={{
-          transform: `translate3d(0, -${offset}px, 0)`,
-        }}
+        style={{ transform: `translate3d(0, -${offset}px, 0)` }}
       >
         {children}
       </div>
@@ -92,7 +82,6 @@ function ObWheelScroll({ className, style, children }) {
   );
 }
 
-/** Merge L2 into price buckets by tick size */
 function aggregateLevels(levels, tickSize) {
   const m = new Map();
   for (const [p, q] of levels) {
@@ -118,6 +107,7 @@ function decimalsForTick(tick) {
 const fmtPrice = (n, tickSize) => {
   const v = parseFloat(n);
   const d = decimalsForTick(tickSize);
+  if (!Number.isFinite(v)) return '—';
   if (v >= 10000) return v.toLocaleString(undefined, { maximumFractionDigits: 2 });
   if (v >= 1000) return v.toLocaleString(undefined, { maximumFractionDigits: 2 });
   return v.toFixed(d);
@@ -129,14 +119,6 @@ const fmtQ = n => {
   return v >= 1000000 ? `${(v / 1000000).toFixed(2)}M`
     : v >= 1000 ? `${(v / 1000).toFixed(2)}K`
       : v.toFixed(4);
-};
-
-const fmtTotal = n => {
-  const v = parseFloat(n);
-  if (!Number.isFinite(v)) return '—';
-  if (v >= 1e6) return `${(v / 1e6).toFixed(3)}M`;
-  if (v >= 1e3) return `${(v / 1e3).toFixed(3)}K`;
-  return v >= 1 ? v.toFixed(2) : v.toFixed(6);
 };
 
 const TICK_PRESETS = [
@@ -157,7 +139,6 @@ function tickLabel(t) {
   return t.toFixed(8).replace(/\.?0+$/, '') || String(t);
 }
 
-/** Accept [price, qty] arrays or { price, qty } / Binance-style objects */
 function toPair(row) {
   if (!row) return null;
   if (Array.isArray(row) && row.length >= 2) return [row[0], row[1]];
@@ -169,10 +150,6 @@ function toPair(row) {
   return null;
 }
 
-/**
- * Normalize Binance-style depth: asks ascending (best = lowest first),
- * bids descending (best = highest first) → bids ascending for aggregation.
- */
 function normalizeDepth(book) {
   const rawAsks = book?.asks || [];
   const rawBids = book?.bids || [];
@@ -181,10 +158,10 @@ function normalizeDepth(book) {
   return { asksAsc, bidsAsc };
 }
 
-const Row = memo(function Row({ price, qty, side, depthPct, tickSize, onPriceClick, total }) {
+const Row = memo(function Row({ price, qty, side, cumSize, maxCum, tickSize, onPriceClick }) {
   const isBid = side === 'bid';
-  const d = Math.min(100, Math.max(0, depthPct));
-  const barRgb = isBid ? '34, 197, 94' : '239, 68, 68';
+  const depth = maxCum > 0 ? Math.min(100, (cumSize / maxCum) * 100) : 0;
+  const bar = isBid ? '14, 203, 129' : '246, 70, 93';
 
   return (
     <div
@@ -194,31 +171,25 @@ const Row = memo(function Row({ price, qty, side, depthPct, tickSize, onPriceCli
       onMouseDown={e => e.preventDefault()}
       onClick={() => onPriceClick?.(fmtPrice(price, tickSize))}
       onKeyDown={e => { if (e.key === 'Enter') onPriceClick?.(fmtPrice(price, tickSize)); }}
-      className="order-book-row relative flex w-full min-w-0 items-center px-2 py-[5px] cursor-pointer outline-none ring-0 focus-visible:outline-none focus-visible:ring-0"
+      className="order-book-row delta-ob-row relative flex h-[22px] w-full min-w-0 items-center px-2.5 cursor-pointer outline-none hover:bg-white/[0.035]"
     >
-      {/* Full-row depth: tint spans entire row, anchored from the right */}
       <div
-        className="absolute inset-0 pointer-events-none z-0"
+        className="absolute inset-y-[1px] right-0 pointer-events-none z-0"
         style={{
-          background: `linear-gradient(to left, rgba(${barRgb}, 0.2) 0%, rgba(${barRgb}, 0.2) ${d}%, transparent ${d}%, transparent 100%)`,
+          width: `${Math.max(depth * 0.65, depth > 0 ? 3 : 0)}%`,
+          background: `rgba(${bar}, 0.22)`,
         }}
       />
-      <span
-        className={`relative z-[1] w-[34%] min-w-0 text-left font-mono font-bold text-[11px] tabular-nums leading-tight ${
-          isBid ? 'text-green-400' : 'text-red-400'
-        }`}
-      >
+      <span className={`relative z-[1] w-[36%] min-w-0 text-left font-mono font-semibold text-[12px] tabular-nums leading-none ${
+        isBid ? 'text-[#0ECB81]' : 'text-[#F6465D]'
+      }`}>
         {fmtPrice(price, tickSize)}
       </span>
-      <span className="relative z-[1] w-[32%] min-w-0 text-center text-ink font-mono text-[11px] font-semibold tabular-nums leading-tight">
+      <span className="relative z-[1] w-[30%] min-w-0 text-right text-ink font-mono text-[11px] tabular-nums leading-none">
         {fmtQ(qty)}
       </span>
-      <span
-        className={`relative z-[1] w-[34%] min-w-0 text-right font-mono text-[10px] font-semibold tabular-nums leading-tight ${
-          isBid ? 'text-green-400/95' : 'text-red-400/95'
-        }`}
-      >
-        {fmtTotal(total)}
+      <span className="relative z-[1] w-[34%] min-w-0 text-right font-mono text-[11px] tabular-nums text-ink-muted leading-none">
+        {fmtQ(cumSize)}
       </span>
     </div>
   );
@@ -226,13 +197,13 @@ const Row = memo(function Row({ price, qty, side, depthPct, tickSize, onPriceCli
   prev.price === next.price
   && prev.qty === next.qty
   && prev.side === next.side
-  && prev.depthPct === next.depthPct
-  && prev.tickSize === next.tickSize
-  && prev.total === next.total,
+  && prev.cumSize === next.cumSize
+  && prev.maxCum === next.maxCum
+  && prev.tickSize === next.tickSize,
 );
 
 const FETCH_LIMIT = 100;
-const DEPTHS = [10, 14, 20];
+const ROWS = 14;
 
 export default function OrderBook({
   symbol,
@@ -241,14 +212,13 @@ export default function OrderBook({
   lastPrice,
   changePct,
 }) {
-  const base = baseAsset || symbol.replace('USDT', '');
+  const base = baseAsset || symbol.replace(/USDT|USD$/i, '') || '—';
   const [book, setBook] = useState({ asks: [], bids: [] });
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
   const [tickSize, setTickSize] = useState(0.0001);
   const [tickOpen, setTickOpen] = useState(false);
   const [viewMode, setViewMode] = useState('all');
-  const [rows, setRows] = useState(14);
   const timerRef = useRef(null);
   const tickRef = useRef(null);
 
@@ -276,58 +246,44 @@ export default function OrderBook({
   }, [symbol, load]);
 
   const { asksAsc, bidsAsc } = useMemo(() => normalizeDepth(book), [book]);
-
   const asksAgg = useMemo(() => aggregateLevels(asksAsc, tickSize), [asksAsc, tickSize]);
   const bidsAgg = useMemo(() => aggregateLevels(bidsAsc, tickSize), [bidsAsc, tickSize]);
 
-  /** Asks: lowest rows near spread; show high → low toward mid */
-  const asks = useMemo(() => {
-    const chunk = asksAgg.slice(0, rows);
-    return chunk.reverse();
-  }, [asksAgg, rows]);
-
-  /** Bids: best bids near spread at top */
-  const bids = useMemo(() => {
-    const chunk = bidsAgg.slice(-rows);
-    return chunk.reverse();
-  }, [bidsAgg, rows]);
+  const asks = useMemo(() => asksAgg.slice(0, ROWS).reverse(), [asksAgg]);
+  const bids = useMemo(() => bidsAgg.slice(-ROWS).reverse(), [bidsAgg]);
 
   const bestAsk = asksAgg.length ? asksAgg[0][0] : 0;
   const bestBid = bidsAgg.length ? bidsAgg[bidsAgg.length - 1][0] : 0;
-
+  const midFromBook = bestAsk > 0 && bestBid > 0 ? (bestAsk + bestBid) / 2 : bestAsk || bestBid;
   const lp = parseFloat(lastPrice);
-  const midFromBook =
-    bestAsk > 0 && bestBid > 0 ? (bestAsk + bestBid) / 2 : bestAsk || bestBid;
   const mid = Number.isFinite(lp) && lp > 0 ? lp : midFromBook;
+  const markPx = midFromBook;
+
+  const askCumSizes = useMemo(() => {
+    const out = new Array(asks.length);
+    let run = 0;
+    for (let i = asks.length - 1; i >= 0; i -= 1) {
+      run += parseFloat(asks[i][1]) || 0;
+      out[i] = run;
+    }
+    return out;
+  }, [asks]);
+
+  const bidCumSizes = useMemo(() => {
+    let run = 0;
+    return bids.map(([, q]) => {
+      run += parseFloat(q) || 0;
+      return run;
+    });
+  }, [bids]);
+
+  const maxCum = Math.max(askCumSizes[0] || 0, bidCumSizes[bidCumSizes.length - 1] || 0, 1);
 
   useEffect(() => {
     const p = parseFloat(lastPrice);
     setTickSize(pickDefaultTick(Number.isFinite(p) && p > 0 ? p : 0.45));
-    // Only when trading pair changes — not on every ticker poll
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [symbol]);
-
-  const spread =
-    bestAsk > 0 && bestBid > 0 ? bestAsk - bestBid : 0;
-  const spreadPct = bestBid > 0 ? ((spread / bestBid) * 100) : 0;
-
-  const maxAskN = useMemo(() => {
-    let m = 1;
-    asks.forEach(([p, q]) => {
-      const t = parseFloat(p) * parseFloat(q);
-      if (t > m) m = t;
-    });
-    return m;
-  }, [asks]);
-
-  const maxBidN = useMemo(() => {
-    let m = 1;
-    bids.forEach(([p, q]) => {
-      const t = parseFloat(p) * parseFloat(q);
-      if (t > m) m = t;
-    });
-    return m;
-  }, [bids]);
 
   const pct = changePct != null && Number.isFinite(Number(changePct)) ? Number(changePct) : null;
   const isUp = pct == null ? true : pct >= 0;
@@ -339,58 +295,35 @@ export default function OrderBook({
   }, []);
 
   return (
-    <div className="order-book-root flex flex-col h-full min-h-0 min-w-0 bg-surface-elevated overflow-hidden">
-      <div className="px-2 pt-2 pb-1.5 border-b border-line flex-shrink-0">
-        <div className="flex items-end gap-1 mb-1">
-          <span className="text-xs font-bold tracking-tight text-emerald-400">Order Book</span>
-          <span className="h-0.5 w-6 rounded-full bg-emerald-400/80 mb-0.5" />
-        </div>
-        <div className="flex items-center justify-between gap-1 mt-1">
-          <div className="flex items-center gap-0.5">
-            <button
-              type="button"
-              title="Bids & asks"
-              onClick={() => setViewMode('all')}
-              className={`p-1 rounded-md transition-colors ${viewMode === 'all' ? 'bg-[#0EA4AB]/25 text-ink-accent' : 'text-[#4A4B50] hover:text-ink-muted'}`}
-            >
-              <Columns2 size={14} />
-            </button>
-            <button
-              type="button"
-              title="Bids only"
-              onClick={() => setViewMode('bids')}
-              className={`p-1 rounded-md transition-colors ${viewMode === 'bids' ? 'bg-[#0EA4AB]/25 text-ink-accent' : 'text-[#4A4B50] hover:text-ink-muted'}`}
-            >
-              <TrendingUp size={14} className="text-green-400" />
-            </button>
-            <button
-              type="button"
-              title="Asks only"
-              onClick={() => setViewMode('asks')}
-              className={`p-1 rounded-md transition-colors ${viewMode === 'asks' ? 'bg-[#0EA4AB]/25 text-ink-accent' : 'text-[#4A4B50] hover:text-ink-muted'}`}
-            >
-              <TrendingDown size={14} className="text-red-400" />
-            </button>
-          </div>
-          <div className="relative" ref={tickRef}>
-            <button
-              type="button"
-              onClick={() => setTickOpen(o => !o)}
-              className="flex items-center gap-0.5 text-[10px] font-mono text-ink-soft bg-surface-card border border-line rounded px-1.5 py-0.5 hover:border-[#0EA4AB]/40 max-w-[104px]"
-            >
+    <div className="order-book-root delta-ob flex flex-col h-full min-h-0 min-w-0 bg-transparent overflow-hidden font-mono">
+      <div className="flex items-center justify-between gap-1.5 px-2.5 h-[32px] shrink-0 border-b border-line">
+        <span className="text-[12px] font-semibold text-ink tracking-tight font-sans">Order Book</span>
+        <div className="flex items-center gap-0.5">
+          <button type="button" title="Bids & asks" onClick={() => setViewMode('all')}
+            className={`inline-flex h-6 w-6 items-center justify-center rounded ${viewMode === 'all' ? 'text-[#FE6C02] bg-[#FE6C02]/15' : 'text-[#4A4B50]'}`}>
+            <Columns2 size={13} strokeWidth={2.2} />
+          </button>
+          <button type="button" title="Bids only" onClick={() => setViewMode('bids')}
+            className={`inline-flex h-6 w-6 items-center justify-center rounded ${viewMode === 'bids' ? 'text-[#FE6C02] bg-[#FE6C02]/15' : 'text-[#4A4B50]'}`}>
+            <TrendingUp size={13} className="text-[#0ECB81]" strokeWidth={2.2} />
+          </button>
+          <button type="button" title="Asks only" onClick={() => setViewMode('asks')}
+            className={`inline-flex h-6 w-6 items-center justify-center rounded ${viewMode === 'asks' ? 'text-[#FE6C02] bg-[#FE6C02]/15' : 'text-[#4A4B50]'}`}>
+            <TrendingDown size={13} className="text-[#F6465D]" strokeWidth={2.2} />
+          </button>
+          <div className="relative ml-0.5" ref={tickRef}>
+            <button type="button" onClick={() => setTickOpen(o => !o)}
+              className="flex h-6 min-w-[3.4rem] items-center justify-between gap-1 rounded border border-line bg-transparent px-1.5 text-[11px] tabular-nums text-ink">
               <span className="truncate">{tickLabel(tickSize)}</span>
-              <ChevronDown size={12} className="text-[#4A4B50] flex-shrink-0" />
+              <ChevronDown size={11} className="text-[#4A4B50] flex-shrink-0" />
             </button>
             {tickOpen && (
-              <ObWheelScroll className="absolute right-0 top-full z-20 mt-1 max-h-40 min-w-[112px] rounded-lg border border-line bg-surface-card shadow-xl">
-                <div className="py-1">
+              <ObWheelScroll className="absolute right-0 top-full z-20 mt-0.5 max-h-40 min-w-[100px] rounded border border-line bg-surface-card shadow-xl">
+                <div className="py-0.5">
                   {TICK_PRESETS.map(t => (
-                    <button
-                      key={t}
-                      type="button"
-                      className={`w-full text-left px-2 py-1 text-[10px] font-mono hover:bg-[#1a2748] ${t === tickSize ? 'text-ink-accent' : 'text-ink-soft'}`}
-                      onClick={() => { setTickSize(t); setTickOpen(false); }}
-                    >
+                    <button key={t} type="button"
+                      className={`w-full text-left px-2.5 py-1 text-[11px] tabular-nums hover:bg-white/5 ${t === tickSize ? 'text-[#FE6C02]' : 'text-ink-soft'}`}
+                      onClick={() => { setTickSize(t); setTickOpen(false); }}>
                       {tickLabel(t)}
                     </button>
                   ))}
@@ -399,94 +332,71 @@ export default function OrderBook({
             )}
           </div>
         </div>
-        <div className="flex items-center justify-between gap-1 mt-1.5 mb-0.5">
-          {DEPTHS.map(d => (
-            <button
-              key={d}
-              type="button"
-              onClick={() => setRows(d)}
-              className={`flex-1 text-[10px] py-0.5 rounded font-mono transition-colors ${
-                rows === d ? 'bg-[#0EA4AB]/30 text-ink-accent border border-[#0EA4AB]/50' : 'text-[#4A4B50] border border-transparent hover:text-ink-muted'
-              }`}
-            >
-              {d}
-            </button>
-          ))}
-        </div>
       </div>
 
-      <div className="flex justify-between px-2 py-1 text-[9px] text-[#4A4B50] flex-shrink-0 uppercase tracking-wide">
-        <span className="w-[34%]">Price(USDT)</span>
-        <span className="w-[32%] text-center">Qty({base})</span>
-        <span className="w-[34%] text-right">Total(USDT)</span>
+      <div className="flex items-center px-2.5 h-[24px] text-[10px] text-[#4A4B50] shrink-0 border-b border-line font-sans">
+        <span className="w-[36%]">Price (USD)</span>
+        <span className="w-[30%] text-right">Size ({base})</span>
+        <span className="w-[34%] text-right">Total ({base})</span>
       </div>
 
       {loading ? (
         <div className="flex-1 flex items-center justify-center">
-          <div className="w-6 h-6 border-2 border-[#0EA4AB] border-t-transparent rounded-full animate-spin" />
+          <div className="w-5 h-5 border-2 border-[#FE6C02]/60 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : loadError ? (
-        <div className="flex-1 flex flex-col items-center justify-center px-2 py-6 gap-2 text-center">
-          <span className="text-[11px] text-red-400/95 leading-snug">{loadError}</span>
-          <span className="text-[9px] text-[#4A4B50] leading-snug">
-            The order book is loaded from your backend. Start the API (e.g. port 8000) and set REACT_APP_BACKEND_URL if it is not localhost.
-          </span>
+        <div className="flex-1 flex flex-col items-center justify-center px-2 py-5 gap-1.5 text-center">
+          <span className="text-[11px] text-[#F6465D]">{loadError}</span>
         </div>
       ) : (
-        <div className="flex-1 min-h-0 flex flex-col">
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
           {viewMode !== 'bids' && (
             <ObWheelScroll
               key={`ob-asks-${symbol}`}
               className={cn('min-h-0 w-full', viewMode === 'asks' && 'flex-1')}
-              style={viewMode === 'all' ? { maxHeight: '42%' } : undefined}
+              style={viewMode === 'all' ? { maxHeight: '42%', flex: '1 1 0' } : undefined}
             >
               {asks.length === 0 ? (
-                <div className="px-2 py-4 text-center text-[10px] text-[#4A4B50]">No asks</div>
+                <div className="px-2 py-3 text-center text-[10px] text-[#4A4B50] font-sans">No asks</div>
               ) : (
-                asks.map(([p, q]) => {
-                  const price = parseFloat(p);
-                  const qty = parseFloat(q);
-                  const total = price * qty;
-                  const depthPct = maxAskN > 0 ? (total / maxAskN) * 100 : 0;
-                  const pk = price;
-                  return (
-                    <Row
-                      key={`ask-${pk}`}
-                      price={pk}
-                      qty={qty}
-                      side="ask"
-                      depthPct={depthPct}
-                      tickSize={tickSize}
-                      onPriceClick={onPriceClick}
-                      total={total}
-                    />
-                  );
-                })
+                asks.map(([p, q], i) => (
+                  <Row
+                    key={`ask-${p}`}
+                    price={p}
+                    qty={q}
+                    side="ask"
+                    cumSize={askCumSizes[i] || 0}
+                    maxCum={maxCum}
+                    tickSize={tickSize}
+                    onPriceClick={onPriceClick}
+                  />
+                ))
               )}
             </ObWheelScroll>
           )}
 
           <div
-            className="order-book-mid flex items-center justify-between px-2 py-1.5 border-y border-line bg-surface-card flex-shrink-0 cursor-pointer outline-none transition-colors hover:bg-surface-soft"
+            className="flex h-[30px] items-center justify-between gap-2 px-2.5 border-y border-line flex-shrink-0 cursor-pointer hover:bg-white/[0.03]"
             onMouseDown={e => e.preventDefault()}
             onClick={() => onPriceClick?.(fmtPrice(mid, tickSize))}
             role="button"
             tabIndex={-1}
-            onKeyDown={e => { if (e.key === 'Enter') onPriceClick?.(fmtPrice(mid, tickSize)); }}
           >
-            <span className={`text-sm font-bold font-mono tabular-nums ${isUp ? 'text-green-400' : 'text-red-400'}`}>
-              {fmtPrice(mid, tickSize)}
+            <span className={`text-[15px] font-bold font-mono tabular-nums leading-none ${
+              isUp ? 'text-[#0ECB81]' : 'text-[#F6465D]'
+            }`}>
+              {mid > 0 ? fmtPrice(mid, tickSize) : '—'}
             </span>
-            <div className="flex items-center gap-1">
-              {isUp ? <TrendingUp size={14} className="text-green-400" /> : <TrendingDown size={14} className="text-red-400" />}
-              {pct != null && (
-                <span className={`text-[10px] font-semibold font-mono ${isUp ? 'text-green-400' : 'text-red-400'}`}>
-                  {isUp ? '+' : ''}{pct.toFixed(2)}%
-                </span>
-              )}
-            </div>
-            <span className="text-[9px] text-[#4A4B50] font-mono">
-              Spr {spread > 0 ? fmtPrice(spread, tickSize) : '—'} ({spreadPct.toFixed(3)}%)
+            <span className="flex items-center gap-1.5 min-w-0">
+              <span className="font-mono text-[12px] tabular-nums text-ink-muted">
+                {markPx > 0 ? fmtPrice(markPx, tickSize) : '—'}
+              </span>
+              <span
+                className="inline-flex h-4 min-w-[1rem] items-center justify-center rounded px-1 text-[9px] font-bold text-[#4A4B50] border border-line font-sans"
+                title="Mark"
+              >
+                M
+              </span>
             </span>
           </div>
 
@@ -494,46 +404,28 @@ export default function OrderBook({
             <ObWheelScroll
               key={`ob-bids-${symbol}`}
               className={cn('min-h-0 w-full', viewMode === 'bids' && 'flex-1')}
-              style={viewMode === 'all' ? { maxHeight: '42%' } : undefined}
+              style={viewMode === 'all' ? { maxHeight: '42%', flex: '1 1 0' } : undefined}
             >
               {bids.length === 0 ? (
-                <div className="px-2 py-4 text-center text-[10px] text-[#4A4B50]">No bids</div>
+                <div className="px-2 py-3 text-center text-[10px] text-[#4A4B50] font-sans">No bids</div>
               ) : (
-                bids.map(([p, q]) => {
-                  const price = parseFloat(p);
-                  const qty = parseFloat(q);
-                  const total = price * qty;
-                  const depthPct = maxBidN > 0 ? (total / maxBidN) * 100 : 0;
-                  const pk = price;
-                  return (
-                    <Row
-                      key={`bid-${pk}`}
-                      price={pk}
-                      qty={qty}
-                      side="bid"
-                      depthPct={depthPct}
-                      tickSize={tickSize}
-                      onPriceClick={onPriceClick}
-                      total={total}
-                    />
-                  );
-                })
+                bids.map(([p, q], i) => (
+                  <Row
+                    key={`bid-${p}`}
+                    price={p}
+                    qty={q}
+                    side="bid"
+                    cumSize={bidCumSizes[i] || 0}
+                    maxCum={maxCum}
+                    tickSize={tickSize}
+                    onPriceClick={onPriceClick}
+                  />
+                ))
               )}
             </ObWheelScroll>
           )}
         </div>
       )}
-
-      <div className="flex items-center gap-1.5 px-2 py-1 border-t border-line bg-surface flex-shrink-0">
-        <span className="text-[10px] font-semibold text-ink-soft">{base}</span>
-        {pct != null ? (
-          <span className={`text-[10px] font-mono font-semibold ${isUp ? 'text-green-400' : 'text-red-400'}`}>
-            {isUp ? '+' : ''}{pct.toFixed(2)}%
-          </span>
-        ) : (
-          <span className="text-[10px] text-[#4A4B50]">—</span>
-        )}
-      </div>
     </div>
   );
 }

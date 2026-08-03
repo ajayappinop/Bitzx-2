@@ -216,8 +216,8 @@ export default function InrWithdrawPage() {
     if (amt > maxWithdrawInr + 0.01) {
       if (iboBlocksMax) {
         setErr(
-          `Amount exceeds what your available IBO can sell (${fmtInr(maxWithdrawInr)} max; `
-          + `${iboAvailable.toLocaleString('en-IN', { maximumFractionDigits: 8 })} IBO free)`,
+          `Amount exceeds what your available Delta can sell (${fmtInr(maxWithdrawInr)} max; `
+          + `${iboAvailable.toLocaleString('en-IN', { maximumFractionDigits: 8 })} Delta free)`,
         );
       } else {
         setErr(`Amount exceeds your limit (${fmtInr(maxWithdrawInr)} remaining)`);
@@ -230,7 +230,7 @@ export default function InrWithdrawPage() {
       && previewIbo > iboAvailable + 1e-8
     ) {
       setErr(
-        `This amount needs ${previewIbo.toLocaleString('en-IN', { maximumFractionDigits: 8 })} IBO `
+        `This amount needs ${previewIbo.toLocaleString('en-IN', { maximumFractionDigits: 8 })} Delta `
         + `but only ${iboAvailable.toLocaleString('en-IN', { maximumFractionDigits: 8 })} is available.`,
       );
       return;
@@ -356,10 +356,10 @@ export default function InrWithdrawPage() {
         <div className="mb-8">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-3">
             <IndianRupee className="text-gold-light" size={32} />
-            Sell IBO · Receive INR
+            Sell Delta · Receive INR
           </h1>
           <p className="text-white/55 mt-2 max-w-2xl text-sm sm:text-base">
-            Sell IBO for rupees paid to your bank or UPI. This is not an on-chain withdrawal.
+            Sell Delta for rupees paid to your bank or UPI. This is not an on-chain withdrawal.
             Payout details are saved after your first setup.
           </p>
         </div>
@@ -512,7 +512,7 @@ export default function InrWithdrawPage() {
                     {iboBlocksMax && (
                       <>
                         {' '}
-                        (deposit limit {fmtInr(eligibility.available_inr_limit)}; capped by available IBO)
+                        (deposit limit {fmtInr(eligibility.available_inr_limit)}; capped by available Delta)
                       </>
                     )}
                   </p>
@@ -522,7 +522,7 @@ export default function InrWithdrawPage() {
                   <p className="text-xs text-white/50 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2">
                     At the current rate, about{' '}
                     <span className="text-white/80 font-mono">
-                      {previewIbo.toLocaleString('en-IN', { maximumFractionDigits: 8 })} IBO
+                      {previewIbo.toLocaleString('en-IN', { maximumFractionDigits: 8 })} Delta
                     </span>
                     {' '}will be reserved for this payout until it is completed or cancelled.
                   </p>
@@ -553,7 +553,7 @@ export default function InrWithdrawPage() {
                     <dd className="text-white font-mono">{fmtInr(eligibility.available_inr_limit)}</dd>
                   </div>
                   <div className="flex justify-between gap-2">
-                    <dt className="text-white/50">IBO available to sell</dt>
+                    <dt className="text-white/50">Delta available to sell</dt>
                     <dd className="text-white font-mono">
                       {Number.isFinite(iboAvailable)
                         ? iboAvailable.toLocaleString('en-IN', { maximumFractionDigits: 8 })

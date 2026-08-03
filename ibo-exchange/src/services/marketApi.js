@@ -21,7 +21,7 @@ const IBO_HIGH   = 0.4812;
 const IBO_LOW    = 0.4156;
 const IBO_VOL    = 7_284_521;
 
-// ── Supported pairs (must match backend SYMBOL_BASE_MAP / BINANCE_USDT_PAIRS + IBO) ──
+// ── Supported pairs (must match backend SYMBOL_BASE_MAP / BINANCE_USDT_PAIRS + Delta) ──
 export const PAIRS = [
   { symbol: 'IBOUSDT',  base: 'IBO',  quote: 'USDT', source: 'internal' },
   { symbol: 'BTCUSDT',  base: 'BTC',  quote: 'USDT', source: 'binance'  },
@@ -36,7 +36,7 @@ export const PAIRS = [
   { symbol: 'DOTUSDT',  base: 'DOT',  quote: 'USDT', source: 'binance'  },
   { symbol: 'LINKUSDT', base: 'LINK', quote: 'USDT', source: 'binance'  },
   { symbol: 'LTCUSDT',  base: 'LTC',  quote: 'USDT', source: 'binance'  },
-  // IBO-quoted pairs
+  // Delta-quoted pairs
   { symbol: 'BTCIBO',  base: 'BTC',  quote: 'IBO',  source: 'internal' },
   { symbol: 'ETHIBO',  base: 'ETH',  quote: 'IBO',  source: 'internal' },
   { symbol: 'BNBIBO',  base: 'BNB',  quote: 'IBO',  source: 'internal' },
@@ -79,7 +79,7 @@ export const COIN_ICONS = {
   BUSD: 'https://assets.coingecko.com/coins/images/9576/small/BUSD.png',
 };
 
-/** Backend wire symbol for the internal IBO pair. */
+/** Backend wire symbol for the internal Delta pair. */
 export const INTERNAL_SPOT_SYMBOL = 'IBOUSDT';
 
 /** Core pairs pre-seeded by the mock engine at startup (matches backend bootstrap). */
@@ -88,7 +88,7 @@ export const IBO_MOCK_MARKET_SYMBOLS = new Set([
   ...PAIRS.filter((p) => p.quote === 'IBO').map((p) => p.symbol),
 ]);
 
-/** Chart / depth / tape use the IBO mock engine for IBOUSDT and every *IBO pair (incl. Web3 catalog). */
+/** Chart / depth / tape use the Delta mock engine for IBOUSDT and every *Delta pair (incl. Web3 catalog). */
 export function isIboMockMarketSymbol(sym) {
   const upper = String(sym || '').trim().toUpperCase();
   if (upper === 'IBOUSDT') return true;
@@ -122,7 +122,7 @@ export function apiSymbolFromRouteParam(param) {
 
 const SPOT_SYMBOL_SET = new Set(PAIRS.map((p) => p.symbol));
 
-/** IBO-quoted pair from route, e.g. USDDIBO (includes dynamic Web3 catalog pairs). */
+/** Delta-quoted pair from route, e.g. USDDIBO (includes dynamic Web3 catalog pairs). */
 export function isIboQuotedRouteSymbol(param) {
   const upper = apiSymbolFromRouteParam(param);
   return Boolean(upper && /^[A-Z0-9]{2,12}IBO$/.test(upper) && upper !== 'IBOIBO');
@@ -159,7 +159,7 @@ export function tradePathForApiSymbol(apiSym) {
   return String(apiSym || '').toUpperCase();
 }
 
-/** Parse API wire symbol → { symbol, base, quote } (static PAIRS + dynamic *IBO). */
+/** Parse API wire symbol → { symbol, base, quote } (static PAIRS + dynamic *Delta). */
 export function parsePairFromApiSymbol(apiSym) {
   const s = String(apiSym || '').toUpperCase();
   const row = PAIRS.find((x) => x.symbol === s);
@@ -173,9 +173,16 @@ export function parsePairFromApiSymbol(apiSym) {
   return { symbol: s, base: s.replace(/USDT$/, ''), quote: 'USDT' };
 }
 
-/** UI base ticker for an API pair symbol (e.g. DOTIBO → DOT, IBOUSDT → IBO). */
+/** UI label for wire asset codes (IBO still used in API/routes). */
+export function displayAssetCode(asset) {
+  const u = String(asset || '').toUpperCase();
+  if (u === 'IBO') return 'Delta';
+  return asset == null || asset === '' ? '' : String(asset);
+}
+
+/** UI base ticker for an API pair symbol (e.g. DOTIBO → DOT, IBOUSDT → Delta). */
 export function displayBaseForApiSymbol(apiSym) {
-  return parsePairFromApiSymbol(apiSym).base;
+  return displayAssetCode(parsePairFromApiSymbol(apiSym).base);
 }
 
 /** Quote asset for an API pair symbol (e.g. DOTIBO → IBO, BTCUSDT → USDT). */
@@ -183,15 +190,15 @@ export function quoteForApiSymbol(apiSym) {
   return parsePairFromApiSymbol(apiSym).quote;
 }
 
-/** `IBOUSDT` → `IBO/USDT`, `DOTIBO` → `DOT/IBO` for header, tables, order rows. */
+/** `IBOUSDT` → `Delta/USDT`, `DOTIBO` → `DOT/Delta` for header, tables, order rows. */
 export function displayPairSlash(apiSymbol) {
   const { base, quote } = parsePairFromApiSymbol(apiSymbol);
-  return `${base}/${quote}`;
+  return `${displayAssetCode(base)}/${displayAssetCode(quote)}`;
 }
 
-/** Wallet / balance row: returns the asset label (identity for ibo). */
+/** Wallet / balance row: wire IBO shown as Delta. */
 export function walletAssetLabel(asset) {
-  return asset;
+  return displayAssetCode(asset);
 }
 
 export function tradeHrefForWalletAsset(asset) {
@@ -269,19 +276,19 @@ export function normalizeMarketsList(raw) {
   return raw.map(normalizeMarketRow).filter(Boolean);
 }
 
-/** WebSocket path for IBO market streams. */
+/** WebSocket path for Delta market streams. */
 export function iboWsPath(pathWithQuery) {
   return exchangeWsPath(pathWithQuery);
 }
 
 export const marketApi = {
-  /** All markets — single backend call (IBO + Binance batch server-side) */
+  /** All markets — single backend call (Delta + Binance batch server-side) */
   async getMarkets() {
     const raw = await safeFetch(`${BACKEND}/api/trading/markets`, null);
     return normalizeMarketsList(raw);
   },
 
-  /** Paginated IBO-quoted markets. Params: skip, limit, tier, q */
+  /** Paginated Delta-quoted markets. Params: skip, limit, tier, q */
   async getIBOMarkets(params = {}) {
     const q = new URLSearchParams({
       skip: String(params.skip ?? 0),
@@ -297,7 +304,7 @@ export const marketApi = {
     return { markets: [], total: 0 };
   },
 
-  /** Full IBO catalog (majors + all Web3), paginated until complete. */
+  /** Full Delta catalog (majors + all Web3), paginated until complete. */
   async fetchAllIboMarkets() {
     const PAGE = 80;
     const seen = new Set();

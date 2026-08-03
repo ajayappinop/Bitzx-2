@@ -49,7 +49,7 @@ export default function LeverageSelector({ symbol, max, compact = false }) {
           disabled={busy}
           onClick={() => setOpen((o) => !o)}
           className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-[color:var(--ibo-border-solid)]
-            bg-[color:var(--ibo-card)] text-[12px] font-bold text-[#C5E35B] hover:border-[#C5E35B]/40"
+            bg-[color:var(--ibo-card)] text-[12px] font-bold text-[#FE6C02] hover:border-[#FE6C02]/40"
         >
           {value}x
           <ChevronDown size={12} className={open ? 'rotate-180' : ''} />
@@ -63,7 +63,7 @@ export default function LeverageSelector({ symbol, max, compact = false }) {
                 disabled={busy}
                 onClick={() => apply(l)}
                 className={`w-full px-3 py-1.5 text-left text-[12px] font-mono ${
-                  value === l ? 'text-[#C5E35B] bg-[#C5E35B]/10' : 'text-[color:var(--ibo-ink)] hover:bg-white/5'
+                  value === l ? 'text-[#FE6C02] bg-[#FE6C02]/10' : 'text-[color:var(--ibo-ink)] hover:bg-white/5'
                 }`}
               >
                 {l}x
@@ -102,7 +102,7 @@ export default function LeverageSelector({ symbol, max, compact = false }) {
             onClick={() => apply(l)}
             className={`px-2 py-1 rounded text-xs font-mono ${
               value === l
-                ? 'bg-[rgba(197,227,91,0.2)] text-[#C5E35B] border border-[rgba(197,227,91,0.4)]'
+                ? 'bg-[rgba(254, 108, 2,0.2)] text-[#FE6C02] border border-[rgba(254, 108, 2,0.4)]'
                 : 'bg-[color:var(--ibo-elevated)] text-[color:var(--ibo-muted)] hover:bg-[color:var(--ibo-hover)]'
             }`}
           >

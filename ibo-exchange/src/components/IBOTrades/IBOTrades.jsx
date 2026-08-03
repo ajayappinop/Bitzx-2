@@ -36,7 +36,7 @@ export default function IBOTrades({ trades, loading, hideHeader = false }) {
   }, [rows.length, topTs]);
 
   return (
-    <div className="flex flex-col h-full bg-[color:var(--ibo-surface)] select-none min-h-0">
+    <div className="flex flex-col h-full bg-transparent select-none min-h-0">
       {!hideHeader ? (
         <div className="px-3 py-2 border-b border-[color:var(--ibo-border)] text-[12px] font-semibold text-[color:var(--ibo-ink)] shrink-0">
           Recent Trades
@@ -51,7 +51,7 @@ export default function IBOTrades({ trades, loading, hideHeader = false }) {
       <div ref={boxRef} className="flex-1 overflow-y-auto order-book-scroll min-h-0 scrollbar-hide">
         {loading && rows.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full gap-2 py-8">
-            <Loader2 className="w-5 h-5 text-[#C5E35B] animate-spin" />
+            <Loader2 className="w-5 h-5 text-[#00A876] animate-spin" />
             <span className="text-[11px] text-[color:var(--ibo-muted)]">Loading trades...</span>
           </div>
         ) : rows.length === 0 ? (

@@ -6,9 +6,8 @@ import { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Clock, Globe, X as XIcon, Send, Star } from 'lucide-react';
 
-import { BRAND_LOGO } from '@/lib/brandAssets';
+import BrandLogo from '@/components/ui/BrandLogo';
 
-const LOGO  = BRAND_LOGO;
 const TOKEN = import.meta.env.VITE_TOKEN_URL || 'https://ibo.io';
 
 // ── Countdown helpers ─────────────────────────────────────────────────────────
@@ -101,11 +100,11 @@ export default function ComingSoonPage({ message, launchDate }) {
       {/* Radial glow background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full"
-          style={{ background: 'radial-gradient(circle, rgba(14,164,171,0.12) 0%, transparent 70%)' }} />
+          style={{ background: 'radial-gradient(circle, rgba(254, 108, 2,0.12) 0%, transparent 70%)' }} />
         <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-30"
-          style={{ background: 'radial-gradient(circle, rgba(197,227,91,0.12) 0%, transparent 70%)' }} />
+          style={{ background: 'radial-gradient(circle, rgba(0, 168, 118,0.12) 0%, transparent 70%)' }} />
         <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full opacity-25"
-          style={{ background: 'radial-gradient(circle, rgba(27,95,255,0.12) 0%, transparent 70%)' }} />
+          style={{ background: 'radial-gradient(circle, rgba(180, 77, 1,0.12) 0%, transparent 70%)' }} />
       </div>
 
       <Particles />
@@ -129,8 +128,8 @@ export default function ComingSoonPage({ message, launchDate }) {
           className="mb-8"
         >
           <div className="relative inline-flex">
-            <div className="absolute inset-0 rounded-full blur-2xl bg-[#0ea4ab]/25 scale-150 opacity-50" />
-            <img src={LOGO} alt="IBO Exchange" className="relative h-14 sm:h-16 w-auto max-w-[240px] object-contain" style={{ background: 'transparent' }} />
+            <div className="absolute inset-0 rounded-full blur-2xl bg-[#FE6C02]/25 scale-150 opacity-50" />
+            <BrandLogo alt="Exchange" className="relative h-14 sm:h-16 w-auto max-w-[240px] object-contain" />
           </div>
         </motion.div>
 
@@ -155,7 +154,7 @@ export default function ComingSoonPage({ message, launchDate }) {
           transition={{ delay: 0.25 }}
           className="font-display text-4xl sm:text-6xl font-extrabold text-white mb-4 leading-tight tracking-tight"
         >
-          IBO Exchange
+          Delta Exchange
           <br />
           <span className="bg-gradient-to-r from-gold-light via-gold to-gold-light bg-clip-text text-transparent">
             Coming Soon
@@ -169,7 +168,7 @@ export default function ComingSoonPage({ message, launchDate }) {
           transition={{ delay: 0.32 }}
           className="text-base sm:text-lg text-white/65 max-w-lg leading-relaxed mb-10"
         >
-          {message || 'The next-generation crypto exchange powered by $IBO is almost here. Join the waitlist and be the first to trade.'}
+          {message || 'The next-generation crypto exchange powered by $DELTA is almost here. Join the waitlist and be the first to trade.'}
         </motion.p>
 
         {/* Countdown (only when launch date is provided) */}
@@ -221,7 +220,7 @@ export default function ComingSoonPage({ message, launchDate }) {
           transition={{ delay: 0.5 }}
           className="flex flex-wrap justify-center gap-2 mb-10"
         >
-          {['Spot Trading', 'IBO Markets', 'Futures', 'P2P', 'Low Fees', 'Secure'].map((f) => (
+          {['Spot Trading', 'Delta Markets', 'Futures', 'P2P', 'Low Fees', 'Secure'].map((f) => (
             <span key={f} className="px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.04] text-xs font-semibold text-white/60">
               {f}
             </span>
@@ -236,8 +235,8 @@ export default function ComingSoonPage({ message, launchDate }) {
           className="flex flex-wrap items-center justify-center gap-3"
         >
           <a href={TOKEN} target="_blank" rel="noopener noreferrer"
-            className="ibo-btn-primary px-6 py-3 shadow-[0_16px_40px_rgba(197,227,91,0.2)]">
-            <Globe size={16} /> Visit IBO.io
+            className="ibo-btn-primary px-6 py-3 shadow-[0_16px_40px_rgba(0, 168, 118,0.2)]">
+            <Globe size={16} /> Visit Delta.io
           </a>
           <a href="https://twitter.com/iboofficial" target="_blank" rel="noopener noreferrer"
             className="ibo-btn-secondary">
@@ -256,7 +255,7 @@ export default function ComingSoonPage({ message, launchDate }) {
           transition={{ delay: 0.65 }}
           className="mt-12 text-xs text-white/25"
         >
-          © {new Date().getFullYear()} IBO Exchange · Powered by $IBO on BNB Chain
+          © {new Date().getFullYear()} Delta Exchange · Powered by $DELTA on BNB Chain
         </motion.p>
       </motion.div>
     </div>

@@ -1,4 +1,4 @@
-/** Client-side IBO ↔ USDT swap preview (mirrors backend/services/ibo_swap.py). */
+/** Client-side Delta ↔ USDT swap preview (mirrors backend/services/ibo_swap.py). */
 
 export function swapUsdtNotional(direction, fromAmount, priceUsdt) {
   const px = Math.max(Number(priceUsdt) || 0, 1e-12);

@@ -55,10 +55,10 @@ const tableOfContents = [
   { id: 'executive-summary', title: '1. Executive Summary', icon: FileText },
   { id: 'vision-mission', title: '2. Vision & Mission', icon: Target },
   { id: 'problem', title: '3. Problem Statement', icon: Lightbulb },
-  { id: 'solution', title: '4. The IBO Solution', icon: Rocket },
+  { id: 'solution', title: '4. The Delta Solution', icon: Rocket },
   { id: 'tokenomics', title: '5. Tokenomics', icon: Coins },
   { id: 'utility', title: '6. Token Utility', icon: Zap },
-  { id: 'exchange', title: '7. IBO Exchange', icon: Building },
+  { id: 'exchange', title: '7. Delta Exchange', icon: Building },
   { id: 'roadmap', title: '8. Roadmap', icon: Map },
   { id: 'security', title: '9. Security & Compliance', icon: Shield },
   { id: 'governance', title: '10. Governance', icon: Users },
@@ -104,7 +104,7 @@ const roadmapPhases = [
     title: 'Exchange Live',
     period: '2026',
     status: 'completed',
-    items: [`IBO Exchange live at ${EXCHANGE_URL_LABEL}`, 'Spot trading & professional charts', 'KYC/AML integration', 'INR deposit & payout flows', 'Advanced trading features']
+    items: [`Delta Exchange live at ${EXCHANGE_URL_LABEL}`, 'Spot trading & professional charts', 'KYC/AML integration', 'INR deposit & payout flows', 'Advanced trading features']
   },
   {
     phase: 'Phase 5',
@@ -342,14 +342,14 @@ export const WhitepaperPage = () => {
     return `
       ${pdfPage(`
         <div style="text-align:center;padding:48px 12px 24px 12px;">
-          <div style="font-size:42px;font-weight:800;letter-spacing:3px;margin-bottom:6px;color:${textPrimary};">IBO</div>
+          <div style="font-size:42px;font-weight:800;letter-spacing:3px;margin-bottom:6px;color:${textPrimary};">Delta</div>
           <div style="font-size:24px;font-weight:300;color:${textBody};margin-bottom:8px;">Whitepaper</div>
           <div style="font-size:12px;color:${lightGold};font-weight:600;margin-bottom:6px;">Version 1.0 &nbsp;|&nbsp; March 2026</div>
           <p style="font-size:11px;color:${textMuted};max-width:460px;margin:12px auto 0 auto;line-height:1.7;">
-            The comprehensive guide to the IBO ecosystem, tokenomics, and our vision for building the next generation of cryptocurrency infrastructure.
+            The comprehensive guide to the Delta ecosystem, tokenomics, and our vision for building the next generation of cryptocurrency infrastructure.
           </p>
           ${statRow([
-            ['Total Supply', '900 Million', '$IBO Tokens'],
+            ['Total Supply', '900 Million', '$DELTA Tokens'],
             ['Network', 'BNB Chain', 'BEP-20 Standard'],
             ['Launch', 'Q1 2026', 'PancakeSwap'],
           ])}
@@ -370,10 +370,10 @@ export const WhitepaperPage = () => {
 
       ${pdfPage(card(`
         ${sectionHeader('1', 'Executive Summary')}
-        ${para(`IBO ($IBO) represents a paradigm shift in the cryptocurrency ecosystem, serving as the foundational utility token for an ambitious project that seamlessly bridges decentralized and centralized finance. Built on the BNB Smart Chain (BEP-20), IBO is engineered to create a comprehensive crypto ecosystem centered around our flagship product: <strong style="color:${lightGold}">IBO Exchange</strong>.`)}
-        ${para('Unlike countless tokens that rely solely on speculation and hype, IBO is designed with tangible utility at its core. Every token serves a purpose within our expanding ecosystem, from trading fee discounts to governance participation, staking rewards to exclusive access privileges.')}
+        ${para(`Delta ($DELTA) represents a paradigm shift in the cryptocurrency ecosystem, serving as the foundational utility token for an ambitious project that seamlessly bridges decentralized and centralized finance. Built on the BNB Smart Chain (BEP-20), Delta is engineered to create a comprehensive crypto ecosystem centered around our flagship product: <strong style="color:${lightGold}">Delta Exchange</strong>.`)}
+        ${para('Unlike countless tokens that rely solely on speculation and hype, Delta is designed with tangible utility at its core. Every token serves a purpose within our expanding ecosystem, from trading fee discounts to governance participation, staking rewards to exclusive access privileges.')}
         ${statRow([
-          ['Total Supply', '900 Million', '$IBO Tokens'],
+          ['Total Supply', '900 Million', '$DELTA Tokens'],
           ['Network', 'BNB Chain', 'BEP-20 Standard'],
           ['Launch', 'Q1 2026', 'PancakeSwap'],
         ])}
@@ -410,11 +410,11 @@ export const WhitepaperPage = () => {
       `))}
 
       ${pdfPage(card(`
-        ${sectionHeader('4', 'The IBO Solution')}
-        ${para('IBO addresses these challenges by building a unified ecosystem that combines the best aspects of decentralized and centralized finance. Our solution is built on four foundational pillars:')}
+        ${sectionHeader('4', 'The Delta Solution')}
+        ${para('Delta addresses these challenges by building a unified ecosystem that combines the best aspects of decentralized and centralized finance. Our solution is built on four foundational pillars:')}
         ${twoCol([
-          ['IBO Token ($IBO)', 'The native utility token powering all ecosystem transactions, governance, and rewards. Built on BNB Chain for speed and efficiency.'],
-          ['IBO Exchange', 'A next-generation centralized exchange offering spot trading, advanced charting, and institutional-grade security.'],
+          ['Delta Token ($DELTA)', 'The native utility token powering all ecosystem transactions, governance, and rewards. Built on BNB Chain for speed and efficiency.'],
+          ['Delta Exchange', 'A next-generation centralized exchange offering spot trading, advanced charting, and institutional-grade security.'],
           ['Staking & Rewards', 'Comprehensive staking programs allowing holders to earn passive income while supporting network security.'],
           ['Global Ecosystem', 'Cross-chain integration, launchpad access, and partnerships creating a comprehensive crypto ecosystem.'],
         ])}
@@ -424,8 +424,8 @@ export const WhitepaperPage = () => {
         ${sectionHeader('5', 'Tokenomics')}
         <table style="width:100%;border-collapse:separate;border-spacing:6px 0;margin:0 0 14px 0;"><tr>
           ${[
-            ['Token Name', 'IBO', ''],
-            ['Symbol', '$IBO', ''],
+            ['Token Name', 'Delta', ''],
+            ['Symbol', '$DELTA', ''],
             ['Total Supply', '90,00,00,000', ''],
             ['Network', 'BNB Chain', 'BEP-20'],
           ]
@@ -454,7 +454,7 @@ export const WhitepaperPage = () => {
                   </td>
                   <td style="padding:10px 12px 10px 0;text-align:right;vertical-align:middle;white-space:nowrap;">
                     <div style="font-size:13px;font-weight:700;color:${lightGold};">${item.percentage}%</div>
-                    <div style="font-size:9px;color:${textDim};">${item.tokens} IBO</div>
+                    <div style="font-size:9px;color:${textDim};">${item.tokens} Delta</div>
                   </td>
                 </tr>
               </table>`
@@ -464,22 +464,22 @@ export const WhitepaperPage = () => {
 
       ${pdfPage(card(`
         ${sectionHeader('6', 'Token Utility')}
-        ${para('$IBO is designed to be the cornerstone of the IBO ecosystem, providing multiple use cases that create sustainable demand and value for token holders:')}
+        ${para('$DELTA is designed to be the cornerstone of the Delta ecosystem, providing multiple use cases that create sustainable demand and value for token holders:')}
         ${[
-          ['Trading Fee Discounts', 'Hold $IBO to unlock tiered discounts on trading fees across IBO Exchange, with up to 50% reduction for top-tier holders.'],
+          ['Trading Fee Discounts', 'Hold $DELTA to unlock tiered discounts on trading fees across Delta Exchange, with up to 50% reduction for top-tier holders.'],
           ['VIP Membership', 'Access exclusive VIP tiers with premium benefits including priority support, early feature access, and exclusive trading pairs.'],
-          ['Staking Rewards', 'Earn passive income by staking your $IBO tokens in our secure staking pools with competitive APY rates.'],
-          ['Governance Rights', 'Participate in key decisions shaping the future of the IBO ecosystem through our decentralized governance system.'],
-          ['Launchpad Access', 'Get exclusive early access to vetted token launches and IDO opportunities on the IBO Launchpad.'],
-          ['Referral Rewards', 'Earn $IBO rewards for every successful referral to our ecosystem, creating additional passive income streams.'],
+          ['Staking Rewards', 'Earn passive income by staking your $DELTA tokens in our secure staking pools with competitive APY rates.'],
+          ['Governance Rights', 'Participate in key decisions shaping the future of the Delta ecosystem through our decentralized governance system.'],
+          ['Launchpad Access', 'Get exclusive early access to vetted token launches and IDO opportunities on the Delta Launchpad.'],
+          ['Referral Rewards', 'Earn $DELTA rewards for every successful referral to our ecosystem, creating additional passive income streams.'],
         ]
           .map(([t, d]) => featureBox(t, d))
           .join('')}
       `))}
 
       ${pdfPage(card(`
-        ${sectionHeader('7', 'IBO Exchange')}
-        ${para(`IBO Exchange is the project's live flagship product â€” a centralized cryptocurrency exchange for both beginners and professional traders. Trade at ${EXCHANGE_URL_LABEL} with spot markets, professional charts, secure wallets, and INR flows for eligible Indian users.`)}
+        ${sectionHeader('7', 'Delta Exchange')}
+        ${para(`Delta Exchange is the project's live flagship product â€” a centralized cryptocurrency exchange for both beginners and professional traders. Trade at ${EXCHANGE_URL_LABEL} with spot markets, professional charts, secure wallets, and INR flows for eligible Indian users.`)}
         <div style="background:rgba(14,164,171,0.1);border:1px solid rgba(14,164,171,0.3);border-radius:10px;padding:10px 14px;margin:10px 0 14px 0;">
           <span style="font-size:12px;font-weight:600;color:${lightGold};">Live now: ${EXCHANGE_URL_LABEL}</span>
         </div>
@@ -524,7 +524,7 @@ export const WhitepaperPage = () => {
 
       ${pdfPage(card(`
         ${sectionHeader('9', 'Security & Compliance')}
-        ${para('Security is the foundation of everything we build. IBO implements multiple layers of protection to ensure the safety of user assets and data.')}
+        ${para('Security is the foundation of everything we build. Delta implements multiple layers of protection to ensure the safety of user assets and data.')}
         ${twoCol([
           ['Smart Contract Audits', 'Independent audit reports should be published publicly once completed and officially available.'],
           ['Asset Security Model', 'Cold storage, wallet controls, and custody architecture are implemented across the live exchange platform.'],
@@ -537,7 +537,7 @@ export const WhitepaperPage = () => {
 
       ${pdfPage(card(`
         ${sectionHeader('10', 'Governance')}
-        ${para('IBO is committed to progressive decentralization. As the ecosystem matures, governance will transition to a DAO (Decentralized Autonomous Organization) structure, giving $IBO holders direct influence over key decisions.')}
+        ${para('Delta is committed to progressive decentralization. As the ecosystem matures, governance will transition to a DAO (Decentralized Autonomous Organization) structure, giving $DELTA holders direct influence over key decisions.')}
         ${subHeading('Governance Scope')}
         <div style="background:${bg};border:1px solid ${border};border-radius:10px;padding:14px 16px;">
           ${[
@@ -555,8 +555,8 @@ export const WhitepaperPage = () => {
       ${pdfPage(card(
         `
         ${sectionHeader('11', 'Conclusion')}
-        ${para("IBO represents more than just a token â€” it's the foundation of a comprehensive crypto ecosystem designed to empower users and drive innovation in the digital asset space. With a clear vision, strong tokenomics, robust security measures, and an ambitious roadmap, we are positioned to become a significant player in the cryptocurrency industry.")}
-        ${para("We invite you to join us on this exciting journey. Whether you're a trader, investor, or crypto enthusiast, the IBO ecosystem offers opportunities for growth, participation, and rewards. Together, we will build the future of cryptocurrency trading.")}
+        ${para("Delta represents more than just a token â€” it's the foundation of a comprehensive crypto ecosystem designed to empower users and drive innovation in the digital asset space. With a clear vision, strong tokenomics, robust security measures, and an ambitious roadmap, we are positioned to become a significant player in the cryptocurrency industry.")}
+        ${para("We invite you to join us on this exciting journey. Whether you're a trader, investor, or crypto enthusiast, the Delta ecosystem offers opportunities for growth, participation, and rewards. Together, we will build the future of cryptocurrency trading.")}
       `,
         true
       ))}
@@ -565,18 +565,18 @@ export const WhitepaperPage = () => {
         ${card(`
           ${sectionHeader('12', 'Legal Disclaimer')}
           <p style="font-size:10px;line-height:1.6;color:${textMuted};margin:0 0 8px 0;">
-            This whitepaper is for informational purposes only and does not constitute financial, legal, or investment advice. The information contained herein is subject to change without notice. Cryptocurrency investments carry significant risk, and the value of $IBO tokens may fluctuate significantly. Past performance is not indicative of future results.
+            This whitepaper is for informational purposes only and does not constitute financial, legal, or investment advice. The information contained herein is subject to change without notice. Cryptocurrency investments carry significant risk, and the value of $DELTA tokens may fluctuate significantly. Past performance is not indicative of future results.
           </p>
           <p style="font-size:10px;line-height:1.6;color:${textMuted};margin:0 0 8px 0;">
-            Nothing in this whitepaper shall be deemed to constitute a prospectus or offer document of any sort. $IBO tokens are not intended to constitute securities in any jurisdiction.
+            Nothing in this whitepaper shall be deemed to constitute a prospectus or offer document of any sort. $DELTA tokens are not intended to constitute securities in any jurisdiction.
           </p>
           <p style="font-size:10px;line-height:1.6;color:${textMuted};margin:0;">
-            Always conduct your own research (DYOR) and consult with professional advisors before making any investment decisions. By participating in the IBO ecosystem, you acknowledge that you understand and accept the risks involved.
+            Always conduct your own research (DYOR) and consult with professional advisors before making any investment decisions. By participating in the Delta ecosystem, you acknowledge that you understand and accept the risks involved.
           </p>
         `)}
         <div style="padding:20px 0 8px 0;border-top:2px solid ${gold};text-align:center;margin-top:18px;">
-          <div style="font-size:16px;font-weight:800;letter-spacing:2px;color:${textPrimary};">IBO</div>
-          <p style="font-size:9px;color:${textDim};margin:6px 0 0 0;">&copy; ${new Date().getFullYear()} IBO. All rights reserved.</p>
+          <div style="font-size:16px;font-weight:800;letter-spacing:2px;color:${textPrimary};">Delta</div>
+          <p style="font-size:9px;color:${textDim};margin:6px 0 0 0;">&copy; ${new Date().getFullYear()} Delta. All rights reserved.</p>
         </div>
       `)}
     `;
@@ -588,9 +588,9 @@ export const WhitepaperPage = () => {
       <header className="fixed top-0 left-0 right-0 z-50 bg-surface/95 backdrop-blur-xl border-b border-line">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 xl:px-16 py-4 flex items-center justify-between gap-3">
           <Link to="/" className="flex items-center gap-2 sm:gap-3 group min-w-0">
-            <img src={LOGO_ICON_URL} alt="IBO" className="h-8 w-8 object-contain flex-shrink-0" />
+            <img src={LOGO_ICON_URL} alt="Delta" className="h-8 w-8 object-contain flex-shrink-0" />
             <span className="text-lg font-bold">
-              <span className="text-ink">IBO</span>
+              <span className="text-ink">Delta</span>
             </span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
@@ -644,16 +644,16 @@ export const WhitepaperPage = () => {
             >
               <div className="relative">
                 <div className="absolute inset-0 bg-[#0EA4AB]/20 rounded-full blur-xl scale-150" />
-                <img src={LOGO_ICON_URL} alt="IBO" className="relative w-20 h-20 sm:w-24 sm:h-24 mx-auto" />
+                <img src={LOGO_ICON_URL} alt="Delta" className="relative w-20 h-20 sm:w-24 sm:h-24 mx-auto" />
               </div>
             </motion.div>
             
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-ink mb-4">
-              IBO Whitepaper
+              Delta Whitepaper
             </h1>
             <p className="text-ink-accent text-lg font-medium mb-2">Version 1.0 | March 2026</p>
             <p className="text-ink-muted max-w-2xl mx-auto">
-              The comprehensive guide to the IBO ecosystem, tokenomics, and our vision for 
+              The comprehensive guide to the Delta ecosystem, tokenomics, and our vision for 
               building the next generation of cryptocurrency infrastructure.
             </p>
           </motion.div>
@@ -725,9 +725,9 @@ export const WhitepaperPage = () => {
                 
                 <div className="prose prose-invert max-w-none space-y-4">
                   <p className="text-ink-soft leading-relaxed">
-                    IBO ($IBO) is a BEP-20 utility token on BNB Smart Chain issued by Ibo Private Limited.
+                    Delta ($DELTA) is a BEP-20 utility token on BNB Smart Chain issued by Delta Private Limited.
                     The project operates crypto trading infrastructure, including{' '}
-                    <span className="text-ink-accent font-semibold">IBO Exchange</span> at{' '}
+                    <span className="text-ink-accent font-semibold">Delta Exchange</span> at{' '}
                     <button
                       type="button"
                       onClick={showNotice}
@@ -739,14 +739,14 @@ export const WhitepaperPage = () => {
                   </p>
                   
                   <p className="text-ink-soft leading-relaxed">
-                    Unlike countless tokens that rely solely on speculation and hype, IBO is designed with tangible 
+                    Unlike countless tokens that rely solely on speculation and hype, Delta is designed with tangible 
                     utility at its core. Every token serves a purpose within our expanding ecosystem, from trading fee 
                     discounts to governance participation, staking rewards to exclusive access privileges.
                   </p>
 
                   <div className="grid md:grid-cols-3 gap-4 mt-8">
                     {[
-                      { label: 'Total Supply', value: '900 Million', sub: '$IBO Tokens' },
+                      { label: 'Total Supply', value: '900 Million', sub: '$DELTA Tokens' },
                       { label: 'Network', value: 'BNB Chain', sub: 'BEP-20 Standard' },
                       { label: 'Launch', value: 'Q1 2026', sub: 'PancakeSwap' },
                     ].map((stat) => (
@@ -879,19 +879,19 @@ export const WhitepaperPage = () => {
               </div>
             </Section>
 
-            {/* The IBO Solution */}
+            {/* The Delta Solution */}
             <Section id="solution">
               <div className="bg-gradient-to-br from-surface-card to-surface-soft border border-[#0EA4AB]/30 rounded-2xl p-5 sm:p-8 md:p-10">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-xl bg-logo-gradient flex items-center justify-center">
                     <Rocket size={20} className="icon-on-gradient text-white" />
                   </div>
-                  <h2 className="text-2xl md:text-3xl font-bold text-ink">4. The IBO Solution</h2>
+                  <h2 className="text-2xl md:text-3xl font-bold text-ink">4. The Delta Solution</h2>
                 </div>
                 
                 <div className="space-y-6">
                   <p className="text-ink-soft leading-relaxed">
-                    IBO addresses these challenges by building a unified ecosystem that combines the best aspects 
+                    Delta addresses these challenges by building a unified ecosystem that combines the best aspects 
                     of decentralized and centralized finance. Our solution is built on four foundational pillars:
                   </p>
                   
@@ -899,12 +899,12 @@ export const WhitepaperPage = () => {
                     {[
                       {
                         icon: Coins,
-                        title: 'IBO Token ($IBO)',
+                        title: 'Delta Token ($DELTA)',
                         desc: 'The native utility token powering all ecosystem transactions, governance, and rewards. Built on BNB Chain for speed and efficiency.'
                       },
                       {
                         icon: Building,
-                        title: 'IBO Exchange',
+                        title: 'Delta Exchange',
                         desc: 'A next-generation centralized exchange offering spot trading, advanced charting, and institutional-grade security.'
                       },
                       {
@@ -945,8 +945,8 @@ export const WhitepaperPage = () => {
                   {/* Token Details */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                     {[
-                      { label: 'Token Name', value: 'IBO' },
-                      { label: 'Symbol', value: '$IBO', highlight: true },
+                      { label: 'Token Name', value: 'Delta' },
+                      { label: 'Symbol', value: '$DELTA', highlight: true },
                       { label: 'Total Supply', value: '90,00,00,000' },
                       { label: 'Network', value: 'BNB Chain (BEP-20)' },
                     ].map((detail) => (
@@ -980,7 +980,7 @@ export const WhitepaperPage = () => {
                             </div>
                             <div className="text-left sm:text-right flex-shrink-0 pl-6 sm:pl-0">
                               <p className="text-ink-accent font-bold">{item.percentage}%</p>
-                              <p className="text-ink-muted text-xs tabular-nums break-all">{item.tokens} IBO</p>
+                              <p className="text-ink-muted text-xs tabular-nums break-all">{item.tokens} Delta</p>
                             </div>
                           </div>
                         </div>
@@ -1002,18 +1002,18 @@ export const WhitepaperPage = () => {
                 </div>
                 
                 <p className="text-ink-soft leading-relaxed mb-6">
-                  $IBO is designed to be the cornerstone of the IBO ecosystem, providing multiple use cases 
+                  $DELTA is designed to be the cornerstone of the Delta ecosystem, providing multiple use cases 
                   that create sustainable demand and value for token holders:
                 </p>
                 
                 <div className="grid md:grid-cols-2 gap-4">
                   {[
-                    { title: 'Trading Fee Discounts', desc: 'Hold $IBO to unlock tiered discounts on trading fees across IBO Exchange, with up to 50% reduction for top-tier holders.' },
+                    { title: 'Trading Fee Discounts', desc: 'Hold $DELTA to unlock tiered discounts on trading fees across Delta Exchange, with up to 50% reduction for top-tier holders.' },
                     { title: 'VIP Membership', desc: 'Access exclusive VIP tiers with premium benefits including priority support, early feature access, and exclusive trading pairs.' },
-                    { title: 'Staking Rewards', desc: 'Earn passive income by staking your $IBO tokens in our secure staking pools with competitive APY rates.' },
-                    { title: 'Governance Rights', desc: 'Participate in key decisions shaping the future of the IBO ecosystem through our decentralized governance system.' },
-                    { title: 'Launchpad Access', desc: 'Get exclusive early access to vetted token launches and IDO opportunities on the IBO Launchpad.' },
-                    { title: 'Referral Rewards', desc: 'Earn $IBO rewards for every successful referral to our ecosystem, creating additional passive income streams.' },
+                    { title: 'Staking Rewards', desc: 'Earn passive income by staking your $DELTA tokens in our secure staking pools with competitive APY rates.' },
+                    { title: 'Governance Rights', desc: 'Participate in key decisions shaping the future of the Delta ecosystem through our decentralized governance system.' },
+                    { title: 'Launchpad Access', desc: 'Get exclusive early access to vetted token launches and IDO opportunities on the Delta Launchpad.' },
+                    { title: 'Referral Rewards', desc: 'Earn $DELTA rewards for every successful referral to our ecosystem, creating additional passive income streams.' },
                   ].map((utility, i) => (
                     <div key={i} className="bg-surface/50 rounded-xl p-5 border border-line hover:border-[#0EA4AB]/30 transition-colors">
                       <div className="flex items-start gap-3">
@@ -1029,19 +1029,19 @@ export const WhitepaperPage = () => {
               </div>
             </Section>
 
-            {/* IBO Exchange */}
+            {/* Delta Exchange */}
             <Section id="exchange">
               <div className="bg-gradient-to-br from-surface-card to-surface-soft border border-[#0EA4AB]/30 rounded-2xl p-5 sm:p-8 md:p-10">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-xl bg-logo-gradient flex items-center justify-center">
                     <Building size={20} className="icon-on-gradient text-white" />
                   </div>
-                  <h2 className="text-2xl md:text-3xl font-bold text-ink">7. IBO Exchange</h2>
+                  <h2 className="text-2xl md:text-3xl font-bold text-ink">7. Delta Exchange</h2>
                 </div>
                 
                 <div className="space-y-6">
                   <p className="text-ink-soft leading-relaxed">
-                    IBO Exchange is the project&apos;s live flagship product: a centralized cryptocurrency exchange
+                    Delta Exchange is the project&apos;s live flagship product: a centralized cryptocurrency exchange
                     for both beginners and professional traders. Sign in at{' '}
                     <button
                       type="button"
@@ -1135,7 +1135,7 @@ export const WhitepaperPage = () => {
                 
                 <div className="space-y-6">
                   <p className="text-ink-soft leading-relaxed">
-                    Security is the foundation of everything we build. IBO implements multiple layers of protection 
+                    Security is the foundation of everything we build. Delta implements multiple layers of protection 
                     to ensure the safety of user assets and data.
                   </p>
                   
@@ -1173,8 +1173,8 @@ export const WhitepaperPage = () => {
                 
                 <div className="space-y-4">
                   <p className="text-ink-soft leading-relaxed">
-                    IBO is committed to progressive decentralization. As the ecosystem matures, governance will 
-                    transition to a DAO (Decentralized Autonomous Organization) structure, giving $IBO holders 
+                    Delta is committed to progressive decentralization. As the ecosystem matures, governance will 
+                    transition to a DAO (Decentralized Autonomous Organization) structure, giving $DELTA holders 
                     direct influence over key decisions.
                   </p>
                   
@@ -1211,7 +1211,7 @@ export const WhitepaperPage = () => {
                 
                 <div className="space-y-4">
                   <p className="text-ink-soft leading-relaxed">
-                    IBO represents more than just a token â€” it's the foundation of a comprehensive crypto ecosystem 
+                    Delta represents more than just a token â€” it's the foundation of a comprehensive crypto ecosystem 
                     designed to empower users and drive innovation in the digital asset space. With a clear vision, 
                     strong tokenomics, robust security measures, and an ambitious roadmap, we are positioned to become 
                     a significant player in the cryptocurrency industry.
@@ -1219,7 +1219,7 @@ export const WhitepaperPage = () => {
                   
                   <p className="text-ink-soft leading-relaxed">
                     We invite you to join us on this exciting journey. Whether you're a trader, investor, or crypto 
-                    enthusiast, the IBO ecosystem offers opportunities for growth, participation, and rewards. 
+                    enthusiast, the Delta ecosystem offers opportunities for growth, participation, and rewards. 
                     Together, we will build the future of cryptocurrency trading.
                   </p>
                   
@@ -1229,7 +1229,7 @@ export const WhitepaperPage = () => {
                       onClick={showBuyNotice}
                       className="inline-flex items-center justify-center gap-2 bg-logo-gradient text-[#050a1a] font-bold px-6 py-3 rounded-xl hover:opacity-90 transition-opacity"
                     >
-                      Buy $IBO Now
+                      Buy $DELTA Now
                       <ChevronRight size={18} />
                     </button>
                     <Link
@@ -1257,20 +1257,20 @@ export const WhitepaperPage = () => {
                   <p className="text-ink-muted text-sm leading-relaxed">
                     This whitepaper is for informational purposes only and does not constitute financial, legal, 
                     or investment advice. The information contained herein is subject to change without notice. 
-                    Cryptocurrency investments carry significant risk, and the value of $IBO tokens may fluctuate 
+                    Cryptocurrency investments carry significant risk, and the value of $DELTA tokens may fluctuate 
                     significantly. Past performance is not indicative of future results.
                   </p>
                   
                   <p className="text-ink-muted text-sm leading-relaxed mt-4">
                     Nothing in this whitepaper shall be deemed to constitute a prospectus or offer document of any 
-                    sort. $IBO tokens are not intended to constitute securities in any jurisdiction. This whitepaper 
+                    sort. $DELTA tokens are not intended to constitute securities in any jurisdiction. This whitepaper 
                     does not constitute or form part of any opinion or any advice to sell, or any solicitation of 
-                    any offer to purchase $IBO tokens.
+                    any offer to purchase $DELTA tokens.
                   </p>
                   
                   <p className="text-ink-muted text-sm leading-relaxed mt-4">
                     Always conduct your own research (DYOR) and consult with professional advisors before making 
-                    any investment decisions. By participating in the IBO ecosystem, you acknowledge that you 
+                    any investment decisions. By participating in the Delta ecosystem, you acknowledge that you 
                     understand and accept the risks involved.
                   </p>
                 </div>
@@ -1285,7 +1285,7 @@ export const WhitepaperPage = () => {
       <footer className="border-t border-line py-8" style={{ backgroundColor: 'var(--bg-default)' }}>
           <div className="max-w-7xl mx-auto px-6 md:px-10 xl:px-16">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-ink-muted text-sm">
-            <p>&copy; {new Date().getFullYear()} IBO. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} Delta. All rights reserved.</p>
             <div className="flex items-center gap-6">
               <Link to="/" className="hover:text-ink-accent transition-colors">Home</Link>
               <Link to="/about" className="hover:text-ink-accent transition-colors">About</Link>

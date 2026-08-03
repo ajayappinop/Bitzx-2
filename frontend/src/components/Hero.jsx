@@ -158,7 +158,7 @@ export const Hero = () => {
                 className="mb-5 max-w-xl text-base leading-relaxed text-ink-muted sm:mb-6 sm:text-lg lg:mb-5 lg:text-base xl:mb-6 xl:text-lg md:text-xl"
                 data-testid="hero-subheadline"
               >
-                IBO is a BNB Chain utility token building toward a broader trading
+                Delta is a BNB Chain utility token building toward a broader trading
                 ecosystem. Explore the token, review the contract, and follow official
                 project updates as the platform develops.
               </motion.p>
@@ -178,7 +178,7 @@ export const Hero = () => {
                   whileTap={{ scale: 0.98 }}
                   data-testid="hero-buy-btn"
                 >
-                  <span className="relative z-10">Buy $IBO</span>
+                  <span className="relative z-10">Buy $DELTA</span>
                   <ArrowRight size={18} className="relative z-10 group-hover:translate-x-1 transition-transform" />
                 </motion.button>
 
@@ -202,7 +202,7 @@ export const Hero = () => {
                 className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3"
               >
                 {[
-                  { label: 'Token', value: '$IBO', highlight: true },
+                  { label: 'Token', value: '$DELTA', highlight: true },
                   { label: 'Network', value: 'BNB Chain', highlight: false },
                   { label: 'Supply', value: '900M', highlight: false },
                   {
@@ -252,7 +252,7 @@ export const Hero = () => {
               {/* Logo Image */}
               <motion.img
                 src={LOGO_ICON_URL}
-                alt="IBO Token"
+                alt="Delta Token"
                 className="relative z-10 h-[110px] w-[110px] object-contain drop-shadow-[0_0_50px_rgba(14,164,171,0.3)] sm:h-[170px] sm:w-[170px] lg:h-[170px] lg:w-[170px] xl:h-[240px] xl:w-[240px] 2xl:h-[290px] 2xl:w-[290px]"
                 onError={(e) => {
                   if (e.currentTarget.src === LOGO_FALLBACK) return;

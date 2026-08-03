@@ -15,7 +15,7 @@ export default function MobileAppStickyBar() {
       <div className="pointer-events-auto mx-auto max-w-3xl flex items-center gap-3 rounded-xl border border-emerald-500/30 bg-[#0a0f0c]/95 backdrop-blur-md shadow-xl shadow-black/40 px-4 py-3">
         <Smartphone size={20} className="text-emerald-300 shrink-0 hidden sm:block" />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-white truncate">IBO Android app is live</p>
+          <p className="text-sm font-semibold text-white truncate">Delta Android app is live</p>
           <p className="text-xs text-zinc-400 truncate">
             {isGooglePlay
               ? 'Available on Google Play'

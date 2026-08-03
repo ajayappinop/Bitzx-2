@@ -1,19 +1,41 @@
 import { useEffect, useState, useRef } from 'react';
+import { ArrowUp, ArrowDown } from 'lucide-react';
 import { tradingApi } from '@/services/api';
 
-const formatTime = ms => {
-  const d = new Date(ms);
-  return d.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+const fmtP = (n) => {
+  const v = parseFloat(n);
+  if (!Number.isFinite(v)) return '—';
+  return v >= 10000
+    ? v.toLocaleString(undefined, { maximumFractionDigits: 1 })
+    : v >= 1
+      ? v.toFixed(v >= 100 ? 1 : 4)
+      : v.toFixed(6);
 };
 
-export default function RecentTrades({ symbol }) {
-  const [trades,  setTrades]  = useState([]);
+const fmtQ = (n) => {
+  const v = parseFloat(n);
+  if (!Number.isFinite(v)) return '—';
+  return v >= 1e6 ? `${(v / 1e6).toFixed(2)}M`
+    : v >= 1e3 ? `${(v / 1e3).toFixed(2)}K`
+    : v.toFixed(4);
+};
+
+const formatTime = (ms) => {
+  const d = new Date(ms);
+  return d.toLocaleTimeString('en-US', {
+    hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit',
+  });
+};
+
+export default function RecentTrades({ symbol, baseAsset }) {
+  const [trades, setTrades] = useState([]);
   const [loading, setLoading] = useState(true);
   const timerRef = useRef(null);
+  const base = baseAsset || (symbol || '').replace(/USDT|USD$/i, '') || 'BTC';
 
   const load = () => {
     tradingApi.getRecentTrades(symbol, 50)
-      .then(data => { setTrades(data); setLoading(false); })
+      .then((data) => { setTrades(Array.isArray(data) ? data : []); setLoading(false); })
       .catch(console.error);
   };
 
@@ -26,20 +48,20 @@ export default function RecentTrades({ symbol }) {
   }, [symbol]);
 
   return (
-    <div className="flex flex-col h-full bg-surface-elevated">
-      <div className="px-3 py-2 border-b border-line flex-shrink-0">
-        <span className="text-xs font-semibold text-ink">Trades</span>
+    <div className="flex flex-col h-full min-h-0 bg-transparent select-none">
+      <div className="flex h-8 items-center px-2.5 border-b border-line text-[12px] font-semibold text-ink shrink-0">
+        Recent Trades
       </div>
 
-      <div className="flex justify-between px-3 py-1 text-[10px] text-[#4A4B50] flex-shrink-0">
-        <span>Price (USDT)</span>
-        <span>Amount</span>
-        <span>Time</span>
+      <div className="flex px-2.5 h-[24px] items-center text-[10px] text-[#4A4B50] shrink-0 border-b border-line">
+        <span className="w-[38%]">Price (USD)</span>
+        <span className="w-[28%] text-right">Size ({base})</span>
+        <span className="w-[34%] text-right">Time/Taker</span>
       </div>
 
       {loading ? (
         <div className="flex-1 flex items-center justify-center">
-          <div className="w-6 h-6 border-2 border-[#0EA4AB] border-t-transparent rounded-full animate-spin" />
+          <div className="w-5 h-5 border-2 border-[#FE6C02]/60 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
         <div className="flex-1 overflow-y-auto scrollbar-hide">
@@ -48,20 +70,29 @@ export default function RecentTrades({ symbol }) {
             return (
               <div
                 key={t.id ?? i}
-                className="flex items-center justify-between px-3 py-[3px] text-xs hover:bg-white/5"
+                className="flex px-2.5 h-[22px] items-center text-[11px] font-mono tabular-nums hover:bg-white/[0.03]"
               >
-                <span className={`font-mono ${isBuy ? 'text-green-400' : 'text-red-400'}`}>
-                  {parseFloat(t.price).toFixed(4)}
+                <span className={`w-[38%] flex items-center gap-0.5 font-semibold ${
+                  isBuy ? 'text-[#0ECB81]' : 'text-[#F6465D]'
+                }`}>
+                  {fmtP(t.price)}
+                  {isBuy
+                    ? <ArrowUp size={10} className="shrink-0 opacity-90" strokeWidth={2.5} />
+                    : <ArrowDown size={10} className="shrink-0 opacity-90" strokeWidth={2.5} />}
                 </span>
-                <span className="text-ink-soft">
-                  {parseFloat(t.qty) >= 1000
-                    ? (parseFloat(t.qty) / 1000).toFixed(2) + 'K'
-                    : parseFloat(t.qty).toFixed(2)}
+                <span className="w-[28%] text-right text-ink">{fmtQ(t.qty)}</span>
+                <span className="w-[34%] text-right text-[#4A4B50]">
+                  {formatTime(t.time)}
+                  <span className={isBuy ? 'text-[#0ECB81]' : 'text-[#F6465D]'}>
+                    {isBuy ? '/B' : '/S'}
+                  </span>
                 </span>
-                <span className="text-[#4A4B50]">{formatTime(t.time)}</span>
               </div>
             );
           })}
+          {!trades.length ? (
+            <p className="text-center text-[10px] text-[#4A4B50] py-6">No trades yet</p>
+          ) : null}
         </div>
       )}
     </div>

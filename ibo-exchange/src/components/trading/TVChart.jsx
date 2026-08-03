@@ -1,8 +1,8 @@
 /**
  * TVChart — TradingView Advanced Real-Time Chart (all spot pairs).
  *
- * IBO-quoted pairs map to the same base on Binance USDT for an identical
- * TradingView UI (toolbars, drawings, intervals). Live IBO price is shown
+ * Delta-quoted pairs map to the same base on Binance USDT for an identical
+ * TradingView UI (toolbars, drawings, intervals). Live Delta price is shown
  * in the page header, order book, and trade form.
  */
 import { useEffect, useRef } from 'react';
@@ -53,8 +53,8 @@ function tvOptionsForTheme(isLight) {
     theme: isLight ? 'light' : 'dark',
     style: '1',
     locale: 'en',
-    backgroundColor: isLight ? '#ffffff' : 'rgba(10,11,15,1)',
-    gridColor: isLight ? 'rgba(208,219,227,0.9)' : 'rgba(26,29,36,0.9)',
+    backgroundColor: isLight ? '#ffffff' : '#101013',
+    gridColor: isLight ? 'rgba(208,219,227,0.9)' : 'rgba(255,255,255,0.04)',
     allow_symbol_change: false,
     calendar: false,
     withdateranges: false,
@@ -65,12 +65,12 @@ function tvOptionsForTheme(isLight) {
     hotlist: false,
     show_popup_button: false,
     overrides: {
-      'mainSeriesProperties.candleStyle.upColor': '#22c55e',
-      'mainSeriesProperties.candleStyle.downColor': '#ef4444',
-      'mainSeriesProperties.candleStyle.borderUpColor': '#22c55e',
-      'mainSeriesProperties.candleStyle.borderDownColor': '#ef4444',
-      'mainSeriesProperties.candleStyle.wickUpColor': '#22c55e',
-      'mainSeriesProperties.candleStyle.wickDownColor': '#ef4444',
+      'mainSeriesProperties.candleStyle.upColor': '#00a876',
+      'mainSeriesProperties.candleStyle.downColor': '#eb5454',
+      'mainSeriesProperties.candleStyle.borderUpColor': '#00a876',
+      'mainSeriesProperties.candleStyle.borderDownColor': '#eb5454',
+      'mainSeriesProperties.candleStyle.wickUpColor': '#00a876',
+      'mainSeriesProperties.candleStyle.wickDownColor': '#eb5454',
     },
     support_host: 'https://www.tradingview.com',
   };
@@ -118,7 +118,7 @@ export default function TVChart({ symbol }) {
       style={{
         position: 'absolute',
         inset: 0,
-        background: isLight ? '#ffffff' : '#0a0b0f',
+        background: isLight ? '#ffffff' : '#101013',
       }}
     >
       <div ref={containerRef} style={{ width: '100%', height: '100%' }} />

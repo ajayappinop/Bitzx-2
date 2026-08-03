@@ -24,7 +24,6 @@ export default function IBOMarket({ initialSymbol = 'IBOUSDT', embedded = false 
   
   const displayBase = displayBaseForApiSymbol(symbol);
   const livePrice = ticker?.price ?? null;
-
   return (
     <div className="bg-[color:var(--ibo-bg)] min-h-screen flex flex-col h-screen overflow-hidden text-[color:var(--ibo-ink)] font-ui">
       <div className="px-4 py-3 border-b border-[color:var(--ibo-border-solid)] bg-[color:var(--ibo-surface)] flex items-center gap-2 flex-wrap shrink-0">
@@ -35,11 +34,11 @@ export default function IBOMarket({ initialSymbol = 'IBOUSDT', embedded = false 
             onClick={() => setSymbol(s)}
             className={`px-3 py-1.5 rounded-lg text-sm font-bold border transition-colors ${
               s === symbol
-                ? 'text-[#5BB8FF] border-[rgba(91,184,255,0.5)] bg-[rgba(91,184,255,0.1)]'
+                ? 'text-[#FE9D55] border-[rgba(254, 157, 85,0.5)] bg-[rgba(254, 157, 85,0.1)]'
                 : 'text-[color:var(--ibo-muted)] border-[color:var(--ibo-border-solid)] hover:text-[color:var(--ibo-ink)]'
             }`}
           >
-            {s.replace('USDT', '/USDT').replace('IBO', '/IBO')}
+            {s.endsWith('USDT') ? s.slice(0, -4) + '/USDT' : s.endsWith('IBO') ? s.slice(0, -3) + '/Delta' : s}
           </button>
         ))}
         {error && <span className="ml-2 text-xs font-bold text-red-400">{error}</span>}
@@ -47,16 +46,13 @@ export default function IBOMarket({ initialSymbol = 'IBOUSDT', embedded = false 
           {connected ? 'LIVE' : 'DISCONNECTED'}
         </span>
       </div>
-
       <div className="shrink-0">
         <IBOTicker ticker={ticker} />
       </div>
-
       <div className="flex flex-1 min-h-0 overflow-hidden">
         <div className="flex-1 min-w-0 border-r border-[color:var(--ibo-border-solid)] relative">
           <IBOChart candles={candles} interval={interval} onIntervalChange={setInterval} fill loading={loading} />
         </div>
-
         <div className="flex flex-col w-[340px] shrink-0 border-r border-[color:var(--ibo-border-solid)] overflow-hidden">
           <div className="flex-1 min-h-0 overflow-hidden">
             <OrderBook
@@ -67,14 +63,13 @@ export default function IBOMarket({ initialSymbol = 'IBOUSDT', embedded = false 
             />
           </div>
         </div>
-
         <div className="w-[420px] shrink-0 flex flex-col overflow-hidden">
           <div className="flex-1 overflow-y-auto scrollbar-hide">
             <TradeForm symbol={symbol} lastPrice={livePrice} />
           </div>
           {!embedded && (
             <div className="px-4 py-3 text-xs text-[color:var(--ibo-muted)] border-t border-[color:var(--ibo-border-solid)] shrink-0 bg-[color:var(--ibo-surface)]">
-              Trading form executes through existing engine. This page only replaces IBO market visualization.
+              Trading form executes through existing engine. This page only replaces Delta market visualization.
               {base ? ` Pair base: ${base}` : ''}
             </div>
           )}

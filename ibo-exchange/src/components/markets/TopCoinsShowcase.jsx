@@ -48,7 +48,7 @@ function TopCoinCard({ market, index }) {
       ) : null}
       <Link
         to={`/trade/${market.symbol}`}
-        className="inline-flex items-center justify-center gap-2 rounded-xl bg-logo-gradient text-[#050a1a] text-sm font-bold py-2.5 hover:brightness-110 transition-[filter]"
+        className="inline-flex items-center justify-center gap-2 rounded-xl bg-logo-gradient text-[#101013] text-sm font-bold py-2.5 hover:brightness-110 transition-[filter]"
       >
         Trade {base} <ArrowRight size={14} />
       </Link>
@@ -99,7 +99,7 @@ export default function TopCoinsShowcase({
         <h2 className="ibo-title-lg mb-2 sm:mb-3">{title || 'Featured coins'}</h2>
         <p className="ibo-lead text-zinc-500 max-w-none text-sm sm:text-base">
           {subtitle
-            || 'Curated by the IBO team — live prices, 24h performance, and volume. Managed in the admin Market Catalog.'}
+            || 'Curated by the Delta team — live prices, 24h performance, and volume. Managed in the admin Market Catalog.'}
         </p>
       </div>
 

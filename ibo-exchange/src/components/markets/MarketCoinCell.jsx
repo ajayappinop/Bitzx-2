@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { coinIconUrl } from '@/services/marketApi';
+import { coinIconUrl, displayAssetCode } from '@/services/marketApi';
 import { BRAND_MARK } from '@/lib/brandAssets';
 
 /**
@@ -8,6 +8,8 @@ import { BRAND_MARK } from '@/lib/brandAssets';
 export default function MarketCoinCell({ market, size = 40, showQuote = true, linkToTrade = false }) {
   const base = market?.base || market?.symbol?.replace(/USDT$/, '').replace(/IBO$/, '') || '';
   const quote = market?.quote || market?.quoteAsset || (market?.symbol?.endsWith('IBO') ? 'IBO' : 'USDT');
+  const baseLabel = displayAssetCode(base);
+  const quoteLabel = displayAssetCode(quote);
   const icon = coinIconUrl(base, market?.logo_url);
   const displayName = [market?.project_name, market?.token_name]
     .map((v) => (v != null ? String(v).trim() : ''))
@@ -39,18 +41,18 @@ export default function MarketCoinCell({ market, size = 40, showQuote = true, li
           className="rounded-full bg-gold/20 flex items-center justify-center text-gold-light font-bold shrink-0"
           style={{ width: size, height: size, fontSize: Math.max(10, size * 0.32) }}
         >
-          {base?.slice(0, 2)}
+          {baseLabel?.slice(0, 2)}
         </div>
       )}
       <div className="min-w-0">
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-white font-semibold text-sm sm:text-base">{base}</span>
+          <span className="text-white font-semibold text-sm sm:text-base">{baseLabel}</span>
           {showQuote ? (
-            <span className="text-zinc-500 text-xs font-normal">/ {quote}</span>
+            <span className="text-zinc-500 text-xs font-normal">/ {quoteLabel}</span>
           ) : null}
           {isIbo ? (
             <span className="text-[9px] bg-gold/15 text-gold-light px-1.5 py-0.5 rounded font-bold border border-gold/25">
-              IBO
+              Delta
             </span>
           ) : null}
           {isListed && !isIbo ? (

@@ -45,8 +45,8 @@ const FLOAT_ICONS = [
 ];
 
 const TYPEWRITER_PHRASES = [
-  'Deposit, trade & grow on IBO Exchange',
-  'Trade USDT pairs & IBO Markets',
+  'Deposit, trade & grow on Delta Exchange',
+  'Trade USDT pairs & Delta Markets',
   'Fund with USDT & BEP-20',
 ];
 
@@ -124,7 +124,7 @@ function TypewriterHeading({ phrases = TYPEWRITER_PHRASES }) {
       <span>{renderText()}</span>
       {!reduceMotion ? (
         <span
-          className="hero-type-caret ml-0.5 inline-block w-[0.08em] h-[0.9em] translate-y-[0.08em] bg-[#C5E35B] align-middle"
+          className="hero-type-caret ml-0.5 inline-block w-[0.08em] h-[0.9em] translate-y-[0.08em] bg-[#00A876] align-middle"
           aria-hidden
         />
       ) : null}
@@ -133,8 +133,8 @@ function TypewriterHeading({ phrases = TYPEWRITER_PHRASES }) {
 }
 
 /**
- * Webze-style centered hero for IBO Exchange homepage.
- * Keeps existing IBO copy + brand cyan/lime/blue theme.
+ * Centered hero for Delta Exchange homepage.
+ * Dark: Delta graphite + orange aurora. Light: soft mist + brand washes.
  */
 export default function LandingHero() {
   const { isLight } = useTheme();
@@ -156,7 +156,7 @@ export default function LandingHero() {
               className="absolute inset-0"
               style={{
                 background:
-                  'linear-gradient(165deg, #eef3f6 0%, #f4f8fa 38%, #e8f2f4 68%, #eef3f6 100%)',
+                  'linear-gradient(165deg, #f3f4f6 0%, #f4f8fa 38%, #e8f2f4 68%, #f3f4f6 100%)',
               }}
             />
             {/* Soft brand aurora — richer color presence */}
@@ -164,11 +164,11 @@ export default function LandingHero() {
               className="absolute inset-0"
               style={{
                 background: `
-                  radial-gradient(ellipse 55% 45% at 50% 28%, rgba(14,164,171,0.32) 0%, transparent 62%),
-                  radial-gradient(ellipse 40% 32% at 12% 70%, rgba(14,164,171,0.18) 0%, transparent 60%),
-                  radial-gradient(ellipse 38% 30% at 88% 18%, rgba(197,227,91,0.28) 0%, transparent 58%),
-                  radial-gradient(ellipse 30% 28% at 78% 78%, rgba(27,95,255,0.14) 0%, transparent 55%),
-                  radial-gradient(ellipse 42% 36% at 50% 72%, rgba(91,184,255,0.16) 0%, transparent 65%)
+                  radial-gradient(ellipse 55% 45% at 50% 28%, rgba(254, 108, 2,0.32) 0%, transparent 62%),
+                  radial-gradient(ellipse 40% 32% at 12% 70%, rgba(254, 108, 2,0.18) 0%, transparent 60%),
+                  radial-gradient(ellipse 38% 30% at 88% 18%, rgba(0, 168, 118,0.28) 0%, transparent 58%),
+                  radial-gradient(ellipse 30% 28% at 78% 78%, rgba(180, 77, 1,0.14) 0%, transparent 55%),
+                  radial-gradient(ellipse 42% 36% at 50% 72%, rgba(254, 157, 85,0.16) 0%, transparent 65%)
                 `,
               }}
             />
@@ -177,8 +177,8 @@ export default function LandingHero() {
               className="absolute inset-0 opacity-[0.55]"
               style={{
                 backgroundImage: `
-                  linear-gradient(rgba(14,164,171,0.11) 1px, transparent 1px),
-                  linear-gradient(90deg, rgba(14,164,171,0.11) 1px, transparent 1px)
+                  linear-gradient(rgba(254, 108, 2,0.11) 1px, transparent 1px),
+                  linear-gradient(90deg, rgba(254, 108, 2,0.11) 1px, transparent 1px)
                 `,
                 backgroundSize: '48px 48px',
                 maskImage: 'radial-gradient(ellipse 70% 60% at 50% 40%, #000 20%, transparent 75%)',
@@ -189,31 +189,58 @@ export default function LandingHero() {
             <div
               className="absolute inset-x-0 bottom-0 h-40"
               style={{
-                background: 'linear-gradient(180deg, transparent 0%, #eef3f6 92%)',
+                background: 'linear-gradient(180deg, transparent 0%, #f3f4f6 92%)',
               }}
             />
           </>
         ) : (
           <>
+            {/* Delta dark base — graphite plane (no cool-blue cast) */}
+            <div
+              className="absolute inset-0"
+              style={{ background: 'var(--ibo-bg)' }}
+            />
+            {/* Optional depth photo, heavily tinted toward theme neutrals */}
             <img
               src="/hero/hero-bg-space.png?v=1"
               alt=""
-              className="h-full w-full object-cover object-[center_30%]"
+              className="h-full w-full object-cover object-[center_30%] opacity-45 mix-blend-luminosity"
               draggable={false}
               decoding="async"
             />
+            {/* Theme brand aurora — orange/green on graphite */}
             <div
               className="absolute inset-0"
               style={{
-                background:
-                  'linear-gradient(180deg, rgba(5,7,12,0.45) 0%, rgba(5,7,12,0.28) 40%, rgba(5,7,12,0.78) 100%)',
+                background: `
+                  radial-gradient(ellipse 55% 48% at 50% 30%, rgba(254, 108, 2, 0.22) 0%, transparent 62%),
+                  radial-gradient(ellipse 42% 36% at 14% 72%, rgba(254, 108, 2, 0.12) 0%, transparent 58%),
+                  radial-gradient(ellipse 40% 34% at 88% 20%, rgba(0, 168, 118, 0.16) 0%, transparent 56%),
+                  radial-gradient(ellipse 36% 32% at 80% 80%, rgba(180, 77, 1, 0.1) 0%, transparent 55%)
+                `,
               }}
             />
+            {/* Vertical scrim using theme bg rgb — kills residual blue from photo */}
             <div
               className="absolute inset-0"
               style={{
                 background:
-                  'radial-gradient(ellipse 60% 50% at 50% 32%, rgba(5,7,12,0.35) 0%, transparent 70%)',
+                  'linear-gradient(180deg, rgb(var(--ibo-bg-rgb) / 0.55) 0%, rgb(var(--ibo-bg-rgb) / 0.35) 40%, rgb(var(--ibo-bg-rgb) / 0.88) 100%)',
+              }}
+            />
+            {/* Center vignette — soft focus around headline */}
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  'radial-gradient(ellipse 60% 50% at 50% 32%, rgb(var(--ibo-bg-rgb) / 0.4) 0%, transparent 70%)',
+              }}
+            />
+            {/* Bottom fade into page canvas */}
+            <div
+              className="absolute inset-x-0 bottom-0 h-36"
+              style={{
+                background: 'linear-gradient(180deg, transparent 0%, var(--ibo-bg) 92%)',
               }}
             />
           </>
@@ -227,7 +254,7 @@ export default function LandingHero() {
           style={{
             background: isLight
               ? 'radial-gradient(ellipse 52% 42% at 50% 36%, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.28) 42%, transparent 70%)'
-              : 'radial-gradient(ellipse 56% 46% at 50% 34%, rgba(5,7,12,0.42) 0%, rgba(5,7,12,0.16) 45%, transparent 72%)',
+              : 'radial-gradient(ellipse 56% 46% at 50% 34%, rgb(var(--ibo-bg-rgb) / 0.45) 0%, rgb(var(--ibo-bg-rgb) / 0.18) 45%, transparent 72%)',
           }}
         />
       </div>
@@ -249,7 +276,7 @@ export default function LandingHero() {
           style={{
             willChange: 'transform',
             filter: isLight
-              ? 'drop-shadow(0 0 18px rgba(14,164,171,0.22)) drop-shadow(0 14px 28px rgba(12,25,34,0.12))'
+              ? 'drop-shadow(0 0 18px rgba(254, 108, 2,0.22)) drop-shadow(0 14px 28px rgba(12,25,34,0.12))'
               : 'drop-shadow(0 12px 28px rgba(0,0,0,0.35))',
           }}
           decoding="async"
@@ -288,16 +315,14 @@ export default function LandingHero() {
           transition={{ duration: 0.5 }}
           className={`mb-5 sm:mb-6 inline-flex items-center rounded-full px-3.5 py-1.5 backdrop-blur-md border ${
             isLight
-              ? 'border-[rgba(14,164,171,0.28)] bg-white/75 shadow-[0_8px_24px_rgba(14,164,171,0.1)]'
-              : 'border-[#0EA4AB]/35 bg-[#0EA4AB]/10'
+              ? 'border-[rgba(254, 108, 2,0.28)] bg-white/75 shadow-[0_8px_24px_rgba(254, 108, 2,0.1)]'
+              : 'border-[#FE6C02]/35 bg-[#FE6C02]/10'
           }`}
         >
           <span
-            className={`text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.2em] ${
-              isLight ? 'text-[#0a8f95]' : 'text-[#C5E35B]'
-            }`}
+            className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.2em] text-[color:var(--ibo-accent)]"
           >
-            IBO · USDT · BEP-20
+            Delta · USDT · BEP-20
           </span>
         </motion.div>
 
@@ -315,7 +340,7 @@ export default function LandingHero() {
           transition={{ duration: 0.55, delay: 0.12 }}
           className="mt-3 sm:mt-4 text-sm sm:text-base md:text-lg font-semibold text-gradient leading-snug"
         >
-          IBO token · USDT majors · Web3 on BNB Chain
+          Delta token · USDT majors · Web3 on BNB Chain
         </motion.p>
 
         <motion.p
@@ -326,7 +351,7 @@ export default function LandingHero() {
             isLight ? 'text-[color:var(--ibo-ink-secondary)]' : 'text-zinc-400'
           }`}
         >
-          Fund with USDT or search any supported BEP-20 token — then trade on USDT pairs or IBO Markets.
+          Fund with USDT or search any supported BEP-20 token — then trade on USDT pairs or Delta Markets.
         </motion.p>
 
         <motion.div
@@ -337,10 +362,10 @@ export default function LandingHero() {
         >
           <Link
             to="/register"
-            className={`hero-cta-btn group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-logo-gradient px-7 py-3.5 text-xs sm:text-sm font-bold uppercase tracking-wide text-[#050a1a] whitespace-nowrap ${
+            className={`hero-cta-btn group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-logo-gradient px-7 py-3.5 text-xs sm:text-sm font-bold uppercase tracking-wide text-[#101013] whitespace-nowrap ${
               isLight
-                ? 'shadow-[0_14px_36px_rgba(14,164,171,0.28)]'
-                : 'shadow-[0_0_28px_rgba(197,227,91,0.35)]'
+                ? 'shadow-[0_14px_36px_rgba(254,108,2,0.28)]'
+                : 'shadow-[0_0_28px_rgba(254,108,2,0.35)]'
             }`}
           >
             <span className="pointer-events-none absolute inset-0 hero-cta-shimmer" aria-hidden />
@@ -352,20 +377,7 @@ export default function LandingHero() {
           </Link>
           <Link
             to="/quick-trade"
-            className={`ibo-hover-scale inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
-              isLight ? 'ibo-btn-accent' : 'hover:brightness-110'
-            }`}
-            style={
-              isLight
-                ? { textDecoration: 'none' }
-                : {
-                    background: 'linear-gradient(135deg, rgba(14,164,171,0.22), rgba(197,227,91,0.18))',
-                    border: '1px solid rgba(197,227,91,0.45)',
-                    color: '#C5E35B',
-                    boxShadow: '0 0 28px rgba(197,227,91,0.22)',
-                    textDecoration: 'none',
-                  }
-            }
+            className="ibo-btn-accent ibo-hover-scale inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-xs sm:text-sm font-bold whitespace-nowrap"
           >
             <Zap size={15} />
             Quick Trade

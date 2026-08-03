@@ -82,7 +82,7 @@ const MARKET_MODES = [
   { id: 'web3', label: 'BEP-20 / Web3', desc: 'Full token directory' },
   { id: 'futures', label: 'Futures', desc: 'USDT perpetuals' },
   { id: 'options', label: 'Options', desc: 'USDT · v1 long-only' },
-  { id: 'ibo', label: 'IBO Markets', desc: 'IBO-quoted pairs' },
+  { id: 'ibo', label: 'Delta Markets', desc: 'Delta-quoted pairs' },
 ];
 
 const CATEGORY_TABS = [
@@ -91,7 +91,7 @@ const CATEGORY_TABS = [
   { id: 'major', label: 'Major' },
   { id: 'alt', label: 'Alts' },
   { id: 'listed', label: 'Listed' },
-  { id: 'ibo', label: 'IBO' },
+  { id: 'ibo', label: 'Delta' },
   { id: 'gainers', label: 'Gainers' },
   { id: 'losers', label: 'Losers' },
   { id: 'topVolume', label: 'Volume' },
@@ -216,9 +216,9 @@ const fmtFunding8h = (rate) => {
 
 const VERIFY_DISMISSED_KEY = 'maxbyteex_get_verified_dismissed';
 
-/** Highlighted Trade CTA — lime/gold pill (not cyan accent) */
+/** Highlighted Trade CTA — brand accent pill */
 const TRADE_BTN_CLASS =
-  'inline-flex items-center justify-center rounded-md bg-[#C5E35B] px-3 py-1.5 text-[12px] font-bold text-[#0a1208] transition-[filter] hover:brightness-95';
+  'inline-flex items-center justify-center rounded-md bg-[color:var(--ibo-accent)] px-3 py-1.5 text-[12px] font-bold text-[#101013] transition-[filter] hover:brightness-110';
 
 export default function MarketsPage() {
   const navigate = useNavigate();
@@ -759,17 +759,13 @@ export default function MarketsPage() {
           ].map((col) => (
             <div
               key={col.key}
-              className="overflow-hidden rounded-xl border"
-              style={{ background: 'var(--ibo-card)', borderColor: 'var(--ibo-border-solid)' }}
+              className="delta-movers-card overflow-hidden rounded border"
             >
-              <div
-                className="flex items-center gap-2 border-b px-3 py-2.5"
-                style={{ borderColor: 'var(--ibo-border-solid)' }}
-              >
+              <div className="flex items-center gap-2 border-b px-3 py-2.5">
                 <span className="h-3.5 w-1 rounded-full" style={{ background: col.accent }} />
                 <span className="text-[12px] font-bold" style={{ color: 'var(--ibo-ink)' }}>{col.title}</span>
                     </div>
-              <div className="divide-y divide-[color:var(--ibo-border-solid)]">
+              <div className="delta-movers-rows">
                 {loading ? (
                   <div className="py-6 text-center text-[12px]" style={{ color: 'var(--ibo-muted)' }}>Loading…</div>
                 ) : col.rows.length === 0 ? (
@@ -784,12 +780,12 @@ export default function MarketsPage() {
                         key={m.symbol}
                           type="button"
                         onClick={() => navigate(`/trade/${m.symbol}`)}
-                        className="flex w-full items-center gap-2.5 px-3 py-2 text-left transition-colors hover:bg-[color:var(--ibo-hover)]"
+                        className="delta-movers-row flex w-full items-center gap-2.5 px-3 py-2 text-left"
                         >
                           {icon ? (
                           <img src={icon} alt="" className="h-6 w-6 rounded-full" />
                           ) : (
-                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gold/20 text-[9px] font-bold text-gold-light">
+                          <div className="delta-movers-fallback-icon flex h-6 w-6 items-center justify-center rounded-full text-[9px] font-bold">
                               {base?.slice(0, 2)}
                             </div>
                           )}
@@ -866,7 +862,6 @@ export default function MarketsPage() {
             {/* Full-bleed Delta markets list — edge to edge, no card box */}
             <div
               className="delta-markets-panel -mx-3 sm:-mx-4 md:-mx-6 lg:-mx-8 xl:-mx-10 border-y"
-              style={{ background: 'var(--ibo-card)', borderColor: 'var(--ibo-border-solid)' }}
             >
               <div
                 className="delta-markets-tabs flex flex-col border-b sm:flex-row sm:items-center sm:justify-between"
@@ -895,8 +890,7 @@ export default function MarketsPage() {
 
                 <div className="flex items-center gap-2 border-t px-3 py-2 sm:border-t-0 sm:py-0 sm:pr-4 md:pr-6 lg:pr-8 xl:pr-10" style={{ borderColor: 'var(--ibo-border-solid)' }}>
                 <div
-                    className="flex h-8 min-w-0 flex-1 items-center gap-2 rounded border px-2.5 sm:w-48 sm:flex-none"
-                    style={{ borderColor: 'var(--ibo-border-solid)', background: 'var(--ibo-surface)' }}
+                    className="delta-markets-search flex h-8 min-w-0 flex-1 items-center gap-2 rounded border px-2.5 sm:w-48 sm:flex-none"
                 >
                     <Search size={13} className="flex-shrink-0" style={{ color: 'var(--ibo-muted)' }} />
                   <input
@@ -910,8 +904,8 @@ export default function MarketsPage() {
                   <button
                     type="button"
                     onClick={() => refreshFuturesPage()}
-                    className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded border transition-colors hover:bg-[color:var(--ibo-hover)]"
-                    style={{ borderColor: 'var(--ibo-border-solid)', color: 'var(--ibo-ink-secondary)' }}
+                    className="delta-markets-icon-btn flex h-8 w-8 flex-shrink-0 items-center justify-center rounded border transition-colors"
+                    style={{ color: 'var(--ibo-ink-secondary)' }}
                     aria-label="Refresh futures data"
                   >
                     <RefreshCw size={13} className={futuresLoading ? 'animate-spin' : ''} />
@@ -923,10 +917,7 @@ export default function MarketsPage() {
                 <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain touch-pan-x [scrollbar-width:thin]">
                     <table className="w-full min-w-[860px] border-collapse text-left text-[13px]">
                       <thead>
-                        <tr
-                          className="border-b"
-                          style={{ borderColor: 'var(--ibo-border-solid)', background: 'var(--ibo-elevated)' }}
-                        >
+                        <tr className="border-b">
                           <th className="w-10 py-2.5 pl-3 pr-2 sm:pl-4 md:pl-6 lg:pl-8 xl:pl-10" />
                           <th
                             className="px-3 py-2.5 text-left text-[10px] font-medium uppercase tracking-wider"
@@ -980,7 +971,7 @@ export default function MarketsPage() {
                           return (
                               <tr
                               key={row.symbol}
-                                className="border-b transition-colors hover:bg-[color:var(--ibo-hover)] cursor-pointer"
+                                className="border-b transition-colors cursor-pointer"
                                 style={{ borderColor: 'var(--ibo-border-solid)' }}
                                 onClick={() => navigate(`/futures/${encodeURIComponent(row.symbol)}`)}
                               >
@@ -1008,7 +999,7 @@ export default function MarketsPage() {
                                   ) : (
                                       <div
                                         className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-[9px] font-bold"
-                                        style={{ background: 'rgba(14,164,171,0.15)', color: 'var(--ibo-accent)' }}
+                                        style={{ background: 'rgba(254, 108, 2,0.15)', color: 'var(--ibo-accent)' }}
                                       >
                                       {base?.slice(0, 2)}
                                     </div>
@@ -1125,7 +1116,7 @@ export default function MarketsPage() {
                             ) : (
                                 <div
                                   className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-[9px] font-bold"
-                                  style={{ background: 'rgba(14,164,171,0.15)', color: 'var(--ibo-accent)' }}
+                                  style={{ background: 'rgba(254, 108, 2,0.15)', color: 'var(--ibo-accent)' }}
                                 >
                                 {base?.slice(0, 2)}
                               </div>
@@ -1218,7 +1209,6 @@ export default function MarketsPage() {
         {/* Full-bleed Delta markets list — edge to edge, no card box */}
         <div
           className="delta-markets-panel -mx-3 sm:-mx-4 md:-mx-6 lg:-mx-8 xl:-mx-10 border-y"
-          style={{ background: 'var(--ibo-card)', borderColor: 'var(--ibo-border-solid)' }}
         >
           <div
             className="delta-markets-tabs flex flex-col border-b sm:flex-row sm:items-center sm:justify-between"
@@ -1246,8 +1236,7 @@ export default function MarketsPage() {
               </div>
             <div className="flex items-center gap-2 border-t px-3 py-2 sm:border-t-0 sm:py-0 sm:pr-4 md:pr-6 lg:pr-8 xl:pr-10" style={{ borderColor: 'var(--ibo-border-solid)' }}>
             <div
-                className="flex h-8 min-w-0 flex-1 items-center gap-2 rounded border px-2.5 sm:w-48 sm:flex-none"
-                style={{ borderColor: 'var(--ibo-border-solid)', background: 'var(--ibo-surface)' }}
+                className="delta-markets-search flex h-8 min-w-0 flex-1 items-center gap-2 rounded border px-2.5 sm:w-48 sm:flex-none"
             >
                 <Search size={13} className="flex-shrink-0" style={{ color: 'var(--ibo-muted)' }} />
               <input
@@ -1261,8 +1250,8 @@ export default function MarketsPage() {
               <button
                 type="button"
                 onClick={() => setSpotDisplayLimit(60)}
-                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded border transition-colors hover:bg-[color:var(--ibo-hover)]"
-                style={{ borderColor: 'var(--ibo-border-solid)', color: 'var(--ibo-ink-secondary)' }}
+                className="delta-markets-icon-btn flex h-8 w-8 flex-shrink-0 items-center justify-center rounded border transition-colors"
+                style={{ color: 'var(--ibo-ink-secondary)' }}
                 aria-label="Refresh list"
               >
                 <RefreshCw size={13} />
@@ -1274,10 +1263,7 @@ export default function MarketsPage() {
               <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain touch-pan-x [scrollbar-width:thin]">
                 <table className="w-full min-w-[720px] md:min-w-[880px] lg:min-w-[1000px] xl:min-w-[1180px] border-collapse text-left text-[13px]">
                   <thead>
-                    <tr
-                      className="border-b"
-                      style={{ borderColor: 'var(--ibo-border-solid)', background: 'var(--ibo-elevated)' }}
-                    >
+                    <tr className="border-b">
                       <th className="w-9 py-2.5 pl-3 pr-1.5 sm:pl-4 md:pl-6 lg:pl-8 xl:pl-10" />
                       <th
                         className="px-2 py-2.5 text-left text-[10px] font-medium uppercase tracking-wider lg:min-w-[140px]"
@@ -1326,7 +1312,7 @@ export default function MarketsPage() {
                       return (
                           <tr
                           key={m.symbol}
-                            className="border-b transition-colors hover:bg-[color:var(--ibo-hover)] cursor-pointer"
+                            className="border-b transition-colors cursor-pointer"
                             style={{ borderColor: 'var(--ibo-border-solid)' }}
                             onClick={() => navigate(`/trade/${m.symbol}`)}
                           >
@@ -1425,23 +1411,23 @@ export default function MarketsPage() {
         </>
         )}
 
-        {/* ── IBO Markets section ──────────────────────────────────────── */}
+        {/* ── Delta Markets section ──────────────────────────────────────── */}
         {marketMode === 'ibo' && (
           <div className="text-center py-8">
             <p className="text-white/50 text-sm mb-4">
-              IBO-quoted pairs are available on the dedicated IBO Markets page.
+              Delta-quoted pairs are available on the dedicated Delta Markets page.
             </p>
             <Link
               to="/ibo-markets"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gold/15 border border-gold/30 text-gold-light font-bold text-sm hover:bg-gold/25 transition-colors"
             >
-              Open IBO Markets <ArrowRight size={14} />
+              Open Delta Markets <ArrowRight size={14} />
             </Link>
           </div>
         )}
 
         <p className="text-white/45 text-xs sm:text-sm text-center mt-8 px-2">
-          IBO data from IBO backend · Other pairs from Binance public 24h ticker · Not financial advice
+          Delta data from Delta backend · Other pairs from Binance public 24h ticker · Not financial advice
         </p>
       </div>
     </div>

@@ -50,7 +50,7 @@ export default function GetVerifiedModal({ onClose }) {
             ? 'Your identity documents are being reviewed. You can check your application status anytime.'
             : rejected
             ? 'Your previous KYC submission was rejected. Please resubmit with clear, valid documents to unlock trading.'
-            : 'Complete identity verification to unlock spot trading, deposits, and withdrawals on IBO Exchange.'}
+            : 'Complete identity verification to unlock spot trading, deposits, and withdrawals on Delta Exchange.'}
         </p>
 
         <ul className="space-y-2.5 mb-6">

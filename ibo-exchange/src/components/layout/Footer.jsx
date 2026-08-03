@@ -2,10 +2,9 @@ import { Link } from 'react-router-dom';
 import { Send, Mail, Shield, Zap, ExternalLink } from 'lucide-react';
 import DunsRegisteredSeal from './DunsRegisteredSeal';
 
-import { BRAND_LOGO } from '@/lib/brandAssets';
+import BrandLogo from '@/components/ui/BrandLogo';
 import { SITE_CONFIG } from '@/lib/siteConfig';
 
-const LOGO = BRAND_LOGO;
 const SUPPORT_EMAIL = SITE_CONFIG.supportEmail;
 
 const LINKS = {
@@ -76,11 +75,9 @@ export default function Footer() {
           {/* Brand */}
           <div className="col-span-2 sm:col-span-3 lg:col-span-2">
             <Link to="/" className="inline-flex items-center mb-5">
-              <img
-                src={LOGO}
-                alt="IBO Exchange"
-                className="ibo-brand-logo h-11 sm:h-12 w-auto max-w-[220px]"
-                style={{ background: 'transparent' }}
+              <BrandLogo
+                alt="Exchange"
+                className="h-11 sm:h-12 w-auto max-w-[220px]"
               />
             </Link>
             <p className="text-[14px] sm:text-[15px] text-zinc-400 leading-relaxed max-w-sm mb-6">
@@ -102,7 +99,7 @@ export default function Footer() {
                   href={s.href}
                   aria-label={s.label}
                   {...(s.isMailto ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-zinc-400 hover:text-[#C5E35B] hover:border-[#0ea4ab]/40 hover:bg-[#0ea4ab]/10 transition-colors"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-zinc-400 hover:text-[#00A876] hover:border-[#FE6C02]/40 hover:bg-[#FE6C02]/10 transition-colors"
                 >
                   <s.icon size={15} />
                 </a>
@@ -115,7 +112,7 @@ export default function Footer() {
           {/* Link columns */}
           {Object.entries(LINKS).map(([col, items]) => (
             <div key={col} className="min-w-0">
-              <h4 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#0ea4ab] mb-4">
+              <h4 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#FE6C02] mb-4">
                 {col}
               </h4>
               <ul className="space-y-3">
@@ -145,12 +142,12 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 sm:mt-14 pt-6 border-t border-white/[0.06] flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <p className="text-[13px] text-zinc-500">© 2026 IBO Exchange. All rights reserved.</p>
+          <p className="text-[13px] text-zinc-500">© 2026 Delta Exchange. All rights reserved.</p>
 
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] text-zinc-500">
             <a
               href={`mailto:${SUPPORT_EMAIL}`}
-              className="hover:text-[#C5E35B] transition-colors"
+              className="hover:text-[#00A876] transition-colors"
             >
               {SUPPORT_EMAIL}
             </a>
@@ -161,10 +158,10 @@ export default function Footer() {
               Terms
             </Link>
             <span className="inline-flex items-center gap-1.5 text-zinc-400">
-              <Shield size={12} className="text-[#0ea4ab]" /> Secured
+              <Shield size={12} className="text-[#FE6C02]" /> Secured
             </span>
             <span className="inline-flex items-center gap-1.5 text-zinc-400">
-              <Zap size={12} className="text-[#C5E35B]" /> Fast execution
+              <Zap size={12} className="text-[#00A876]" /> Fast execution
             </span>
           </div>
         </div>

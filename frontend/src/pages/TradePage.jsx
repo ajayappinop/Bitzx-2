@@ -149,15 +149,15 @@ export default function TradePage() {
   const price  = ticker?.price ?? '—';
 
   return (
-    <div className="h-screen flex flex-col bg-surface overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-surface" data-trade-layout="delta">
 
-      {/* ── Top Navigation ───────────────────────────────────────────────── */}
-      <header className="flex items-center gap-3 px-3 py-1.5 border-b border-line bg-surface-elevated flex-shrink-0">
+      {/* ── Top: symbol · price · 24h stats ──────────────────────────────── */}
+      <header className="sticky top-0 z-30 flex items-center gap-3 px-3 py-1.5 border-b border-line bg-surface flex-shrink-0">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-          <img src={LOGO_URL} alt="IBO" className="h-7 w-7 object-contain" />
+          <img src={LOGO_URL} alt="Delta" className="h-7 w-7 object-contain" />
           <span className="font-bold text-base hidden sm:block">
-            <span className="text-ink">IBO</span>
+            <span className="text-ink">Delta</span>
           </span>
         </Link>
 
@@ -259,49 +259,69 @@ export default function TradePage() {
         </div>
       </header>
 
-      {/* ── Main trading area ─────────────────────────────────────────────── */}
-      <div className="flex-1 min-h-0 flex overflow-hidden">
+      {/* ── Main: chart | order book + trades | ticket (Delta layout) ─────── */}
+      <div className="flex min-h-[520px] h-[min(68vh,760px)] overflow-hidden shrink-0">
 
-        <div className="w-[220px] xl:w-[260px] border-r border-line flex-shrink-0 flex flex-col overflow-hidden hidden md:flex min-h-0">
-          <OrderBook
-            symbol={symbol}
-            baseAsset={base}
-            lastPrice={ticker?.price}
-            changePct={ticker != null ? parseFloat(ticker.priceChangePercent) : null}
-            onPriceClick={handleOrderBookPrice}
-          />
+        {/* Chart (dominant left) */}
+        <div className="flex-1 min-w-0 min-h-0 relative overflow-hidden border-r border-line">
+          <TradingChart symbol={symbol} />
         </div>
 
-        <div className="flex-1 min-w-0 min-h-0 flex flex-col">
-          <div className="flex-[3] min-h-0 border-b border-line">
-            <TradingChart symbol={symbol} />
-          </div>
-
-          <div className="flex-[2] min-h-0 md:hidden border-t border-line">
-            <TradeForm
+        {/* Center: order book (top) + recent trades (bottom) */}
+        <div className="hidden md:flex w-[240px] lg:w-[260px] xl:w-[280px] shrink-0 flex-col min-h-0 border-r border-line bg-transparent">
+          <div className="flex-[1.2] min-h-0 overflow-hidden">
+            <OrderBook
               symbol={symbol}
-              currentPrice={fmtPrice(price, base)}
-              onOrderPlaced={handleOrderPlaced}
+              baseAsset={base}
+              lastPrice={ticker?.price}
+              changePct={ticker != null ? parseFloat(ticker.priceChangePercent) : null}
+              onPriceClick={handleOrderBookPrice}
             />
           </div>
+          <div className="flex-[0.85] min-h-[160px] max-h-[280px] border-t border-line overflow-hidden">
+            <RecentTrades symbol={symbol} baseAsset={base} />
+          </div>
         </div>
 
-        <div className="hidden md:flex w-[360px] xl:w-[380px] shrink-0 flex-col min-h-0 border-l border-line">
-          <div className="flex-[3] min-h-0 flex flex-col border-b border-line">
+        {/* Right: order ticket */}
+        <div className="hidden md:flex w-[280px] lg:w-[300px] xl:w-[320px] shrink-0 flex-col min-h-0 overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             <TradeForm
               symbol={symbol}
               currentPrice={formPrice || fmtPrice(price, base)}
               onOrderPlaced={handleOrderPlaced}
             />
           </div>
+        </div>
+      </div>
 
-          <div className="flex-[2] min-h-0 min-h-[140px]">
-            <RecentTrades symbol={symbol} />
+      {/* Mobile: form under chart, book accessible via secondary strip */}
+      <div className="md:hidden flex flex-col border-t border-line shrink-0">
+        <div className="min-h-[280px] overflow-y-auto border-b border-line">
+          <TradeForm
+            symbol={symbol}
+            currentPrice={formPrice || fmtPrice(price, base)}
+            onOrderPlaced={handleOrderPlaced}
+          />
+        </div>
+        <div className="h-[280px] min-h-0 flex">
+          <div className="flex-1 min-w-0 overflow-hidden border-r border-line">
+            <OrderBook
+              symbol={symbol}
+              baseAsset={base}
+              lastPrice={ticker?.price}
+              changePct={ticker != null ? parseFloat(ticker.priceChangePercent) : null}
+              onPriceClick={handleOrderBookPrice}
+            />
+          </div>
+          <div className="w-[45%] min-w-0 overflow-hidden">
+            <RecentTrades symbol={symbol} baseAsset={base} />
           </div>
         </div>
       </div>
 
-      <div className="flex-shrink-0 h-[100px] min-h-[100px] border-t border-line bg-surface-elevated">
+      {/* Bottom dock — full table; page scrolls to show all rows */}
+      <div className="min-h-[320px] border-t border-line bg-surface flex flex-col">
         <OpenOrders
           orders={orders}
           onCancel={handleCancelOrder}

@@ -159,7 +159,7 @@ export default function InrWithdrawalsHistoryPage() {
               <div className="px-5 py-4 border-b border-surface-border">
                 <h3 className="text-white font-bold text-lg">Cancel withdrawal request?</h3>
                 <p className="text-white/60 text-sm mt-1">
-                  This will cancel your pending INR withdrawal request and unlock reserved IBO.
+                  This will cancel your pending INR withdrawal request and unlock reserved Delta.
                 </p>
               </div>
               <div className="px-5 py-4 flex justify-end gap-2">

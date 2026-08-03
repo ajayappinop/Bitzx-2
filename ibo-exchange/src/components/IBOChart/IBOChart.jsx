@@ -60,10 +60,10 @@ function layoutForTheme(isLight) {
     };
   }
   return {
-    layout: { background: { color: '#0d0f14' }, textColor: '#c7c9d1' },
+    layout: { background: { color: '#101013' }, textColor: '#c7c9d1' },
     grid: {
-      vertLines: { color: 'rgba(255,255,255,0.03)' },
-      horzLines: { color: 'rgba(255,255,255,0.03)' },
+      vertLines: { color: 'rgba(255,255,255,0.04)' },
+      horzLines: { color: 'rgba(255,255,255,0.04)' },
     },
     rightPriceScale: { borderColor: 'rgba(255,255,255,0.08)' },
     timeScale: {
@@ -71,9 +71,9 @@ function layoutForTheme(isLight) {
       timeVisible: true,
       secondsVisible: false,
     },
-    tipBg: 'rgba(8,10,14,0.92)',
-    tipBorder: 'rgba(255,255,255,0.15)',
-    tipColor: '#fff',
+    tipBg: 'rgba(16,16,19,0.92)',
+    tipBorder: 'rgba(255,255,255,0.12)',
+    tipColor: '#e1e1e2',
   };
 }
 
@@ -123,7 +123,7 @@ export default function IBOChart({
     const vSeries = chart.addHistogramSeries({
       priceFormat: { type: 'volume' },
       priceScaleId: '',
-      color: 'rgba(91,184,255,0.4)',
+      color: 'rgba(254, 157, 85,0.4)',
     });
     vSeries.priceScale().applyOptions({ scaleMargins: { top: 0.8, bottom: 0 } });
     candleRef.current = cSeries;
@@ -241,7 +241,7 @@ export default function IBOChart({
   return (
     <div
       className="w-full h-full flex flex-col"
-      style={{ background: isLight ? 'var(--ibo-card)' : '#0d0f14' }}
+      style={{ background: isLight ? 'var(--ibo-card)' : '#101013' }}
     >
       {/* Interval selector */}
       <div
@@ -271,7 +271,7 @@ export default function IBOChart({
         {loading && chartData.length === 0 && (
           <div
             className="absolute inset-0 flex flex-col items-center justify-center z-10"
-            style={{ background: isLight ? 'rgba(255,255,255,0.85)' : 'rgba(13,15,20,0.8)' }}
+            style={{ background: isLight ? 'rgba(255,255,255,0.85)' : 'rgba(16,16,19,0.85)' }}
           >
             <Loader2 className="w-8 h-8 text-gold animate-spin mb-3" />
             <span
@@ -285,7 +285,7 @@ export default function IBOChart({
         {!loading && chartData.length === 0 && (
           <div
             className="absolute inset-0 flex flex-col items-center justify-center z-10"
-            style={{ background: isLight ? 'rgba(255,255,255,0.85)' : 'rgba(13,15,20,0.8)' }}
+            style={{ background: isLight ? 'rgba(255,255,255,0.85)' : 'rgba(16,16,19,0.85)' }}
           >
             <span
               className="text-sm font-semibold tracking-wider uppercase"

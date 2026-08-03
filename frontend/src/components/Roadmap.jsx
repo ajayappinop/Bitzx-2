@@ -40,7 +40,7 @@ const roadmapPhases = [
     title: 'Exchange Live',
     status: 'completed',
     items: [
-      'IBO Exchange live at exchange.ibo.io',
+      'Delta Exchange live at exchange.ibo.io',
       'KYC/AML integration',
       'INR deposit & payout flows',
       'Advanced trading features',

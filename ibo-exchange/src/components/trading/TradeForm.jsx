@@ -125,7 +125,7 @@ export default function TradeForm({ symbol, lastPrice, limitPriceSeed = '', init
   const limitPx  = parseLimitPrice(price);
   const effPrice = isMarket ? (markPx ?? 0) : (limitPx ?? 0);
   const notionalUsdt = effPrice * amtNum;
-  const iboBalance = Number(balance?.IBO || 0);
+  const iboBalance = Number(balance?.Delta || 0);
   const avail    = isBuy ? (balance?.[quoteAsset] || 0) : (balance?.[apiBase] || 0);
 
   const limitRestsOnBook =
@@ -326,10 +326,10 @@ export default function TradeForm({ symbol, lastPrice, limitPriceSeed = '', init
   const shouldShowError = (key) => Boolean(spotCheck.errors[key] && (submitAttempted || touched[key]));
 
   const fieldBox = (error) =>
-    `flex h-10 items-center rounded-md border px-3 transition-colors bg-[color:var(--ibo-card)] ${
+    `delta-trade-box flex h-10 items-center rounded border px-3 transition-colors bg-transparent ${
       error
         ? 'border-red-500/50'
-        : 'border-[color:var(--ibo-border-solid)] focus-within:border-[#C5E35B]/55'
+        : 'border-[color:var(--ibo-border-solid)] focus-within:border-[#FE6C02]/55'
     }`;
   const fieldInput =
     'flex-1 min-w-0 bg-transparent text-[13px] font-mono font-semibold outline-none text-[color:var(--ibo-ink)] placeholder:text-[color:var(--ibo-muted)]';
@@ -340,10 +340,10 @@ export default function TradeForm({ symbol, lastPrice, limitPriceSeed = '', init
   const kycBlocked = !!user && kyc?.status !== 'approved';
 
   return (
-    <div className="font-ui flex flex-col h-full min-h-0 text-[color:var(--ibo-ink)] bg-[color:var(--ibo-surface)]">
+    <div className="font-ui flex flex-col h-full min-h-0 text-[color:var(--ibo-ink)] bg-transparent">
       {/* Buy / Sell */}
       <div className="flex items-center gap-2 px-3 pt-3 pb-2">
-        <div className="flex flex-1 rounded-md overflow-hidden border border-[color:var(--ibo-border-solid)]">
+        <div className="flex flex-1 overflow-hidden rounded border border-[color:var(--ibo-border-solid)]">
           {['buy', 'sell'].map((s) => {
             const on = side === s;
             const buy = s === 'buy';
@@ -355,9 +355,9 @@ export default function TradeForm({ symbol, lastPrice, limitPriceSeed = '', init
                 className={`flex-1 py-2 text-[13px] font-bold transition-colors ${
                   on
                     ? buy
-                      ? 'bg-emerald-500/15 text-emerald-600 border-b-2 border-emerald-500'
-                      : 'bg-rose-500/15 text-rose-600 border-b-2 border-rose-500'
-                    : 'bg-[color:var(--ibo-elevated)] text-[color:var(--ibo-muted)] hover:text-[color:var(--ibo-ink)]'
+                      ? 'bg-[color:var(--ibo-positive)]/15 text-[color:var(--ibo-positive)] border-b-2 border-[color:var(--ibo-positive)]'
+                      : 'bg-[color:var(--ibo-negative)]/15 text-[color:var(--ibo-negative)] border-b-2 border-[color:var(--ibo-negative)]'
+                    : 'bg-transparent text-[color:var(--ibo-muted)] hover:text-[color:var(--ibo-ink)]'
                 }`}
               >
                 {buy ? `Buy ${displayBase}` : `Sell ${displayBase}`}
@@ -377,11 +377,11 @@ export default function TradeForm({ symbol, lastPrice, limitPriceSeed = '', init
               type="button"
               onClick={() => setType(t)}
               className="relative px-3 py-2 text-[12px] font-semibold capitalize transition-colors"
-              style={{ color: on ? '#0ea4ab' : 'var(--ibo-muted)' }}
+              style={{ color: on ? '#FE6C02' : 'var(--ibo-muted)' }}
             >
               {t}
               {on ? (
-                <span className="absolute left-2 right-2 bottom-0 h-0.5 rounded-full bg-[#0ea4ab]" />
+                <span className="absolute left-2 right-2 bottom-0 h-0.5 rounded-full bg-[#FE6C02]" />
               ) : null}
             </button>
           );
@@ -407,7 +407,7 @@ export default function TradeForm({ symbol, lastPrice, limitPriceSeed = '', init
             </span>
             <Link
               to="/wallet?tab=deposit"
-              className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-[#0ea4ab]/35 bg-[#0ea4ab]/10 text-[#0ea4ab] hover:bg-[#0ea4ab]/20 transition-colors"
+              className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-[#FE6C02]/35 bg-[#FE6C02]/10 text-[#FE6C02] hover:bg-[#FE6C02]/20 transition-colors"
               title="Deposit"
               aria-label="Deposit"
             >
@@ -442,9 +442,9 @@ export default function TradeForm({ symbol, lastPrice, limitPriceSeed = '', init
               ) : null}
             </div>
           ) : (
-            <div className="flex items-center justify-between rounded-md border border-[color:var(--ibo-border-solid)] bg-[color:var(--ibo-card)] px-3 py-2.5">
+            <div className="delta-trade-box flex items-center justify-between rounded border border-[color:var(--ibo-border-solid)] bg-transparent px-3 py-2.5">
               <span className="text-[11px] text-[color:var(--ibo-muted)]">Last price</span>
-              <span className="text-[13px] font-mono font-bold tabular-nums text-[#0ea4ab]">
+              <span className="text-[13px] font-mono font-bold tabular-nums text-[#FE6C02]">
                 {markPx != null && markPx > 0
                   ? (isUsdtQuote ? `$${fmtLiveUsdt(markPx)}` : fmtLiveUsdt(markPx))
                   : '—'}
@@ -541,17 +541,17 @@ export default function TradeForm({ symbol, lastPrice, limitPriceSeed = '', init
                 key={pct}
                 type="button"
                 onClick={() => setPct(pct)}
-                className="h-8 text-[11px] rounded-md border border-[color:var(--ibo-border-solid)]
-                  bg-[color:var(--ibo-card)] text-[color:var(--ibo-muted)] font-semibold
-                  hover:border-[#0ea4ab]/45 hover:text-[#0ea4ab] transition-colors"
+                className="delta-trade-box h-8 text-[11px] rounded border border-[color:var(--ibo-border-solid)]
+                  bg-transparent text-[color:var(--ibo-muted)] font-semibold
+                  hover:border-[#FE6C02]/45 hover:text-[#FE6C02] transition-colors"
               >
                 {pct}%
               </button>
             ))}
           </div>
 
-          {/* Compact summary */}
-          <div className="rounded-md border border-[color:var(--ibo-border-solid)] bg-[color:var(--ibo-card)] px-3 py-2.5 space-y-1.5 text-[11px]">
+          {/* Compact summary — outline only, no filled grey slab */}
+          <div className="delta-trade-box rounded border border-[color:var(--ibo-border-solid)] bg-transparent px-3 py-2.5 space-y-1.5 text-[11px]">
             <div className="flex justify-between gap-2">
               <span className="text-[color:var(--ibo-muted)]">Last</span>
               <span className="font-mono font-semibold tabular-nums">
@@ -563,7 +563,7 @@ export default function TradeForm({ symbol, lastPrice, limitPriceSeed = '', init
             {!isMarket ? (
               <div className="flex justify-between gap-2">
                 <span className="text-[color:var(--ibo-muted)]">Your limit</span>
-                <span className="font-mono font-semibold tabular-nums text-[#0ea4ab]">
+                <span className="font-mono font-semibold tabular-nums text-[#FE6C02]">
                   {limitPx != null
                     ? (isUsdtQuote
                       ? `$${limitPx.toLocaleString(undefined, { maximumFractionDigits: 8 })}`
@@ -591,7 +591,7 @@ export default function TradeForm({ symbol, lastPrice, limitPriceSeed = '', init
             {amtNum > 0 ? (
               <div className="flex justify-between gap-2 pt-1.5 border-t border-[color:var(--ibo-border)]">
                 <span className="text-[color:var(--ibo-muted)]">Est. fee ({(feeRate * 100).toFixed(3)}%)</span>
-                <span className="font-mono font-semibold">{estFeeIbo.toFixed(8)} IBO</span>
+                <span className="font-mono font-semibold">{estFeeIbo.toFixed(8)} Delta</span>
               </div>
             ) : null}
             {!isMarket && markPx != null && limitPx != null && amtNum > 0 ? (
@@ -600,7 +600,7 @@ export default function TradeForm({ symbol, lastPrice, limitPriceSeed = '', init
                   limitRestsOnBook
                     ? 'text-sky-600'
                     : limitMayCross
-                      ? 'text-[#0ea4ab]'
+                      ? 'text-[#FE6C02]'
                       : 'text-[color:var(--ibo-muted)]'
                 }`}
               >
@@ -620,7 +620,7 @@ export default function TradeForm({ symbol, lastPrice, limitPriceSeed = '', init
                 <button
                   type="button"
                   onClick={() => navigate('/login')}
-                  className="flex-1 h-10 rounded-md bg-[#0ea4ab] hover:brightness-110 text-white font-bold text-[13px] transition-all"
+                  className="flex-1 h-10 rounded-md bg-[#FE6C02] hover:brightness-110 text-white font-bold text-[13px] transition-all"
                 >
                   Log In
                 </button>
@@ -639,13 +639,13 @@ export default function TradeForm({ symbol, lastPrice, limitPriceSeed = '', init
             <div
               className={`rounded-md p-3 border ${
                 kyc?.status === 'pending'
-                  ? 'bg-[#0ea4ab]/10 border-[#0ea4ab]/25'
+                  ? 'bg-[#FE6C02]/10 border-[#FE6C02]/25'
                   : 'bg-red-500/8 border-red-500/25'
               }`}
             >
               <p
                 className={`font-bold flex items-center gap-2 mb-1.5 text-[12px] ${
-                  kyc?.status === 'pending' ? 'text-[#0ea4ab]' : 'text-red-500'
+                  kyc?.status === 'pending' ? 'text-[#FE6C02]' : 'text-red-500'
                 }`}
               >
                 {kyc?.status === 'pending' ? (
@@ -663,7 +663,7 @@ export default function TradeForm({ symbol, lastPrice, limitPriceSeed = '', init
               </p>
               <Link
                 to="/kyc"
-                className="inline-flex items-center gap-1.5 text-[12px] font-bold text-[#0ea4ab] hover:underline"
+                className="inline-flex items-center gap-1.5 text-[12px] font-bold text-[#FE6C02] hover:underline"
               >
                 <Shield size={12} />
                 {kyc?.status === 'pending' ? 'Check status' : kyc?.status === 'rejected' ? 'Resubmit KYC' : 'Get verified →'}
@@ -674,7 +674,7 @@ export default function TradeForm({ symbol, lastPrice, limitPriceSeed = '', init
           {kycBlocked ? (
             <Link
               to="/kyc"
-              className="flex w-full h-11 items-center justify-center rounded-md text-[14px] font-extrabold bg-[#C5E35B] text-[#0a0f1a] hover:brightness-110"
+              className="flex w-full h-11 items-center justify-center rounded-md text-[14px] font-extrabold bg-logo-gradient text-[#101013] hover:brightness-110"
             >
               Get Verified To Trade
             </Link>
@@ -684,8 +684,8 @@ export default function TradeForm({ symbol, lastPrice, limitPriceSeed = '', init
               disabled={placing || !user}
               className={`w-full h-11 rounded-md text-[14px] font-extrabold transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
                 isBuy
-                  ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
-                  : 'bg-rose-500 hover:bg-rose-600 text-white'
+                  ? 'bg-[color:var(--ibo-positive)] hover:brightness-110 text-white'
+                  : 'bg-[color:var(--ibo-negative)] hover:brightness-110 text-white'
               }`}
             >
               {placing ? (

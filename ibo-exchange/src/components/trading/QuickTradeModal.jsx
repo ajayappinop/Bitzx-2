@@ -121,7 +121,7 @@ export default function QuickTradeModal({ symbol: initialSymbol = 'BTCUSDT', cur
 
   const availUSDT = parseFloat(balance?.USDT  ?? 0);
   const availBase = parseFloat(balance?.[base] ?? 0);
-  const availIBO  = parseFloat(balance?.IBO ?? 0);
+  const availIBO  = parseFloat(balance?.Delta ?? 0);
   const maxBase   = side === 'buy' ? (price > 0 ? availUSDT / price : 0) : availBase;
 
   const qty     = parseFloat(amount) || 0;
@@ -237,20 +237,20 @@ export default function QuickTradeModal({ symbol: initialSymbol = 'BTCUSDT', cur
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             padding: '18px 22px 14px',
             borderBottom: '1px solid var(--ibo-border)',
-            background: 'linear-gradient(135deg, rgba(14,164,171,0.06), transparent)',
+            background: 'linear-gradient(135deg, rgba(254, 108, 2,0.06), transparent)',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{
                 width: 36, height: 36, borderRadius: 10,
-                background: 'linear-gradient(135deg, #0EA4AB, #5BB8FF)',
+                background: 'linear-gradient(135deg, #FE6C02, #FE9D55)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <Zap size={18} color="#050a1a" />
+                <Zap size={18} color="#101013" />
               </div>
               <div>
                 <p style={{ fontSize: 17, fontWeight: 900, color: 'var(--ibo-ink)', lineHeight: 1 }}>Quick Trade</p>
                 <p style={{ fontSize: 12, color: 'var(--ibo-muted)', marginTop: 3, fontWeight: 600 }}>
-                  Instant market order · fee in IBO
+                  Instant market order · fee in Delta
                 </p>
               </div>
             </div>
@@ -274,7 +274,7 @@ export default function QuickTradeModal({ symbol: initialSymbol = 'BTCUSDT', cur
                   width: '100%', display: 'flex', alignItems: 'center', gap: 12,
                   padding: '12px 16px', borderRadius: 14, cursor: 'pointer',
                   background: 'var(--ibo-elevated)',
-                  border: `1px solid ${pairOpen ? 'rgba(91,184,255,0.5)' : 'var(--ibo-border-solid)'}`,
+                  border: `1px solid ${pairOpen ? 'rgba(254, 157, 85,0.5)' : 'var(--ibo-border-solid)'}`,
                   transition: 'border-color 0.2s',
                 }}>
                 {icon && <img src={icon} alt={base} style={{ width: 28, height: 28, borderRadius: '50%', flexShrink: 0 }} />}
@@ -308,8 +308,8 @@ export default function QuickTradeModal({ symbol: initialSymbol = 'BTCUSDT', cur
                           style={{
                             width: '100%', display: 'flex', alignItems: 'center', gap: 12,
                             padding: '10px 16px', cursor: 'pointer', border: 'none',
-                            background: q === symbol ? 'rgba(91,184,255,0.1)' : 'transparent',
-                            color: q === symbol ? '#5BB8FF' : 'var(--ibo-ink)',
+                            background: q === symbol ? 'rgba(254, 157, 85,0.1)' : 'transparent',
+                            color: q === symbol ? '#FE9D55' : 'var(--ibo-ink)',
                             transition: 'background 0.15s',
                           }}
                           className="hover:bg-white/5">
@@ -318,7 +318,7 @@ export default function QuickTradeModal({ symbol: initialSymbol = 'BTCUSDT', cur
                           )}
                           <span style={{ flex: 1, textAlign: 'left', fontSize: 15, fontWeight: 700 }}>{b}/USDT</span>
                           {q === symbol && (
-                            <span style={{ fontSize: 10, background: 'rgba(91,184,255,0.15)', color: '#5BB8FF', padding: '2px 8px', borderRadius: 20, fontWeight: 800 }}>
+                            <span style={{ fontSize: 10, background: 'rgba(254, 157, 85,0.15)', color: '#FE9D55', padding: '2px 8px', borderRadius: 20, fontWeight: 800 }}>
                               SELECTED
                             </span>
                           )}
@@ -371,11 +371,11 @@ export default function QuickTradeModal({ symbol: initialSymbol = 'BTCUSDT', cur
                     borderRadius: 10, border: 'none', cursor: 'pointer',
                     transition: 'all 0.2s',
                     background: side === s
-                      ? (s === 'buy' ? 'rgba(34,197,94,0.22)' : 'rgba(239,68,68,0.22)')
+                      ? (s === 'buy' ? 'color-mix(in srgb, var(--ibo-positive) 22%, transparent)' : 'color-mix(in srgb, var(--ibo-negative) 22%, transparent)')
                       : 'transparent',
                     color: side === s
-                      ? (s === 'buy' ? '#22c55e' : '#ef4444')
-                      : '#4A4B50',
+                      ? (s === 'buy' ? 'var(--ibo-positive)' : 'var(--ibo-negative)')
+                      : 'var(--ibo-muted)',
                     textTransform: 'uppercase', letterSpacing: '0.06em',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                   }}>
@@ -411,7 +411,7 @@ export default function QuickTradeModal({ symbol: initialSymbol = 'BTCUSDT', cur
                 orderCheck.errors.amount || orderCheck.errors.balance || orderCheck.errors.total
                   ? 'rgba(239,68,68,0.5)'
                   : amount
-                    ? 'rgba(197,227,91,0.4)'
+                    ? 'rgba(0, 168, 118,0.4)'
                     : 'var(--ibo-border-solid)'
               }`,
               borderRadius: 14, padding: '0 16px',
@@ -475,7 +475,7 @@ export default function QuickTradeModal({ symbol: initialSymbol = 'BTCUSDT', cur
                   <span style={{ color: 'var(--ibo-muted)', fontSize: 13, fontWeight: 600 }}>
                     Est. fee ({(feeRate * 100).toFixed(3)}%)
                   </span>
-                  <span style={{ color: '#0EA4AB', fontFamily: 'Inter, Plus Jakarta Sans, sans-serif', fontSize: 13, fontWeight: 700 }}>
+                  <span style={{ color: '#FE6C02', fontFamily: 'Inter, Plus Jakarta Sans, sans-serif', fontSize: 13, fontWeight: 700 }}>
                     {formatIboFee(feeIbo)}
                   </span>
                 </div>
@@ -500,10 +500,10 @@ export default function QuickTradeModal({ symbol: initialSymbol = 'BTCUSDT', cur
             {kycBlocked && (
               <div style={{
                 display: 'flex', alignItems: 'center', gap: 10,
-                background: 'rgba(14,164,171,0.08)',
-                border: '1px solid rgba(14,164,171,0.2)',
+                background: 'rgba(254, 108, 2,0.08)',
+                border: '1px solid rgba(254, 108, 2,0.2)',
                 borderRadius: 12, padding: '12px 14px', marginBottom: 14,
-                fontSize: 13, color: '#0EA4AB', fontWeight: 700,
+                fontSize: 13, color: '#FE6C02', fontWeight: 700,
               }}>
                 <AlertCircle size={15} />
                 KYC required.{' '}
@@ -535,8 +535,8 @@ export default function QuickTradeModal({ symbol: initialSymbol = 'BTCUSDT', cur
                 style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                   width: '100%', padding: '16px 0',
-                  background: !orderCheck.ok ? 'var(--ibo-elevated)' : 'linear-gradient(135deg, #0EA4AB, #5BB8FF)',
-                  color: !orderCheck.ok ? 'var(--ibo-muted)' : '#050a1a', fontWeight: 900, fontSize: 16,
+                  background: !orderCheck.ok ? 'var(--ibo-elevated)' : 'linear-gradient(135deg, #FE6C02, #FE9D55)',
+                  color: !orderCheck.ok ? 'var(--ibo-muted)' : '#101013', fontWeight: 900, fontSize: 16,
                   borderRadius: 14, border: 'none', cursor: !orderCheck.ok ? 'not-allowed' : 'pointer',
                 }}>
                 Sign In to Trade
@@ -551,13 +551,13 @@ export default function QuickTradeModal({ symbol: initialSymbol = 'BTCUSDT', cur
                   background: loading || kycBlocked || !orderCheck.ok
                     ? 'var(--ibo-elevated)'
                     : side === 'buy'
-                      ? 'linear-gradient(135deg, #16a34a, #22c55e)'
-                      : 'linear-gradient(135deg, #dc2626, #ef4444)',
+                      ? 'linear-gradient(135deg, #00966a, var(--ibo-positive))'
+                      : 'linear-gradient(135deg, #c54043, var(--ibo-negative))',
                   color: loading || kycBlocked || !orderCheck.ok ? 'var(--ibo-muted)' : '#fff',
                   opacity: kycBlocked ? 0.55 : 1,
                   boxShadow: loading || kycBlocked || !orderCheck.ok ? 'none'
-                    : side === 'buy' ? '0 8px 24px rgba(34,197,94,0.25)'
-                                     : '0 8px 24px rgba(239,68,68,0.25)',
+                    : side === 'buy' ? '0 8px 24px color-mix(in srgb, var(--ibo-positive) 28%, transparent)'
+                                     : '0 8px 24px color-mix(in srgb, var(--ibo-negative) 28%, transparent)',
                 }}>
                 {loading
                   ? <><Loader2 size={20} className="animate-spin" /> Processing…</>

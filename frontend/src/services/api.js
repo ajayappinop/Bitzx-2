@@ -33,7 +33,7 @@ export const api = {
   },
 
   /**
-   * Fetch static + live IBO token statistics.
+   * Fetch static + live Delta token statistics.
    */
   async getTokenStats() {
     const response = await fetchWithTimeout(`${BACKEND_URL}/api/token-stats`);
@@ -65,7 +65,7 @@ export const api = {
 // ── Trading API (all market data via backend — Binance proxied server-side) ───
 
 export const tradingApi = {
-  /** Full market snapshot: internal IBO + live Binance 24h for listed pairs */
+  /** Full market snapshot: internal Delta + live Binance 24h for listed pairs */
   async getMarkets() {
     const res = await fetchWithTimeout(`${BACKEND_URL}/api/trading/markets`);
     return handleResponse(res);

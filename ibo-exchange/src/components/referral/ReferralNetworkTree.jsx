@@ -44,7 +44,7 @@ function KycPill({ status }) {
       className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
         approved
           ? 'bg-emerald-500/15 text-emerald-600 border border-emerald-500/30'
-          : 'bg-[color:var(--ibo-elevated)] text-[color:var(--ibo-muted)] border border-[color:var(--ibo-border-solid)]'
+          : 'bg-transparent text-[color:var(--ibo-muted)] border border-[color:var(--ibo-border-solid)]'
       }`}
     >
       {approved ? 'KYC ✓' : 'Pending KYC'}
@@ -59,8 +59,8 @@ function ReferralAvatar({ node, size = 'md', isRoot = false }) {
     <div
       className={`${dim} rounded-full overflow-hidden flex items-center justify-center font-extrabold shrink-0 ${
         isRoot
-          ? 'ring-2 ring-[rgba(91,184,255,0.55)] bg-[rgba(91,184,255,0.15)] text-[#5BB8FF]'
-          : 'ring-2 ring-[color:var(--ibo-border-solid)] bg-[color:var(--ibo-elevated)] text-[color:var(--ibo-ink)]'
+          ? 'ring-2 ring-[rgba(254, 157, 85,0.55)] bg-[rgba(254, 157, 85,0.15)] text-[#FE9D55]'
+          : 'ring-2 ring-[color:var(--ibo-border-solid)] bg-transparent text-[color:var(--ibo-ink)]'
       }`}
     >
       {src ? (
@@ -99,7 +99,7 @@ function ReferralNodeCard({
       </p>
       {!isRoot ? (
         <>
-          <span className="mt-1 text-[10px] font-extrabold text-[#5BB8FF] bg-[rgba(91,184,255,0.1)] border border-[rgba(91,184,255,0.25)] rounded px-1.5 py-0.5">
+          <span className="mt-1 text-[10px] font-extrabold text-[#FE9D55] bg-[rgba(254, 157, 85,0.1)] border border-[rgba(254, 157, 85,0.25)] rounded px-1.5 py-0.5">
             Level {node.level}
           </span>
           <div className="mt-1.5">
@@ -108,10 +108,10 @@ function ReferralNodeCard({
           {(earned > 0 || pending > 0) ? (
             <div className="mt-2 space-y-0.5 text-center w-full">
               {earned > 0 ? (
-                <p className="text-[10px] font-bold text-[#5BB8FF]">{earned.toFixed(4)} IBO earned</p>
+                <p className="text-[10px] font-bold text-[#FE9D55]">{earned.toFixed(4)} Delta earned</p>
               ) : null}
               {pending > 0 ? (
-                <p className="text-[10px] font-bold text-[#0EA4AB]">{pending.toFixed(4)} IBO pending</p>
+                <p className="text-[10px] font-bold text-[#FE6C02]">{pending.toFixed(4)} Delta pending</p>
               ) : null}
             </div>
           ) : null}
@@ -151,7 +151,7 @@ function TreeBranch({ node, childrenMap, depth, defaultOpenDepth, remountKey }) 
 
       {open ? (
         <>
-          <div className="w-px h-5 bg-gradient-to-b from-[rgba(91,184,255,0.45)] to-[color:var(--ibo-border-solid)]" />
+          <div className="w-px h-5 bg-gradient-to-b from-[rgba(254, 157, 85,0.45)] to-[color:var(--ibo-border-solid)]" />
           <div className="relative flex items-start justify-center gap-6 sm:gap-8 pt-0">
             {children.length > 1 ? (
               <div
@@ -210,7 +210,7 @@ export default memo(function ReferralNetworkTree({ rootUser, referrals, summary 
 
   if (!directChildren.length) {
     return (
-      <div className="rounded-2xl border border-[color:var(--ibo-border-solid)] bg-[color:var(--ibo-card)] px-6 py-12 text-center shadow-[var(--ibo-shadow)]">
+      <div className="rounded-xl border border-[color:var(--ibo-border-solid)] bg-transparent px-6 py-12 text-center">
         <Users className="mx-auto text-[color:var(--ibo-muted)] mb-3 opacity-50" size={36} />
         <p className="text-[color:var(--ibo-ink)] font-semibold">No referrals in your network yet</p>
         <p className="text-[color:var(--ibo-muted)] text-sm mt-1 max-w-md mx-auto">
@@ -224,8 +224,8 @@ export default memo(function ReferralNetworkTree({ rootUser, referrals, summary 
   }
 
   return (
-    <div className="rounded-2xl border border-[color:var(--ibo-border-solid)] bg-[color:var(--ibo-card)] overflow-hidden shadow-[var(--ibo-shadow)]">
-      <div className="px-4 sm:px-5 py-3 border-b border-[color:var(--ibo-border-solid)] bg-[color:var(--ibo-elevated)] flex flex-wrap items-center justify-between gap-2">
+    <div className="rounded-xl border border-[color:var(--ibo-border-solid)] bg-transparent overflow-hidden">
+      <div className="px-4 sm:px-5 py-3 border-b border-[color:var(--ibo-border-solid)] bg-transparent flex flex-wrap items-center justify-between gap-2">
         <div>
           <h3 className="text-sm font-extrabold text-[color:var(--ibo-ink)] uppercase tracking-wide">Referral tree</h3>
           <p className="text-xs text-[color:var(--ibo-muted)] mt-0.5">Click any avatar to expand or collapse that branch.</p>
@@ -261,7 +261,7 @@ export default memo(function ReferralNetworkTree({ rootUser, referrals, summary 
           />
           {rootOpen ? (
             <>
-              <div className="w-px h-6 bg-gradient-to-b from-[rgba(91,184,255,0.5)] to-[color:var(--ibo-border-solid)]" />
+              <div className="w-px h-6 bg-gradient-to-b from-[rgba(254, 157, 85,0.5)] to-[color:var(--ibo-border-solid)]" />
               <div className="relative flex items-start justify-center gap-6 sm:gap-10">
                 {directChildren.length > 1 ? (
                   <div

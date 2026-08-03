@@ -20,9 +20,8 @@ import LandingHero from '@/components/landing/LandingHero';
 import LandingProductStrip from '@/components/landing/LandingProductStrip';
 import LandingFaqSupport from '@/components/landing/LandingFaqSupport';
 
-import { BRAND_LOGO, BRAND_MARK } from '@/lib/brandAssets';
+import { BRAND_MARK } from '@/lib/brandAssets';
 
-const LOGO = BRAND_LOGO;
 const MARK = BRAND_MARK;
 
 // ── Data ──────────────────────────────────────────────────────────────────────
@@ -35,7 +34,7 @@ const FEATURES_BENTO = [
     artFit: 'wide',
     span: 'sm:col-span-2 lg:col-span-7',
     layout: 'wide',
-    glow: 'rgba(197,227,91,0.42)',
+    glow: 'rgba(0, 168, 118,0.42)',
   },
   {
     key: 'security',
@@ -45,7 +44,7 @@ const FEATURES_BENTO = [
     artFit: 'wide',
     span: 'sm:col-span-2 lg:col-span-5 lg:row-span-2',
     layout: 'tall',
-    glow: 'rgba(14,164,171,0.45)',
+    glow: 'rgba(254, 108, 2,0.45)',
   },
   {
     key: 'charts',
@@ -54,7 +53,7 @@ const FEATURES_BENTO = [
     art: '/hero/why-btc-coins.png?v=13',
     span: 'sm:col-span-1 lg:col-span-4',
     layout: 'square',
-    glow: 'rgba(27,95,255,0.32)',
+    glow: 'rgba(180, 77, 1,0.32)',
   },
   {
     key: 'liquidity',
@@ -63,7 +62,7 @@ const FEATURES_BENTO = [
     art: '/hero/why-usdc-coin.png?v=1',
     span: 'sm:col-span-1 lg:col-span-3',
     layout: 'square',
-    glow: 'rgba(14,164,171,0.4)',
+    glow: 'rgba(254, 108, 2,0.4)',
   },
   {
     key: 'portfolio',
@@ -73,7 +72,7 @@ const FEATURES_BENTO = [
     artFit: 'wide',
     span: 'sm:col-span-1 lg:col-span-4',
     layout: 'square',
-    glow: 'rgba(197,227,91,0.38)',
+    glow: 'rgba(0, 168, 118,0.38)',
   },
   {
     key: 'kyc',
@@ -83,17 +82,17 @@ const FEATURES_BENTO = [
     artFit: 'tall',
     span: 'sm:col-span-1 lg:col-span-4',
     layout: 'square',
-    glow: 'rgba(14,164,171,0.4)',
+    glow: 'rgba(254, 108, 2,0.4)',
   },
   {
     key: 'inr',
     title: 'INR Deposit & Payout',
-    desc: 'Deposit INR via bank or UPI; sell IBO and withdraw INR to your bank or UPI account.',
+    desc: 'Deposit INR via bank or UPI; sell Delta and withdraw INR to your bank or UPI account.',
     art: '/hero/why-shield.png?v=11',
     artFit: 'wide',
     span: 'sm:col-span-1 lg:col-span-4',
     layout: 'square',
-    glow: 'rgba(197,227,91,0.4)',
+    glow: 'rgba(0, 168, 118,0.4)',
   },
 ];
 
@@ -206,7 +205,7 @@ function FeatureBentoCard({ feature, index }) {
 
 
 const TESTIMONIALS = [
-  { name: 'Alex R.',     role: 'Day Trader',         avatar: 'A', text: 'IBO execution speed is unreal. My limit orders fill almost instantly and the fees are the lowest I have seen on any exchange.', rating: 5 },
+  { name: 'Alex R.',     role: 'Day Trader',         avatar: 'A', text: 'Delta execution speed is unreal. My limit orders fill almost instantly and the fees are the lowest I have seen on any exchange.', rating: 5 },
   { name: 'Priya S.',    role: 'Crypto Investor',    avatar: 'P', text: 'The KYC process was smooth and the interface is very intuitive. Best exchange UI I have used. Charts are top notch.', rating: 5 },
   { name: 'Marcus K.',   role: 'Portfolio Manager',  avatar: 'M', text: 'Love the portfolio P&L tracking in real time. Makes it very easy to monitor my positions and decide when to take profit.', rating: 5 },
 ];
@@ -218,7 +217,7 @@ const VS_TABLE = [
   { feature: 'Portfolio & P&L',    ibo: 'Unified dashboard', other: 'Split tools' },
   { feature: 'Quick trade',        ibo: 'Dedicated flow',   other: 'Not always' },
   { feature: 'BEP-20 deposit search', ibo: 'Full Web3 catalog', other: 'Limited' },
-  { feature: 'IBO-quoted markets', ibo: 'IBO Markets hub', other: 'USDT only' },
+  { feature: 'Delta-quoted markets', ibo: 'Delta Markets hub', other: 'USDT only' },
   { feature: 'KYC & withdrawals', ibo: 'Guided, secure', other: 'Slow / opaque' },
   { feature: 'INR fiat (India)', ibo: 'Deposit & INR payout', other: 'Crypto-only' },
 ];
@@ -332,7 +331,7 @@ export default function LandingPage() {
           className="pointer-events-none absolute inset-0 opacity-70"
           style={{
             background:
-              'radial-gradient(ellipse 60% 80% at 10% 50%, rgba(14,164,171,0.07) 0%, transparent 55%), radial-gradient(ellipse 50% 70% at 90% 40%, rgba(197,227,91,0.05) 0%, transparent 50%)',
+              'radial-gradient(ellipse 60% 80% at 10% 50%, rgba(254, 108, 2,0.07) 0%, transparent 55%), radial-gradient(ellipse 50% 70% at 90% 40%, rgba(0, 168, 118,0.05) 0%, transparent 50%)',
           }}
         />
         <div className="relative ibo-landing-container ibo-section-y">
@@ -421,7 +420,7 @@ export default function LandingPage() {
                 className="absolute left-[21px] sm:left-[21px] top-5 bottom-5 w-px"
                 style={{
                   background:
-                    'linear-gradient(180deg, rgba(197,227,91,0.55) 0%, rgba(96,165,250,0.4) 35%, rgba(34,197,94,0.35) 70%, rgba(249,115,22,0.3) 100%)',
+                    'linear-gradient(180deg, rgba(0, 168, 118,0.55) 0%, rgba(96,165,250,0.4) 35%, rgba(34,197,94,0.35) 70%, rgba(249,115,22,0.3) 100%)',
                 }}
               />
 
@@ -430,7 +429,7 @@ export default function LandingPage() {
                   {
                     title: 'Matching Engine',
                     stat: '< 1ms latency',
-                    accent: '#C5E35B',
+                    accent: '#00A876',
                     icon: Cpu,
                     blurb: 'Sub-millisecond order matching built for high-frequency flow.',
                   },
@@ -474,7 +473,7 @@ export default function LandingPage() {
                             boxShadow: `0 0 0 4px var(--ibo-surface), 0 0 22px ${item.accent}66, 0 0 40px ${item.accent}33`,
                           }}
                         >
-                          <Icon size={18} strokeWidth={2.1} className="text-[#050a1a]" />
+                          <Icon size={18} strokeWidth={2.1} className="text-[#101013]" />
                         </div>
                       </div>
 
@@ -526,7 +525,7 @@ export default function LandingPage() {
                         <img
                           src={icon}
                           alt=""
-                          className="h-9 w-9 sm:h-10 sm:w-10 rounded-full object-cover ring-1 ring-white/10 group-hover:ring-[#0ea4ab]/50 transition-[box-shadow]"
+                          className="h-9 w-9 sm:h-10 sm:w-10 rounded-full object-cover ring-1 ring-white/10 group-hover:ring-[#FE6C02]/50 transition-[box-shadow]"
                           draggable={false}
                         />
                       ) : (
@@ -555,9 +554,9 @@ export default function LandingPage() {
       >
         <div className="ibo-landing-container pt-14 md:pt-20 pb-16 md:pb-24">
           <StackedFeatureCards
-            ariaLabel="Why IBO stacked feature cards"
+            ariaLabel="Why Delta stacked feature cards"
             stackDepth={5}
-            eyebrow="Why IBO"
+            eyebrow="Why Delta"
             title="Built for serious traders"
             lead="Everything you need to trade with confidence — from beginner to professional."
             cards={FEATURES_BENTO.map((f) => ({
@@ -596,7 +595,7 @@ export default function LandingPage() {
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              'radial-gradient(ellipse 60% 50% at 80% 25%, rgba(197,227,91,0.1) 0%, transparent 55%), radial-gradient(ellipse 50% 45% at 15% 70%, rgba(14,164,171,0.12) 0%, transparent 50%), radial-gradient(ellipse 40% 40% at 55% 90%, rgba(77,138,255,0.08) 0%, transparent 55%)',
+              'radial-gradient(ellipse 60% 50% at 80% 25%, rgba(0, 168, 118,0.1) 0%, transparent 55%), radial-gradient(ellipse 50% 45% at 15% 70%, rgba(254, 108, 2,0.12) 0%, transparent 50%), radial-gradient(ellipse 40% 40% at 55% 90%, rgba(77,138,255,0.08) 0%, transparent 55%)',
           }}
         />
         <div
@@ -604,7 +603,7 @@ export default function LandingPage() {
           className="pointer-events-none absolute inset-x-0 top-0 h-px"
           style={{
             background:
-              'linear-gradient(90deg, transparent, rgba(14,164,171,0.4), rgba(197,227,91,0.45), rgba(77,138,255,0.3), transparent)',
+              'linear-gradient(90deg, transparent, rgba(254, 108, 2,0.4), rgba(0, 168, 118,0.45), rgba(77,138,255,0.3), transparent)',
           }}
         />
 
@@ -615,7 +614,7 @@ export default function LandingPage() {
             viewport={{ once: true }}
             className="text-center mb-10 md:mb-14 max-w-2xl mx-auto"
           >
-            <p className="ibo-eyebrow mb-4">Why choose IBO</p>
+            <p className="ibo-eyebrow mb-4">Why choose Delta</p>
             <h2 className="ibo-title-lg mb-5">We stack up against anyone</h2>
             <p className="ibo-lead-wide mx-auto" style={{ color: 'var(--ibo-ink-secondary)' }}>
               Side-by-side with typical exchanges — clearer fees, deeper tools, and India-ready rails.
@@ -632,10 +631,10 @@ export default function LandingPage() {
             <div
               className="hidden sm:block relative overflow-hidden rounded-2xl border"
               style={{
-                borderColor: 'rgba(14,164,171,0.28)',
+                borderColor: 'rgba(254, 108, 2,0.28)',
                 background:
-                  'linear-gradient(155deg, rgba(14,164,171,0.14) 0%, color-mix(in srgb, var(--ibo-card) 92%, transparent) 38%, rgba(77,138,255,0.07) 68%, rgba(197,227,91,0.12) 100%)',
-                boxShadow: '0 16px 40px rgba(14,164,171,0.08), var(--ibo-shadow)',
+                  'linear-gradient(155deg, rgba(254, 108, 2,0.14) 0%, color-mix(in srgb, var(--ibo-card) 92%, transparent) 38%, rgba(77,138,255,0.07) 68%, rgba(0, 168, 118,0.12) 100%)',
+                boxShadow: '0 16px 40px rgba(254, 108, 2,0.08), var(--ibo-shadow)',
               }}
             >
               <div
@@ -643,7 +642,7 @@ export default function LandingPage() {
                 className="pointer-events-none absolute inset-x-0 top-0 h-px"
                 style={{
                   background:
-                    'linear-gradient(90deg, transparent, rgba(14,164,171,0.5), rgba(197,227,91,0.45), transparent)',
+                    'linear-gradient(90deg, transparent, rgba(254, 108, 2,0.5), rgba(0, 168, 118,0.45), transparent)',
                 }}
               />
               <div
@@ -651,14 +650,14 @@ export default function LandingPage() {
                 className="pointer-events-none absolute -right-10 -top-12 w-48 h-48 rounded-full blur-3xl opacity-50"
                 style={{
                   background:
-                    'radial-gradient(circle, rgba(197,227,91,0.22) 0%, rgba(77,138,255,0.1) 45%, transparent 70%)',
+                    'radial-gradient(circle, rgba(0, 168, 118,0.22) 0%, rgba(77,138,255,0.1) 45%, transparent 70%)',
                 }}
               />
               <div
                 aria-hidden
                 className="pointer-events-none absolute -left-12 bottom-0 w-40 h-40 rounded-full blur-3xl opacity-40"
                 style={{
-                  background: 'radial-gradient(circle, rgba(14,164,171,0.22) 0%, transparent 70%)',
+                  background: 'radial-gradient(circle, rgba(254, 108, 2,0.22) 0%, transparent 70%)',
                 }}
               />
 
@@ -667,9 +666,9 @@ export default function LandingPage() {
                   <div
                     className="grid grid-cols-[1.2fr_1fr_1fr] border-b"
                     style={{
-                      borderColor: 'rgba(14,164,171,0.16)',
+                      borderColor: 'rgba(254, 108, 2,0.16)',
                       background:
-                        'linear-gradient(90deg, rgba(14,164,171,0.1) 0%, rgba(197,227,91,0.1) 45%, rgba(77,138,255,0.08) 100%)',
+                        'linear-gradient(90deg, rgba(254, 108, 2,0.1) 0%, rgba(0, 168, 118,0.1) 45%, rgba(77,138,255,0.08) 100%)',
                     }}
                   >
                     <div
@@ -681,9 +680,9 @@ export default function LandingPage() {
                     <div
                       className="px-4 py-4 flex items-center justify-center gap-2 border-x"
                       style={{
-                        borderColor: 'rgba(14,164,171,0.16)',
+                        borderColor: 'rgba(254, 108, 2,0.16)',
                         background:
-                          'linear-gradient(145deg, rgba(14,164,171,0.16) 0%, rgba(197,227,91,0.12) 100%)',
+                          'linear-gradient(145deg, rgba(254, 108, 2,0.16) 0%, rgba(0, 168, 118,0.12) 100%)',
                       }}
                     >
                       <img src={MARK} alt="" className="w-5 h-5 object-contain" />
@@ -691,7 +690,7 @@ export default function LandingPage() {
                         className="font-display text-sm font-bold tracking-tight"
                         style={{ color: 'var(--ibo-ink)' }}
                       >
-                        IBO
+                        Delta
                       </span>
                     </div>
                     <div className="px-4 py-4 flex items-center justify-center">
@@ -711,7 +710,7 @@ export default function LandingPage() {
                       className="grid grid-cols-[1.2fr_1fr_1fr] items-stretch group transition-colors"
                       style={{
                         borderBottom:
-                          i < VS_TABLE.length - 1 ? '1px solid rgba(14,164,171,0.1)' : 'none',
+                          i < VS_TABLE.length - 1 ? '1px solid rgba(254, 108, 2,0.1)' : 'none',
                       }}
                     >
                       <div className="flex items-center px-5 lg:px-6 py-4">
@@ -726,9 +725,9 @@ export default function LandingPage() {
                       <div
                         className="flex items-center justify-center gap-2 px-3 py-4 border-x"
                         style={{
-                          borderColor: 'rgba(14,164,171,0.12)',
+                          borderColor: 'rgba(254, 108, 2,0.12)',
                           background:
-                            'linear-gradient(145deg, rgba(14,164,171,0.1) 0%, rgba(197,227,91,0.08) 100%)',
+                            'linear-gradient(145deg, rgba(254, 108, 2,0.1) 0%, rgba(0, 168, 118,0.08) 100%)',
                         }}
                       >
                         <CheckCircle size={15} className="text-[#a8c73a] flex-shrink-0" />
@@ -766,10 +765,10 @@ export default function LandingPage() {
                   transition={{ delay: i * 0.04 }}
                   className="relative rounded-2xl border overflow-hidden"
                   style={{
-                    borderColor: 'rgba(14,164,171,0.28)',
+                    borderColor: 'rgba(254, 108, 2,0.28)',
                     background:
-                      'linear-gradient(155deg, rgba(14,164,171,0.14) 0%, color-mix(in srgb, var(--ibo-card) 92%, transparent) 42%, rgba(197,227,91,0.1) 100%)',
-                    boxShadow: '0 12px 28px rgba(14,164,171,0.08), var(--ibo-shadow)',
+                      'linear-gradient(155deg, rgba(254, 108, 2,0.14) 0%, color-mix(in srgb, var(--ibo-card) 92%, transparent) 42%, rgba(0, 168, 118,0.1) 100%)',
+                    boxShadow: '0 12px 28px rgba(254, 108, 2,0.08), var(--ibo-shadow)',
                   }}
                 >
                   <div
@@ -777,12 +776,12 @@ export default function LandingPage() {
                     className="pointer-events-none absolute inset-x-0 top-0 h-px"
                     style={{
                       background:
-                        'linear-gradient(90deg, transparent, rgba(14,164,171,0.45), rgba(197,227,91,0.4), transparent)',
+                        'linear-gradient(90deg, transparent, rgba(254, 108, 2,0.45), rgba(0, 168, 118,0.4), transparent)',
                     }}
                   />
                   <div
                     className="px-4 py-3 border-b"
-                    style={{ borderColor: 'rgba(14,164,171,0.14)' }}
+                    style={{ borderColor: 'rgba(254, 108, 2,0.14)' }}
                   >
                     <p className="text-[13px] font-semibold" style={{ color: 'var(--ibo-ink)' }}>
                       {row.feature}
@@ -792,16 +791,16 @@ export default function LandingPage() {
                     <div
                       className="px-4 py-3 border-r"
                       style={{
-                        borderColor: 'rgba(14,164,171,0.14)',
+                        borderColor: 'rgba(254, 108, 2,0.14)',
                         background:
-                          'linear-gradient(145deg, rgba(14,164,171,0.12) 0%, rgba(197,227,91,0.1) 100%)',
+                          'linear-gradient(145deg, rgba(254, 108, 2,0.12) 0%, rgba(0, 168, 118,0.1) 100%)',
                       }}
                     >
                       <p
                         className="text-[10px] font-bold uppercase tracking-wider mb-1.5"
-                        style={{ color: '#0ea4ab' }}
+                        style={{ color: '#FE6C02' }}
                       >
-                        IBO
+                        Delta
                       </p>
                       <p
                         className="text-[12px] font-semibold leading-snug flex items-start gap-1.5"
@@ -834,9 +833,9 @@ export default function LandingPage() {
             <div className="mt-10 md:mt-12 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
                 to="/register"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-logo-gradient px-7 py-3.5 text-[14px] font-bold text-[#050a1a] shadow-[0_12px_28px_rgba(14,164,171,0.22)] hover:brightness-110 transition-[filter]"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-logo-gradient px-7 py-3.5 text-[14px] font-bold text-[#101013] shadow-[0_12px_28px_rgba(254, 108, 2,0.22)] hover:brightness-110 transition-[filter]"
               >
-                Trade on IBO <ArrowRight size={16} />
+                Trade on Delta <ArrowRight size={16} />
               </Link>
               <Link
                 to="/markets"
@@ -861,14 +860,14 @@ export default function LandingPage() {
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              'radial-gradient(ellipse 50% 55% at 50% 0%, rgba(14,164,171,0.1) 0%, transparent 58%), radial-gradient(ellipse 35% 40% at 90% 80%, rgba(197,227,91,0.08) 0%, transparent 55%)',
+              'radial-gradient(ellipse 50% 55% at 50% 0%, rgba(254, 108, 2,0.1) 0%, transparent 58%), radial-gradient(ellipse 35% 40% at 90% 80%, rgba(0, 168, 118,0.08) 0%, transparent 55%)',
           }}
         />
         <div
           aria-hidden
           className="pointer-events-none absolute inset-x-0 top-0 h-px"
           style={{
-            background: 'linear-gradient(90deg, transparent, rgba(14,164,171,0.45), rgba(197,227,91,0.35), transparent)',
+            background: 'linear-gradient(90deg, transparent, rgba(254, 108, 2,0.45), rgba(0, 168, 118,0.35), transparent)',
           }}
         />
 
@@ -882,7 +881,7 @@ export default function LandingPage() {
             <p className="ibo-eyebrow mb-4">Community</p>
             <h2 className="ibo-title-lg mb-4">Loved by traders</h2>
             <p className="ibo-lead-wide mx-auto" style={{ color: 'var(--ibo-ink-secondary)' }}>
-              Join thousands of traders who trust IBO for their daily trading.
+              Join thousands of traders who trust Delta for their daily trading.
             </p>
           </motion.div>
 
@@ -897,10 +896,10 @@ export default function LandingPage() {
                 whileHover={{ y: -4 }}
                 className="group relative overflow-hidden rounded-[1.35rem] p-7 sm:p-8 cursor-default"
                 style={{
-                  border: '1px solid rgba(14,164,171,0.28)',
+                  border: '1px solid rgba(254, 108, 2,0.28)',
                   background:
-                    'linear-gradient(155deg, rgba(14,164,171,0.12) 0%, color-mix(in srgb, var(--ibo-card) 94%, transparent) 48%, rgba(197,227,91,0.1) 100%)',
-                  boxShadow: '0 14px 36px rgba(14,164,171,0.08), var(--ibo-shadow)',
+                    'linear-gradient(155deg, rgba(254, 108, 2,0.12) 0%, color-mix(in srgb, var(--ibo-card) 94%, transparent) 48%, rgba(0, 168, 118,0.1) 100%)',
+                  boxShadow: '0 14px 36px rgba(254, 108, 2,0.08), var(--ibo-shadow)',
                 }}
               >
                 <div
@@ -908,13 +907,13 @@ export default function LandingPage() {
                   className="pointer-events-none absolute inset-x-0 top-0 h-px"
                   style={{
                     background:
-                      'linear-gradient(90deg, transparent, rgba(14,164,171,0.5), rgba(197,227,91,0.4), transparent)',
+                      'linear-gradient(90deg, transparent, rgba(254, 108, 2,0.5), rgba(0, 168, 118,0.4), transparent)',
                   }}
                 />
                 <div
                   aria-hidden
                   className="pointer-events-none absolute -right-10 -top-12 w-36 h-36 rounded-full blur-3xl opacity-50 transition-opacity duration-300 group-hover:opacity-80"
-                  style={{ background: 'radial-gradient(circle, rgba(14,164,171,0.28) 0%, transparent 70%)' }}
+                  style={{ background: 'radial-gradient(circle, rgba(254, 108, 2,0.28) 0%, transparent 70%)' }}
                 />
 
                 <div className="relative flex items-center justify-between gap-3 mb-5">
@@ -930,8 +929,8 @@ export default function LandingPage() {
                         <Star
                           size={20}
                           strokeWidth={0}
-                          className="fill-[#C5E35B] text-[#C5E35B]"
-                          style={{ filter: 'drop-shadow(0 0 8px rgba(197,227,91,0.55))' }}
+                          className="fill-[#00A876] text-[#00A876]"
+                          style={{ filter: 'drop-shadow(0 0 8px rgba(0, 168, 118,0.55))' }}
                         />
                       </motion.div>
                     ))}
@@ -952,10 +951,10 @@ export default function LandingPage() {
                   {t.text}
                 </p>
 
-                <div className="relative flex items-center gap-3 pt-5 border-t border-[rgba(14,164,171,0.15)]">
+                <div className="relative flex items-center gap-3 pt-5 border-t border-[rgba(254, 108, 2,0.15)]">
                   <div
-                    className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-base text-[#050a1a] shadow-[0_8px_20px_rgba(14,164,171,0.25)]"
-                    style={{ background: 'linear-gradient(135deg, #0EA4AB 0%, #C5E35B 100%)' }}
+                    className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-base text-[#101013] shadow-[0_8px_20px_rgba(254, 108, 2,0.25)]"
+                    style={{ background: 'linear-gradient(135deg, #FE6C02 0%, #00A876 100%)' }}
                   >
                     {t.avatar}
                   </div>
@@ -988,13 +987,13 @@ export default function LandingPage() {
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              'radial-gradient(ellipse 55% 70% at 50% -10%, rgba(14,164,171,0.22) 0%, transparent 58%), radial-gradient(ellipse 40% 50% at 85% 80%, rgba(197,227,91,0.1) 0%, transparent 55%), radial-gradient(ellipse 35% 45% at 10% 70%, rgba(77,138,255,0.08) 0%, transparent 50%)',
+              'radial-gradient(ellipse 55% 70% at 50% -10%, rgba(254, 108, 2,0.22) 0%, transparent 58%), radial-gradient(ellipse 40% 50% at 85% 80%, rgba(0, 168, 118,0.1) 0%, transparent 55%), radial-gradient(ellipse 35% 45% at 10% 70%, rgba(77,138,255,0.08) 0%, transparent 50%)',
           }}
         />
         <div
           aria-hidden
           className="pointer-events-none absolute inset-x-0 top-0 h-px"
-          style={{ background: 'linear-gradient(90deg, transparent, rgba(14,164,171,0.45), rgba(197,227,91,0.35), transparent)' }}
+          style={{ background: 'linear-gradient(90deg, transparent, rgba(254, 108, 2,0.45), rgba(0, 168, 118,0.35), transparent)' }}
         />
 
         <div className="relative ibo-landing-container py-20 md:py-28 lg:py-32">
@@ -1006,7 +1005,7 @@ export default function LandingPage() {
             className="mx-auto max-w-3xl text-center"
           >
             <p className="ibo-eyebrow mb-5 inline-flex items-center gap-2 justify-center">
-              <Sparkles size={12} className="text-[#C5E35B]" />
+              <Sparkles size={12} className="text-[#00A876]" />
               Free demo balance
             </p>
 
@@ -1016,14 +1015,14 @@ export default function LandingPage() {
             </h2>
 
             <p className="ibo-lead-wide mx-auto mb-10 text-zinc-400">
-              Create your account, deposit USDT or any supported BEP-20 token, and trade USDT or IBO pairs
+              Create your account, deposit USDT or any supported BEP-20 token, and trade USDT or Delta pairs
               with pro charts — or start with a free demo balance, no deposit required.
             </p>
 
             <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 mb-10">
               <Link
                 to="/register"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-logo-gradient px-8 py-3.5 text-[15px] font-bold text-[#050a1a] shadow-[0_16px_48px_rgba(197,227,91,0.2)] hover:brightness-110 transition-[filter]"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-logo-gradient px-8 py-3.5 text-[15px] font-bold text-[#101013] shadow-[0_16px_48px_rgba(0, 168, 118,0.2)] hover:brightness-110 transition-[filter]"
               >
                 Create free account <ArrowRight size={18} />
               </Link>

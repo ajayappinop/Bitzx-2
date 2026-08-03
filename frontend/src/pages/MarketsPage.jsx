@@ -101,9 +101,9 @@ export default function MarketsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center justify-between gap-4 md:justify-start md:gap-6">
             <Link to="/" className="flex items-center gap-2">
-              <img src={LOGO_URL} alt="IBO" className="h-8 w-8 object-contain" />
+              <img src={LOGO_URL} alt="Delta" className="h-8 w-8 object-contain" />
               <span className="font-bold text-lg">
-                <span className="text-ink">IBO</span>
+                <span className="text-ink">Delta</span>
               </span>
             </Link>
             <nav className="flex items-center gap-3 sm:gap-4 text-sm">
@@ -129,7 +129,7 @@ export default function MarketsPage() {
             </div>
             <h1 className="text-3xl md:text-4xl font-bold text-ink">Market Overview</h1>
             <p className="text-ink-muted mt-2">
-              Trade IBO and top crypto assets with real-time prices
+              Trade Delta and top crypto assets with real-time prices
             </p>
           </motion.div>
         </div>
@@ -148,7 +148,7 @@ export default function MarketsPage() {
                 }`}
               >
                 {c === 'Favorites' && <Star size={12} className="inline mr-1 mb-0.5" />}
-                {c}
+                {c === 'IBO' ? 'Delta' : c}
               </button>
             ))}
           </div>
@@ -189,6 +189,7 @@ export default function MarketsPage() {
               const base = m.baseAsset || m.symbol.replace('USDT', '');
               const icon = resolveMarketLogo(m, m.logo_url);
               const isIbo = base === 'IBO';
+              const baseLabel = base === 'IBO' ? 'Delta' : base;
 
               return (
                 <motion.div
@@ -207,19 +208,19 @@ export default function MarketsPage() {
                         />
                       </button>
                       {icon ? (
-                        <img src={icon} alt={base} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+                        <img src={icon} alt={baseLabel} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
                       ) : (
                         <div className="w-10 h-10 rounded-full bg-[#0EA4AB]/20 flex items-center justify-center text-ink-accent text-xs font-bold flex-shrink-0">
-                          {base.slice(0, 2)}
+                          {baseLabel.slice(0, 2)}
                         </div>
                       )}
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-ink font-semibold">{base}</span>
+                          <span className="text-ink font-semibold">{baseLabel}</span>
                           <span className="text-[#4A4B50] text-xs">/USDT</span>
                           {isIbo && (
                             <span className="bg-[#0EA4AB]/20 text-ink-accent text-[9px] px-1.5 py-0.5 rounded font-semibold">
-                              IBO
+                              Delta
                             </span>
                           )}
                         </div>
@@ -297,6 +298,7 @@ export default function MarketsPage() {
                   const base    = m.baseAsset || m.symbol.replace('USDT', '');
                   const icon    = resolveMarketLogo(m, m.logo_url);
                   const isIbo   = base === 'IBO';
+                  const baseLabel = base === 'IBO' ? 'Delta' : base;
 
                   return (
                     <motion.tr
@@ -320,19 +322,19 @@ export default function MarketsPage() {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           {icon ? (
-                            <img src={icon} alt={base} className="w-8 h-8 rounded-full object-cover" />
+                            <img src={icon} alt={baseLabel} className="w-8 h-8 rounded-full object-cover" />
                           ) : (
                             <div className="w-8 h-8 rounded-full bg-[#0EA4AB]/20 flex items-center justify-center text-ink-accent text-xs font-bold">
-                              {base.slice(0, 2)}
+                              {baseLabel.slice(0, 2)}
                             </div>
                           )}
                           <div>
                             <div className="flex items-center gap-1.5">
-                              <span className="text-ink font-semibold">{base}</span>
+                              <span className="text-ink font-semibold">{baseLabel}</span>
                               <span className="text-[#4A4B50] text-xs">/USDT</span>
                               {isIbo && (
                                 <span className="bg-[#0EA4AB]/20 text-ink-accent text-[9px] px-1.5 py-0.5 rounded font-semibold">
-                                  IBO
+                                  Delta
                                 </span>
                               )}
                             </div>
@@ -391,7 +393,7 @@ export default function MarketsPage() {
         </div>
 
         <p className="text-[#4A4B50] text-xs mt-4 text-center">
-          Prices update every 5 seconds. IBO data from IBO backend · Other pairs from Binance public API.
+          Prices update every 5 seconds. Delta data from Delta backend · Other pairs from Binance public API.
         </p>
       </main>
     </div>

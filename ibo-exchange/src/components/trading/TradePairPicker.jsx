@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom';
 import { ChevronDown, Globe, Search, Loader2, X } from 'lucide-react';
 import { PAIRS, coinIconUrl, marketApi, parsePairFromApiSymbol } from '@/services/marketApi';
 
-const ACCENT = '#0ea4ab';
-const LIME = '#C5E35B';
+const ACCENT = '#FE6C02';
+const LIME = '#00A876';
 
 const USDT_PAIRS = PAIRS.filter((p) => p.quote === 'USDT');
 const STATIC_IBO_PAIRS = PAIRS.filter((p) => p.quote === 'IBO');
@@ -64,7 +64,7 @@ function PairRow({ pr, active, onPick }) {
       className={`w-full flex items-center gap-3 px-3 py-2 border-0 cursor-pointer transition-colors text-left
         ${isActive ? '' : 'hover:bg-[color:var(--ibo-elevated)]'}`}
       style={{
-        background: isActive ? (isIbo ? 'rgba(197,227,91,0.12)' : 'rgba(14,164,171,0.12)') : 'transparent',
+        background: isActive ? (isIbo ? 'rgba(0, 168, 118,0.12)' : 'rgba(254, 108, 2,0.12)') : 'transparent',
         color: isActive ? accent : 'var(--ibo-ink)',
       }}
     >
@@ -73,7 +73,7 @@ function PairRow({ pr, active, onPick }) {
       ) : (
         <div
           className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center text-[10px] font-bold"
-          style={{ background: 'var(--ibo-elevated)', color: 'var(--ibo-muted)' }}
+        style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--ibo-muted)' }}
         >
           {b.slice(0, 2)}
         </div>
@@ -83,13 +83,13 @@ function PairRow({ pr, active, onPick }) {
           {b}/{pr.quote}
         </div>
         <div className="text-[10px] truncate text-[color:var(--ibo-muted)]">
-          {isIbo ? 'IBO market' : 'Spot'}
+          {isIbo ? 'Delta market' : 'Spot'}
         </div>
       </div>
       {isActive ? (
         <span
           className="text-[9px] font-bold rounded px-1.5 py-0.5 shrink-0 uppercase tracking-wide"
-          style={{ background: isIbo ? 'rgba(197,227,91,0.18)' : 'rgba(14,164,171,0.18)', color: accent }}
+          style={{ background: isIbo ? 'rgba(0, 168, 118,0.18)' : 'rgba(254, 108, 2,0.18)', color: accent }}
         >
           Active
         </span>
@@ -246,12 +246,11 @@ export default function TradePairPicker({ symbol, onSelect, displayBase, apiQuot
         aria-hidden
       />
       <div
-        className={`fixed z-[9999] flex flex-col overflow-hidden
-          bg-[color:var(--ibo-card)] border border-[color:var(--ibo-border-solid)]
-          shadow-[var(--ibo-shadow)] text-[color:var(--ibo-ink)]
+        className={`delta-pair-panel fixed z-[9999] flex flex-col overflow-hidden
+          border shadow-[var(--ibo-shadow)] text-[color:var(--ibo-ink)]
           ${pos.mobile
-            ? 'left-2 right-2 bottom-2 rounded-xl max-h-[min(78dvh,640px)]'
-            : 'rounded-lg max-h-[min(70vh,520px)]'
+            ? 'left-2 right-2 bottom-2 rounded-lg max-h-[min(78dvh,640px)]'
+            : 'rounded-md max-h-[min(70vh,520px)]'
           }`}
         style={
           pos.mobile
@@ -264,9 +263,9 @@ export default function TradePairPicker({ symbol, onSelect, displayBase, apiQuot
         <div className="shrink-0 p-2.5 border-b border-[color:var(--ibo-border)] space-y-2">
           <div className="flex items-center gap-2">
             <div
-              className="flex-1 flex items-center gap-2 h-9 rounded-md px-2.5
-                bg-[color:var(--ibo-elevated)] border border-[color:var(--ibo-border-solid)]
-                focus-within:border-[#0ea4ab]/50"
+              className="delta-pair-search flex-1 flex items-center gap-2 h-9 rounded px-2.5
+                bg-transparent border border-[color:var(--ibo-border-solid)]
+                focus-within:border-[#FE6C02]/50"
             >
               <Search size={14} className="text-[color:var(--ibo-muted)] shrink-0" />
               <input
@@ -305,7 +304,7 @@ export default function TradePairPicker({ symbol, onSelect, displayBase, apiQuot
             {[
               ['all', 'All'],
               ['usdt', 'USDT'],
-              ['ibo', 'IBO'],
+              ['ibo', 'Delta'],
             ].map(([id, label]) => {
               const on = tab === id;
               const ibo = id === 'ibo';
@@ -318,8 +317,8 @@ export default function TradePairPicker({ symbol, onSelect, displayBase, apiQuot
                   style={
                     on
                       ? {
-                          background: ibo ? 'rgba(197,227,91,0.15)' : 'rgba(14,164,171,0.15)',
-                          borderColor: ibo ? 'rgba(197,227,91,0.4)' : 'rgba(14,164,171,0.4)',
+                          background: ibo ? 'rgba(0, 168, 118,0.15)' : 'rgba(254, 108, 2,0.15)',
+                          borderColor: ibo ? 'rgba(0, 168, 118,0.4)' : 'rgba(254, 108, 2,0.4)',
                           color: ibo ? LIME : ACCENT,
                         }
                       : {
@@ -363,7 +362,7 @@ export default function TradePairPicker({ symbol, onSelect, displayBase, apiQuot
           {showIbo && iboList.length > 0 ? (
             <section className={showUsdt && usdtFiltered.length ? 'border-t border-[color:var(--ibo-border)]' : ''}>
               <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider" style={{ color: LIME }}>
-                IBO pairs ({iboList.length})
+                Delta pairs ({iboList.length})
               </div>
               {iboList.map((pr) => (
                 <PairRow key={pr.symbol} pr={pr} active={activeSym} onPick={pick} />
@@ -388,7 +387,7 @@ export default function TradePairPicker({ symbol, onSelect, displayBase, apiQuot
               border-l border-[color:var(--ibo-border)] hover:bg-[color:var(--ibo-elevated)]"
             style={{ color: LIME }}
           >
-            <Globe size={14} /> IBO markets
+            <Globe size={14} /> Delta markets
           </Link>
         </div>
       </div>
@@ -401,11 +400,11 @@ export default function TradePairPicker({ symbol, onSelect, displayBase, apiQuot
         <button
           type="button"
           onClick={openPicker}
-          className="ibo-chip flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 sm:py-[7px] rounded-md
-            bg-[color:var(--ibo-card)] cursor-pointer transition-[border-color] w-full sm:w-auto min-w-0
-            border border-[color:var(--ibo-border-solid)] hover:border-[#0ea4ab]/40"
+          className="ibo-chip flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 sm:py-[7px] rounded
+            bg-transparent cursor-pointer transition-[border-color] w-full sm:w-auto min-w-0
+            border border-[color:var(--ibo-border-solid)] hover:border-[#FE6C02]/40"
           style={{
-            borderColor: open ? 'rgba(14,164,171,0.5)' : undefined,
+            borderColor: open ? 'rgba(254, 108, 2,0.5)' : undefined,
           }}
         >
           {icon ? (

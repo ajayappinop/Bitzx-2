@@ -43,7 +43,7 @@ export default function OpenOrders() {
                       : <Clock size={11} />;
 
   return (
-    <div className="flex flex-col h-full bg-surface-DEFAULT">
+    <div className="flex flex-col h-full bg-transparent">
 
       {/* Tabs + refresh */}
       <div className="flex items-center border-b border-surface-border flex-shrink-0 px-1">

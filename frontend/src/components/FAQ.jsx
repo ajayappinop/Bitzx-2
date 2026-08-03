@@ -13,32 +13,32 @@ const EXCHANGE_URL_LABEL = getExchangeUrlDisplay();
 
 const faqs = [
   {
-    question: 'What is IBO ($IBO)?',
-    answer: 'IBO is a utility token built on BNB Chain (BEP-20). It is presented as the foundation of the IBO ecosystem and is intended to support future platform utility, ecosystem access, and project growth initiatives.',
+    question: 'What is Delta ($DELTA)?',
+    answer: 'Delta is a utility token built on BNB Chain (BEP-20). It is presented as the foundation of the Delta ecosystem and is intended to support future platform utility, ecosystem access, and project growth initiatives.',
   },
   {
-    question: 'How can I buy $IBO?',
-    answer: 'You can buy $IBO on PancakeSwap. Simply connect your wallet (MetaMask or Trust Wallet), ensure you have BNB for the swap and gas fees, then paste the $IBO contract address and swap your BNB for $IBO tokens. Set slippage to 5-10% for best results.',
+    question: 'How can I buy $DELTA?',
+    answer: 'You can buy $DELTA on PancakeSwap. Simply connect your wallet (MetaMask or Trust Wallet), ensure you have BNB for the swap and gas fees, then paste the $DELTA contract address and swap your BNB for $DELTA tokens. Set slippage to 5-10% for best results.',
   },
   {
-    question: 'What is the total supply of $IBO?',
-    answer: 'The total supply of $IBO is 90,00,00,000 (900 million) tokens. The allocation includes 40% for liquidity, 15% for marketing, 15% for development, 15% for ecosystem rewards, 10% for team/reserve, and 5% for partnerships.',
+    question: 'What is the total supply of $DELTA?',
+    answer: 'The total supply of $DELTA is 90,00,00,000 (900 million) tokens. The allocation includes 40% for liquidity, 15% for marketing, 15% for development, 15% for ecosystem rewards, 10% for team/reserve, and 5% for partnerships.',
   },
   {
-    question: 'What is IBO Exchange?',
-    answer: `IBO Exchange is the project's live centralized trading platform at ${EXCHANGE_URL_LABEL}. Trade IBO and other spot pairs with professional charts, secure wallets, and platform utility for $IBO holders.`,
+    question: 'What is Delta Exchange?',
+    answer: `Delta Exchange is the project's live centralized trading platform at ${EXCHANGE_URL_LABEL}. Trade Delta and other spot pairs with professional charts, secure wallets, and platform utility for $DELTA holders.`,
   },
   {
-    question: 'Is IBO Exchange live?',
-    answer: `Yes. IBO Exchange is ${getExchangeStatusLabel().toLowerCase()} at ${EXCHANGE_URL_LABEL}. Sign up, complete KYC where required, and start trading through the official site.`,
+    question: 'Is Delta Exchange live?',
+    answer: `Yes. Delta Exchange is ${getExchangeStatusLabel().toLowerCase()} at ${EXCHANGE_URL_LABEL}. Sign up, complete KYC where required, and start trading through the official site.`,
   },
   {
-    question: 'Is $IBO safe? Has it been audited?',
+    question: 'Is $DELTA safe? Has it been audited?',
     answer: 'Always verify the official contract address and rely only on published audit or security documents that the project has made public. If audit reports are not yet published on the official website or whitepaper, they should not be assumed.',
   },
   {
-    question: 'What benefits do $IBO holders get?',
-    answer: 'Holding $IBO provides numerous benefits including: trading fee discounts on IBO Exchange, VIP membership tiers, staking rewards, referral bonuses, early access to launchpad projects, and exclusive ecosystem features.',
+    question: 'What benefits do $DELTA holders get?',
+    answer: 'Holding $DELTA provides numerous benefits including: trading fee discounts on Delta Exchange, VIP membership tiers, staking rewards, referral bonuses, early access to launchpad projects, and exclusive ecosystem features.',
   },
   {
     question: 'How can I contact the team?',
@@ -92,7 +92,7 @@ export const FAQ = () => {
             Frequently Asked Questions
           </h2>
           <p className="text-ink-soft text-base sm:text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-            Find answers to common questions about IBO and our ecosystem
+            Find answers to common questions about Delta and our ecosystem
           </p>
         </motion.div>
 

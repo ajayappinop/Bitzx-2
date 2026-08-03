@@ -18,11 +18,11 @@ const EXCHANGE_URL_LABEL = getExchangeUrlDisplay();
 const depositSteps = [
   'Transfer INR via bank or UPI using our payment details',
   'Submit your UTR and payment proof in the exchange wallet',
-  'After admin review, IBO is credited to your spot balance',
+  'After admin review, Delta is credited to your spot balance',
 ];
 
 const withdrawSteps = [
-  'Sell IBO from your wallet — balance is reserved instantly',
+  'Sell Delta from your wallet — balance is reserved instantly',
   'Request an INR payout to your linked bank or UPI',
   'Receive INR after review, with payout reference on record',
 ];
@@ -59,15 +59,15 @@ export const InrFiat = () => {
         >
           <span className="inline-flex items-center gap-2 bg-[#0EA4AB]/10 border border-[#0EA4AB]/30 px-4 py-2 rounded-full text-sm text-ink-accent font-medium mb-5">
             <IndianRupee size={16} />
-            India · INR on IBO Exchange
+            India · INR on Delta Exchange
           </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-ink mb-5 leading-tight">
             Deposit &amp; withdraw in
             <span className="text-ink-accent"> Indian Rupees</span>
           </h2>
           <p className="text-ink-muted text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
-            IBO Exchange supports INR deposits and withdrawals for eligible Indian users.
-            Fund your account with Indian Rupees, trade IBO, and cash out back to your bank or UPI —
+            Delta Exchange supports INR deposits and withdrawals for eligible Indian users.
+            Fund your account with Indian Rupees, trade Delta, and cash out back to your bank or UPI —
             all tracked in your wallet with clear status updates.
           </p>
         </motion.div>
@@ -105,12 +105,12 @@ export const InrFiat = () => {
                 </div>
                 <div>
                   <p className="text-green-400 text-xs font-bold uppercase tracking-wider">Deposit</p>
-                  <h3 className="text-xl md:text-2xl font-bold text-ink">Add INR → get IBO</h3>
+                  <h3 className="text-xl md:text-2xl font-bold text-ink">Add INR → get Delta</h3>
                 </div>
               </div>
               <p className="text-ink-muted text-sm md:text-base leading-relaxed mb-6">
                 Buy crypto exposure by depositing Indian Rupees. Submit your transfer details and
-                proof; once approved, IBO is added to your spot wallet so you can trade immediately.
+                proof; once approved, Delta is added to your spot wallet so you can trade immediately.
               </p>
               <ul className="space-y-3 mb-8">
                 {depositSteps.map((step) => (
@@ -148,11 +148,11 @@ export const InrFiat = () => {
                 </div>
                 <div>
                   <p className="text-ink-accent text-xs font-bold uppercase tracking-wider">Withdraw</p>
-                  <h3 className="text-xl md:text-2xl font-bold text-ink">Sell IBO → receive INR</h3>
+                  <h3 className="text-xl md:text-2xl font-bold text-ink">Sell Delta → receive INR</h3>
                 </div>
               </div>
               <p className="text-ink-muted text-sm md:text-base leading-relaxed mb-6">
-                Convert your IBO balance back to Indian Rupees. Your IBO is reserved when you
+                Convert your Delta balance back to Indian Rupees. Your Delta is reserved when you
                 submit a payout request; INR is sent to your verified bank or UPI after admin approval.
               </p>
               <ul className="space-y-3 mb-8">

@@ -89,17 +89,17 @@ function fmtTime(iso) {
 }
 
 function StatCard({ label, value, icon: Icon, tone = 'default', sub }) {
-  const toneCls = tone === 'positive' ? 'text-emerald-500'
-                : tone === 'negative' ? 'text-rose-500'
-                : tone === 'cyan'     ? 'text-[#5BB8FF]'
+  const toneCls = tone === 'positive' ? 'text-[#0ECB81]'
+                : tone === 'negative' ? 'text-[#F6465D]'
+                : tone === 'cyan'     ? 'text-[#FE6C02]'
                 : 'text-[color:var(--ibo-ink)]';
   return (
-    <div className="rounded-xl border border-[color:var(--ibo-border-solid)] bg-[color:var(--ibo-card)] p-4 shadow-[var(--ibo-shadow)]">
-      <div className="flex items-center gap-2 text-xs text-[color:var(--ibo-muted)] uppercase tracking-wider mb-2 font-semibold">
-        {Icon && <Icon size={12} />} {label}
+    <div className="px-4 py-4 min-w-0">
+      <div className="flex items-center gap-1.5 text-[10px] text-[color:var(--ibo-muted)] uppercase tracking-[0.12em] mb-1.5 font-semibold">
+        {Icon && <Icon size={11} />} {label}
       </div>
-      <div className={`text-xl sm:text-2xl font-bold font-mono tabular-nums ${toneCls}`}>{value}</div>
-      {sub && <div className="text-[11px] text-[color:var(--ibo-muted)] mt-1">{sub}</div>}
+      <div className={`text-lg sm:text-xl font-bold font-mono tabular-nums ${toneCls}`}>{value}</div>
+      {sub && <div className="text-[11px] text-[color:var(--ibo-muted)] mt-1 leading-snug">{sub}</div>}
     </div>
   );
 }
@@ -174,7 +174,7 @@ function FuturesWalletTabInner() {
     return Array.from(s).sort();
   }, [txns]);
 
-  const selCls = 'bg-[color:var(--ibo-card)] border border-[color:var(--ibo-border-solid)] rounded-lg px-3 py-1.5 text-xs text-white/80 outline-none focus:border-[rgba(91,184,255,0.55)] transition-colors';
+  const selCls = 'bg-[color:var(--ibo-bg)] border border-[color:var(--ibo-border-solid)] rounded-lg px-3 py-1.5 text-xs text-[color:var(--ibo-ink)] outline-none focus:border-[#FE6C02]/55 transition-colors';
 
   const reload = useCallback(async () => {
     setLoading(true);
@@ -217,113 +217,110 @@ function FuturesWalletTabInner() {
   const overallPnl = unrealizedPnl + totalRealizedPnl;
 
   return (
-    <div className="space-y-6 animate-[fadeIn_0.2s_ease-out]">
-      {/* ── Headline + actions ───────────────────────────────────────── */}
-      <div className="bg-gradient-to-r from-[rgba(91,184,255,0.1)] via-[rgba(91,184,255,0.06)] to-transparent border border-[rgba(91,184,255,0.2)] rounded-2xl p-5 sm:p-6">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-[#5BB8FF]/80 font-bold">
-              USDT-M Futures Wallet
+    <div className="space-y-5 animate-[fadeIn_0.2s_ease-out]">
+      {/* Headline band */}
+      <section className="wallet-surface overflow-hidden">
+        <div className="flex flex-col lg:flex-row lg:items-stretch">
+          <div className="flex-1 min-w-0 px-5 sm:px-6 py-5 sm:py-6 border-b lg:border-b-0 lg:border-r border-[color:var(--ibo-border-solid)]">
+            <p className="text-[11px] uppercase tracking-[0.14em] text-[#FE6C02] font-semibold">
+              USDT-M Futures
             </p>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[color:var(--ibo-ink)] mt-1">
-              {balance.toFixed(2)} <span className="text-[color:var(--ibo-muted)] text-base">USDT</span>
+            <h2 className="text-3xl sm:text-4xl font-bold text-[color:var(--ibo-ink)] mt-2 tabular-nums tracking-tight">
+              {balance.toFixed(2)} <span className="text-base font-semibold text-[color:var(--ibo-muted)]">USDT</span>
             </h2>
-            <p className="text-xs text-white/55 mt-1">
+            <p className="text-xs text-[color:var(--ibo-muted)] mt-1.5">
               Margin balance ≈ {marginBalance.toFixed(2)} USDT
               {unrealizedPnl !== 0 && (
-                <span className={unrealizedPnl > 0 ? 'text-emerald-300 ml-2' : 'text-rose-300 ml-2'}>
+                <span className={unrealizedPnl > 0 ? 'text-[#0ECB81] ml-2' : 'text-[#F6465D] ml-2'}>
                   ({unrealizedPnl > 0 ? '+' : ''}{unrealizedPnl.toFixed(2)} unrealized)
                 </span>
               )}
             </p>
-            {/* Total P&L pill */}
-            <div className="mt-3 inline-flex items-center gap-3 bg-[color:var(--ibo-elevated)] border border-white/[.06] rounded-xl px-4 py-2">
-              <div className="text-center">
-                <p className="text-[10px] text-white/40 uppercase tracking-wider">Overall P&L</p>
-                <p className={`text-base font-bold font-mono ${overallPnl >= 0 ? 'text-emerald-300' : 'text-rose-300'}`}>
-                  {overallPnl >= 0 ? '+' : ''}{overallPnl.toFixed(2)} USDT
+            <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-[color:var(--ibo-muted)]">Overall P&amp;L</p>
+                <p className={`font-bold font-mono tabular-nums ${overallPnl >= 0 ? 'text-[#0ECB81]' : 'text-[#F6465D]'}`}>
+                  {overallPnl >= 0 ? '+' : ''}{overallPnl.toFixed(2)}
                 </p>
               </div>
-              <div className="w-px h-8 bg-white/10" />
-              <div className="text-center">
-                <p className="text-[10px] text-white/40 uppercase tracking-wider">Realized</p>
-                <p className={`text-base font-bold font-mono ${totalRealizedPnl >= 0 ? 'text-emerald-300' : 'text-rose-300'}`}>
-                  {totalRealizedPnl >= 0 ? '+' : ''}{totalRealizedPnl.toFixed(2)} USDT
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-[color:var(--ibo-muted)]">Realized</p>
+                <p className={`font-bold font-mono tabular-nums ${totalRealizedPnl >= 0 ? 'text-[#0ECB81]' : 'text-[#F6465D]'}`}>
+                  {totalRealizedPnl >= 0 ? '+' : ''}{totalRealizedPnl.toFixed(2)}
                 </p>
               </div>
-              <div className="w-px h-8 bg-white/10" />
-              <div className="text-center">
-                <p className="text-[10px] text-white/40 uppercase tracking-wider">Win rate</p>
-                <p className="text-base font-bold font-mono text-[#5BB8FF]">{winRate.toFixed(0)}%</p>
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-[color:var(--ibo-muted)]">Win rate</p>
+                <p className="font-bold font-mono text-[#FE6C02] tabular-nums">{winRate.toFixed(0)}%</p>
               </div>
             </div>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setOpen(true)}
+                className="wallet-action-primary"
+              >
+                <ArrowLeftRight size={14} /> Transfer
+              </button>
+              <Link
+                to="/futures/BTCUSDT-PERP"
+                className="wallet-action-ghost"
+              >
+                <ExternalLink size={14} /> Open trading
+              </Link>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => setOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#0EA4AB] to-[#5BB8FF] hover:opacity-95 text-[#050a1a] font-bold text-sm"
-            >
-              <ArrowLeftRight size={14} /> Transfer
-            </button>
-            <Link
-              to="/futures/BTCUSDT-PERP"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[color:var(--ibo-elevated)] hover:bg-[color:var(--ibo-hover)] text-white font-semibold text-sm border border-[color:var(--ibo-border-solid)]"
-            >
-              <ExternalLink size={14} /> Open trading
-            </Link>
+          <div className="lg:w-[min(100%,18rem)] px-5 sm:px-6 py-5">
+            <div className="flex items-center justify-between text-xs mb-2">
+              <span className="text-[color:var(--ibo-muted)] uppercase tracking-wider font-semibold">Margin ratio</span>
+              <span className="font-mono text-[color:var(--ibo-ink)] tabular-nums">{marginRatio.toFixed(2)}%</span>
+            </div>
+            <div className="h-2 rounded-full bg-white/[0.06] overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${
+                  marginRatio < 40 ? 'bg-[#0ECB81]' :
+                  marginRatio < 70 ? 'bg-[#FE6C02]' : 'bg-[#F6465D]'
+                }`}
+                style={{ width: `${Math.min(100, marginRatio)}%` }}
+              />
+            </div>
+            <p className="text-[11px] text-[color:var(--ibo-muted)] mt-3 leading-relaxed">
+              Higher ratio means more equity is collateral. Liquidations approach when the ratio nears 100%.
+            </p>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* ── Stat grid ────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
-        <StatCard label="Available"       value={`${available.toFixed(2)} USDT`} icon={Wallet} tone="cyan"
-                  sub="Free for new orders & withdrawals" />
-        <StatCard label="Used margin"     value={`${usedMargin.toFixed(2)} USDT`}
-                  sub="Locked by open orders & positions" />
-        <StatCard label="Unrealized PnL"  value={`${unrealizedPnl >= 0 ? '+' : ''}${unrealizedPnl.toFixed(2)} USDT`}
-                  tone={pnlTone}
-                  icon={unrealizedPnl >= 0 ? TrendingUp : TrendingDown}
-                  sub="Mark-to-market PnL on open positions" />
-        <StatCard label="Realized PnL"    value={`${totalRealizedPnl >= 0 ? '+' : ''}${totalRealizedPnl.toFixed(2)} USDT`}
-                  tone={realTone}
-                  icon={totalRealizedPnl >= 0 ? TrendingUp : TrendingDown}
-                  sub={`${posHistory.length} closed pos. · ${winRate.toFixed(0)}% win rate`} />
-        <StatCard label="Free margin"     value={`${freeMargin.toFixed(2)} USDT`}
-                  sub="Equity − initial margin requirement" />
-        <StatCard label="Margin balance"  value={`${marginBalance.toFixed(2)} USDT`}
-                  sub="Balance + unrealized PnL" />
-      </div>
-
-      {/* ── Margin health bar ───────────────────────────────────────── */}
-      <div className="bg-surface-card border border-surface-border rounded-xl p-4">
-        <div className="flex items-center justify-between text-xs mb-2">
-          <span className="text-white/55 uppercase tracking-wider">Margin ratio</span>
-          <span className="font-mono text-white">{marginRatio.toFixed(2)}%</span>
+      {/* Metric strip */}
+      <section className="wallet-surface overflow-hidden">
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 divide-x divide-y lg:divide-y-0 divide-[color:var(--ibo-border-solid)]">
+          <StatCard label="Available" value={`${available.toFixed(2)}`} icon={Wallet} tone="cyan"
+                    sub="Free for orders" />
+          <StatCard label="Used margin" value={`${usedMargin.toFixed(2)}`}
+                    sub="Open risk" />
+          <StatCard label="Unrealized" value={`${unrealizedPnl >= 0 ? '+' : ''}${unrealizedPnl.toFixed(2)}`}
+                    tone={pnlTone}
+                    icon={unrealizedPnl >= 0 ? TrendingUp : TrendingDown}
+                    sub="Mark-to-market" />
+          <StatCard label="Realized" value={`${totalRealizedPnl >= 0 ? '+' : ''}${totalRealizedPnl.toFixed(2)}`}
+                    tone={realTone}
+                    icon={totalRealizedPnl >= 0 ? TrendingUp : TrendingDown}
+                    sub={`${posHistory.length} closed`} />
+          <StatCard label="Free margin" value={`${freeMargin.toFixed(2)}`}
+                    sub="Equity − IM" />
+          <StatCard label="Margin bal." value={`${marginBalance.toFixed(2)}`}
+                    sub="Balance + uPnL" />
         </div>
-        <div className="h-2 rounded bg-white/5 overflow-hidden">
-          <div
-            className={`h-full rounded transition-all ${
-              marginRatio < 40 ? 'bg-emerald-400' :
-              marginRatio < 70 ? 'bg-[#5BB8FF]' : 'bg-rose-500'
-            }`}
-            style={{ width: `${Math.min(100, marginRatio)}%` }}
-          />
-        </div>
-        <p className="text-[11px] text-white/45 mt-2">
-          A higher ratio means more of your equity is tied up as collateral. Liquidations begin
-          when the ratio approaches 100%.
-        </p>
-      </div>
+      </section>
 
-      {/* ── Margin ledger with type filter + pagination ──────────────── */}
-      <div className="bg-surface-card border border-surface-border rounded-xl overflow-hidden">
-        <div className="flex flex-wrap items-center justify-between gap-3 p-4 border-b border-surface-border">
-          <h3 className="text-sm font-bold text-white">Margin ledger</h3>
+      {/* Margin ledger */}
+      <div className="wallet-surface overflow-hidden">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-5 py-3.5 border-b border-[color:var(--ibo-border-solid)]">
+          <h3 className="text-sm font-bold text-[color:var(--ibo-ink)]">Margin ledger</h3>
           <div className="flex flex-wrap items-center gap-2">
             {txnTypes.length > 0 && (
               <div className="flex items-center gap-1.5">
-                <Filter size={11} className="text-white/40" />
+                <Filter size={11} className="text-[color:var(--ibo-muted)]" />
                 <select value={txnTypeFilter}
                   onChange={e => { setTxnTypeFilter(e.target.value); setTxnPage(1); }}
                   className={selCls}>
@@ -334,17 +331,17 @@ function FuturesWalletTabInner() {
                 </select>
               </div>
             )}
-            <button onClick={reload} disabled={loading}
-              className="inline-flex items-center gap-1.5 text-xs text-white/60 hover:text-white px-2 py-1 rounded hover:bg-[color:var(--ibo-hover)] disabled:opacity-50">
+            <button type="button" onClick={reload} disabled={loading}
+              className="inline-flex items-center gap-1.5 text-xs text-[color:var(--ibo-muted)] hover:text-[color:var(--ibo-ink)] px-2 py-1 rounded disabled:opacity-50">
               <RefreshCw size={11} className={loading ? 'animate-spin' : ''} /> Refresh
             </button>
           </div>
         </div>
 
-        {err && <div className="p-4 text-xs text-rose-300">{String(err)}</div>}
+        {err && <div className="p-4 text-xs text-[#F6465D]">{String(err)}</div>}
 
         {!err && filteredTxns.length === 0 && (
-          <div className="p-8 text-center text-white/45 text-sm">
+          <div className="p-8 text-center text-[color:var(--ibo-muted)] text-sm">
             {loading ? 'Loading…' : txnTypeFilter ? 'No entries match this filter.' : 'No futures wallet activity yet.'}
           </div>
         )}
@@ -353,7 +350,7 @@ function FuturesWalletTabInner() {
           <>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="bg-[color:var(--ibo-elevated)] text-white/55 text-[11px] uppercase tracking-wider">
+                <thead className="text-[color:var(--ibo-muted)] text-[11px] uppercase tracking-wider border-b border-[color:var(--ibo-border-solid)]">
                   <tr>
                     <th className="text-left px-4 py-2.5">When</th>
                     <th className="text-left px-4 py-2.5">Type</th>
@@ -367,14 +364,14 @@ function FuturesWalletTabInner() {
                     const m = txnLabel(t);
                     const signed = signedAmount(t);
                     return (
-                      <tr key={t.id || `${t.created_at}-${idx}`} className="border-t border-surface-border/60 hover:bg-[color:var(--ibo-elevated)]">
-                        <td className="px-4 py-2.5 text-white/65 whitespace-nowrap">{fmtTime(t.created_at)}</td>
+                      <tr key={t.id || `${t.created_at}-${idx}`} className="border-t border-[color:var(--ibo-border-solid)] hover:bg-white/[0.02]">
+                        <td className="px-4 py-2.5 text-[color:var(--ibo-muted)] whitespace-nowrap">{fmtTime(t.created_at)}</td>
                         <td className="px-4 py-2.5"><span className={`text-xs font-semibold ${m.color}`}>{m.label}</span></td>
-                        <td className={`px-4 py-2.5 text-right font-mono ${signed >= 0 ? 'text-emerald-300' : 'text-rose-300'}`}>
-                          {fmtAmount(signed)} <span className="text-white/40">USDT</span>
+                        <td className={`px-4 py-2.5 text-right font-mono ${signed >= 0 ? 'text-[#0ECB81]' : 'text-[#F6465D]'}`}>
+                          {fmtAmount(signed)} <span className="text-[color:var(--ibo-muted)]">USDT</span>
                         </td>
-                        <td className="px-4 py-2.5 text-right font-mono text-white/80">{balanceAfter(t).toFixed(2)}</td>
-                        <td className="px-4 py-2.5 text-white/55 hidden sm:table-cell truncate max-w-[280px]">
+                        <td className="px-4 py-2.5 text-right font-mono text-[color:var(--ibo-ink)]">{balanceAfter(t).toFixed(2)}</td>
+                        <td className="px-4 py-2.5 text-[color:var(--ibo-muted)] hidden sm:table-cell truncate max-w-[280px]">
                           {t.meta?.note || t.note || t.meta?.symbol || (t.ref_id ? `#${String(t.ref_id).slice(0, 12)}` : '')}
                         </td>
                       </tr>
@@ -384,13 +381,13 @@ function FuturesWalletTabInner() {
               </table>
             </div>
             {txnTotalPages > 1 && (
-              <div className="flex items-center justify-between px-4 py-3 border-t border-surface-border text-xs text-white/40">
+              <div className="flex items-center justify-between px-4 py-3 border-t border-[color:var(--ibo-border-solid)] text-xs text-[color:var(--ibo-muted)]">
                 <span>{filteredTxns.length} entries · page {txnPage}/{txnTotalPages}</span>
                 <div className="flex gap-2">
-                  <button onClick={() => setTxnPage(p => p - 1)} disabled={txnPage <= 1}
-                    className="px-3 py-1.5 rounded-lg border border-[color:var(--ibo-border-solid)] font-bold text-white/60 hover:text-white disabled:opacity-25 transition-colors">← Prev</button>
-                  <button onClick={() => setTxnPage(p => p + 1)} disabled={txnPage >= txnTotalPages}
-                    className="px-3 py-1.5 rounded-lg border border-[color:var(--ibo-border-solid)] font-bold text-white/60 hover:text-white disabled:opacity-25 transition-colors">Next →</button>
+                  <button type="button" onClick={() => setTxnPage(p => p - 1)} disabled={txnPage <= 1}
+                    className="wallet-action-ghost !py-1.5 disabled:opacity-25">← Prev</button>
+                  <button type="button" onClick={() => setTxnPage(p => p + 1)} disabled={txnPage >= txnTotalPages}
+                    className="wallet-action-ghost !py-1.5 disabled:opacity-25">Next →</button>
                 </div>
               </div>
             )}
@@ -398,26 +395,24 @@ function FuturesWalletTabInner() {
         )}
       </div>
 
-      {/* ── Closed positions P&L history — filters + pagination ──────── */}
+      {/* Closed positions */}
       {posHistory.length > 0 && (
-        <div className="bg-surface-card border border-surface-border rounded-xl overflow-hidden">
-          {/* Header + filters */}
-          <div className="p-4 border-b border-surface-border space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <TrendingUp size={15} className="text-[#5BB8FF]" />
-                Closed positions — realized P&amp;L
+        <div className="wallet-surface overflow-hidden">
+          <div className="p-4 sm:px-5 border-b border-[color:var(--ibo-border-solid)] space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-sm font-bold text-[color:var(--ibo-ink)] flex items-center gap-2">
+                <TrendingUp size={15} className="text-[#FE6C02]" />
+                Closed positions
               </h3>
               <div className="text-right">
-                <p className="text-[10px] text-white/35 uppercase tracking-wider">Filtered total</p>
-                <p className={`text-sm font-bold font-mono ${filteredRpnl >= 0 ? 'text-emerald-300' : 'text-rose-300'}`}>
+                <p className="text-[10px] text-[color:var(--ibo-muted)] uppercase tracking-wider">Filtered total</p>
+                <p className={`text-sm font-bold font-mono tabular-nums ${filteredRpnl >= 0 ? 'text-[#0ECB81]' : 'text-[#F6465D]'}`}>
                   {filteredRpnl >= 0 ? '+' : ''}{filteredRpnl.toFixed(2)} USDT
                 </p>
               </div>
             </div>
-            {/* Filter row */}
             <div className="flex flex-wrap gap-2 items-center">
-              <Filter size={11} className="text-white/35 flex-shrink-0" />
+              <Filter size={11} className="text-[color:var(--ibo-muted)] flex-shrink-0" />
               <select value={posSymFilter}
                 onChange={e => { setPosSymFilter(e.target.value); setPosPage(1); }}
                 className={selCls}>
@@ -438,46 +433,46 @@ function FuturesWalletTabInner() {
                 <option value="profit">Profit only</option>
                 <option value="loss">Loss only</option>
               </select>
-              <button onClick={() => { setPosSymFilter(''); setPosSideFilter('all'); setPosPnlFilter('all'); setPosPage(1); }}
-                className="text-xs text-[#5BB8FF]/60 hover:text-[#5BB8FF] font-bold transition-colors ml-1">
+              <button type="button" onClick={() => { setPosSymFilter(''); setPosSideFilter('all'); setPosPnlFilter('all'); setPosPage(1); }}
+                className="text-xs text-[#FE6C02] font-bold transition-colors ml-1">
                 Reset
               </button>
-              <span className="ml-auto text-xs text-white/35">{filteredPos.length} / {posHistory.length} positions</span>
+              <span className="ml-auto text-xs text-[color:var(--ibo-muted)]">{filteredPos.length} / {posHistory.length}</span>
             </div>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-[color:var(--ibo-elevated)] text-white/55 text-[11px] uppercase tracking-wider">
+              <thead className="text-[color:var(--ibo-muted)] text-[11px] uppercase tracking-wider border-b border-[color:var(--ibo-border-solid)]">
                 <tr>
                   <th className="text-left px-4 py-2.5">Closed</th>
                   <th className="text-left px-4 py-2.5">Symbol</th>
                   <th className="text-left px-4 py-2.5">Side</th>
                   <th className="text-right px-4 py-2.5">Size</th>
                   <th className="text-right px-4 py-2.5">Entry</th>
-                  <th className="text-right px-4 py-2.5">Leverage</th>
-                  <th className="text-right px-4 py-2.5">Realized P&amp;L</th>
+                  <th className="text-right px-4 py-2.5">Lev</th>
+                  <th className="text-right px-4 py-2.5">Realized</th>
                 </tr>
               </thead>
               <tbody>
                 {posSlice.length === 0 ? (
-                  <tr><td colSpan={7} className="px-4 py-8 text-center text-white/35 text-sm">No positions match filters.</td></tr>
+                  <tr><td colSpan={7} className="px-4 py-8 text-center text-[color:var(--ibo-muted)] text-sm">No positions match filters.</td></tr>
                 ) : posSlice.map((p, i) => {
                   const rpnl = Number(p.realized_pnl ?? 0);
                   return (
-                    <tr key={p.id || i} className="border-t border-surface-border/60 hover:bg-[color:var(--ibo-elevated)]">
-                      <td className="px-4 py-2.5 text-white/55 whitespace-nowrap">{fmtTime(p.closed_at || p.updated_at)}</td>
-                      <td className="px-4 py-2.5 font-bold text-white">{p.symbol}</td>
+                    <tr key={p.id || i} className="border-t border-[color:var(--ibo-border-solid)] hover:bg-white/[0.02]">
+                      <td className="px-4 py-2.5 text-[color:var(--ibo-muted)] whitespace-nowrap">{fmtTime(p.closed_at || p.updated_at)}</td>
+                      <td className="px-4 py-2.5 font-bold text-[color:var(--ibo-ink)]">{p.symbol}</td>
                       <td className="px-4 py-2.5">
                         <span className={`text-xs font-semibold uppercase px-2 py-0.5 rounded ${
-                          String(p.side).toLowerCase() === 'long' ? 'text-emerald-300 bg-emerald-500/10' : 'text-rose-300 bg-rose-500/10'
+                          String(p.side).toLowerCase() === 'long' ? 'text-[#0ECB81] bg-[#0ECB81]/10' : 'text-[#F6465D] bg-[#F6465D]/10'
                         }`}>{p.side}</span>
                       </td>
-                      <td className="px-4 py-2.5 text-right font-mono text-white/80">{Number(p.size ?? p.qty ?? 0).toFixed(4)}</td>
-                      <td className="px-4 py-2.5 text-right font-mono text-white/80">${Number(p.entry_price ?? 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-                      <td className="px-4 py-2.5 text-right font-mono text-white/80">{Number(p.leverage ?? 1).toFixed(0)}×</td>
-                      <td className={`px-4 py-2.5 text-right font-mono font-bold ${rpnl >= 0 ? 'text-emerald-300' : 'text-rose-300'}`}>
-                        {rpnl >= 0 ? '+' : ''}{rpnl.toFixed(2)} USDT
+                      <td className="px-4 py-2.5 text-right font-mono text-[color:var(--ibo-ink)]">{Number(p.size ?? p.qty ?? 0).toFixed(4)}</td>
+                      <td className="px-4 py-2.5 text-right font-mono text-[color:var(--ibo-ink)]">${Number(p.entry_price ?? 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                      <td className="px-4 py-2.5 text-right font-mono text-[color:var(--ibo-ink)]">{Number(p.leverage ?? 1).toFixed(0)}×</td>
+                      <td className={`px-4 py-2.5 text-right font-mono font-bold ${rpnl >= 0 ? 'text-[#0ECB81]' : 'text-[#F6465D]'}`}>
+                        {rpnl >= 0 ? '+' : ''}{rpnl.toFixed(2)}
                       </td>
                     </tr>
                   );
@@ -487,13 +482,13 @@ function FuturesWalletTabInner() {
           </div>
 
           {posTotalPages > 1 && (
-            <div className="flex items-center justify-between px-4 py-3 border-t border-surface-border text-xs text-white/40">
+            <div className="flex items-center justify-between px-4 py-3 border-t border-[color:var(--ibo-border-solid)] text-xs text-[color:var(--ibo-muted)]">
               <span>{filteredPos.length} positions · page {posPage}/{posTotalPages}</span>
               <div className="flex gap-2">
-                <button onClick={() => setPosPage(p => p - 1)} disabled={posPage <= 1}
-                  className="px-3 py-1.5 rounded-lg border border-[color:var(--ibo-border-solid)] font-bold text-white/60 hover:text-white disabled:opacity-25 transition-colors">← Prev</button>
-                <button onClick={() => setPosPage(p => p + 1)} disabled={posPage >= posTotalPages}
-                  className="px-3 py-1.5 rounded-lg border border-[color:var(--ibo-border-solid)] font-bold text-white/60 hover:text-white disabled:opacity-25 transition-colors">Next →</button>
+                <button type="button" onClick={() => setPosPage(p => p - 1)} disabled={posPage <= 1}
+                  className="wallet-action-ghost !py-1.5 disabled:opacity-25">← Prev</button>
+                <button type="button" onClick={() => setPosPage(p => p + 1)} disabled={posPage >= posTotalPages}
+                  className="wallet-action-ghost !py-1.5 disabled:opacity-25">Next →</button>
               </div>
             </div>
           )}

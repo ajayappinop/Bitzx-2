@@ -47,7 +47,7 @@ const exchangeFeatures = [
   {
     icon: Users,
     title: 'Referral Rewards',
-    description: 'Earn passive income by growing the IBO community.',
+    description: 'Earn passive income by growing the Delta community.',
   },
   {
     icon: Globe,
@@ -113,7 +113,7 @@ export const Exchange = () => {
             </motion.div>
 
             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-ink mb-6 leading-tight">
-              IBO
+              Delta
               <span className="block text-ink-accent">Exchange</span>
             </h2>
             
@@ -126,7 +126,7 @@ export const Exchange = () => {
               {[
                 { value: EXCHANGE_URL_LABEL, label: 'Official URL', compact: true },
                 { value: 'Spot', label: 'Live Markets', compact: false },
-                { value: 'IBO Utility', label: 'Token Role', compact: false },
+                { value: 'Delta Utility', label: 'Token Role', compact: false },
               ].map((stat, i) => (
                 <motion.div
                   key={stat.label}
@@ -170,7 +170,7 @@ export const Exchange = () => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                Buy $IBO
+                Buy $DELTA
               </motion.button>
             </div>
           </motion.div>
@@ -204,7 +204,7 @@ export const Exchange = () => {
             <div className="relative z-10 text-center">
               <motion.img
                 src={LOGO_ICON_URL}
-                alt="IBO Exchange"
+                alt="Delta Exchange"
                 className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 mx-auto mb-4 sm:mb-6 drop-shadow-[0_0_30px_rgba(14,164,171,0.4)]"
                 animate={{ rotateY: [0, 10, 0, -10, 0] }}
                 transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
@@ -311,7 +311,7 @@ export const Exchange = () => {
           </div>
         </motion.div>
 
-        {/* $IBO Holder Benefits */}
+        {/* $DELTA Holder Benefits */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -330,7 +330,7 @@ export const Exchange = () => {
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C5E35B] opacity-75" />
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-[#C5E35B]" />
                     </span>
-                    <span className="text-ink-accent text-sm font-medium">Exclusive for $IBO Holders</span>
+                    <span className="text-ink-accent text-sm font-medium">Exclusive for $DELTA Holders</span>
                   </div>
                   
                   <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-ink mb-4">

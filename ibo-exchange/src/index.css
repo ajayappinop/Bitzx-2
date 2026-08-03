@@ -1,64 +1,69 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@400..800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/*  Theme tokens (dark default = current IBO canvas)  */
+/*
+ * Theme tokens — Delta Exchange India-inspired palette:
+ * graphite surfaces + orange brand CTAs + green/red trading colors.
+ * Single-font (Inter). Dark is the product default.
+ */
 :root,
 html[data-theme='dark'] {
-  --ibo-bg: #08090c;
-  --ibo-bg-rgb: 8 9 12;
-  --ibo-surface: #0c0f18;
-  --ibo-card: #0e1219;
-  --ibo-elevated: rgba(255, 255, 255, 0.04);
-  --ibo-hover: #141824;
-  --ibo-border: rgba(255, 255, 255, 0.1);
-  --ibo-border-solid: #1c2433;
-  --ibo-ink: #f4f4f5;
-  --ibo-ink-secondary: #a1a1aa;
-  --ibo-muted: #71717a;
-  --ibo-glass: rgba(14, 18, 28, 0.72);
+  /* Flat Delta product canvas — surfaces match page bg (no mid-grey #222 slabs) */
+  --ibo-bg: #101013;
+  --ibo-bg-rgb: 16 16 19;
+  --ibo-surface: #101013;
+  --ibo-card: #101013;
+  --ibo-elevated: transparent;
+  --ibo-hover: rgba(255, 255, 255, 0.04);
+  --ibo-border: rgba(255, 255, 255, 0.07);
+  --ibo-border-solid: rgba(255, 255, 255, 0.1);
+  --ibo-ink: #e1e1e2;
+  --ibo-ink-secondary: #8e9298;
+  --ibo-muted: #71747a;
+  --ibo-glass: rgba(16, 16, 19, 0.88);
   --ibo-glass-border: rgba(255, 255, 255, 0.08);
-  --ibo-nav: rgba(10, 11, 15, 0.92);
-  --ibo-bloom-cyan: rgba(14, 164, 171, 0.14);
-  --ibo-bloom-lime: rgba(197, 227, 91, 0.1);
-  --ibo-bloom-blue: rgba(27, 95, 255, 0.08);
-  --ibo-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
-  --ibo-accent: #0ea4ab;
-  --ibo-accent-soft: rgba(14, 164, 171, 0.14);
+  --ibo-nav: rgba(16, 16, 19, 0.92);
+  --ibo-bloom-cyan: rgba(254, 108, 2, 0.14);
+  --ibo-bloom-lime: rgba(0, 168, 118, 0.1);
+  --ibo-bloom-blue: rgba(180, 77, 1, 0.08);
+  --ibo-shadow: none;
+  --ibo-accent: #fe6c02;
+  --ibo-accent-soft: rgba(254, 108, 2, 0.14);
+  --ibo-positive: #00a876;
+  --ibo-negative: #eb5454;
   color-scheme: dark;
 }
-
 /*
- * Branded light theme — cool slate mist + brand accents.
- * Hierarchy: page → surface → card → elevated. Cyan/lime reserved for accents,
- * not as fill/border tint on every surface (avoids mint wash + muddy contrast).
+ * Branded light theme — neutral slate surfaces with the same orange
+ * brand accent. Hierarchy: page → surface → card → elevated.
  */
 html[data-theme='light'] {
-  --ibo-bg: #eef3f6;
-  --ibo-bg-rgb: 238 243 246;
-  --ibo-surface: #f6f9fb;
+  /* Flat light product canvas — white page + hairline chrome only */
+  --ibo-bg: #ffffff;
+  --ibo-bg-rgb: 255 255 255;
+  --ibo-surface: #ffffff;
   --ibo-card: #ffffff;
-  --ibo-elevated: rgba(12, 28, 38, 0.045);
-  --ibo-hover: #e5edf2;
-  --ibo-border: rgba(12, 28, 38, 0.1);
-  --ibo-border-solid: #d0dbe3;
-  --ibo-ink: #0c1922;
-  --ibo-ink-secondary: #4a6070;
-  --ibo-muted: #6e8494;
-  --ibo-glass: rgba(255, 255, 255, 0.86);
-  --ibo-glass-border: rgba(12, 28, 38, 0.09);
-  --ibo-nav: rgba(255, 255, 255, 0.9);
-  --ibo-bloom-cyan: rgba(14, 164, 171, 0.09);
-  --ibo-bloom-lime: rgba(197, 227, 91, 0.1);
-  --ibo-bloom-blue: rgba(27, 95, 255, 0.05);
-  --ibo-shadow: 0 14px 36px rgba(12, 25, 34, 0.08);
-  --ibo-accent: #0ea4ab;
-  --ibo-accent-soft: rgba(14, 164, 171, 0.12);
+  --ibo-elevated: transparent;
+  --ibo-hover: rgba(18, 20, 24, 0.04);
+  --ibo-border: rgba(18, 20, 24, 0.08);
+  --ibo-border-solid: rgba(18, 20, 24, 0.12);
+  --ibo-ink: #121214;
+  --ibo-ink-secondary: #5b6069;
+  --ibo-muted: #8e9298;
+  --ibo-glass: rgba(255, 255, 255, 0.92);
+  --ibo-glass-border: rgba(18, 20, 24, 0.08);
+  --ibo-nav: rgba(255, 255, 255, 0.94);
+  --ibo-bloom-cyan: rgba(254, 108, 2, 0.09);
+  --ibo-bloom-lime: rgba(0, 168, 118, 0.1);
+  --ibo-bloom-blue: rgba(180, 77, 1, 0.05);
+  --ibo-shadow: none;
+  --ibo-accent: #e76202;
+  --ibo-accent-soft: rgba(231, 98, 2, 0.12);
+  --ibo-positive: #00a876;
+  --ibo-negative: #dc4e4e;
   color-scheme: light;
 }
-
 @layer base {
   html {
     font-size: 16px;
@@ -71,22 +76,20 @@ html[data-theme='light'] {
     min-height: 100vh;
     min-height: 100dvh;
   }
-
   body {
     background: var(--ibo-bg);
     color: var(--ibo-ink);
-    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     overflow-x: hidden;
     max-width: 100vw;
     font-feature-settings: 'kern' 1, 'liga' 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.01em;
   }
   * { box-sizing: border-box; }
 }
-
-/* Syne - headings, navbar, and buttons */
+/* Single-font system (Inter, weighted) — headings, navbar, and buttons */
 .ibo-display,
 .ibo-title,
 .ibo-title-lg,
@@ -98,10 +101,9 @@ header nav,
 button,
 a.bg-logo-gradient,
 .bg-logo-gradient {
-  font-family: 'Syne', system-ui, sans-serif !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
 }
-
-/* Numbers / prices / tickers — Inter only (wins over Syne in header & display) */
+/* Numbers / prices / tickers — Inter, tabular figures */
 .font-mono,
 .tabular-nums,
 header .font-mono,
@@ -111,21 +113,19 @@ header a.font-mono,
 .font-display .tabular-nums,
 .order-book-panel .font-mono,
 .order-book-panel .tabular-nums {
-  font-family: Inter, 'Plus Jakarta Sans', system-ui, sans-serif !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
 }
-
-/* Trade / form UI labels — Inter (overrides global Syne on buttons) */
+/* Trade / form UI labels — Inter */
 button.font-ui,
 .font-ui,
 .font-ui button,
 .font-ui input,
 .font-ui select,
 .font-ui textarea {
-  font-family: Inter, 'Plus Jakarta Sans', system-ui, sans-serif !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
 }
-
 /* Landing / marketing typography - consistent scale & rhythm */
 @layer components {
   /* Full-width layout - uses almost all screen; padding keeps text off the rim */
@@ -179,11 +179,9 @@ button.font-ui,
     color: var(--ibo-muted);
   }
 }
-
 @layer utilities {
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
   .scrollbar-hide::-webkit-scrollbar { display: none; width: 0; height: 0; }
-
   .order-book-panel {
     -webkit-tap-highlight-color: transparent;
     color-scheme: dark;
@@ -202,7 +200,6 @@ button.font-ui,
     width: 0;
     height: 0;
   }
-
   /* Option chain: outer = vertical list of expiries; inner = horizontal table scroll. */
   .options-chain-scroll-v {
     max-width: 100%;
@@ -211,7 +208,7 @@ button.font-ui,
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: auto;
     scrollbar-width: thin;
-    scrollbar-color: rgba(197, 227, 91, 0.35) rgba(0, 0, 0, 0.25);
+    scrollbar-color: rgba(0, 168, 118, 0.35) rgba(0, 0, 0, 0.25);
   }
   .options-chain-scroll-v::-webkit-scrollbar {
     height: 0;
@@ -224,13 +221,12 @@ button.font-ui,
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-x: contain;
     scrollbar-width: thin;
-    scrollbar-color: rgba(197, 227, 91, 0.35) rgba(0, 0, 0, 0.25);
+    scrollbar-color: rgba(0, 168, 118, 0.35) rgba(0, 0, 0, 0.25);
   }
   .options-chain-scroll::-webkit-scrollbar {
     height: 10px;
     width: 0;
   }
-
   /* Chain top bar: horizontal scroll + visible vertical overflow (no clipped descenders). */
   .options-chain-toolbar {
     max-width: 100%;
@@ -239,7 +235,7 @@ button.font-ui,
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-x: contain;
     scrollbar-width: thin;
-    scrollbar-color: rgba(197, 227, 91, 0.35) rgba(0, 0, 0, 0.25);
+    scrollbar-color: rgba(0, 168, 118, 0.35) rgba(0, 0, 0, 0.25);
   }
   .options-chain-toolbar::-webkit-scrollbar {
     height: 10px;
@@ -248,7 +244,7 @@ button.font-ui,
   .options-chain-toolbar::-webkit-scrollbar-thumb,
   .options-chain-scroll::-webkit-scrollbar-thumb,
   .options-chain-scroll-v::-webkit-scrollbar-thumb {
-    background: rgba(197, 227, 91, 0.35);
+    background: rgba(0, 168, 118, 0.35);
     border-radius: 5px;
     border: 2px solid transparent;
     background-clip: padding-box;
@@ -258,18 +254,15 @@ button.font-ui,
   .options-chain-scroll-v::-webkit-scrollbar-track {
     background: rgba(0, 0, 0, 0.2);
   }
-
   /* No contain:paint - it clips stacked depth bars and can hide price text (Chrome/Edge). */
   .order-book-row {
     -webkit-tap-highlight-color: transparent;
   }
-
   .glass {
     background: var(--ibo-glass);
     backdrop-filter: blur(14px);
     border: 1px solid var(--ibo-glass-border);
   }
-
   /* App page shell - matches landing canvas */
   .ibo-page {
     @apply min-h-screen w-full min-w-0 overflow-x-hidden;
@@ -278,19 +271,19 @@ button.font-ui,
   }
   .ibo-card {
     @apply rounded-2xl;
-    border: 1px solid var(--ibo-border);
-    background: color-mix(in srgb, var(--ibo-card) 88%, transparent);
+    border: 1px solid var(--ibo-border-solid);
+    background: transparent;
     box-shadow: none;
   }
   .ibo-card-solid {
     @apply rounded-2xl;
-    border: 1px solid var(--ibo-border);
-    background: var(--ibo-card);
-    box-shadow: var(--ibo-shadow);
+    border: 1px solid var(--ibo-border-solid);
+    background: transparent;
+    box-shadow: none;
   }
   .ibo-btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-[#050a1a] bg-logo-gradient transition-[filter];
-    box-shadow: 0 12px 36px rgba(197, 227, 91, 0.16);
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-[#101013] bg-logo-gradient transition-[filter];
+    box-shadow: 0 12px 36px rgba(0, 168, 118, 0.16);
   }
   .ibo-btn-primary:hover {
     filter: brightness(1.1);
@@ -302,7 +295,7 @@ button.font-ui,
   }
   .ibo-btn-secondary:hover {
     background: var(--ibo-elevated);
-    border-color: rgba(14, 164, 171, 0.35);
+    border-color: rgba(254, 108, 2, 0.35);
     color: var(--ibo-ink);
   }
   .ibo-btn-outline {
@@ -313,59 +306,87 @@ button.font-ui,
   }
   .ibo-btn-outline:hover {
     background: var(--ibo-elevated);
-    border-color: rgba(14, 164, 171, 0.35);
+    border-color: rgba(254, 108, 2, 0.35);
   }
-  /* Dark default Quick Trade chip — lime highlight (light theme overridden below) */
+  /* Quick Trade / secondary CTA — brand orange (theme tokens) */
   .ibo-btn-accent {
     @apply inline-flex items-center justify-center gap-1.5 font-bold transition-all;
-    border: 1px solid rgba(197, 227, 91, 0.38);
-    background: linear-gradient(135deg, rgba(14, 164, 171, 0.22), rgba(197, 227, 91, 0.18));
-    color: #c5e35b;
-    box-shadow: none;
+    border: 1px solid color-mix(in srgb, var(--ibo-accent) 48%, transparent);
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--ibo-accent) 32%, transparent) 0%,
+      color-mix(in srgb, var(--ibo-accent) 14%, transparent) 100%
+    );
+    color: var(--ibo-accent);
+    box-shadow: 0 0 22px color-mix(in srgb, var(--ibo-accent) 18%, transparent);
     text-decoration: none;
   }
   .ibo-btn-accent:hover {
-    filter: brightness(1.08);
+    filter: brightness(1.1);
+    border-color: color-mix(in srgb, var(--ibo-accent) 65%, transparent);
+    color: #ff9a3c;
   }
   .ibo-input {
     @apply w-full rounded-xl px-4 py-3 text-sm outline-none transition-colors;
     color: var(--ibo-ink);
-    border: 1px solid var(--ibo-border);
-    background: var(--ibo-elevated);
+    border: 1px solid var(--ibo-border-solid);
+    background: transparent;
   }
   .ibo-input::placeholder {
     color: var(--ibo-muted);
   }
   .ibo-input:focus {
-    border-color: rgba(14, 164, 171, 0.5);
-    box-shadow: 0 0 0 1px rgba(14, 164, 171, 0.25);
+    border-color: rgba(254, 108, 2, 0.5);
+    box-shadow: 0 0 0 1px rgba(254, 108, 2, 0.25);
   }
-
+  /* Native <select> list colors (windows/chrome option menus use option styles) */
+  select.ibo-select,
+  .ibo-select {
+    color: var(--ibo-ink);
+    background-color: var(--ibo-bg);
+    color-scheme: dark;
+  }
+  html[data-theme='light'] select.ibo-select,
+  html[data-theme='light'] .ibo-select {
+    color-scheme: light;
+  }
+  select.ibo-select option,
+  .ibo-select option,
+  select option {
+    background-color: #18191e;
+    color: #e1e1e2;
+  }
+  html[data-theme='light'] select.ibo-select option,
+  html[data-theme='light'] .ibo-select option,
+  html[data-theme='light'] select option {
+    background-color: #ffffff;
+    color: #121214;
+  }
   /* Account surfaces — wallet deposit/withdraw, profile, KYC, support */
   .ibo-account-hero {
-    @apply relative overflow-hidden rounded-2xl p-5 sm:p-7 mb-6;
+    @apply relative overflow-hidden rounded-xl p-5 sm:p-7 mb-6;
     border: 1px solid var(--ibo-border-solid);
     background:
-      radial-gradient(ellipse 70% 120% at 100% 0%, rgba(14, 164, 171, 0.18), transparent 55%),
-      radial-gradient(ellipse 50% 80% at 0% 100%, rgba(197, 227, 91, 0.08), transparent 50%),
-      var(--ibo-card);
+      radial-gradient(ellipse 70% 120% at 100% 0%, rgba(254, 108, 2, 0.14), transparent 55%),
+      radial-gradient(ellipse 50% 80% at 0% 100%, rgba(0, 168, 118, 0.06), transparent 50%),
+      var(--ibo-bg);
   }
   .ibo-account-panel {
-    @apply rounded-2xl p-5 sm:p-6;
-    border: 1px solid var(--ibo-border);
-    background: var(--ibo-card);
-    box-shadow: var(--ibo-shadow);
+    @apply rounded-xl p-5 sm:p-6;
+    border: 1px solid var(--ibo-border-solid);
+    background: transparent;
+    box-shadow: none;
   }
   .ibo-account-panel-soft {
-    @apply rounded-2xl p-5 sm:p-6;
-    border: 1px solid var(--ibo-border);
-    background: var(--ibo-elevated);
+    @apply rounded-xl p-5 sm:p-6;
+    border: 1px solid var(--ibo-border-solid);
+    background: transparent;
   }
   .ibo-account-promo {
     @apply rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4;
-    border: 1px solid rgba(14, 164, 171, 0.28);
+    border: 1px solid rgba(254, 108, 2, 0.28);
     background:
-      linear-gradient(105deg, rgba(14, 164, 171, 0.12) 0%, rgba(197, 227, 91, 0.06) 45%, transparent 100%);
+      linear-gradient(105deg, rgba(254, 108, 2, 0.12) 0%, rgba(0, 168, 118, 0.06) 45%, transparent 100%);
   }
   .ibo-account-title {
     @apply font-display font-bold tracking-tight text-2xl sm:text-3xl;
@@ -374,6 +395,74 @@ button.font-ui,
   .ibo-account-subtitle {
     @apply text-sm mt-1.5;
     color: var(--ibo-muted);
+  }
+
+  /* Wallet hub — unified flat surfaces across all tabs */
+  .wallet-surface {
+    border: 1px solid var(--ibo-border-solid);
+    border-radius: 1rem;
+    background: transparent;
+  }
+  .wallet-action-primary {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold text-white transition-colors;
+    background: #fe6c02;
+  }
+  .wallet-action-primary:hover {
+    background: #ff7a1a;
+  }
+  .wallet-action-ghost {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold transition-colors;
+    color: var(--ibo-ink-secondary);
+    border: 1px solid var(--ibo-border-solid);
+    background: transparent;
+  }
+  .wallet-action-ghost:hover {
+    color: var(--ibo-ink);
+    background: rgba(255, 255, 255, 0.03);
+  }
+  .wallet-chip-btn {
+    @apply text-[11px] font-bold px-2.5 py-1.5 rounded-lg border transition-colors;
+    color: var(--ibo-ink-secondary);
+    border-color: var(--ibo-border-solid);
+    background: transparent;
+  }
+  .wallet-chip-btn:hover {
+    border-color: rgba(254, 108, 2, 0.4);
+    color: #fe6c02;
+  }
+  .wallet-chip-btn--pos {
+    color: #0ecb81;
+    border-color: rgba(14, 203, 129, 0.3);
+    background: rgba(14, 203, 129, 0.08);
+  }
+  .wallet-chip-btn--neg {
+    color: #f6465d;
+    border-color: rgba(246, 70, 93, 0.3);
+    background: rgba(246, 70, 93, 0.08);
+  }
+  .wallet-step-num {
+    @apply flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold tabular-nums;
+    color: #fe6c02;
+    background: rgba(254, 108, 2, 0.12);
+    border: 1px solid rgba(254, 108, 2, 0.3);
+  }
+  .wallet-field {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid var(--ibo-border-solid);
+    background: var(--ibo-bg);
+    padding: 0.7rem 0.9rem;
+    font-size: 0.875rem;
+    color: var(--ibo-ink);
+    outline: none;
+  }
+  .wallet-field:focus {
+    border-color: rgba(254, 108, 2, 0.45);
+  }
+  .wallet-hub .ibo-account-panel,
+  .wallet-hub .ibo-account-panel-soft {
+    background: transparent;
+    box-shadow: none;
   }
   .ibo-field-label {
     @apply block text-[11px] font-bold uppercase tracking-[0.08em] mb-2;
@@ -386,30 +475,30 @@ button.font-ui,
     background: transparent;
   }
   .ibo-mode-chip:hover {
-    border-color: rgba(14, 164, 171, 0.4);
+    border-color: rgba(254, 108, 2, 0.4);
     color: var(--ibo-ink);
   }
   .ibo-mode-chip-active {
-    border-color: rgba(14, 164, 171, 0.55) !important;
-    background: linear-gradient(135deg, rgba(14, 164, 171, 0.18), rgba(197, 227, 91, 0.12)) !important;
-    color: #0ea4ab !important;
+    border-color: rgba(254, 108, 2, 0.55) !important;
+    background: linear-gradient(135deg, rgba(254, 108, 2, 0.18), rgba(0, 168, 118, 0.12)) !important;
+    color: #FE6C02 !important;
   }
   .ibo-step-num {
     @apply w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5;
-    background: rgba(14, 164, 171, 0.18);
-    color: #0ea4ab;
+    background: rgba(254, 108, 2, 0.18);
+    color: #FE6C02;
   }
   .ibo-notice-info {
     @apply rounded-xl border px-3.5 py-2.5 text-xs;
-    border-color: rgba(14, 164, 171, 0.32);
-    background: rgba(14, 164, 171, 0.1);
-    color: color-mix(in srgb, #0ea4ab 88%, var(--ibo-ink));
+    border-color: rgba(254, 108, 2, 0.32);
+    background: rgba(254, 108, 2, 0.1);
+    color: color-mix(in srgb, #FE6C02 88%, var(--ibo-ink));
   }
   .ibo-notice-warn {
     @apply rounded-xl border px-3.5 py-2.5 text-xs;
-    border-color: rgba(197, 227, 91, 0.35);
-    background: rgba(197, 227, 91, 0.1);
-    color: color-mix(in srgb, #c5e35b 70%, var(--ibo-ink));
+    border-color: rgba(0, 168, 118, 0.35);
+    background: rgba(0, 168, 118, 0.1);
+    color: color-mix(in srgb, #00A876 70%, var(--ibo-ink));
   }
   .ibo-notice-danger {
     @apply rounded-xl border px-3.5 py-2.5 text-xs;
@@ -419,8 +508,8 @@ button.font-ui,
   }
   .ibo-tab-active {
     @apply border-b-2 whitespace-nowrap transition-colors;
-    border-color: #0ea4ab;
-    color: #0ea4ab;
+    border-color: #FE6C02;
+    color: #FE6C02;
   }
   .ibo-tab-idle {
     @apply border-b-2 border-transparent whitespace-nowrap transition-colors;
@@ -429,48 +518,48 @@ button.font-ui,
   .ibo-tab-idle:hover {
     color: var(--ibo-ink);
   }
-
   /* Auth login/register — keep typed + browser-autofilled values visible */
   .ibo-auth-input {
     color: var(--ibo-ink) !important;
     -webkit-text-fill-color: var(--ibo-ink);
-    caret-color: #c5e35b;
+    caret-color: #00A876;
   }
   .ibo-auth-input:-webkit-autofill,
   .ibo-auth-input:-webkit-autofill:hover,
   .ibo-auth-input:-webkit-autofill:focus,
   .ibo-auth-input:-webkit-autofill:active {
     -webkit-text-fill-color: var(--ibo-ink) !important;
-    caret-color: #c5e35b;
+    caret-color: #00A876;
     transition: background-color 99999s ease-out;
     box-shadow: 0 0 0 1000px var(--ibo-elevated) inset !important;
   }
-
-  .gold-glow    { box-shadow: 0 0 30px rgba(14,164,171,0.3); }
-  .gold-border  { border: 1px solid rgba(14,164,171,0.3); }
+  .gold-glow    { box-shadow: 0 0 30px rgba(254, 108, 2,0.3); }
+  .gold-border  { border: 1px solid rgba(254, 108, 2,0.3); }
   .text-gradient {
-    background: linear-gradient(135deg, #4D8AFF 0%, #2ECAD0 50%, #D8F07A 100%);
+    background: linear-gradient(135deg, #FF8F2A 0%, #FE6C02 50%, #E76202 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-
-  /* Logo gradient for CTAs / primary buttons - matches IBO emblem */
+  /* Primary CTA gradient — Delta India orange ramp (no multi-brand green end) */
   .bg-logo-gradient {
     background-image: linear-gradient(
-      to top right,
-      #0B5FFF 0%,
-      #1B5FFF 22%,
-      #0EA4AB 52%,
-      #2ECAD0 72%,
-      #C5E35B 100%
+      105deg,
+      #FF9A3C 0%,
+      #FE7A1A 28%,
+      #FE6C02 55%,
+      #E76202 82%,
+      #D65500 100%
     );
+    background-size: 100% 100%;
   }
-
+  .bg-logo-gradient:hover {
+    filter: brightness(1.06);
+  }
   /* Hero Create Account - interactive CTA */
   .hero-cta-btn {
     box-shadow:
-      0 0 28px rgba(14, 164, 171, 0.35),
+      0 0 28px rgba(254, 108, 2, 0.35),
       0 8px 24px rgba(0, 0, 0, 0.25);
     transition:
       box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1),
@@ -478,14 +567,14 @@ button.font-ui,
   }
   .hero-cta-btn:hover {
     box-shadow:
-      0 0 40px rgba(14, 164, 171, 0.55),
-      0 0 72px rgba(197, 227, 91, 0.28),
+      0 0 40px rgba(254, 108, 2, 0.55),
+      0 0 72px rgba(0, 168, 118, 0.28),
       0 12px 28px rgba(0, 0, 0, 0.3);
     filter: brightness(1.06);
   }
   .hero-cta-btn:active {
     box-shadow:
-      0 0 20px rgba(14, 164, 171, 0.4),
+      0 0 20px rgba(254, 108, 2, 0.4),
       0 4px 12px rgba(0, 0, 0, 0.28);
   }
   .hero-cta-shimmer {
@@ -511,7 +600,6 @@ button.font-ui,
       transform: translateX(120%);
     }
   }
-
   @keyframes hero-type-caret-blink {
     0%,
     45% {
@@ -522,11 +610,9 @@ button.font-ui,
       opacity: 0;
     }
   }
-
   .hero-type-caret {
     animation: hero-type-caret-blink 1s step-end infinite;
   }
-
   /*
    * IBO premium hover - soft, long easing, minimal motion (no harsh snaps).
    * Easing: smooth deceleration similar to iOS / Material expressive.
@@ -545,9 +631,8 @@ button.font-ui,
     box-shadow:
       0 2px 8px rgba(0, 0, 0, 0.2),
       0 16px 48px rgba(0, 0, 0, 0.28),
-      0 0 0 1px rgba(197, 227, 91, 0.1);
+      0 0 0 1px rgba(0, 168, 118, 0.1);
   }
-
   /* Soft top highlight - fades in (no sliding flash) */
   .ibo-hover-glow {
     position: relative;
@@ -561,8 +646,8 @@ button.font-ui,
     border-radius: inherit;
     background: radial-gradient(
       130% 90% at 50% -10%,
-      rgba(197, 227, 91, 0.14) 0%,
-      rgba(14, 164, 171, 0.04) 42%,
+      rgba(0, 168, 118, 0.14) 0%,
+      rgba(254, 108, 2, 0.04) 42%,
       transparent 72%
     );
     opacity: 0;
@@ -573,7 +658,6 @@ button.font-ui,
   .ibo-hover-glow:hover::before {
     opacity: 1;
   }
-
   .ibo-hover-border {
     transition:
       border-color 0.6s cubic-bezier(0.16, 1, 0.3, 1),
@@ -581,13 +665,12 @@ button.font-ui,
       background-color 0.55s ease;
   }
   .ibo-hover-border:hover {
-    border-color: rgba(197, 227, 91, 0.28);
+    border-color: rgba(0, 168, 118, 0.28);
     box-shadow:
-      0 0 0 1px rgba(197, 227, 91, 0.06),
+      0 0 0 1px rgba(0, 168, 118, 0.06),
       0 8px 32px rgba(0, 0, 0, 0.18),
       inset 0 1px 0 rgba(255, 255, 255, 0.04);
   }
-
   .ibo-hover-table-row {
     transition:
       background-color 0.55s cubic-bezier(0.16, 1, 0.3, 1),
@@ -595,9 +678,8 @@ button.font-ui,
   }
   .ibo-hover-table-row:hover {
     background-color: rgba(255, 255, 255, 0.038);
-    box-shadow: inset 3px 0 0 rgba(197, 227, 91, 0.42);
+    box-shadow: inset 3px 0 0 rgba(0, 168, 118, 0.42);
   }
-
   .ibo-hover-scale {
     transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
   }
@@ -608,7 +690,6 @@ button.font-ui,
     transform: scale(0.992);
     transition-duration: 0.2s;
   }
-
   .ibo-nav-link {
     position: relative;
   }
@@ -623,9 +704,9 @@ button.font-ui,
     background: linear-gradient(
       90deg,
       transparent,
-      rgba(197, 227, 91, 0.55) 20%,
-      rgba(197, 227, 91, 0.85) 50%,
-      rgba(197, 227, 91, 0.55) 80%,
+      rgba(0, 168, 118, 0.55) 20%,
+      rgba(0, 168, 118, 0.85) 50%,
+      rgba(0, 168, 118, 0.55) 80%,
       transparent
     );
     opacity: 0;
@@ -640,7 +721,6 @@ button.font-ui,
     opacity: 1;
     transform: scaleX(1);
   }
-
   .ibo-ticker-link {
     transition:
       transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
@@ -650,7 +730,6 @@ button.font-ui,
     transform: translate3d(0, -1px, 0);
     opacity: 1;
   }
-
   .ibo-footer-link {
     display: inline-block;
     transition:
@@ -658,10 +737,9 @@ button.font-ui,
       transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .ibo-footer-link:hover {
-    color: #C5E35B;
+    color: #00A876;
     transform: translate3d(3px, 0, 0);
   }
-
   .ibo-social-btn {
     transition:
       transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
@@ -674,9 +752,8 @@ button.font-ui,
     transform: translate3d(0, -2px, 0) scale(1.04);
     box-shadow:
       0 8px 24px rgba(0, 0, 0, 0.28),
-      0 0 0 1px rgba(197, 227, 91, 0.16);
+      0 0 0 1px rgba(0, 168, 118, 0.16);
   }
-
   .ibo-chip {
     transition:
       transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
@@ -685,15 +762,13 @@ button.font-ui,
   }
   .ibo-chip:hover {
     transform: scale(1.008);
-    box-shadow:
-      0 6px 20px rgba(0, 0, 0, 0.28),
-      0 0 0 1px rgba(197, 227, 91, 0.18);
+    box-shadow: none;
+    border-color: rgba(254, 108, 2, 0.4);
   }
   .ibo-chip:active {
     transform: scale(0.995);
     transition-duration: 0.2s;
   }
-
   @media (prefers-reduced-motion: reduce) {
     .ibo-hover-lift,
     .ibo-hover-lift:hover,
@@ -728,39 +803,31 @@ button.font-ui,
     }
   }
 }
-
 @keyframes ticker {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
-
 @keyframes hero-orbit-spin {
   to { transform: rotate(360deg); }
 }
-
 .hero-orbit-spin-slow {
   animation: hero-orbit-spin 48s linear infinite;
   will-change: transform;
 }
-
 .hero-orbit-spin-slower {
   animation: hero-orbit-spin 72s linear infinite;
   will-change: transform;
 }
-
 .hero-orbit-spin-rev {
   animation: hero-orbit-spin 40s linear infinite reverse;
   will-change: transform;
 }
-
 .hero-orbit-glow-dot {
-  filter: drop-shadow(0 0 6px rgba(14, 164, 171, 0.9));
+  filter: drop-shadow(0 0 6px rgba(254, 108, 2, 0.9));
 }
-
 .hero-orbit-travel-spark {
-  filter: drop-shadow(0 0 8px rgba(197, 227, 91, 0.95));
+  filter: drop-shadow(0 0 8px rgba(0, 168, 118, 0.95));
 }
-
 @media (prefers-reduced-motion: reduce) {
   .hero-orbit-spin-slow,
   .hero-orbit-spin-slower,
@@ -768,12 +835,10 @@ button.font-ui,
     animation: none !important;
   }
 }
-
 @keyframes product-strip-scroll {
   0%   { transform: translate3d(0, 0, 0); }
   100% { transform: translate3d(-50%, 0, 0); }
 }
-
 .product-strip-marquee {
   overflow: hidden;
   width: 100%;
@@ -782,7 +847,6 @@ button.font-ui,
   mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
   -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
 }
-
 .product-strip-track {
   display: flex;
   align-items: center;
@@ -791,11 +855,9 @@ button.font-ui,
   will-change: transform;
   animation: product-strip-scroll 42s linear infinite;
 }
-
 .product-strip-marquee:hover .product-strip-track {
   animation-play-state: paused;
 }
-
 .product-strip-item {
   display: flex;
   flex-shrink: 0;
@@ -805,7 +867,7 @@ button.font-ui,
   border-radius: 1.1rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(14, 164, 171, 0.06) 100%);
+    linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(254, 108, 2, 0.06) 100%);
   text-decoration: none;
   transition:
     border-color 0.25s ease,
@@ -813,17 +875,15 @@ button.font-ui,
     transform 0.25s ease,
     box-shadow 0.25s ease;
 }
-
 .product-strip-item:hover {
-  border-color: rgba(14, 164, 171, 0.4);
+  border-color: rgba(254, 108, 2, 0.4);
   background:
-    linear-gradient(145deg, rgba(14, 164, 171, 0.12) 0%, rgba(197, 227, 91, 0.08) 100%);
+    linear-gradient(145deg, rgba(254, 108, 2, 0.12) 0%, rgba(0, 168, 118, 0.08) 100%);
   transform: translateY(-3px);
   box-shadow:
     0 12px 28px rgba(0, 0, 0, 0.22),
-    0 0 24px rgba(14, 164, 171, 0.12);
+    0 0 24px rgba(254, 108, 2, 0.12);
 }
-
 .product-strip-icon-wrap {
   position: relative;
   display: grid;
@@ -832,30 +892,26 @@ button.font-ui,
   height: 3.25rem;
   flex-shrink: 0;
 }
-
 @media (min-width: 640px) {
   .product-strip-icon-wrap {
     width: 3.6rem;
     height: 3.6rem;
   }
 }
-
 .product-strip-icon-glow {
   position: absolute;
   inset: -18%;
   border-radius: 9999px;
-  background: radial-gradient(circle, var(--strip-glow, rgba(14, 164, 171, 0.4)) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--strip-glow, rgba(254, 108, 2, 0.4)) 0%, transparent 70%);
   opacity: 0.55;
   filter: blur(8px);
   transition: opacity 0.25s ease, transform 0.25s ease;
   pointer-events: none;
 }
-
 .product-strip-item:hover .product-strip-icon-glow {
   opacity: 0.95;
   transform: scale(1.12);
 }
-
 .product-strip-icon {
   position: relative;
   z-index: 1;
@@ -866,21 +922,18 @@ button.font-ui,
   background: transparent;
   transition: transform 0.35s ease;
   filter:
-    drop-shadow(0 0 10px rgba(14, 164, 171, 0.2))
+    drop-shadow(0 0 10px rgba(254, 108, 2, 0.2))
     drop-shadow(0 6px 12px rgba(0, 0, 0, 0.28));
 }
-
 .product-strip-item:hover .product-strip-icon {
   transform: scale(1.08) translateY(-2px);
 }
-
 .product-strip-copy {
   display: flex;
   flex-direction: column;
   min-width: 0;
   text-align: left;
 }
-
 .product-strip-label {
   font-size: 14px;
   font-weight: 650;
@@ -889,7 +942,6 @@ button.font-ui,
   white-space: nowrap;
   transition: color 0.2s ease;
 }
-
 .product-strip-sub {
   margin-top: 2px;
   font-size: 11px;
@@ -897,11 +949,242 @@ button.font-ui,
   color: var(--ibo-muted);
   white-space: nowrap;
 }
-
 .product-strip-item:hover .product-strip-label {
   color: var(--ibo-accent);
 }
 
+/* Spot / futures trade terminal — flat Delta canvas (page bg, no mid-grey panels) */
+.delta-trade {
+  background: var(--ibo-bg);
+  color: var(--ibo-ink);
+  /* Pure page surface — hairline chrome only, no elevated grey slabs */
+  --ibo-surface: var(--ibo-bg);
+  --ibo-card: transparent;
+  --ibo-elevated: transparent;
+  --ibo-hover: rgba(255, 255, 255, 0.04);
+  --ibo-border: rgba(255, 255, 255, 0.07);
+  --ibo-border-solid: rgba(255, 255, 255, 0.1);
+}
+.delta-trade input:not([type='checkbox']):not([type='radio']),
+.delta-trade textarea,
+.delta-trade select {
+  background-color: transparent !important;
+}
+/* Outline fields / chips inside the terminal */
+.delta-trade .delta-trade-box,
+.delta-trade .order-book-panel button.rounded-md {
+  background: transparent;
+}
+html[data-theme='light'] .delta-trade {
+  --ibo-surface: #ffffff;
+  --ibo-card: transparent;
+  --ibo-elevated: transparent;
+  --ibo-hover: rgba(254, 108, 2, 0.05);
+  --ibo-border: rgba(18, 20, 24, 0.08);
+  --ibo-border-solid: rgba(18, 20, 24, 0.12);
+  background: #ffffff;
+}
+
+
+/* Delta terminal columns — chart | book+trades | ticket (+ bottom dock) */
+.delta-trade-col.delta-trade-book {
+  width: 240px;
+}
+.delta-trade-col.delta-trade-ticket {
+  width: 280px;
+}
+@media (min-width: 1024px) {
+  .delta-trade-col.delta-trade-book { width: 260px; }
+  .delta-trade-col.delta-trade-ticket { width: 300px; }
+}
+@media (min-width: 1280px) {
+  .delta-trade-col.delta-trade-book { width: 280px; }
+  .delta-trade-col.delta-trade-ticket { width: 320px; }
+}
+@media (min-width: 1536px) {
+  .delta-trade-col.delta-trade-book { width: 300px; }
+  .delta-trade-col.delta-trade-ticket { width: 340px; }
+}
+.delta-trade-header {
+  background: var(--ibo-bg) !important;
+  border-bottom: 1px solid var(--ibo-border);
+}
+
+/* Pair picker portal (rendered on body, outside .delta-trade) */
+.delta-pair-panel {
+  background: var(--ibo-bg) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+}
+.delta-pair-panel .delta-pair-search {
+  background: transparent !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+html[data-theme='light'] .delta-pair-panel {
+  background: #ffffff !important;
+  border-color: rgba(18, 20, 24, 0.1) !important;
+}
+html[data-theme='light'] .delta-pair-panel .delta-pair-search {
+  background: #ffffff !important;
+  border-color: rgba(18, 20, 24, 0.12) !important;
+}
+
+/* Delta markets table — flat product canvas (no mid-grey card wash) */
+.delta-markets-panel {
+  background: var(--ibo-bg) !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+.delta-markets-panel .delta-markets-tabs,
+.delta-markets-panel .border-b,
+.delta-markets-panel .border-t,
+.delta-markets-panel .border-y {
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+.delta-markets-panel .delta-markets-tabs {
+  background: transparent;
+}
+.delta-markets-panel table thead tr {
+  background: transparent !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+.delta-markets-panel table tbody tr {
+  border-color: rgba(255, 255, 255, 0.05) !important;
+  background: transparent !important;
+}
+.delta-markets-panel table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+.delta-markets-panel .delta-markets-search,
+.delta-markets-panel .delta-markets-icon-btn {
+  background: transparent !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+.delta-markets-panel .delta-markets-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+/* Movers strips (volume / gainers / losers) — flat, not grey elevated cards */
+.delta-movers-card {
+  background: transparent !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.delta-movers-card > .border-b {
+  border-color: rgba(255, 255, 255, 0.06) !important;
+  background: transparent;
+}
+.delta-movers-card .delta-movers-rows {
+  border-color: rgba(255, 255, 255, 0.05);
+}
+.delta-movers-card .delta-movers-row {
+  background: transparent;
+  transition: background 0.12s ease;
+}
+.delta-movers-card .delta-movers-row:hover {
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+.delta-movers-card .delta-movers-rows > * + * {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+.delta-movers-card .delta-movers-fallback-icon {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: var(--ibo-muted);
+}
+
+html[data-theme='light'] .delta-markets-panel {
+  background: #ffffff !important;
+  border-color: rgba(18, 20, 24, 0.08) !important;
+}
+html[data-theme='light'] .delta-markets-panel .delta-markets-tabs,
+html[data-theme='light'] .delta-markets-panel .border-b,
+html[data-theme='light'] .delta-markets-panel .border-t,
+html[data-theme='light'] .delta-markets-panel .border-y {
+  border-color: rgba(18, 20, 24, 0.08) !important;
+  background: transparent;
+}
+html[data-theme='light'] .delta-markets-panel table thead tr {
+  background: #ffffff !important;
+  border-color: rgba(18, 20, 24, 0.08) !important;
+}
+html[data-theme='light'] .delta-markets-panel table tbody tr {
+  border-color: rgba(18, 20, 24, 0.06) !important;
+  background: transparent !important;
+}
+html[data-theme='light'] .delta-markets-panel table tbody tr:hover {
+  background: rgba(254, 108, 2, 0.04) !important;
+}
+html[data-theme='light'] .delta-markets-panel .delta-markets-search,
+html[data-theme='light'] .delta-markets-panel .delta-markets-icon-btn {
+  background: #f8f8f9 !important;
+  border-color: rgba(18, 20, 24, 0.1) !important;
+}
+html[data-theme='light'] .delta-markets-panel .delta-markets-icon-btn:hover {
+  background: #f0f1f3 !important;
+}
+html[data-theme='light'] .delta-movers-card {
+  background: #ffffff !important;
+  border-color: rgba(18, 20, 24, 0.08) !important;
+}
+html[data-theme='light'] .delta-movers-card > .border-b {
+  border-color: rgba(18, 20, 24, 0.08) !important;
+}
+html[data-theme='light'] .delta-movers-card .delta-movers-rows > * + * {
+  border-top-color: rgba(18, 20, 24, 0.06);
+}
+html[data-theme='light'] .delta-movers-card .delta-movers-row:hover {
+  background: rgba(254, 108, 2, 0.04) !important;
+}
+html[data-theme='light'] .delta-movers-card .delta-movers-fallback-icon {
+  background: rgba(18, 20, 24, 0.06) !important;
+}
+
+/* Instant KYC visual stages — deep product stage, not grey card panel */
+.ibo-kyc-stage {
+  isolation: isolate;
+  background: #0a0b0e;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+.ibo-kyc-stage-bg {
+  background:
+    radial-gradient(ellipse 72% 68% at 50% 58%, var(--kyc-bloom, rgba(254, 108, 2, 0.28)) 0%, transparent 70%),
+    radial-gradient(ellipse 90% 80% at 50% -10%, rgba(254, 108, 2, 0.08) 0%, transparent 55%),
+    linear-gradient(165deg, #12141a 0%, #0a0b0e 48%, #08090c 100%);
+}
+.ibo-kyc-stage-frame {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, transparent 45%);
+}
+.ibo-kyc-stage:hover {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--ibo-accent) 36%, transparent),
+    0 20px 48px rgba(0, 0, 0, 0.35);
+}
+.ibo-kyc-stage:hover .ibo-kyc-stage-frame {
+  border-color: color-mix(in srgb, var(--ibo-accent) 26%, transparent);
+}
+
+html[data-theme='light'] .ibo-kyc-stage {
+  background: #ffffff;
+  box-shadow:
+    inset 0 0 0 1px rgba(18, 20, 24, 0.08),
+    0 12px 32px rgba(18, 20, 24, 0.06);
+}
+html[data-theme='light'] .ibo-kyc-stage-bg {
+  background:
+    radial-gradient(ellipse 72% 68% at 50% 58%, var(--kyc-bloom, rgba(254, 108, 2, 0.2)) 0%, transparent 72%),
+    radial-gradient(ellipse 90% 70% at 50% -8%, rgba(254, 108, 2, 0.08) 0%, transparent 50%),
+    linear-gradient(165deg, #ffffff 0%, #fff8f3 52%, #ffffff 100%);
+}
+html[data-theme='light'] .ibo-kyc-stage-frame {
+  border: 1px solid rgba(18, 20, 24, 0.07);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, transparent 45%);
+}
+html[data-theme='light'] .ibo-kyc-stage:hover {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--ibo-accent) 35%, transparent),
+    0 16px 36px rgba(254, 108, 2, 0.12);
+}
 @media (min-width: 640px) {
   .product-strip-item {
     gap: 1rem;
@@ -911,34 +1194,28 @@ button.font-ui,
     font-size: 15px;
   }
 }
-
 html[data-theme='light'] .product-strip-item {
   border-color: var(--ibo-border-solid);
   background: linear-gradient(145deg, #ffffff 0%, #f3fafb 55%, #f7fbe9 100%);
   box-shadow: 0 4px 14px rgba(12, 25, 34, 0.05);
 }
-
 html[data-theme='light'] .product-strip-item:hover {
-  border-color: rgba(14, 164, 171, 0.4);
-  background: linear-gradient(145deg, #ffffff 0%, rgba(14, 164, 171, 0.08) 55%, rgba(197, 227, 91, 0.1) 100%);
+  border-color: rgba(254, 108, 2, 0.4);
+  background: linear-gradient(145deg, #ffffff 0%, rgba(254, 108, 2, 0.08) 55%, rgba(0, 168, 118, 0.1) 100%);
   box-shadow:
-    0 12px 28px rgba(14, 164, 171, 0.12),
-    0 0 20px rgba(197, 227, 91, 0.1);
+    0 12px 28px rgba(254, 108, 2, 0.12),
+    0 0 20px rgba(0, 168, 118, 0.1);
 }
-
 html[data-theme='dark'] .product-strip-label {
   color: rgba(244, 244, 245, 0.92);
 }
-
 html[data-theme='dark'] .product-strip-item:hover .product-strip-label {
-  color: #c5e35b;
+  color: #00A876;
 }
-
 @keyframes coin-marquee-scroll {
   0%   { transform: translate3d(0, 0, 0); }
   100% { transform: translate3d(-50%, 0, 0); }
 }
-
 .coin-marquee {
   overflow: hidden;
   width: 100%;
@@ -948,7 +1225,6 @@ html[data-theme='dark'] .product-strip-item:hover .product-strip-label {
   mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
   -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
 }
-
 .coin-marquee-track {
   display: flex;
   align-items: center;
@@ -957,11 +1233,9 @@ html[data-theme='dark'] .product-strip-item:hover .product-strip-label {
   will-change: transform;
   animation: coin-marquee-scroll 32s linear infinite;
 }
-
 .coin-marquee:hover .coin-marquee-track {
   animation-play-state: paused;
 }
-
 .coin-marquee-item {
   display: flex;
   flex-direction: column;
@@ -976,113 +1250,90 @@ html[data-theme='dark'] .product-strip-item:hover .product-strip-label {
   border: 1px solid rgba(255, 255, 255, 0.07);
   transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s ease;
 }
-
 .coin-marquee-item:hover {
   background: rgba(255, 255, 255, 0.055);
-  border-color: rgba(14, 164, 171, 0.35);
+  border-color: rgba(254, 108, 2, 0.35);
   transform: translateY(-2px);
 }
-
 @media (prefers-reduced-motion: reduce) {
   .product-strip-track {
     animation: none;
   }
-
   .coin-marquee-track {
     animation: none;
   }
 }
-
 @keyframes float-up {
   0%, 100% { transform: translateY(0px); }
   50%       { transform: translateY(-12px); }
 }
-
 @keyframes platform-cubes-float {
   0%, 100% { transform: translateY(0); }
   50%       { transform: translateY(-10px); }
 }
-
 .platform-cubes-float {
   animation: platform-cubes-float 5.5s ease-in-out infinite;
   will-change: transform;
 }
-
 @keyframes ibo-token-float {
   0%, 100% { transform: translateY(0) rotate(-2deg); }
   50%       { transform: translateY(-16px) rotate(2deg); }
 }
-
 .ibo-token-float {
   animation: ibo-token-float 6s ease-in-out infinite;
   will-change: transform;
 }
-
 @keyframes platform-visual-float {
   0%, 100% { transform: translate(-50%, -50%); }
   50%       { transform: translate(-50%, calc(-50% - 14px)); }
 }
-
 .platform-visual-float {
   animation: platform-visual-float 5.5s ease-in-out infinite;
   will-change: transform;
 }
-
 @keyframes platform-visual-float-scene {
   0%, 100% { transform: translateY(0); }
   50%       { transform: translateY(-12px); }
 }
-
 .platform-visual-float-scene {
   animation: platform-visual-float-scene 5.5s ease-in-out infinite;
   will-change: transform;
 }
-
 @keyframes platform-visual-orbit {
   to { transform: rotate(360deg); }
 }
-
 .platform-visual-orbit {
   animation: platform-visual-orbit 18s linear infinite;
 }
-
 .platform-visual-orbit-slow {
   animation: platform-visual-orbit 28s linear infinite;
 }
-
 .platform-visual-orbit-rev {
   animation: platform-visual-orbit 22s linear infinite reverse;
 }
-
 @keyframes platform-visual-pulse {
   0%   { transform: translate(-50%, -50%) scale(0.92); opacity: 0.55; }
   70%  { transform: translate(-50%, -50%) scale(1.12); opacity: 0; }
   100% { transform: translate(-50%, -50%) scale(1.12); opacity: 0; }
 }
-
 .platform-visual-pulse {
   animation: platform-visual-pulse 3.2s ease-out infinite;
 }
-
 @keyframes platform-visual-chip {
   0%, 100% { transform: translateY(0); }
   50%       { transform: translateY(-8px); }
 }
-
 .platform-visual-chip {
   animation: platform-visual-chip 4.2s ease-in-out infinite;
 }
-
 .platform-visual-chip-alt {
   animation: platform-visual-chip 5s ease-in-out infinite reverse;
 }
-
 @media (prefers-reduced-motion: reduce) {
   .platform-cubes-float,
   .ibo-token-float {
     animation: none;
   }
-
   .platform-visual-float,
   .platform-visual-float-scene,
   .platform-visual-orbit,
@@ -1094,7 +1345,6 @@ html[data-theme='dark'] .product-strip-item:hover .product-strip-label {
     animation: none !important;
   }
 }
-
 /* Crisp 3D icon rendering — no color grading (prevents light-theme distortion) */
 .ibo-3d-icon,
 .ibo-3d-icon--soft,
@@ -1109,49 +1359,63 @@ html[data-theme='dark'] .product-strip-item:hover .product-strip-label {
   /* Do NOT set transform here — fights Framer Motion / hover transforms */
   max-width: 100%;
 }
-
 .ibo-3d-icon {
   filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.35));
 }
-
 .ibo-3d-icon--soft {
   filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.28));
 }
-
 .ibo-3d-icon--glow {
   filter:
-    drop-shadow(0 0 18px rgba(14, 164, 171, 0.35))
-    drop-shadow(0 0 36px rgba(197, 227, 91, 0.22))
+    drop-shadow(0 0 18px rgba(254, 108, 2, 0.35))
+    drop-shadow(0 0 36px rgba(0, 168, 118, 0.22))
     drop-shadow(0 16px 32px rgba(0, 0, 0, 0.35));
 }
-
 .ibo-3d-icon--sm {
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.3));
 }
-
 .ibo-3d-icon--lg {
   filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.35));
 }
-
-/* Brand logo — always transparent canvas */
+/* Brand logo — always transparent canvas, crisp downscale */
 .ibo-brand-logo {
   background: transparent !important;
   object-fit: contain;
   object-position: left center;
+  image-rendering: auto;
+  -ms-interpolation-mode: bicubic;
+  /* Avoid GPU blur that muddies small dark type in light mode */
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
-
+.ibo-brand-logo-wrap {
+  position: relative;
+  line-height: 0;
+  /* Contain any residual fringe at nav sizes */
+  max-height: inherit;
+}
+.ibo-brand-logo-wrap .ibo-brand-logo--dark {
+  display: block;
+}
+.ibo-brand-logo-wrap .ibo-brand-logo--light {
+  display: none;
+}
+html[data-theme='light'] .ibo-brand-logo-wrap .ibo-brand-logo--dark {
+  display: none;
+}
+html[data-theme='light'] .ibo-brand-logo-wrap .ibo-brand-logo--light {
+  display: block;
+}
 @keyframes hero-scan {
   0%   { transform: translateY(-100%); opacity: 0; }
   15%  { opacity: 0.06; }
   85%  { opacity: 0.06; }
   100% { transform: translateY(100%); opacity: 0; }
 }
-
 @keyframes hero-pulse-ring {
   0%, 100% { opacity: 0.4; transform: scale(1); }
   50%      { opacity: 0.15; transform: scale(1.02); }
 }
-
 /* Landing promo modal - premium dark / gold */
 @keyframes promo-shimmer {
   0% { background-position: 200% center; }
@@ -1173,7 +1437,6 @@ html[data-theme='dark'] .product-strip-item:hover .product-strip-label {
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }
 }
-
 .promo-modal-shell {
   position: relative;
   display: flex;
@@ -1186,8 +1449,8 @@ html[data-theme='dark'] .product-strip-item:hover .product-strip-label {
   border: 1px solid var(--ibo-border-solid);
   box-shadow:
     var(--ibo-shadow),
-    0 0 0 1px rgba(91, 184, 255, 0.12),
-    0 0 64px rgba(14, 164, 171, 0.14);
+    0 0 0 1px rgba(254, 157, 85, 0.12),
+    0 0 64px rgba(254, 108, 2, 0.14);
 }
 @media (min-width: 640px) {
   .promo-modal-shell {
@@ -1238,9 +1501,9 @@ html[data-theme='dark'] .product-strip-item:hover .product-strip-label {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 90% 55% at 50% -5%, rgba(91, 184, 255, 0.16), transparent 55%),
-    radial-gradient(ellipse 50% 40% at 100% 50%, rgba(14, 164, 171, 0.1), transparent 50%),
-    radial-gradient(ellipse 45% 35% at 0% 80%, rgba(91, 184, 255, 0.06), transparent 50%);
+    radial-gradient(ellipse 90% 55% at 50% -5%, rgba(254, 157, 85, 0.16), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 100% 50%, rgba(254, 108, 2, 0.1), transparent 50%),
+    radial-gradient(ellipse 45% 35% at 0% 80%, rgba(254, 157, 85, 0.06), transparent 50%);
   pointer-events: none;
   z-index: 0;
 }
@@ -1256,20 +1519,20 @@ html[data-theme='dark'] .product-strip-item:hover .product-strip-label {
   z-index: 0;
 }
 .promo-title-gradient {
-  background: linear-gradient(180deg, #5BB8FF 0%, #0EA4AB 55%, #0c7a80 100%);
+  background: linear-gradient(180deg, #FE9D55 0%, #FE6C02 55%, #B44D01 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 2px 12px rgba(91, 184, 255, 0.2));
+  filter: drop-shadow(0 2px 12px rgba(254, 157, 85, 0.2));
 }
 .promo-title-shimmer {
   background: linear-gradient(
     105deg,
-    #0EA4AB 0%,
-    #5BB8FF 28%,
+    #FE6C02 0%,
+    #FE9D55 28%,
     #7dd3fc 46%,
-    #5BB8FF 58%,
-    #0EA4AB 100%
+    #FE9D55 58%,
+    #FE6C02 100%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
@@ -1278,7 +1541,7 @@ html[data-theme='dark'] .product-strip-item:hover .product-strip-label {
   animation: promo-shimmer 4s linear infinite;
 }
 .promo-tagline-gold {
-  color: #0EA4AB;
+  color: #FE6C02;
   text-shadow: none;
 }
 .promo-coin-stage {
@@ -1306,7 +1569,7 @@ html[data-theme='dark'] .product-strip-item:hover .product-strip-label {
   height: 4.5rem;
   margin-left: -4.75rem;
   border-radius: 50%;
-  background: radial-gradient(ellipse, rgba(91, 184, 255, 0.35) 0%, rgba(14, 164, 171, 0.12) 42%, transparent 72%);
+  background: radial-gradient(ellipse, rgba(254, 157, 85, 0.35) 0%, rgba(254, 108, 2, 0.12) 42%, transparent 72%);
   filter: blur(6px);
   pointer-events: none;
   z-index: 0;
@@ -1320,8 +1583,8 @@ html[data-theme='dark'] .product-strip-item:hover .product-strip-label {
   margin-left: -4.875rem;
   margin-top: -4.875rem;
   border-radius: 50%;
-  border: 1px solid rgba(91, 184, 255, 0.28);
-  box-shadow: 0 0 24px rgba(91, 184, 255, 0.12), inset 0 0 18px rgba(14, 164, 171, 0.08);
+  border: 1px solid rgba(254, 157, 85, 0.28);
+  box-shadow: 0 0 24px rgba(254, 157, 85, 0.12), inset 0 0 18px rgba(254, 108, 2, 0.08);
   animation: promo-ring-pulse 2.8s ease-in-out infinite;
   pointer-events: none;
   z-index: 1;
@@ -1337,7 +1600,7 @@ html[data-theme='dark'] .product-strip-item:hover .product-strip-label {
   width: 8.5rem;
   height: 8.5rem;
   object-fit: contain;
-  filter: drop-shadow(0 14px 28px rgba(14, 164, 171, 0.32));
+  filter: drop-shadow(0 14px 28px rgba(254, 108, 2, 0.32));
 }
 .promo-coin-img--masked {
   /* Hide black square behind the circular token art without editing the PNG */
@@ -1356,8 +1619,8 @@ html[data-theme='dark'] .product-strip-item:hover .product-strip-label {
   height: 0.55rem;
   margin-left: -3.25rem;
   border-radius: 9999px;
-  background: linear-gradient(90deg, transparent, rgba(14, 164, 171, 0.45), transparent);
-  box-shadow: 0 0 18px rgba(91, 184, 255, 0.25);
+  background: linear-gradient(90deg, transparent, rgba(254, 108, 2, 0.45), transparent);
+  box-shadow: 0 0 18px rgba(254, 157, 85, 0.25);
   z-index: 1;
   pointer-events: none;
 }
@@ -1369,7 +1632,7 @@ html[data-theme='dark'] .product-strip-item:hover .product-strip-label {
   font-weight: 800;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: #0EA4AB;
+  color: #FE6C02;
 }
 .promo-app-pedestal {
   position: relative;
@@ -1377,10 +1640,10 @@ html[data-theme='dark'] .product-strip-item:hover .product-strip-label {
   height: 0.5rem;
   margin: 0 auto;
   border-radius: 2px;
-  background: linear-gradient(90deg, transparent, #0EA4AB, #5BB8FF, #0EA4AB, transparent);
+  background: linear-gradient(90deg, transparent, #FE6C02, #FE9D55, #FE6C02, transparent);
   box-shadow:
-    0 0 20px rgba(91, 184, 255, 0.45),
-    0 0 40px rgba(14, 164, 171, 0.25);
+    0 0 20px rgba(254, 157, 85, 0.45),
+    0 0 40px rgba(254, 108, 2, 0.25);
 }
 .promo-app-glow-floor {
   position: absolute;
@@ -1389,7 +1652,7 @@ html[data-theme='dark'] .product-strip-item:hover .product-strip-label {
   width: 10rem;
   height: 3rem;
   margin-left: -5rem;
-  background: radial-gradient(ellipse, rgba(91, 184, 255, 0.35) 0%, transparent 70%);
+  background: radial-gradient(ellipse, rgba(254, 157, 85, 0.35) 0%, transparent 70%);
   filter: blur(8px);
 }
 .promo-phone {
@@ -1408,20 +1671,18 @@ html[data-theme='dark'] .product-strip-item:hover .product-strip-label {
 }
 .promo-progress-track {
   height: 2px;
-  background: rgba(14, 164, 171, 0.12);
+  background: rgba(254, 108, 2, 0.12);
 }
 .promo-progress-fill {
   height: 100%;
   transform-origin: left;
-  background: linear-gradient(90deg, #0EA4AB, #5BB8FF);
+  background: linear-gradient(90deg, #FE6C02, #FE9D55);
   animation: promo-progress linear forwards;
 }
-
 /* Trade page - TradingView: hide side toolbar width + footer promo strip */
 .ibo-tv-chart .tradingview-widget-copyright {
   display: none !important;
 }
-
 /* Hide lightweight-charts free tier attribution logo on IBO charts */
 #tv-attr-logo,
 .tv-lightweight-charts-watermark,
@@ -1429,38 +1690,32 @@ html[data-theme='dark'] .product-strip-item:hover .product-strip-label {
 .tv-lightweight-charts-logo-container {
   display: none !important;
 }
-
 .ibo-tv-chart .tradingview-widget-container__widget {
   width: 100% !important;
 }
-
-
 /* ---------------------------------------------------------------------------
    LIGHT THEME — cool slate mist + brand accents (coordinated hierarchy)
    --------------------------------------------------------------------------- */
-
 html[data-theme='light'] body {
   background:
-    radial-gradient(ellipse 85% 50% at 6% -6%, rgba(14, 164, 171, 0.1), transparent 55%),
-    radial-gradient(ellipse 65% 45% at 98% 2%, rgba(197, 227, 91, 0.09), transparent 50%),
-    radial-gradient(ellipse 50% 35% at 50% 108%, rgba(27, 95, 255, 0.04), transparent 58%),
+    radial-gradient(ellipse 85% 50% at 6% -6%, rgba(254, 108, 2, 0.1), transparent 55%),
+    radial-gradient(ellipse 65% 45% at 98% 2%, rgba(0, 168, 118, 0.09), transparent 50%),
+    radial-gradient(ellipse 50% 35% at 50% 108%, rgba(180, 77, 1, 0.04), transparent 58%),
     var(--ibo-bg);
   color: var(--ibo-ink);
 }
-
 html[data-theme='light'] .ibo-page {
   background:
-    radial-gradient(ellipse 70% 40% at 0% 0%, rgba(14, 164, 171, 0.07), transparent 52%),
-    radial-gradient(ellipse 50% 35% at 100% 8%, rgba(197, 227, 91, 0.07), transparent 48%),
+    radial-gradient(ellipse 70% 40% at 0% 0%, rgba(254, 108, 2, 0.07), transparent 52%),
+    radial-gradient(ellipse 50% 35% at 100% 8%, rgba(0, 168, 118, 0.07), transparent 48%),
     var(--ibo-bg);
   color: var(--ibo-ink);
 }
-
 /* Hard-coded dark canvases → page / surface / card hierarchy */
 html[data-theme='light'] .bg-black,
-html[data-theme='light'] .bg-\[\#08090c\],
-html[data-theme='light'] .bg-\[\#05070c\],
-html[data-theme='light'] .bg-\[\#050a1a\],
+html[data-theme='light'] .bg-\[\#101013\],
+html[data-theme='light'] .bg-\[\#101013\],
+html[data-theme='light'] .bg-\[\#101013\],
 html[data-theme='light'] .bg-\[\#050505\] {
   background-color: var(--ibo-bg) !important;
 }
@@ -1480,22 +1735,20 @@ html[data-theme='light'] .bg-\[\#1a1d24\] {
   background-color: var(--ibo-card) !important;
 }
 html[data-theme='light'] .from-\[\#050505\],
-html[data-theme='light'] .from-\[\#05070c\],
-html[data-theme='light'] .from-\[\#08090c\] {
+html[data-theme='light'] .from-\[\#101013\],
+html[data-theme='light'] .from-\[\#101013\] {
   --tw-gradient-from: var(--ibo-bg) !important;
 }
-html[data-theme='light'] .to-\[\#05070c\],
-html[data-theme='light'] .to-\[\#08090c\] {
+html[data-theme='light'] .to-\[\#101013\],
+html[data-theme='light'] .to-\[\#101013\] {
   --tw-gradient-to: var(--ibo-bg) !important;
 }
-
 html[data-theme='light'] .bg-surface-dark { background-color: var(--ibo-bg) !important; }
 html[data-theme='light'] .bg-surface,
 html[data-theme='light'] .bg-surface-DEFAULT { background-color: var(--ibo-surface) !important; }
 html[data-theme='light'] .bg-surface-card { background-color: var(--ibo-card) !important; }
 html[data-theme='light'] .bg-surface-hover { background-color: var(--ibo-hover) !important; }
 html[data-theme='light'] .border-surface-border { border-color: var(--ibo-border-solid) !important; }
-
 /* Dark border hexes used across P2P / trade */
 html[data-theme='light'] .border-\[\#1e2028\],
 html[data-theme='light'] .border-\[\#1a1d24\],
@@ -1503,7 +1756,6 @@ html[data-theme='light'] .border-\[\#1c2433\],
 html[data-theme='light'] .divide-\[\#1e2028\] > :not([hidden]) ~ :not([hidden]) {
   border-color: var(--ibo-border-solid) !important;
 }
-
 /* Ink remaps — use theme tokens for consistent navy / slate hierarchy */
 html[data-theme='light'] .text-white { color: var(--ibo-ink); }
 html[data-theme='light'] .text-white\/95 { color: color-mix(in srgb, var(--ibo-ink) 95%, transparent); }
@@ -1524,14 +1776,12 @@ html[data-theme='light'] .text-white\/20 { color: color-mix(in srgb, var(--ibo-a
 html[data-theme='light'] .placeholder\:text-white\/25::placeholder,
 html[data-theme='light'] .placeholder\:text-white\/45::placeholder,
 html[data-theme='light'] .placeholder\:text-white\/50::placeholder { color: var(--ibo-muted); }
-
 html[data-theme='light'] .text-zinc-100,
 html[data-theme='light'] .text-zinc-200,
 html[data-theme='light'] .text-zinc-300 { color: var(--ibo-ink); }
 html[data-theme='light'] .text-zinc-400 { color: var(--ibo-ink-secondary); }
 html[data-theme='light'] .text-zinc-500,
 html[data-theme='light'] .text-zinc-600 { color: var(--ibo-muted); }
-
 /* Frosted / translucent panels → solid matching cards in light */
 html[data-theme='light'] .bg-white\/\[0\.02\],
 html[data-theme='light'] .bg-white\/\[0\.03\],
@@ -1575,7 +1825,6 @@ html[data-theme='light'] .group-hover\:bg-\[\#12151c\],
 html[data-theme='light'] .group:hover .group-hover\:bg-\[\#12151c\] {
   background-color: var(--ibo-hover) !important;
 }
-
 /* Primary gradient CTAs — deep ink on brand gradient */
 html[data-theme='light'] a.bg-logo-gradient,
 html[data-theme='light'] button.bg-logo-gradient,
@@ -1584,76 +1833,72 @@ html[data-theme='light'] .hero-cta-btn,
 html[data-theme='light'] .hero-cta-btn .text-white,
 html[data-theme='light'] a.bg-logo-gradient .text-white,
 html[data-theme='light'] button.bg-logo-gradient .text-white,
-html[data-theme='light'] .text-\[\#050a1a\],
+html[data-theme='light'] .text-\[\#101013\],
 html[data-theme='light'] .text-surface-dark {
-  color: #050a1a !important;
-  -webkit-text-fill-color: #050a1a;
+  color: #101013 !important;
+  -webkit-text-fill-color: #101013;
 }
 html[data-theme='light'] .ibo-btn-primary,
 html[data-theme='light'] a.bg-logo-gradient,
 html[data-theme='light'] button.bg-logo-gradient,
 html[data-theme='light'] .hero-cta-btn {
-  box-shadow: 0 10px 28px rgba(14, 164, 171, 0.22) !important;
+  box-shadow: 0 10px 28px rgba(254, 108, 2, 0.22) !important;
 }
-
 /* Outline / secondary CTAs — cyan-accent soft pills (readable on mist) */
 html[data-theme='light'] .ibo-btn-outline {
-  background: linear-gradient(135deg, rgba(14, 164, 171, 0.1) 0%, rgba(255, 255, 255, 0.92) 55%, rgba(197, 227, 91, 0.1) 100%) !important;
-  border: 1px solid rgba(14, 164, 171, 0.35) !important;
-  color: #0a8f95 !important;
-  -webkit-text-fill-color: #0a8f95;
-  box-shadow: 0 6px 18px rgba(14, 164, 171, 0.1);
+  background: linear-gradient(135deg, rgba(254, 108, 2, 0.1) 0%, rgba(255, 255, 255, 0.92) 55%, rgba(0, 168, 118, 0.1) 100%) !important;
+  border: 1px solid rgba(254, 108, 2, 0.35) !important;
+  color: #B44D01 !important;
+  -webkit-text-fill-color: #B44D01;
+  box-shadow: 0 6px 18px rgba(254, 108, 2, 0.1);
 }
 html[data-theme='light'] .ibo-btn-outline:hover {
-  background: linear-gradient(135deg, rgba(14, 164, 171, 0.16) 0%, #ffffff 50%, rgba(197, 227, 91, 0.14) 100%) !important;
-  border-color: rgba(14, 164, 171, 0.5) !important;
-  color: #087a80 !important;
-  -webkit-text-fill-color: #087a80;
+  background: linear-gradient(135deg, rgba(254, 108, 2, 0.16) 0%, #ffffff 50%, rgba(0, 168, 118, 0.14) 100%) !important;
+  border-color: rgba(254, 108, 2, 0.5) !important;
+  color: #8C3B01 !important;
+  -webkit-text-fill-color: #8C3B01;
 }
 html[data-theme='light'] .ibo-btn-accent {
-  background: linear-gradient(135deg, rgba(14, 164, 171, 0.14) 0%, rgba(255, 255, 255, 0.95) 55%, rgba(197, 227, 91, 0.12) 100%) !important;
-  border: 1px solid rgba(14, 164, 171, 0.4) !important;
-  color: #0a8f95 !important;
-  -webkit-text-fill-color: #0a8f95;
-  box-shadow: 0 6px 16px rgba(14, 164, 171, 0.12);
+  background: linear-gradient(135deg, rgba(254, 108, 2, 0.14) 0%, #ffffff 55%, rgba(254, 157, 85, 0.14) 100%) !important;
+  border: 1px solid rgba(254, 108, 2, 0.4) !important;
+  color: #B44D01 !important;
+  -webkit-text-fill-color: #B44D01;
+  box-shadow: 0 6px 16px rgba(254, 108, 2, 0.12);
 }
 html[data-theme='light'] .ibo-btn-accent:hover {
-  border-color: rgba(14, 164, 171, 0.55) !important;
-  color: #087a80 !important;
-  -webkit-text-fill-color: #087a80;
+  border-color: rgba(254, 108, 2, 0.55) !important;
+  color: #8C3B01 !important;
+  -webkit-text-fill-color: #8C3B01;
+  filter: none;
 }
-
 html[data-theme='light'] .ibo-mode-chip-active {
-  color: #0a8f95 !important;
-  border-color: rgba(14, 164, 171, 0.45) !important;
-  background: linear-gradient(135deg, rgba(14, 164, 171, 0.14), rgba(197, 227, 91, 0.12)) !important;
+  color: #B44D01 !important;
+  border-color: rgba(254, 108, 2, 0.45) !important;
+  background: linear-gradient(135deg, rgba(254, 108, 2, 0.14), rgba(0, 168, 118, 0.12)) !important;
 }
 html[data-theme='light'] .ibo-tab-active {
-  color: #0a8f95 !important;
-  border-color: #0a8f95 !important;
+  color: #B44D01 !important;
+  border-color: #B44D01 !important;
 }
 html[data-theme='light'] .ibo-step-num {
-  color: #0a8f95;
-  background: rgba(14, 164, 171, 0.14);
+  color: #B44D01;
+  background: rgba(254, 108, 2, 0.14);
 }
 html[data-theme='light'] .ibo-account-promo {
-  border-color: rgba(14, 164, 171, 0.28);
-  background: linear-gradient(105deg, rgba(14, 164, 171, 0.1) 0%, rgba(197, 227, 91, 0.08) 45%, #ffffff 100%);
+  border-color: rgba(254, 108, 2, 0.28);
+  background: linear-gradient(105deg, rgba(254, 108, 2, 0.1) 0%, rgba(0, 168, 118, 0.08) 45%, #ffffff 100%);
 }
-
 /* Lime accent text → darker cyan for readable light contrast */
-html[data-theme='light'] .text-\[\#C5E35B\],
+html[data-theme='light'] .text-\[\#00A876\],
 html[data-theme='light'] .text-gold-light {
-  color: #0a8f95 !important;
+  color: #B44D01 !important;
 }
-
 html[data-theme='light'] .text-gradient {
-  background: linear-gradient(135deg, #1B5FFF 0%, #0EA4AB 48%, #5a9a12 100%);
+  background: linear-gradient(135deg, #E76202 0%, #FE6C02 48%, #FF8F2A 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-
 /* Nav — full-width top bar (accent only on hover links) */
 html[data-theme='light'] .ibo-nav-shell {
   background: rgba(255, 255, 255, 0.94) !important;
@@ -1665,39 +1910,35 @@ html[data-theme='light'] .ibo-dropdown-panel {
   border-color: var(--ibo-border-solid) !important;
   box-shadow: var(--ibo-shadow);
 }
-
 html[data-theme='light'] footer,
 html[data-theme='light'] .ibo-footer {
   background:
-    radial-gradient(ellipse 48% 55% at 0% 0%, rgba(14, 164, 171, 0.07), transparent 55%),
+    radial-gradient(ellipse 48% 55% at 0% 0%, rgba(254, 108, 2, 0.07), transparent 55%),
     linear-gradient(180deg, rgba(238, 243, 246, 0.4), #e6edf2 50%, #dde6ec 100%);
   border-top-color: var(--ibo-border-solid);
   color: var(--ibo-ink-secondary);
 }
-
-/* Cards — one solid white surface across the app */
+/* Cards — flat hairline only (no filled grey/white slab) */
 html[data-theme='light'] .ibo-card,
 html[data-theme='light'] .ibo-card-solid {
-  background: var(--ibo-card) !important;
+  background: transparent !important;
   border-color: var(--ibo-border-solid) !important;
-  box-shadow: 0 8px 24px rgba(12, 25, 34, 0.06);
+  box-shadow: none;
 }
-
 html[data-theme='light'] .glass {
-  background: var(--ibo-card);
+  background: transparent;
   border-color: var(--ibo-border-solid);
   backdrop-filter: none;
 }
-
 html[data-theme='light'] .ibo-input {
-  background: var(--ibo-card);
+  background: transparent;
   border-color: var(--ibo-border-solid);
   color: var(--ibo-ink);
-  box-shadow: 0 1px 2px rgba(12, 25, 34, 0.03);
+  box-shadow: none;
 }
 html[data-theme='light'] .ibo-input:focus {
-  border-color: rgba(14, 164, 171, 0.55);
-  box-shadow: 0 0 0 3px rgba(14, 164, 171, 0.15);
+  border-color: rgba(254, 108, 2, 0.55);
+  box-shadow: 0 0 0 3px rgba(254, 108, 2, 0.15);
 }
 html[data-theme='light'] .ibo-btn-secondary {
   background: var(--ibo-card);
@@ -1706,25 +1947,23 @@ html[data-theme='light'] .ibo-btn-secondary {
 }
 html[data-theme='light'] .ibo-btn-secondary:hover {
   background: var(--ibo-hover);
-  border-color: rgba(14, 164, 171, 0.4);
+  border-color: rgba(254, 108, 2, 0.4);
   color: var(--ibo-ink);
 }
-
 /* Hero polish */
 html[data-theme='light'] .hero-typewriter {
   text-shadow: none !important;
   color: var(--ibo-ink) !important;
 }
 html[data-theme='light'] .hero-type-caret {
-  background: #0ea4ab !important;
+  background: #FE6C02 !important;
 }
 html[data-theme='light'] .hero-orbit-dashed {
-  stroke: rgba(14, 164, 171, 0.22) !important;
+  stroke: rgba(254, 108, 2, 0.22) !important;
 }
 html[data-theme='light'] .hero-light .hero-orbit-travel-spark {
-  filter: drop-shadow(0 0 4px rgba(14, 164, 171, 0.45));
+  filter: drop-shadow(0 0 4px rgba(254, 108, 2, 0.45));
 }
-
 /* Images / 3D icons — soft shadow only in light (no color grading) */
 html[data-theme='light'] .ibo-3d-icon,
 html[data-theme='light'] .ibo-3d-icon--soft,
@@ -1736,19 +1975,17 @@ html[data-theme='light'] img.ibo-3d-icon {
   object-fit: contain !important;
   background: transparent !important;
 }
-
 html[data-theme='light'] .ibo-3d-icon--glow,
 html[data-theme='light'] img.ibo-3d-icon--glow {
   filter:
-    drop-shadow(0 0 16px rgba(14, 164, 171, 0.3))
-    drop-shadow(0 0 28px rgba(197, 227, 91, 0.2))
+    drop-shadow(0 0 16px rgba(254, 108, 2, 0.3))
+    drop-shadow(0 0 28px rgba(0, 168, 118, 0.2))
     drop-shadow(0 10px 22px rgba(12, 25, 34, 0.1)) !important;
   -webkit-filter:
-    drop-shadow(0 0 16px rgba(14, 164, 171, 0.3))
-    drop-shadow(0 0 28px rgba(197, 227, 91, 0.2))
+    drop-shadow(0 0 16px rgba(254, 108, 2, 0.3))
+    drop-shadow(0 0 28px rgba(0, 168, 118, 0.2))
     drop-shadow(0 10px 22px rgba(12, 25, 34, 0.1)) !important;
 }
-
 /* Hero canvas fades follow page bg in light */
 html[data-theme='light'] .hero-fade-top {
   background: linear-gradient(to bottom, rgb(var(--ibo-bg-rgb) / 0.85), transparent) !important;
@@ -1756,7 +1993,6 @@ html[data-theme='light'] .hero-fade-top {
 html[data-theme='light'] .hero-fade-bottom {
   background: linear-gradient(to top, rgb(var(--ibo-bg-rgb) / 0.95), transparent) !important;
 }
-
 /* Marquee / strip chips */
 html[data-theme='light'] .coin-marquee-item {
   background: var(--ibo-card);
@@ -1765,68 +2001,66 @@ html[data-theme='light'] .coin-marquee-item {
 }
 html[data-theme='light'] .coin-marquee-item:hover {
   background: var(--ibo-card);
-  border-color: rgba(14, 164, 171, 0.45);
-  box-shadow: 0 6px 18px rgba(14, 164, 171, 0.12);
+  border-color: rgba(254, 108, 2, 0.45);
+  box-shadow: 0 6px 18px rgba(254, 108, 2, 0.12);
 }
-
 /* Hover utilities */
 html[data-theme='light'] .ibo-hover-lift:hover {
   box-shadow:
     0 4px 12px rgba(12, 25, 34, 0.06),
     0 16px 36px rgba(12, 25, 34, 0.08),
-    0 0 0 1px rgba(14, 164, 171, 0.18);
+    0 0 0 1px rgba(254, 108, 2, 0.18);
 }
 html[data-theme='light'] .ibo-hover-table-row:hover {
-  background: rgba(14, 164, 171, 0.06) !important;
+  background: rgba(254, 108, 2, 0.06) !important;
 }
-
 html[data-theme='light'] .promo-coin-glow {
-  background: radial-gradient(ellipse, rgba(91, 184, 255, 0.28) 0%, rgba(14, 164, 171, 0.1) 45%, transparent 72%);
+  background: radial-gradient(ellipse, rgba(254, 157, 85, 0.28) 0%, rgba(254, 108, 2, 0.1) 45%, transparent 72%);
 }
 html[data-theme='light'] .promo-coin-orbit {
-  border-color: rgba(14, 164, 171, 0.28);
-  box-shadow: 0 0 22px rgba(91, 184, 255, 0.14), inset 0 0 14px rgba(14, 164, 171, 0.06);
+  border-color: rgba(254, 108, 2, 0.28);
+  box-shadow: 0 0 22px rgba(254, 157, 85, 0.14), inset 0 0 14px rgba(254, 108, 2, 0.06);
 }
 html[data-theme='light'] .promo-coin-img {
-  filter: drop-shadow(0 12px 24px rgba(12, 25, 34, 0.16)) drop-shadow(0 8px 20px rgba(14, 164, 171, 0.22));
+  filter: drop-shadow(0 12px 24px rgba(12, 25, 34, 0.16)) drop-shadow(0 8px 20px rgba(254, 108, 2, 0.22));
 }
 html[data-theme='light'] .promo-progress-track {
-  background: rgba(14, 164, 171, 0.14);
+  background: rgba(254, 108, 2, 0.14);
 }
 html[data-theme='light'] .promo-modal-shell {
   background: linear-gradient(165deg, #ffffff 0%, #f4fafb 48%, #ffffff 100%);
   box-shadow:
     0 24px 64px rgba(12, 25, 34, 0.14),
-    0 0 0 1px rgba(14, 164, 171, 0.16),
-    0 0 48px rgba(91, 184, 255, 0.12);
+    0 0 0 1px rgba(254, 108, 2, 0.16),
+    0 0 48px rgba(254, 157, 85, 0.12);
 }
 html[data-theme='light'] .promo-modal-shell::before {
   background:
-    radial-gradient(ellipse 90% 55% at 50% -5%, rgba(91, 184, 255, 0.18), transparent 55%),
-    radial-gradient(ellipse 50% 40% at 100% 55%, rgba(14, 164, 171, 0.1), transparent 50%),
-    radial-gradient(ellipse 45% 35% at 0% 85%, rgba(91, 184, 255, 0.08), transparent 50%);
+    radial-gradient(ellipse 90% 55% at 50% -5%, rgba(254, 157, 85, 0.18), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 100% 55%, rgba(254, 108, 2, 0.1), transparent 50%),
+    radial-gradient(ellipse 45% 35% at 0% 85%, rgba(254, 157, 85, 0.08), transparent 50%);
 }
 html[data-theme='light'] .promo-modal-watermark {
   opacity: 0.04;
 }
 html[data-theme='light'] .promo-tagline-gold {
-  color: #0EA4AB;
+  color: #FE6C02;
 }
 html[data-theme='light'] .promo-title-shimmer {
   background: linear-gradient(
     105deg,
-    #0a6e74 0%,
-    #0EA4AB 22%,
-    #5BB8FF 48%,
-    #0EA4AB 72%,
-    #0a6e74 100%
+    #8C3B01 0%,
+    #FE6C02 22%,
+    #FE9D55 48%,
+    #FE6C02 72%,
+    #8C3B01 100%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
 }
 html[data-theme='light'] .promo-download-bar {
-  background: linear-gradient(180deg, rgba(14, 164, 171, 0.04) 0%, rgba(91, 184, 255, 0.08) 100%);
+  background: linear-gradient(180deg, rgba(254, 108, 2, 0.04) 0%, rgba(254, 157, 85, 0.08) 100%);
 }
 html[data-theme='light'] .promo-phone {
   background: linear-gradient(180deg, #ffffff 0%, #eef5f8 100%);
@@ -1834,20 +2068,18 @@ html[data-theme='light'] .promo-phone {
   box-shadow: 0 14px 28px rgba(12, 25, 34, 0.1);
 }
 html[data-theme='light'] .promo-coin-base {
-  background: linear-gradient(90deg, transparent, rgba(14, 164, 171, 0.5), transparent);
-  box-shadow: 0 0 16px rgba(14, 164, 171, 0.2);
+  background: linear-gradient(90deg, transparent, rgba(254, 108, 2, 0.5), transparent);
+  box-shadow: 0 0 16px rgba(254, 108, 2, 0.2);
 }
 html[data-theme='light'] .promo-backdrop {
   background: rgba(12, 25, 34, 0.42) !important;
 }
-
 /* Trading panels stay readable in light (no forced dark chrome) */
 html[data-theme='light'] .order-book-panel {
   color-scheme: light;
   background: var(--ibo-card);
   border-color: var(--ibo-border-solid);
 }
-
 /* Auth split + promo panel */
 html[data-theme='light'] .ibo-page.flex .border-r,
 html[data-theme='light'] .ibo-page.flex .border-l {
@@ -1855,18 +2087,16 @@ html[data-theme='light'] .ibo-page.flex .border-l {
 }
 html[data-theme='light'] .ibo-auth-promo {
   background:
-    radial-gradient(ellipse 80% 60% at 100% 0%, rgba(14, 164, 171, 0.14), transparent 55%),
-    radial-gradient(ellipse 60% 50% at 0% 100%, rgba(197, 227, 91, 0.12), transparent 50%),
+    radial-gradient(ellipse 80% 60% at 100% 0%, rgba(254, 108, 2, 0.14), transparent 55%),
+    radial-gradient(ellipse 60% 50% at 0% 100%, rgba(0, 168, 118, 0.12), transparent 50%),
     linear-gradient(165deg, #ffffff 0%, #f0f7f9 55%, #e8f2f5 100%) !important;
   border-color: var(--ibo-border-solid) !important;
 }
-
 /* Stacked feature deck shell matches card system */
 html[data-theme='light'] .ibo-feature-stack-shell {
   background: var(--ibo-surface) !important;
   box-shadow: 0 20px 50px rgba(12, 25, 34, 0.08) !important;
 }
-
 /* Bento / feature cards — solid white in light, keep accent border */
 html[data-theme='light'] .ibo-feature-bento {
   background: var(--ibo-card) !important;
@@ -1875,31 +2105,28 @@ html[data-theme='light'] .ibo-feature-bento {
 html[data-theme='light'] .ibo-feature-bento:hover {
   box-shadow: 0 14px 36px rgba(12, 25, 34, 0.09);
 }
-
 /* Auth primary submit + common gradient fills keep readable ink */
 html[data-theme='light'] button.bg-logo-gradient svg,
 html[data-theme='light'] a.bg-logo-gradient svg,
 html[data-theme='light'] .ibo-btn-primary svg,
 html[data-theme='light'] .hero-cta-btn svg {
-  color: #050a1a !important;
-  stroke: #050a1a;
+  color: #101013 !important;
+  stroke: #101013;
 }
-
 /* Soft gold/cyan tint fills stay readable on light */
 html[data-theme='light'] .bg-gold\/5,
 html[data-theme='light'] .bg-gold\/10,
 html[data-theme='light'] .hover\:bg-gold\/10:hover {
-  background-color: rgba(14, 164, 171, 0.08) !important;
+  background-color: rgba(254, 108, 2, 0.08) !important;
 }
 html[data-theme='light'] .border-gold\/25,
 html[data-theme='light'] .border-gold\/35,
 html[data-theme='light'] .border-gold\/50 {
-  border-color: rgba(14, 164, 171, 0.35) !important;
+  border-color: rgba(254, 108, 2, 0.35) !important;
 }
 html[data-theme='light'] .text-gold {
-  color: #0a8f95 !important;
+  color: #B44D01 !important;
 }
-
 /* Markets page — remaining dark-first utilities */
 html[data-theme='light'] .text-white\/25 {
   color: var(--ibo-muted) !important;
@@ -1964,7 +2191,6 @@ html[data-theme='light'] .text-white\/25:hover,
 html[data-theme='light'] .group-hover\:text-white\/50 {
   color: var(--ibo-ink-secondary) !important;
 }
-
 /* Options chain — soften dark ITM / Call-Put header washes for light theme */
 html[data-theme='light'] .bg-emerald-950\/60,
 html[data-theme='light'] .bg-emerald-950\/55 {
@@ -1983,6 +2209,12 @@ html[data-theme='light'] .bg-rose-900\/25 {
 html[data-theme='light'] .text-rose-200 {
   color: #e11d48 !important;
 }
-html[data-theme='light'] .bg-\[\#5BB8FF\] {
-  background-color: #5BB8FF !important;
+html[data-theme='light'] .bg-\[\#FE9D55\] {
+  background-color: #FE9D55 !important;
 }
+
+
+/* Delta-style order book rows */
+.delta-ob .delta-ob-row { font-variant-numeric: tabular-nums; }
+.delta-ob .order-book-scroll { scrollbar-width: none; }
+.delta-ob .order-book-scroll::-webkit-scrollbar { display: none; width: 0; height: 0; }

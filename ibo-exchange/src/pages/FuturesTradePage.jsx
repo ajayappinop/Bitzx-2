@@ -25,7 +25,7 @@ import FuturesOrderHistory from '@/components/futures/FuturesOrderHistory';
 import FuturesWalletPanel from '@/components/futures/FuturesWalletPanel';
 
 const DEFAULT_SYMBOL = 'BTCUSDT-PERP';
-const ACCENT = '#C5E35B';
+const ACCENT = '#FE6C02';
 
 const fmtPrice = (v) => {
   const n = Number(v);
@@ -114,7 +114,7 @@ function PairDropdown({ activeSymbol, symbols }) {
             setOpen((v) => !v);
           }}
           className="flex items-center gap-2 px-2.5 py-1.5 rounded-md border border-[color:var(--ibo-border-solid)]
-            bg-[color:var(--ibo-card)] hover:border-[#C5E35B]/40 transition-colors"
+            bg-[color:var(--ibo-card)] hover:border-[#FE6C02]/40 transition-colors"
         >
           {icon ? <img src={icon} alt={base} className="w-5 h-5 rounded-full" /> : null}
           <span className="text-[14px] font-bold text-[color:var(--ibo-ink)] tracking-tight">
@@ -157,7 +157,7 @@ function PairDropdown({ activeSymbol, symbols }) {
                   type="button"
                   onClick={() => switchTo(s.symbol)}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors
-                    ${active ? 'bg-[#C5E35B]/10 text-[#C5E35B]' : 'text-[color:var(--ibo-ink)] hover:bg-white/5'}`}
+                    ${active ? 'bg-[#FE6C02]/10 text-[#FE6C02]' : 'text-[color:var(--ibo-ink)] hover:bg-white/5'}`}
                 >
                   {COIN_ICONS[s.base] ? (
                     <img src={COIN_ICONS[s.base]} alt={s.base} className="w-6 h-6 rounded-full" />
@@ -194,12 +194,12 @@ function BottomPanel() {
     { id: 'positions', label: 'Positions', count: positions.length },
     { id: 'open', label: 'Open Orders', count: openOrders.length },
     { id: 'history', label: 'Order History', count: orderHistory.length },
-    { id: 'wallet', label: 'Risk & Margin' },
+    { id: 'wallet', label: 'Risk & Margin Details' },
   ];
 
   return (
-    <div className="flex flex-col h-full min-h-0 bg-[color:var(--ibo-surface)] border-t border-[color:var(--ibo-border)]">
-      <div className="flex items-center shrink-0 overflow-x-auto scrollbar-hide border-b border-[color:var(--ibo-border)] px-1 h-[40px]">
+    <div className="flex flex-col min-h-[300px] bg-transparent border-t border-[color:var(--ibo-border)]">
+      <div className="flex items-center shrink-0 overflow-x-auto scrollbar-hide border-b border-[color:var(--ibo-border)] px-1 h-[40px] sticky top-0 z-10 bg-[color:var(--ibo-bg)]">
         {TABS.map((t) => {
           const on = tab === t.id;
           return (
@@ -214,7 +214,7 @@ function BottomPanel() {
               {t.count > 0 ? (
                 <span
                   className="ml-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded"
-                  style={{ background: 'rgba(197,227,91,0.15)', color: ACCENT }}
+                  style={{ background: 'rgba(254, 108, 2,0.15)', color: ACCENT }}
                 >
                   {t.count}
                 </span>
@@ -233,12 +233,12 @@ function BottomPanel() {
           Connected
         </div>
       </div>
-      <div className="flex-1 min-h-0 overflow-hidden">
+      <div className="min-h-[260px]">
         {tab === 'positions' && <FuturesPositions />}
         {tab === 'open' && <FuturesOpenOrders />}
         {tab === 'history' && <FuturesOrderHistory />}
         {tab === 'wallet' && (
-          <div className="p-3 max-w-md h-full overflow-y-auto scrollbar-hide">
+          <div className="p-3 max-w-md">
             <FuturesWalletPanel />
           </div>
         )}
@@ -266,7 +266,7 @@ function MarketHeader({ funding }) {
 
   return (
     <div
-      className="flex items-center gap-2 sm:gap-3 px-3 py-2 bg-[color:var(--ibo-surface)] shrink-0 overflow-x-auto scrollbar-hide"
+      className="delta-trade-header flex items-center gap-2 sm:gap-3 px-3 py-2 bg-[color:var(--ibo-bg)] shrink-0 overflow-x-auto scrollbar-hide"
       style={{ borderBottom: '1px solid var(--ibo-border)', zIndex: 40 }}
     >
       <PairDropdown activeSymbol={activeSymbol} symbols={symbols} />
@@ -305,14 +305,14 @@ function MarketHeader({ funding }) {
         <StatItem
           label="Funding / Countdown"
           value={`${fundingPct} / ${countdown}`}
-          valueClass="text-[#C5E35B]"
+          valueClass="text-[#FE6C02]"
         />
         <StatItem label="Max Lev" value={meta ? `${meta.max_leverage}×` : '—'} />
       </div>
 
       <button
         type="button"
-        className="ml-auto hidden lg:inline-flex items-center gap-1 text-[12px] text-[color:var(--ibo-muted)] hover:text-[#C5E35B] shrink-0"
+        className="ml-auto hidden lg:inline-flex items-center gap-1 text-[12px] text-[color:var(--ibo-muted)] hover:text-[#FE6C02] shrink-0"
       >
         Contract Details <ChevronRight size={14} />
       </button>
@@ -394,14 +394,14 @@ function FuturesTradePageInner() {
   }
 
   return (
-    <div className="bg-[color:var(--ibo-bg)] text-[color:var(--ibo-ink)]">
+    <div className="delta-trade bg-[color:var(--ibo-bg)] text-[color:var(--ibo-ink)]">
       {/* ═════════ MOBILE ═════════ */}
       <div className="flex flex-col md:hidden min-h-[calc(100vh-70px)]">
         <MarketHeader funding={funding} />
         <div style={{ height: 260 }} className="relative overflow-hidden border-b border-[color:var(--ibo-border)]">
           <FuturesChart symbol={activeSymbol} />
         </div>
-        <div className="sticky top-0 z-10 flex bg-[color:var(--ibo-surface)] border-b border-[color:var(--ibo-border)]">
+        <div className="sticky top-0 z-10 flex bg-transparent border-b border-[color:var(--ibo-border)]">
           {[['trade', 'Trade'], ['book', 'Book'], ['wallet', 'Margin']].map(([id, label]) => (
             <button
               key={id}
@@ -409,7 +409,7 @@ function FuturesTradePageInner() {
               onClick={() => setMobileTab(id)}
               className={`flex-1 py-2.5 text-[12px] font-bold transition-colors ${
                 mobileTab === id
-                  ? 'text-[#C5E35B] border-b-2 border-[#C5E35B]'
+                  ? 'text-[#FE6C02] border-b-2 border-[#FE6C02]'
                   : 'text-white/50 border-b-2 border-transparent'
               }`}
             >
@@ -434,34 +434,34 @@ function FuturesTradePageInner() {
 
       {/* ═════════ DESKTOP — single viewport ═════════ */}
       <div
-        className="hidden md:flex md:flex-col overflow-hidden"
-        style={{ height: 'calc(100dvh - 4rem)' }}
+        className="hidden md:flex md:flex-col"
+        style={{ minHeight: 'calc(100dvh - 4rem)' }}
       >
         <MarketHeader funding={funding} />
 
-        <div className="flex flex-1 min-h-[320px] lg:min-h-[380px] xl:min-h-0">
+        <div className="flex min-h-[480px] h-[min(62vh,720px)] shrink-0">
           {/* Chart */}
           <div className="flex-1 min-w-0 min-h-0 relative overflow-hidden border-r border-[color:var(--ibo-border)]">
             <FuturesChart symbol={activeSymbol} funding={funding} />
           </div>
 
-          {/* Order book + recent trades */}
-          <div className="flex flex-col w-[300px] lg:w-[320px] shrink-0 border-r border-[color:var(--ibo-border)] min-h-0 bg-[color:var(--ibo-surface)]">
-            <div className="flex-[1.15] min-h-0">
+          {/* Order book (top) + recent trades (bottom) — Delta center column */}
+          <div className="delta-trade-col delta-trade-book flex flex-col shrink-0 border-r border-[color:var(--ibo-border)] min-h-0 bg-transparent">
+            <div className="flex-[1.2] min-h-0 overflow-hidden">
               <FuturesOrderBook onPriceClick={onOrderBookPrice} />
             </div>
-            <div className="h-[38%] min-h-[180px] max-h-[280px] border-t border-[color:var(--ibo-border)]">
+            <div className="flex-[0.85] min-h-[160px] max-h-[280px] border-t border-[color:var(--ibo-border)] overflow-hidden">
               <FuturesRecentTrades />
             </div>
           </div>
 
           {/* Order ticket */}
-          <div className="flex flex-col w-[300px] lg:w-[340px] shrink-0 overflow-hidden bg-[color:var(--ibo-surface)]">
+          <div className="delta-trade-col delta-trade-ticket flex flex-col shrink-0 overflow-hidden bg-transparent">
             <div className="flex-1 overflow-y-auto scrollbar-hide">
               <FuturesTradeForm {...formProps} />
               {!user ? (
                 <p className="text-[11px] text-white/45 text-center py-3 px-3">
-                  <Link to="/login" className="text-[#C5E35B] font-semibold hover:underline">
+                  <Link to="/login" className="text-[#FE6C02] font-semibold hover:underline">
                     Sign in
                   </Link>{' '}
                   to trade futures
@@ -471,8 +471,8 @@ function FuturesTradePageInner() {
           </div>
         </div>
 
-        {/* Compact bottom strip — keeps chart tall on laptop */}
-        <div className="shrink-0 h-[148px] lg:h-[168px] xl:h-[200px] 2xl:h-[22vh] 2xl:min-h-[180px] 2xl:max-h-[260px] overflow-hidden">
+        {/* Bottom orders / positions table — page scrolls so rows are fully visible */}
+        <div className="min-h-[300px] border-t border-[color:var(--ibo-border)]">
           <BottomPanel />
         </div>
       </div>

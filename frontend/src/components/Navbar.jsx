@@ -121,17 +121,14 @@ export const Navbar = () => {
           >
             <img
               src={LOGO_URL}
-              alt="IBO"
-              className="h-9 w-9 sm:h-10 sm:w-10 object-contain transition-transform group-hover:scale-105"
+              alt="Exchange"
+              className="h-8 sm:h-9 w-auto max-w-[180px] object-contain transition-transform group-hover:scale-105"
               onError={(e) => {
-                if (e.currentTarget.src === BRAND_LOGO) return;
+                if (e.currentTarget.src.includes('ibo-exchange-logo')) return;
                 e.currentTarget.onerror = null;
                 e.currentTarget.src = BRAND_LOGO;
               }}
             />
-            <span className="text-lg sm:text-xl font-bold tracking-wide leading-none">
-              <span className="text-ink">IBO</span>
-            </span>
           </motion.a>
 
           {/* Desktop links — xl+ so mid-widths stay uncrowded */}
@@ -174,7 +171,7 @@ export const Navbar = () => {
               whileTap={{ scale: 0.97 }}
               data-testid="navbar-buy-btn"
             >
-              Buy $IBO
+              Buy $DELTA
             </motion.button>
 
             <button

@@ -12,7 +12,7 @@ const STEPS = [
     tag: 'UIDAI · OTP / DigiLocker',
     title: 'Aadhaar e-KYC',
     desc: 'Consent-based Aadhaar authentication in seconds — no branch visit or paper forms.',
-    accent: 'rgba(14,164,171,0.28)',
+    accent: 'rgba(254, 108, 2,0.28)',
   },
   {
     id: 'pan',
@@ -20,7 +20,7 @@ const STEPS = [
     tag: 'Income Tax · name match',
     title: 'PAN verification',
     desc: 'PAN validated instantly and cross-checked with your Aadhaar name and date of birth.',
-    accent: 'rgba(14,164,171,0.26)',
+    accent: 'rgba(0, 168, 118,0.22)',
     iconClass: 'max-w-[min(100%,220px)] max-h-[180px] sm:max-h-[210px] lg:max-h-[230px]',
   },
   {
@@ -29,7 +29,7 @@ const STEPS = [
     tag: 'Liveness · anti-spoof',
     title: 'Live face match',
     desc: 'Selfie matched to your Aadhaar photo with real-time liveness to block impersonation.',
-    accent: 'rgba(14,164,171,0.28)',
+    accent: 'rgba(254, 108, 2,0.24)',
   },
   {
     id: 'bank',
@@ -37,7 +37,7 @@ const STEPS = [
     tag: 'Penny drop · IFSC',
     title: 'Bank verification',
     desc: 'Link your payout account with penny-drop verification — deposits and withdrawals stay in your name.',
-    accent: 'rgba(14,164,171,0.26)',
+    accent: 'rgba(56, 149, 237,0.2)',
   },
 ];
 
@@ -46,28 +46,28 @@ const TRUST = [
     icon: Clock,
     title: 'Under 2 minutes',
     sub: 'Fully digital onboarding',
-    iconBg: 'linear-gradient(145deg, rgba(14,164,171,0.22) 0%, rgba(14,164,171,0.08) 100%)',
-    iconBorder: 'rgba(14,164,171,0.4)',
-    iconColor: '#0ea4ab',
-    glow: 'rgba(14,164,171,0.35)',
+    iconBg: 'linear-gradient(145deg, rgba(254, 108, 2,0.22) 0%, rgba(254, 108, 2,0.08) 100%)',
+    iconBorder: 'rgba(254, 108, 2,0.4)',
+    iconColor: '#FE6C02',
+    glow: 'rgba(254, 108, 2,0.35)',
   },
   {
     icon: Lock,
     title: 'Encrypted',
     sub: 'Secure document handling',
-    iconBg: 'linear-gradient(145deg, rgba(197,227,91,0.28) 0%, rgba(197,227,91,0.08) 100%)',
-    iconBorder: 'rgba(197,227,91,0.45)',
+    iconBg: 'linear-gradient(145deg, rgba(0, 168, 118,0.28) 0%, rgba(0, 168, 118,0.08) 100%)',
+    iconBorder: 'rgba(0, 168, 118,0.45)',
     iconColor: '#a8c73a',
-    glow: 'rgba(197,227,91,0.35)',
+    glow: 'rgba(0, 168, 118,0.35)',
   },
   {
     icon: Shield,
     title: 'CKYC-ready',
     sub: 'Built for global compliance',
-    iconBg: 'linear-gradient(145deg, rgba(27,95,255,0.22) 0%, rgba(14,164,171,0.1) 100%)',
-    iconBorder: 'rgba(27,95,255,0.35)',
+    iconBg: 'linear-gradient(145deg, rgba(180, 77, 1,0.22) 0%, rgba(254, 108, 2,0.1) 100%)',
+    iconBorder: 'rgba(180, 77, 1,0.35)',
     iconColor: '#4d8aff',
-    glow: 'rgba(27,95,255,0.3)',
+    glow: 'rgba(180, 77, 1,0.3)',
   },
 ];
 
@@ -95,8 +95,8 @@ export default function LandingInstantKyc() {
       style={{ background: 'linear-gradient(180deg, var(--ibo-bg) 0%, var(--ibo-surface) 50%, var(--ibo-bg) 100%)' }}
       data-testid="instant-kyc-section"
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_55%_35%_at_50%_0%,rgba(14,164,171,0.08),transparent_55%)]" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_40%_30%_at_85%_20%,rgba(197,227,91,0.06),transparent_55%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_55%_35%_at_50%_0%,rgba(254, 108, 2,0.08),transparent_55%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_40%_30%_at_85%_20%,rgba(0, 168, 118,0.06),transparent_55%)]" />
 
       <div className="relative ibo-landing-container ibo-section-y">
         <motion.div
@@ -114,7 +114,7 @@ export default function LandingInstantKyc() {
             Verify in minutes — <span className="text-gradient">not days</span>
           </h2>
           <p className="ibo-lead text-zinc-400 max-w-none mx-auto">
-            Complete digital KYC on IBO Exchange: Aadhaar and PAN checks, live face match, and bank
+            Complete digital KYC on Delta Exchange: Aadhaar and PAN checks, live face match, and bank
             verification — so you can deposit, withdraw, and unlock higher limits with confidence.
           </p>
         </motion.div>
@@ -125,7 +125,7 @@ export default function LandingInstantKyc() {
             className="pointer-events-none absolute left-1/2 top-8 bottom-8 hidden lg:block w-px -translate-x-1/2"
             style={{
               background:
-                'linear-gradient(180deg, transparent 0%, rgba(14,164,171,0.35) 20%, rgba(197,227,91,0.3) 50%, rgba(14,164,171,0.35) 80%, transparent 100%)',
+                'linear-gradient(180deg, transparent 0%, rgba(254, 108, 2,0.35) 20%, rgba(0, 168, 118,0.3) 50%, rgba(254, 108, 2,0.35) 80%, transparent 100%)',
             }}
             aria-hidden
           />
@@ -147,54 +147,74 @@ export default function LandingInstantKyc() {
                   whileHover={{ y: -4 }}
                   className="group relative grid lg:grid-cols-2 gap-6 lg:gap-10 items-center"
                 >
-                  {/* Icon panel */}
+                  {/* Icon stage — open visual panel, not a heavy card chrome */}
                   <div
-                    className={`relative flex items-center justify-center min-h-[240px] sm:min-h-[300px] rounded-[1.5rem] overflow-hidden border transition-[border-color,box-shadow] duration-400 ${
+                    className={`ibo-kyc-stage relative flex items-center justify-center min-h-[240px] sm:min-h-[300px] overflow-hidden rounded-2xl transition-[transform,box-shadow] duration-400 ${
                       reverse ? 'lg:order-2' : 'lg:order-1'
                     }`}
-                    style={{
-                      borderColor: 'rgba(14,164,171,0.18)',
-                      background: 'var(--ibo-card)',
-                      boxShadow: 'var(--ibo-shadow)',
-                    }}
                   >
+                    {/* Base wash — deep theme stage, no flat grey wash */}
                     <div
-                      className="pointer-events-none absolute inset-0 opacity-100"
+                      className="ibo-kyc-stage-bg absolute inset-0"
                       style={{
-                        background: `radial-gradient(ellipse 42% 38% at 50% 52%, ${step.accent} 0%, transparent 72%)`,
+                        /* accent bloom only; base colors come from CSS theme rules */
+                        ['--kyc-bloom']: step.accent,
                       }}
                       aria-hidden
                     />
+                    {/* Soft frame ring */}
                     <div
+                      className="ibo-kyc-stage-frame pointer-events-none absolute inset-[10px] sm:inset-[12px] rounded-xl"
                       aria-hidden
-                      className="pointer-events-none absolute inset-x-0 top-0 h-px"
+                    />
+                    {/* Top sheen */}
+                    <div
+                      className="pointer-events-none absolute inset-x-8 top-[10px] sm:top-[12px] h-px"
                       style={{
                         background:
-                          'linear-gradient(90deg, transparent, rgba(14,164,171,0.35), transparent)',
+                          'linear-gradient(90deg, transparent, color-mix(in srgb, var(--ibo-accent) 45%, transparent), transparent)',
                       }}
+                      aria-hidden
+                    />
+                    {/* Hover edge bloom */}
+                    <div
+                      className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                      style={{
+                        boxShadow: `inset 0 0 0 1px color-mix(in srgb, var(--ibo-accent) 28%, transparent)`,
+                      }}
+                      aria-hidden
                     />
 
+                    {/* Oversized step watermark */}
                     <span
-                      className="absolute top-4 left-4 z-[2] font-display text-[11px] font-bold tracking-[0.2em] px-2.5 py-1 rounded-full border"
+                      aria-hidden
+                      className="pointer-events-none absolute -bottom-4 -right-1 select-none font-display font-bold leading-none tracking-tighter opacity-[0.07] group-hover:opacity-[0.11] transition-opacity duration-500"
                       style={{
+                        fontSize: 'clamp(5.5rem, 14vw, 8.5rem)',
                         color: 'var(--ibo-accent)',
-                        borderColor: 'rgba(14,164,171,0.28)',
-                        background: 'rgba(14,164,171,0.08)',
                       }}
                     >
                       {String(i + 1).padStart(2, '0')}
                     </span>
 
+                    {/* Compact step chip */}
+                    <span
+                      className="absolute top-5 left-5 z-[2] font-display text-[10px] font-bold tracking-[0.22em] tabular-nums"
+                      style={{ color: 'var(--ibo-accent)' }}
+                    >
+                      STEP {String(i + 1).padStart(2, '0')}
+                    </span>
+
                     <motion.div
-                      className="relative z-[1] flex items-center justify-center p-4"
+                      className="relative z-[1] flex items-center justify-center p-6 sm:p-8"
                       animate={{ y: [0, -10, 0] }}
                       transition={{ ...iconFloatTransition, delay: i * 0.35 }}
                     >
                       <span
                         aria-hidden
-                        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[38%] h-[34%] rounded-full blur-xl opacity-60 group-hover:opacity-80 transition-opacity duration-500"
+                        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[42%] h-[38%] rounded-full blur-2xl opacity-50 group-hover:opacity-75 transition-opacity duration-500"
                         style={{
-                          background: `radial-gradient(circle, ${step.accent} 0%, transparent 68%)`,
+                          background: `radial-gradient(circle, ${step.accent} 0%, transparent 70%)`,
                         }}
                       />
                       <img
@@ -202,7 +222,7 @@ export default function LandingInstantKyc() {
                         alt=""
                         width={560}
                         height={560}
-                        className={`ibo-3d-icon ibo-3d-icon--soft relative z-[1] w-auto h-auto object-contain transition-transform duration-500 group-hover:scale-105 ${
+                        className={`ibo-3d-icon ibo-3d-icon--soft relative z-[1] w-auto h-auto object-contain transition-transform duration-500 group-hover:scale-[1.04] ${
                           step.iconClass
                             || 'max-w-[min(100%,280px)] max-h-[220px] sm:max-h-[260px] lg:max-h-[280px]'
                         }`}
@@ -224,14 +244,10 @@ export default function LandingInstantKyc() {
                     transition={{ delay: 0.12 + i * 0.06, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
                   >
                     <p
-                      className={`inline-flex text-[10px] font-bold uppercase tracking-[0.16em] mb-3 px-2.5 py-1 rounded-full border ${
+                      className={`inline-flex text-[10px] font-bold uppercase tracking-[0.16em] mb-3 ${
                         reverse ? 'lg:ml-auto' : ''
                       }`}
-                      style={{
-                        color: 'var(--ibo-accent)',
-                        borderColor: 'rgba(14,164,171,0.28)',
-                        background: 'rgba(14,164,171,0.08)',
-                      }}
+                      style={{ color: 'var(--ibo-accent)' }}
                     >
                       {step.tag}
                     </p>
@@ -253,9 +269,9 @@ export default function LandingInstantKyc() {
                       className={`mt-5 inline-flex items-center gap-1.5 text-xs font-semibold ${
                         reverse ? 'lg:flex-row-reverse' : ''
                       }`}
-                      style={{ color: '#0ea4ab' }}
+                      style={{ color: 'var(--ibo-accent)' }}
                     >
-                      <CheckCircle size={14} className="text-[#C5E35B]" />
+                      <CheckCircle size={14} className="text-[#00A876]" />
                       Instant · automated
                     </p>
                   </motion.div>
@@ -319,7 +335,7 @@ export default function LandingInstantKyc() {
         >
           <Link
             to="/kyc"
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-logo-gradient px-8 py-3.5 text-[15px] font-semibold text-surface-dark shadow-[0_14px_36px_rgba(14,164,171,0.25)] hover:brightness-110 transition-[filter]"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-logo-gradient px-8 py-3.5 text-[15px] font-semibold text-surface-dark shadow-[0_14px_36px_rgba(254, 108, 2,0.25)] hover:brightness-110 transition-[filter]"
           >
             Start instant KYC <ArrowRight size={16} />
           </Link>

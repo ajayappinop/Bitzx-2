@@ -87,12 +87,12 @@ const missionValues = [
 const differentiators = [
   {
     title: 'Real Utility, Not Speculation',
-    description: 'Unlike countless tokens that rely solely on hype and speculation, IBO is engineered with tangible utility at its core. Every token serves a purpose within our expanding ecosystem.',
+    description: 'Unlike countless tokens that rely solely on hype and speculation, Delta is engineered with tangible utility at its core. Every token serves a purpose within our expanding ecosystem.',
     icon: Coins
   },
   {
     title: 'Exchange-Backed Token',
-    description: `IBO isn't just a standalone token — it is the foundation for IBO Exchange, the project's live centralized trading platform at ${EXCHANGE_URL_LABEL}.`,
+    description: `Delta isn't just a standalone token — it is the foundation for Delta Exchange, the project's live centralized trading platform at ${EXCHANGE_URL_LABEL}.`,
     icon: Building
   },
   {
@@ -111,30 +111,30 @@ const differentiators = [
 const ecosystemPillars = [
   {
     phase: '01',
-    title: 'IBO Token',
+    title: 'Delta Token',
     subtitle: 'Foundation Layer',
     description: 'The native utility token powering all ecosystem transactions, governance, and rewards. Built on BNB Chain for speed and efficiency.',
     features: ['Trading Fee Discounts', 'Staking Rewards', 'Governance Rights', 'VIP Access']
   },
   {
     phase: '02',
-    title: 'IBO Exchange',
+    title: 'Delta Exchange',
     subtitle: 'Trading Infrastructure',
-    description: `IBO Exchange is live at ${EXCHANGE_URL_LABEL}, offering spot trading, professional charting tools, secure wallets, and INR deposit and payout flows for eligible Indian users.`,
+    description: `Delta Exchange is live at ${EXCHANGE_URL_LABEL}, offering spot trading, professional charting tools, secure wallets, and INR deposit and payout flows for eligible Indian users.`,
     features: ['Spot Trading', 'Advanced Charts', 'Secure Wallets', 'Fast Execution']
   },
   {
     phase: '03',
-    title: 'IBO Launchpad',
+    title: 'Delta Launchpad',
     subtitle: 'Growth Engine',
-    description: 'Exclusive access to vetted token launches and IDO opportunities for IBO holders, creating additional value streams.',
+    description: 'Exclusive access to vetted token launches and IDO opportunities for Delta holders, creating additional value streams.',
     features: ['Early Access', 'Vetted Projects', 'Allocation Tiers', 'Fair Launch']
   },
   {
     phase: '04',
-    title: 'IBO Ecosystem',
+    title: 'Delta Ecosystem',
     subtitle: 'Future Expansion',
-    description: 'Continuous expansion into DeFi, NFTs, and cross-chain solutions, ensuring IBO remains at the forefront of innovation.',
+    description: 'Continuous expansion into DeFi, NFTs, and cross-chain solutions, ensuring Delta remains at the forefront of innovation.',
     features: ['DeFi Integration', 'Cross-Chain', 'NFT Support', 'API Access']
   }
 ];
@@ -148,14 +148,14 @@ const visionTimeline = [
       'Token launch on BNB Chain',
       'Community building & growth',
       'Strategic partnerships',
-      'IBO Exchange development & launch'
+      'Delta Exchange development & launch'
     ]
   },
   {
     year: '2026',
     title: 'Exchange Live',
     points: [
-      `IBO Exchange live at ${EXCHANGE_URL_LABEL}`,
+      `Delta Exchange live at ${EXCHANGE_URL_LABEL}`,
       'Spot trading & INR flows',
       'Staking platform activation',
       'Mobile app development'
@@ -192,9 +192,9 @@ export const AboutPage = () => {
       <header className="fixed top-0 left-0 right-0 z-50 bg-surface/90 backdrop-blur-xl border-b border-line">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 xl:px-16 py-4 flex items-center justify-between gap-3">
           <Link to="/" className="flex items-center gap-2 sm:gap-3 group min-w-0">
-            <img src={LOGO_ICON_URL} alt="IBO" className="h-8 w-8 object-contain flex-shrink-0" />
+            <img src={LOGO_ICON_URL} alt="Delta" className="h-8 w-8 object-contain flex-shrink-0" />
             <span className="text-lg font-bold">
-              <span className="text-ink">IBO</span>
+              <span className="text-ink">Delta</span>
             </span>
           </Link>
           <Link 
@@ -229,7 +229,7 @@ export const AboutPage = () => {
               className="inline-flex items-center gap-2 bg-[#0EA4AB]/10 border border-[#0EA4AB]/30 px-4 py-2 rounded-full text-sm text-ink-accent font-medium mb-8"
             >
               <Sparkles size={16} />
-              About IBO
+              About Delta
             </motion.div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-ink mb-6 leading-tight">
@@ -238,7 +238,7 @@ export const AboutPage = () => {
             </h1>
             
             <p className="text-lg md:text-xl text-ink-muted max-w-3xl mx-auto leading-relaxed">
-              IBO is more than a token — it's the foundation of a comprehensive crypto ecosystem 
+              Delta is more than a token — it's the foundation of a comprehensive crypto ecosystem 
               designed to bridge decentralized and centralized finance, empowering traders and 
               investors worldwide.
             </p>
@@ -297,7 +297,7 @@ export const AboutPage = () => {
         </div>
       </Section>
 
-      {/* Why IBO is Different Section */}
+      {/* Why Delta is Different Section */}
       <Section className="bg-gradient-to-b from-surface via-surface-elevated to-surface" id="different">
         <div className="max-w-7xl mx-auto px-6 md:px-10 xl:px-16">
           <motion.div variants={fadeInUp} className="text-center mb-16">
@@ -308,7 +308,7 @@ export const AboutPage = () => {
               Not Just Another Token
             </h2>
             <p className="text-ink-muted text-lg max-w-3xl mx-auto">
-              In a market flooded with speculative tokens and empty promises, IBO stands apart 
+              In a market flooded with speculative tokens and empty promises, Delta stands apart 
               with real utility, transparent development, and a clear path to sustainable growth.
             </p>
           </motion.div>
@@ -365,7 +365,7 @@ export const AboutPage = () => {
               Built Around <span className="text-ink-accent">Real Utility</span>
             </h2>
             <p className="text-ink-muted text-lg max-w-3xl mx-auto">
-              Every component of the IBO ecosystem is designed to work together seamlessly, 
+              Every component of the Delta ecosystem is designed to work together seamlessly, 
               creating compounding value for token holders and users alike.
             </p>
           </motion.div>
@@ -433,7 +433,7 @@ export const AboutPage = () => {
               Building for the <span className="text-ink-accent">Future</span>
             </h2>
             <p className="text-ink-muted text-lg max-w-3xl mx-auto">
-              IBO isn't a short-term project — we're building infrastructure designed to 
+              Delta isn't a short-term project — we're building infrastructure designed to 
               grow and evolve over years, not months. Here's our vision for the future.
             </p>
           </motion.div>
@@ -502,10 +502,10 @@ export const AboutPage = () => {
             
             <div className="relative">
               <h2 className="text-3xl md:text-4xl font-bold text-ink mb-4">
-                Explore the IBO Ecosystem
+                Explore the Delta Ecosystem
               </h2>
               <p className="text-ink-muted text-lg mb-8 max-w-2xl mx-auto">
-                Be part of the IBO ecosystem and help shape the future of cryptocurrency trading. 
+                Be part of the Delta ecosystem and help shape the future of cryptocurrency trading. 
                 Early supporters will benefit from exclusive perks and opportunities.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -514,7 +514,7 @@ export const AboutPage = () => {
                   onClick={showBuyNotice}
                   className="inline-flex items-center gap-2 bg-logo-gradient text-[#050a1a] font-bold px-8 py-4 rounded-xl hover:scale-105 transition-transform shadow-[0_0_30px_rgba(14,164,171,0.3)]"
                 >
-                  Buy $IBO Now
+                  Buy $DELTA Now
                   <ArrowRight size={18} />
                 </button>
                 <Link
@@ -535,7 +535,7 @@ export const AboutPage = () => {
       <footer className="py-8 border-t border-line">
         <div className="max-w-7xl mx-auto px-6 md:px-10 xl:px-16">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-ink-muted text-sm">
-            <p>&copy; {new Date().getFullYear()} IBO. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} Delta. All rights reserved.</p>
             <div className="flex items-center gap-6">
               <Link to="/" className="hover:text-ink-accent transition-colors">Home</Link>
               <Link to="/whitepaper" className="hover:text-ink-accent transition-colors">Whitepaper</Link>

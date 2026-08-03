@@ -5,7 +5,7 @@ function hasPositivePrice(market) {
 }
 
 /**
- * True when 24h % / volume / heatmap should use this row (live Binance, platform IBO, or backend mock).
+ * True when 24h % / volume / heatmap should use this row (live Binance, platform Delta, or backend mock).
  * Excludes flat Binance fallbacks and catalog stubs with no price.
  */
 export function hasLive24hStats(market) {
@@ -39,7 +39,7 @@ export function hasLive24hStats(market) {
   return false;
 }
 
-/** USDT spot row (excludes IBO-quoted pairs that duplicate the same base in heatmaps). */
+/** USDT spot row (excludes Delta-quoted pairs that duplicate the same base in heatmaps). */
 export function isUsdtSpotMarket(market) {
   if (!market) return false;
   const sym = (market.symbol || '').toUpperCase();

@@ -1,5 +1,5 @@
 /**
- * Ibo P2P API client.
+ * Delta P2P API client.
  * Wraps all /api/p2p/* endpoints with Bearer auth via authFetch.
  */
 import { exchangeApiOrigin } from '@/lib/apiBase';

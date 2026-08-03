@@ -22,7 +22,7 @@ const features = [
   {
     icon: TrendingUp,
     title: 'Growth Potential',
-    description: 'Early holders benefit from ecosystem expansion and utility on the live IBO Exchange.',
+    description: 'Early holders benefit from ecosystem expansion and utility on the live Delta Exchange.',
   },
 ];
 
@@ -50,13 +50,13 @@ export const About = () => {
           className="text-center mb-16"
         >
           <span className="inline-block text-ink-accent text-sm font-semibold tracking-wider uppercase mb-4">
-            About IBO
+            About Delta
           </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-ink mb-6">
             More Than Just a Token
           </h2>
           <p className="text-ink-soft text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
-            IBO is the cornerstone of an ambitious crypto ecosystem. We're building real utility, 
+            Delta is the cornerstone of an ambitious crypto ecosystem. We're building real utility, 
             real infrastructure, and a real community — not just another speculative asset.
           </p>
         </motion.div>
@@ -73,7 +73,7 @@ export const About = () => {
             <div className="relative rounded-3xl overflow-hidden border border-[#4A4B50]/30">
               <img
                 src={SITE_CONFIG.brandLogoUrl}
-                alt="IBO Logo"
+                alt="Delta Logo"
                 className="w-full h-80 md:h-96 object-contain p-10 bg-[radial-gradient(circle_at_center,rgba(14,164,171,0.18),transparent_65%)]"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent" />
@@ -82,7 +82,7 @@ export const About = () => {
               <div className="absolute bottom-6 left-6 right-6 glass rounded-xl p-4">
                 <p className="text-ink-accent font-semibold mb-1">Our Mission</p>
                 <p className="text-ink-soft text-sm">
-                  To democratize access to advanced trading infrastructure through the IBO ecosystem.
+                  To democratize access to advanced trading infrastructure through the Delta ecosystem.
                 </p>
               </div>
             </div>

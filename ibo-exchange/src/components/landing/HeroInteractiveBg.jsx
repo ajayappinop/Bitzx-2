@@ -40,14 +40,15 @@ export default function HeroInteractiveBg() {
     let ripples = [];
     let lastRipple = 0;
 
-    const baseFill = isLight ? '#eef3f6' : '#05070c';
-    const veilRgb = isLight ? '238,243,246' : '5,7,12';
+    // Delta India–inspired: graphite base + orange / blue / green orbs
+    const baseFill = isLight ? '#f3f4f6' : '#101013';
+    const veilRgb = isLight ? '243,244,246' : '16,16,19';
     const washScale = isLight ? 1.6 : 1;
 
     const PALETTE = [
-      { r: 14, g: 164, b: 171 },
-      { r: 77, g: 138, b: 255 },
-      { r: 197, g: 227, b: 91 },
+      { r: 254, g: 108, b: 2 },   // brand orange (Delta India)
+      { r: 56, g: 149, b: 237 },  // secondary blue
+      { r: 0, g: 168, b: 118 },   // positive green
     ];
 
     const spawnSparks = (count) => {
@@ -187,7 +188,7 @@ export default function HeroInteractiveBg() {
           x: 0.12 + Math.sin(t * 0.12) * 0.03,
           y: 0.2 + Math.cos(t * 0.1) * 0.03,
           r: 0.72,
-          c0: `rgba(14,164,171,${0.07 * washScale})`,
+          c0: `rgba(254, 108, 2,${0.07 * washScale})`,
         },
         {
           x: 0.9 + Math.cos(t * 0.11) * 0.03,
@@ -199,7 +200,7 @@ export default function HeroInteractiveBg() {
           x: 0.5 + Math.sin(t * 0.07) * 0.04,
           y: 0.82 + Math.cos(t * 0.08) * 0.02,
           r: 0.75,
-          c0: `rgba(197,227,91,${0.045 * washScale})`,
+          c0: `rgba(0, 168, 118,${0.045 * washScale})`,
         },
       ];
       for (const wash of washes) {
@@ -301,8 +302,8 @@ export default function HeroInteractiveBg() {
           const alpha = (1 - p) * 0.12;
           const ring = ctx.createRadialGradient(r.x, r.y, radius * 0.78, r.x, r.y, radius);
           ring.addColorStop(0, 'transparent');
-          ring.addColorStop(0.75, `rgba(14,164,171,${alpha * 0.4})`);
-          ring.addColorStop(0.94, `rgba(197,227,91,${alpha})`);
+          ring.addColorStop(0.75, `rgba(254, 108, 2,${alpha * 0.4})`);
+          ring.addColorStop(0.94, `rgba(0, 168, 118,${alpha})`);
           ring.addColorStop(1, 'transparent');
           ctx.fillStyle = ring;
           ctx.beginPath();
@@ -313,8 +314,8 @@ export default function HeroInteractiveBg() {
 
         if (pointer.active) {
           const bloom = ctx.createRadialGradient(px, py, 0, px, py, 260);
-          bloom.addColorStop(0, 'rgba(14,164,171,0.05)');
-          bloom.addColorStop(0.35, 'rgba(197,227,91,0.03)');
+          bloom.addColorStop(0, 'rgba(254, 108, 2,0.05)');
+          bloom.addColorStop(0.35, 'rgba(0, 168, 118,0.03)');
           bloom.addColorStop(1, 'transparent');
           ctx.fillStyle = bloom;
           ctx.fillRect(px - 260, py - 260, 520, 520);
@@ -358,8 +359,8 @@ export default function HeroInteractiveBg() {
   return (
     <div ref={wrapRef} className="absolute inset-0 z-0 overflow-hidden" aria-hidden>
       <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
-      <div className="hero-fade-top pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#05070c]/70 to-transparent" />
-      <div className="hero-fade-bottom pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#05070c]/95 to-transparent" />
+      <div className="hero-fade-top pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#101013]/70 to-transparent" />
+      <div className="hero-fade-bottom pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#101013]/95 to-transparent" />
     </div>
   );
 }

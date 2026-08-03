@@ -6,7 +6,7 @@ const utilities = [
   {
     icon: Percent,
     title: 'Trading Fee Discounts',
-    description: 'Hold $IBO to unlock tiered discounts on trading fees across IBO Exchange.',
+    description: 'Hold $DELTA to unlock tiered discounts on trading fees across Delta Exchange.',
     size: 'large',
     color: 'from-[#0EA4AB] to-[#C5E35B]',
   },
@@ -20,28 +20,28 @@ const utilities = [
   {
     icon: Coins,
     title: 'Staking Rewards',
-    description: 'Earn passive income by staking your $IBO tokens in our secure staking pools.',
+    description: 'Earn passive income by staking your $DELTA tokens in our secure staking pools.',
     size: 'small',
     color: 'from-[#0EA4AB] to-[#1B5FFF]',
   },
   {
     icon: Gift,
     title: 'Referral Rewards',
-    description: 'Invite friends and earn $IBO rewards for every successful referral to our ecosystem.',
+    description: 'Invite friends and earn $DELTA rewards for every successful referral to our ecosystem.',
     size: 'small',
     color: 'from-[#C5E35B] to-[#0EA4AB]',
   },
   {
     icon: Rocket,
     title: 'Launchpad Access',
-    description: 'Get exclusive early access to new token launches and IDO opportunities on IBO Exchange.',
+    description: 'Get exclusive early access to new token launches and IDO opportunities on Delta Exchange.',
     size: 'small',
     color: 'from-[#1B5FFF] to-[#C5E35B]',
   },
   {
     icon: Key,
     title: 'Premium Ecosystem',
-    description: 'Unlock advanced trading tools, analytics, and features reserved for $IBO holders.',
+    description: 'Unlock advanced trading tools, analytics, and features reserved for $DELTA holders.',
     size: 'large',
     color: 'from-[#0EA4AB] to-[#C5E35B]',
   },
@@ -76,8 +76,8 @@ export const Utility = () => {
             Real Utility, Real Value
           </h2>
           <p className="text-ink-soft text-base sm:text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
-            $IBO isn't just a token — it's your key to the entire IBO ecosystem. 
-            From trading benefits to exclusive access, discover what holding $IBO can do for you.
+            $DELTA isn't just a token — it's your key to the entire Delta ecosystem. 
+            From trading benefits to exclusive access, discover what holding $DELTA can do for you.
           </p>
         </motion.div>
 

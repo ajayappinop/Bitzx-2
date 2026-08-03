@@ -4,25 +4,15 @@
  * Active pages: LoginPage.jsx / RegisterPage.jsx / AuthShell.jsx (classic).
  */
 import { Link } from 'react-router-dom';
-import { BRAND_LOGO } from '@/lib/brandAssets';
+import BrandLogo from '@/components/ui/BrandLogo';
 import { SITE_CONFIG } from '@/lib/siteConfig';
 
-const LOGO = BRAND_LOGO;
 const TOKEN_URL = import.meta.env.VITE_TOKEN_URL || 'https://ibo.io';
 
-/**
- * Delta-inspired auth chrome â€” dark canvas, centered form, optional side panel.
- * Keeps IBO brand colors (cyan / lime) instead of Delta orange.
- */
 export function AuthBrandMark({ className = '' }) {
   return (
     <Link to="/" className={`inline-flex items-center ${className}`}>
-      <img
-        src={LOGO}
-        alt="IBO Exchange"
-        className="h-10 sm:h-11 w-auto max-w-[220px] object-contain"
-        style={{ background: 'transparent' }}
-      />
+      <BrandLogo alt="Exchange" className="h-10 sm:h-11 w-auto max-w-[220px]" />
     </Link>
   );
 }
@@ -99,7 +89,7 @@ export function AuthField({
         className={`flex items-center h-12 rounded-xl border px-3.5 transition-colors ${
           error
             ? 'border-red-500/50 bg-red-500/[0.04]'
-            : 'border-white/[0.1] bg-white/[0.03] focus-within:border-[#0ea4ab]/50'
+            : 'border-white/[0.1] bg-white/[0.03] focus-within:border-[#FE6C02]/50'
         }`}
       >
         {Icon ? <Icon size={16} className="text-zinc-500 mr-2.5 shrink-0" /> : null}
@@ -128,13 +118,13 @@ export function AuthPrimaryButton({ children, loading, disabled, type = 'submit'
     <button
       type={type}
       disabled={disabled || loading}
-      className="w-full h-12 rounded-xl bg-logo-gradient text-[#050a1a] text-[15px] font-bold
+      className="w-full h-12 rounded-xl bg-logo-gradient text-[#101013] text-[15px] font-bold
         flex items-center justify-center
         hover:brightness-110 active:scale-[0.99] transition-all disabled:opacity-50
-        shadow-[0_12px_36px_rgba(197,227,91,0.18)]"
+        shadow-[0_12px_36px_rgba(0, 168, 118,0.18)]"
     >
       {loading ? (
-        <span className="inline-block w-5 h-5 border-2 border-[#050a1a] border-t-transparent rounded-full animate-spin" />
+        <span className="inline-block w-5 h-5 border-2 border-[#101013] border-t-transparent rounded-full animate-spin" />
       ) : (
         children
       )}
@@ -159,7 +149,7 @@ export function AuthAppDownload() {
           href={TOKEN_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 h-10 px-3.5 rounded-lg border border-white/[0.1] bg-white/[0.03] text-[12px] font-semibold text-zinc-300 hover:border-[#0ea4ab]/40 hover:text-white transition-colors"
+          className="inline-flex items-center gap-2 h-10 px-3.5 rounded-lg border border-white/[0.1] bg-white/[0.03] text-[12px] font-semibold text-zinc-300 hover:border-[#FE6C02]/40 hover:text-white transition-colors"
         >
           App Store
         </a>
@@ -167,7 +157,7 @@ export function AuthAppDownload() {
           href={TOKEN_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 h-10 px-3.5 rounded-lg border border-white/[0.1] bg-white/[0.03] text-[12px] font-semibold text-zinc-300 hover:border-[#0ea4ab]/40 hover:text-white transition-colors"
+          className="inline-flex items-center gap-2 h-10 px-3.5 rounded-lg border border-white/[0.1] bg-white/[0.03] text-[12px] font-semibold text-zinc-300 hover:border-[#FE6C02]/40 hover:text-white transition-colors"
         >
           Google Play
         </a>
@@ -179,14 +169,14 @@ export function AuthAppDownload() {
 export function AuthPromoPanel({ title, subtitle, items = [] }) {
   return (
     <aside className="ibo-auth-promo hidden lg:flex flex-col justify-center px-10 xl:px-14 py-12 relative overflow-hidden border-l border-white/[0.06]"
-      style={{ background: 'linear-gradient(165deg, rgba(14,164,171,0.12) 0%, rgba(8,9,12,0.98) 45%, #08090c 100%)' }}
+      style={{ background: 'linear-gradient(165deg, rgba(254, 108, 2,0.12) 0%, rgba(8,9,12,0.98) 45%, #101013 100%)' }}
     >
       <div
         aria-hidden
         className="pointer-events-none absolute -right-20 -bottom-24 h-72 w-72 rounded-full opacity-40"
         style={{
           background:
-            'repeating-radial-gradient(circle at center, transparent 0, transparent 16px, rgba(197,227,91,0.1) 16px, rgba(197,227,91,0.1) 17px)',
+            'repeating-radial-gradient(circle at center, transparent 0, transparent 16px, rgba(0, 168, 118,0.1) 16px, rgba(0, 168, 118,0.1) 17px)',
         }}
       />
       <div className="relative max-w-md">
@@ -198,7 +188,7 @@ export function AuthPromoPanel({ title, subtitle, items = [] }) {
         <ul className="space-y-5">
           {items.map((item) => (
             <li key={item.title} className="flex gap-3">
-              <span className="mt-1 h-2 w-2 rounded-full bg-[#C5E35B] shrink-0 shadow-[0_0_12px_rgba(197,227,91,0.5)]" />
+              <span className="mt-1 h-2 w-2 rounded-full bg-[#00A876] shrink-0 shadow-[0_0_12px_rgba(0, 168, 118,0.5)]" />
               <div>
                 <p className="text-[15px] font-semibold text-white">{item.title}</p>
                 <p className="text-[13px] text-zinc-400 mt-0.5 leading-relaxed">{item.desc}</p>
@@ -208,7 +198,7 @@ export function AuthPromoPanel({ title, subtitle, items = [] }) {
         </ul>
         <p className="mt-10 text-[12px] text-zinc-500">
           Support:{' '}
-          <a href={`mailto:${SITE_CONFIG.supportEmail}`} className="text-[#C5E35B] hover:underline">
+          <a href={`mailto:${SITE_CONFIG.supportEmail}`} className="text-[#00A876] hover:underline">
             {SITE_CONFIG.supportEmail}
           </a>
         </p>

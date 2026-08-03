@@ -117,11 +117,11 @@ export default function RegisterPage() {
       side={
         <AuthPromoPanel
           title={<>Trade Spot, Futures &amp; more</>}
-          subtitle="Join IBO Exchange for deep liquidity, pro charts, and INR-ready onboarding."
+          subtitle="Join Delta Exchange for deep liquidity, pro charts, and INR-ready onboarding."
           items={[
             {
               title: 'Trade without friction',
-              desc: 'Spot USDT pairs, IBO markets, and portfolio tools in one terminal.',
+              desc: 'Spot USDT pairs, Delta markets, and portfolio tools in one terminal.',
             },
             {
               title: 'INR deposit & payout',
@@ -139,7 +139,7 @@ export default function RegisterPage() {
         Sign Up
       </h1>
       <p className="text-[14px] text-zinc-400 mb-7">
-        Create your IBO Exchange account
+        Create your Delta Exchange account
       </p>
 
       <AuthSocialRow />

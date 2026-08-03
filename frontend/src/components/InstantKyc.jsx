@@ -72,7 +72,7 @@ export const InstantKyc = () => {
             <span className="text-ink-accent"> not days</span>
           </h2>
           <p className="mx-auto max-w-2xl text-lg leading-relaxed text-ink-muted md:text-xl">
-            IBO Exchange uses live face match with liveness checks so you can open an
+            Delta Exchange uses live face match with liveness checks so you can open an
             account and trade with confidence — no branch visit, no waiting days.
           </p>
         </motion.div>
@@ -208,7 +208,7 @@ export const InstantKyc = () => {
           transition={{ delay: 0.55 }}
           className="mx-auto mt-10 max-w-2xl text-center text-xs text-ink-muted"
         >
-          Showcase demonstrates the planned IBO verification journey. Final providers and
+          Showcase demonstrates the planned Delta verification journey. Final providers and
           timelines may vary by jurisdiction; KYC is required before deposit, withdrawal, and
           higher trading limits.
         </motion.p>

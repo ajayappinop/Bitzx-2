@@ -1,5 +1,5 @@
 /**
- * IBO Markets — same Delta table / category-tab chrome as MarketsPage spot list.
+ * Delta Markets — same Delta table / category-tab chrome as MarketsPage spot list.
  */
 import { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -12,7 +12,7 @@ import { BRAND_MARK } from '@/lib/brandAssets';
 import { num, fmtMarketPrice, fmtMarketVol } from '@/lib/marketFormat';
 
 const TRADE_BTN_CLASS =
-  'inline-flex items-center justify-center rounded-md bg-[#C5E35B] px-3 py-1.5 text-[12px] font-bold text-[#0a1208] transition-[filter] hover:brightness-95';
+  'inline-flex items-center justify-center rounded-md bg-[color:var(--ibo-accent)] px-3 py-1.5 text-[12px] font-bold text-[#101013] transition-[filter] hover:brightness-110';
 
 const IBO_LOGO = BRAND_MARK;
 
@@ -83,7 +83,7 @@ function RangeBar({ low, high, price }) {
       style={{ background: 'var(--ibo-border)' }}
       title="24h range"
     >
-      <div className="absolute inset-y-0 left-0 w-full rounded-full bg-gradient-to-r from-red-500/60 via-[#C5E35B]/70 to-green-500/60" />
+      <div className="absolute inset-y-0 left-0 w-full rounded-full bg-gradient-to-r from-red-500/60 via-[#00A876]/70 to-green-500/60" />
       <div
         className="absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full shadow border"
         style={{
@@ -130,11 +130,11 @@ function IboMobileCard({ market, isFavorite, onToggleFavorite }) {
         <div>
           <p className="uppercase font-bold text-[9px] tracking-wide" style={{ color: 'var(--ibo-muted)' }}>Last</p>
           <p className="font-mono font-semibold tabular-nums" style={{ color: 'var(--ibo-ink)' }}>
-            {fmtMarketPrice(market.price, base)} IBO
+            {fmtMarketPrice(market.price, base)} Delta
           </p>
         </div>
         <div>
-          <p className="uppercase font-bold text-[9px] tracking-wide" style={{ color: 'var(--ibo-muted)' }}>Vol IBO</p>
+          <p className="uppercase font-bold text-[9px] tracking-wide" style={{ color: 'var(--ibo-muted)' }}>Vol Delta</p>
           <p className="font-mono font-semibold tabular-nums" style={{ color: 'var(--ibo-ink)' }}>
             {fmtMarketVol(market.quoteVolume)}
           </p>
@@ -157,7 +157,7 @@ function IboMobileCard({ market, isFavorite, onToggleFavorite }) {
 
       <Link
         to={`/trade/${market.symbol}`}
-        className="flex items-center justify-center w-full py-2.5 rounded-md bg-[#C5E35B] text-[#0a1208] font-bold text-sm hover:brightness-95 transition-[filter]"
+        className="flex items-center justify-center w-full py-2.5 rounded-md bg-[color:var(--ibo-accent)] text-[#101013] font-bold text-sm hover:brightness-110 transition-[filter]"
       >
         Trade {base}
       </Link>
@@ -282,14 +282,14 @@ export default function IBOMarketsPage() {
               <div className="flex items-center gap-2 mb-1">
                 <img src={IBO_LOGO} alt="" className="w-6 h-6 rounded-full" />
                 <h1 className="text-xl font-extrabold tracking-tight sm:text-2xl" style={{ color: 'var(--ibo-ink)' }}>
-                  IBO Markets
+                  Delta Markets
                 </h1>
               </div>
               <p className="mt-0.5 text-[12px] sm:text-[13px]" style={{ color: 'var(--ibo-muted)' }}>
-                IBO-quoted pairs
+                Delta-quoted pairs
                 {iboPrice != null ? (
                   <span className="ml-2 font-mono tabular-nums" style={{ color: 'var(--ibo-accent)' }}>
-                    IBO ≈ ${parseFloat(iboPrice).toFixed(4)}
+                    Delta ≈ ${parseFloat(iboPrice).toFixed(4)}
                   </span>
                 ) : null}
               </p>
@@ -327,17 +327,13 @@ export default function IBOMarketsPage() {
           ].map((col) => (
             <div
               key={col.key}
-              className="overflow-hidden rounded-xl border"
-              style={{ background: 'var(--ibo-card)', borderColor: 'var(--ibo-border-solid)' }}
+              className="delta-movers-card overflow-hidden rounded border"
             >
-              <div
-                className="flex items-center gap-2 border-b px-3 py-2.5"
-                style={{ borderColor: 'var(--ibo-border-solid)' }}
-              >
+              <div className="flex items-center gap-2 border-b px-3 py-2.5">
                 <span className="h-3.5 w-1 rounded-full" style={{ background: col.accent }} />
                 <span className="text-[12px] font-bold" style={{ color: 'var(--ibo-ink)' }}>{col.title}</span>
               </div>
-              <div className="divide-y divide-[color:var(--ibo-border-solid)]">
+              <div className="delta-movers-rows">
                 {loading ? (
                   <div className="py-6 text-center text-[12px]" style={{ color: 'var(--ibo-muted)' }}>Loading…</div>
                 ) : col.rows.length === 0 ? (
@@ -352,20 +348,17 @@ export default function IBOMarketsPage() {
                         key={m.symbol}
                         type="button"
                         onClick={() => navigate(`/trade/${m.symbol}`)}
-                        className="flex w-full items-center gap-2.5 px-3 py-2 text-left transition-colors hover:bg-[color:var(--ibo-hover)]"
+                        className="delta-movers-row flex w-full items-center gap-2.5 px-3 py-2 text-left"
                       >
                         {icon ? (
                           <img src={icon} alt="" className="w-6 h-6 rounded-full shrink-0" />
                         ) : (
-                          <div
-                            className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0"
-                            style={{ background: 'var(--ibo-elevated)', color: 'var(--ibo-muted)' }}
-                          >
+                          <div className="delta-movers-fallback-icon w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0">
                             {base?.slice(0, 2)}
                           </div>
                         )}
                         <span className="flex-1 min-w-0 text-[12px] font-semibold truncate" style={{ color: 'var(--ibo-ink)' }}>
-                          {base}<span style={{ color: 'var(--ibo-muted)' }}>/IBO</span>
+                          {base}<span style={{ color: 'var(--ibo-muted)' }}>/Delta</span>
                         </span>
                         <span className={`font-mono text-[12px] font-semibold tabular-nums ${col.pctClass || ''}`} style={!col.pctClass ? { color: 'var(--ibo-ink)' } : undefined}>
                           {col.pctClass
@@ -393,16 +386,14 @@ export default function IBOMarketsPage() {
         {/* Full-bleed Delta markets list */}
         <div
           className="delta-markets-panel -mx-3 sm:-mx-4 md:-mx-6 lg:-mx-8 xl:-mx-10 border-y"
-          style={{ background: 'var(--ibo-card)', borderColor: 'var(--ibo-border-solid)' }}
         >
           <div
             className="delta-markets-tabs flex flex-col border-b sm:flex-row sm:items-center sm:justify-between"
-            style={{ borderColor: 'var(--ibo-border-solid)' }}
           >
             <div
               className="flex min-w-0 flex-1 items-center gap-0 overflow-x-auto overscroll-x-contain pl-2 pr-1 sm:pl-4 md:pl-6 lg:pl-8 xl:pl-10 [scrollbar-width:none]"
               role="tablist"
-              aria-label="IBO market categories"
+              aria-label="Delta market categories"
             >
               {CATEGORY_TABS.map(({ id, label, icon: Icon }) => (
                 <MarketsCategoryTab
@@ -427,8 +418,7 @@ export default function IBOMarketsPage() {
               style={{ borderColor: 'var(--ibo-border-solid)' }}
             >
               <div
-                className="flex h-8 min-w-0 flex-1 items-center gap-2 rounded border px-2.5 sm:w-48 sm:flex-none"
-                style={{ borderColor: 'var(--ibo-border-solid)', background: 'var(--ibo-surface)' }}
+                className="delta-markets-search flex h-8 min-w-0 flex-1 items-center gap-2 rounded border px-2.5 sm:w-48 sm:flex-none"
               >
                 <Search size={13} className="flex-shrink-0" style={{ color: 'var(--ibo-muted)' }} />
                 <input
@@ -442,8 +432,8 @@ export default function IBOMarketsPage() {
               <button
                 type="button"
                 onClick={() => refresh()}
-                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded border transition-colors hover:bg-[color:var(--ibo-hover)]"
-                style={{ borderColor: 'var(--ibo-border-solid)', color: 'var(--ibo-ink-secondary)' }}
+                className="delta-markets-icon-btn flex h-8 w-8 flex-shrink-0 items-center justify-center rounded border transition-colors"
+                style={{ color: 'var(--ibo-ink-secondary)' }}
                 aria-label="Refresh list"
               >
                 <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
@@ -456,10 +446,7 @@ export default function IBOMarketsPage() {
             <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain touch-pan-x [scrollbar-width:thin]">
               <table className="w-full min-w-[720px] md:min-w-[880px] lg:min-w-[1000px] xl:min-w-[1180px] border-collapse text-left text-[13px]">
                 <thead>
-                  <tr
-                    className="border-b"
-                    style={{ borderColor: 'var(--ibo-border-solid)', background: 'var(--ibo-elevated)' }}
-                  >
+                  <tr className="border-b">
                     <th className="w-9 py-2.5 pl-3 pr-1.5 sm:pl-4 md:pl-6 lg:pl-8 xl:pl-10" />
                     <th
                       className="px-2 py-2.5 text-left text-[10px] font-medium uppercase tracking-wider lg:min-w-[140px]"
@@ -478,7 +465,7 @@ export default function IBOMarketsPage() {
                     <SortTh label="High" field="highPrice" className="hidden md:table-cell" />
                     <SortTh label="Low" field="lowPrice" className="hidden md:table-cell" />
                     <SortTh label="Volume" field="volume" />
-                    <SortTh label="Vol IBO" field="quoteVolume" className="hidden md:table-cell" />
+                    <SortTh label="Vol Delta" field="quoteVolume" className="hidden md:table-cell" />
                     <th
                       className="py-2.5 pl-2 pr-3 text-right text-[10px] font-medium uppercase tracking-wider sm:pr-4 md:pr-6 lg:pr-8 xl:pr-10"
                       style={{ color: 'var(--ibo-muted)' }}
@@ -511,7 +498,7 @@ export default function IBOMarketsPage() {
                       return (
                         <tr
                           key={m.symbol}
-                          className="border-b transition-colors hover:bg-[color:var(--ibo-hover)] cursor-pointer"
+                          className="border-b transition-colors cursor-pointer"
                           style={{ borderColor: 'var(--ibo-border-solid)' }}
                           onClick={() => navigate(`/trade/${m.symbol}`)}
                         >

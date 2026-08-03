@@ -12,10 +12,9 @@ import { useTheme } from '@/context/ThemeContext';
 import ThemeToggle from '@/components/ThemeToggle';
 import { exchangeWsPath, normalizeMarketsList } from '@/services/marketApi';
 import { exchangeApiOrigin } from '@/lib/apiBase';
-import { BRAND_LOGO } from '@/lib/brandAssets';
+import BrandLogo from '@/components/ui/BrandLogo';
 import { useMobileAppRelease } from '@/hooks/useMobileAppRelease';
 
-const LOGO = BRAND_LOGO;
 const API = exchangeApiOrigin(import.meta.env.VITE_BACKEND_URL);
 const IS_DEV = import.meta.env.DEV;
 
@@ -36,7 +35,7 @@ const NAV_PRIMARY = [
 const NAV_MORE = [
   { label: 'Refer & Earn', to: '/refer-earn', icon: Gift },
   { label: 'List Your Coin', to: '/list-coin', icon: Coins },
-  { label: 'IBO Markets', to: '/ibo-markets' },
+  { label: 'Delta Markets', to: '/ibo-markets' },
   { label: 'Options', to: '/options/BTCUSDT' },
   { label: 'P2P', to: '/p2p' },
   { label: 'P&L', to: '/portfolio' },
@@ -324,14 +323,16 @@ export default function Navbar() {
         <div className="w-full flex items-center gap-2 sm:gap-2.5 lg:gap-3 min-h-[56px] sm:min-h-[60px] lg:min-h-[64px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-8 min-w-0">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 flex-shrink-0 min-w-0 max-w-[42%] sm:max-w-[220px] lg:max-w-[180px] xl:max-w-[220px] 2xl:max-w-[260px]">
-            <motion.img
-              src={LOGO}
-              alt="IBO Exchange"
-              className="ibo-brand-logo h-8 sm:h-9 lg:h-9 xl:h-10 w-auto max-w-full object-contain object-left"
-              style={{ background: 'transparent' }}
+            <motion.div
+              className="min-w-0"
               whileHover={{ scale: 1.02 }}
               transition={{ type: 'spring', stiffness: 300 }}
-            />
+            >
+              <BrandLogo
+                alt="Exchange"
+                className="h-8 sm:h-9 lg:h-9 xl:h-10 w-auto max-w-full object-contain object-left"
+              />
+            </motion.div>
           </Link>
 
           {/* Desktop nav */}
@@ -395,7 +396,7 @@ export default function Navbar() {
                   <button
                     type="button"
                     onClick={() => setUserOpen((v) => !v)}
-                    className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-white/[0.04] border border-white/[0.1] hover:border-[#0ea4ab]/40 hover:bg-white/[0.06] transition-colors max-w-[140px] sm:max-w-[180px]"
+                    className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-white/[0.04] border border-white/[0.1] hover:border-[#FE6C02]/40 hover:bg-white/[0.06] transition-colors max-w-[140px] sm:max-w-[180px]"
                   >
                     <div className="w-7 h-7 rounded-full bg-gold/20 flex items-center justify-center text-gold-light text-sm font-bold overflow-hidden flex-shrink-0">
                       {navAvatarSrc ? (
@@ -477,7 +478,7 @@ export default function Navbar() {
                 </Link>
                 <Link
                   to="/register"
-                  className="text-sm font-bold whitespace-nowrap transition-all px-5 py-2 rounded-full bg-logo-gradient text-surface-dark uppercase tracking-wide shadow-[0_0_24px_rgba(14,164,171,0.3)] hover:brightness-105"
+                  className="text-sm font-bold whitespace-nowrap transition-all px-5 py-2 rounded-full bg-logo-gradient text-surface-dark uppercase tracking-wide shadow-[0_0_24px_rgba(254, 108, 2,0.3)] hover:brightness-105"
                 >
                   Sign Up
                 </Link>
@@ -498,7 +499,7 @@ export default function Navbar() {
               <a
                 {...appLinkProps}
                 className="hidden xl:flex items-center gap-1.5 flex-shrink-0 px-3 py-1.5 rounded-lg font-bold text-sm text-emerald-300 border border-emerald-500/35 bg-emerald-500/10 hover:bg-emerald-500/20 transition-colors"
-                title={appIsGooglePlay ? 'Get IBO on Google Play' : `Download IBO Mobile v${appRelease?.version || ''}`}
+                title={appIsGooglePlay ? 'Get Delta on Google Play' : `Download Delta Mobile v${appRelease?.version || ''}`}
               >
                 <Smartphone size={14} />
                 {appIsGooglePlay ? 'Play Store' : 'App'}

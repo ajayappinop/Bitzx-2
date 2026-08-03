@@ -1,5 +1,5 @@
 export const SITE_CONFIG = {
-  projectName: 'IBO Exchange',
+  projectName: 'Delta Exchange',
   networkLabel: 'Centralized crypto exchange',
   supportEmail: 'support@ibo.io',
   privacyPolicyPath: '/privacy-policy',

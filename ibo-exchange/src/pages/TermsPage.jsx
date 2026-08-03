@@ -6,7 +6,7 @@ const sections = [
   {
     title: 'Platform Use',
     body:
-      'IBO Exchange is provided for cryptocurrency trading and related services. You are responsible for safeguarding your account credentials, verifying deposit addresses, and independently assessing the risks of digital asset activity.',
+      'Delta Exchange is provided for cryptocurrency trading and related services. You are responsible for safeguarding your account credentials, verifying deposit addresses, and independently assessing the risks of digital asset activity.',
   },
   {
     title: 'No Financial Advice',
@@ -21,7 +21,7 @@ const sections = [
   {
     title: 'Third-Party Services',
     body:
-      'Links to explorers, payment rails, social channels, or other third-party services are outside IBO Exchange control and subject to those services\' own terms.',
+      'Links to explorers, payment rails, social channels, or other third-party services are outside Delta Exchange control and subject to those services\' own terms.',
   },
   {
     title: 'Accuracy of Information',
@@ -52,11 +52,11 @@ export default function TermsPage() {
         <div className="mb-10">
           <div className="inline-flex items-center gap-2 bg-gold/10 border border-gold/25 px-4 py-2 rounded-full text-sm text-gold-light mb-4">
             <FileText size={16} />
-            IBO Exchange Terms
+            Delta Exchange Terms
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Terms of Service</h1>
           <p className="text-white/55 max-w-3xl leading-relaxed">
-            These terms cover access to IBO Exchange and related trading services.
+            These terms cover access to Delta Exchange and related trading services.
             They should be reviewed and finalized with the official operating entity
             details before public launch.
           </p>

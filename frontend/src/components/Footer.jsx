@@ -91,9 +91,9 @@ export const Footer = () => {
               className="flex items-center gap-3 mb-6 group"
               whileHover={{ scale: 1.02 }}
             >
-              <img src={LOGO_URL} alt="IBO Logo" className="h-12 w-12 object-contain" />
+              <img src={LOGO_URL} alt="Exchange" className="h-10 w-auto max-w-[200px] object-contain" />
               <span className="text-2xl font-bold">
-                <span className="text-ink">IBO</span>
+                <span className="text-ink">Delta</span>
               </span>
             </motion.a>
 
@@ -215,7 +215,7 @@ export const Footer = () => {
         </div>
 
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-ink-muted text-sm">
-          <p>&copy; {new Date().getFullYear()} IBO. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Delta. All rights reserved.</p>
           <div className="flex flex-wrap items-center justify-center md:justify-end gap-x-6 gap-y-2">
             <a
               href={SUPPORT_MAILTO}

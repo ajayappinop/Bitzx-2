@@ -4,9 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, ArrowLeft, RefreshCw, CheckCircle2, AlertTriangle, ShieldCheck } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
-import { BRAND_LOGO } from '@/lib/brandAssets';
-
-const LOGO = BRAND_LOGO;
+import BrandLogo from '@/components/ui/BrandLogo';
 const OTP_LENGTH = 6;
 const RESEND_COOLDOWN_SEC = 60; // 1-minute UI cooldown between resend clicks
 
@@ -34,11 +32,11 @@ function OtpBox({ value, focused, inputRef, onChange, onKeyDown, onFocus, onPast
         border: hasError
           ? '1.5px solid rgba(239,68,68,0.6)'
           : focused
-          ? '1.5px solid rgba(197,227,91,0.7)'
+          ? '1.5px solid rgba(0, 168, 118,0.7)'
           : value
-          ? '1.5px solid rgba(14,164,171,0.5)'
+          ? '1.5px solid rgba(254, 108, 2,0.5)'
           : '1.5px solid rgba(255,255,255,0.1)',
-        boxShadow: focused ? '0 0 0 3px rgba(14,164,171,0.12)' : 'none',
+        boxShadow: focused ? '0 0 0 3px rgba(254, 108, 2,0.12)' : 'none',
       }}
     />
   );
@@ -216,21 +214,19 @@ export default function EmailVerificationPage() {
       <div className="hidden lg:flex flex-col w-[420px] xl:w-[480px] flex-shrink-0
         relative overflow-hidden px-12 py-12
         bg-[#0c0f18] border-r border-white/[.05]">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_20%,rgba(14,164,171,0.15),transparent_55%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_20%,rgba(254, 108, 2,0.15),transparent_55%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_85%,rgba(96,165,250,0.06),transparent_50%)]" />
         <div className="absolute inset-0 opacity-[.025]"
-          style={{ backgroundImage: 'linear-gradient(#0EA4AB 1px,transparent 1px),linear-gradient(90deg,#0EA4AB 1px,transparent 1px)', backgroundSize: '44px 44px' }} />
+          style={{ backgroundImage: 'linear-gradient(#FE6C02 1px,transparent 1px),linear-gradient(90deg,#FE6C02 1px,transparent 1px)', backgroundSize: '44px 44px' }} />
 
         {/* Logo */}
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
           className="mb-12 relative z-10">
-          <Link to="/" aria-label="IBO Exchange home" className="inline-block hover:opacity-90 transition-opacity">
-            <img
-              src={LOGO}
-              alt="IBO Exchange"
+          <Link to="/" aria-label="Exchange home" className="inline-block hover:opacity-90 transition-opacity">
+            <BrandLogo
+              alt="Exchange"
               className="h-12 sm:h-14 w-auto max-w-[260px] object-contain"
-              style={{ background: 'transparent' }}
             />
           </Link>
         </motion.div>
@@ -241,7 +237,7 @@ export default function EmailVerificationPage() {
           className="relative z-10 flex flex-col items-start flex-1">
 
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-8 flex-shrink-0"
-            style={{ background: 'rgba(14,164,171,0.15)', border: '1px solid rgba(197,227,91,0.25)' }}>
+            style={{ background: 'rgba(254, 108, 2,0.15)', border: '1px solid rgba(0, 168, 118,0.25)' }}>
             <Mail size={28} className="text-gold-light" />
           </div>
 
@@ -261,7 +257,7 @@ export default function EmailVerificationPage() {
               { icon: RefreshCw,   title: 'Resend if needed',    desc: 'Didn\'t receive it? Check spam or request a new code after 60 seconds.' },
             ].map(({ icon: Icon, title, desc }) => (
               <div key={title} className="flex items-start gap-3 p-3.5 rounded-xl"
-                style={{ background: 'rgba(14,164,171,0.06)', border: '1px solid rgba(197,227,91,0.1)' }}>
+                style={{ background: 'rgba(254, 108, 2,0.06)', border: '1px solid rgba(0, 168, 118,0.1)' }}>
                 <Icon size={16} className="text-gold-light mt-0.5 flex-shrink-0" />
                 <div>
                   <p className="text-sm font-bold text-white">{title}</p>
@@ -279,16 +275,14 @@ export default function EmailVerificationPage() {
 
         {/* Glow */}
         <div className="absolute top-0 right-0 w-64 h-64
-          bg-[radial-gradient(ellipse,rgba(14,164,171,0.07),transparent_70%)] pointer-events-none" />
+          bg-[radial-gradient(ellipse,rgba(254, 108, 2,0.07),transparent_70%)] pointer-events-none" />
 
         {/* Mobile logo */}
         <div className="mb-8 lg:hidden">
-          <Link to="/" aria-label="IBO Exchange home" className="inline-block hover:opacity-90 transition-opacity">
-            <img
-              src={LOGO}
-              alt="IBO Exchange"
+          <Link to="/" aria-label="Exchange home" className="inline-block hover:opacity-90 transition-opacity">
+            <BrandLogo
+              alt="Exchange"
               className="h-10 w-auto max-w-[200px] object-contain"
-              style={{ background: 'transparent' }}
             />
           </Link>
         </div>

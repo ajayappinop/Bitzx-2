@@ -91,7 +91,7 @@ export default function InrDepositsHistoryPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="text-[11px] text-white/60 uppercase border-b border-surface-border">
-                {['Date', 'INR', 'IBO', 'UTR', 'Status', 'Rejection reason'].map((h) => (
+                {['Date', 'INR', 'Delta', 'UTR', 'Status', 'Rejection reason'].map((h) => (
                   <th key={h} className="px-4 py-3 text-left whitespace-nowrap">{h}</th>
                 ))}
               </tr>

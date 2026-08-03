@@ -89,7 +89,7 @@ export function formatInrDepositRefTitle(row) {
   if (meta.amount_inr != null) lines.push(`Amount: ${formatInrAmount(meta.amount_inr)}`);
   const utr = meta.utr_number || row.utr_number;
   if (utr) lines.push(`UTR: ${utr}`);
-  if (meta.amount_ibo != null) lines.push(`IBO credited: ${Number(meta.amount_ibo).toFixed(4)}`);
+  if (meta.amount_ibo != null) lines.push(`Delta credited: ${Number(meta.amount_ibo).toFixed(4)}`);
   if (meta.payment_method_label) lines.push(`Method: ${meta.payment_method_label}`);
   if (row.status) lines.push(`Status: ${row.status}`);
   return lines.join('\n') || formatInrDepositRef(row);

@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { useAuth, authFetch } from '@/context/AuthContext';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { COIN_ICONS, exchangeWsPath, normalizeMarketsList } from '@/services/marketApi';
+import { COIN_ICONS, exchangeWsPath, normalizeMarketsList, walletAssetLabel } from '@/services/marketApi';
 import { exchangeApiOrigin } from '@/lib/apiBase';
 import { MIN_WALLET_NOTIONAL_USDT } from '@/lib/walletValidation';
 import {
@@ -124,9 +124,9 @@ function AssetSelect({ value, onChange, label, assets }) {
         className="w-full flex items-center justify-between bg-[color:var(--ibo-elevated)] border border-[color:var(--ibo-border-solid)] rounded-xl px-4 py-3 focus:border-gold/50 transition-colors">
         <div className="flex items-center gap-2.5">
           {COIN_ICONS[value]
-            ? <img src={COIN_ICONS[value]} alt={value} className="w-6 h-6 rounded-full" />
-            : <div className="w-6 h-6 rounded-full bg-gold/15 flex items-center justify-center text-gold text-[10px] font-bold">{value?.slice(0, 2)}</div>}
-          <span className="text-[color:var(--ibo-ink)] font-semibold">{value}</span>
+            ? <img src={COIN_ICONS[value]} alt={walletAssetLabel(value)} className="w-6 h-6 rounded-full" />
+            : <div className="w-6 h-6 rounded-full bg-gold/15 flex items-center justify-center text-gold text-[10px] font-bold">{walletAssetLabel(value)?.slice(0, 2)}</div>}
+          <span className="text-[color:var(--ibo-ink)] font-semibold">{walletAssetLabel(value)}</span>
         </div>
         <ChevronDown size={14} className={`text-[color:var(--ibo-muted)] transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
@@ -139,9 +139,9 @@ function AssetSelect({ value, onChange, label, assets }) {
                 onClick={() => { onChange(a); setOpen(false); }}
                 className={`w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-[color:var(--ibo-hover)] transition-colors ${a === value ? 'text-gold' : 'text-[color:var(--ibo-ink)]'}`}>
                 {COIN_ICONS[a]
-                  ? <img src={COIN_ICONS[a]} alt={a} className="w-5 h-5 rounded-full" />
-                  : <div className="w-5 h-5 rounded-full bg-gold/15 flex items-center justify-center text-gold text-[10px] font-bold">{a.slice(0, 2)}</div>}
-                <span className="text-sm font-semibold">{a}</span>
+                  ? <img src={COIN_ICONS[a]} alt={walletAssetLabel(a)} className="w-5 h-5 rounded-full" />
+                  : <div className="w-5 h-5 rounded-full bg-gold/15 flex items-center justify-center text-gold text-[10px] font-bold">{walletAssetLabel(a).slice(0, 2)}</div>}
+                <span className="text-sm font-semibold">{walletAssetLabel(a)}</span>
               </button>
             ))}
           </motion.div>
@@ -153,115 +153,173 @@ function AssetSelect({ value, onChange, label, assets }) {
 
 // ── Balances Tab ─────────────────────────────────────────────────────────────
 
-function BalancesTab({ walletAssets, walletLoading, fetchWallet, priceByAsset, onOpenSwap }) {
+function BalancesTab({ walletAssets, walletLoading, fetchWallet, priceByAsset, onOpenSwap, onTab }) {
   const px = a => (a === 'USDT' ? 1 : (priceByAsset[a] ?? 0));
   const totalUSD = walletAssets.reduce((s, w) => s + (w.available + w.locked) * px(w.asset), 0);
   const availUSD = walletAssets.reduce((s, w) => s + w.available * px(w.asset), 0);
+  const lockedUSD = totalUSD - availUSD;
+  const money = (n) => `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+  const ranked = useMemo(() => {
+    return [...walletAssets]
+      .map((w) => {
+        const total = w.available + w.locked;
+        const usd = total * px(w.asset);
+        return { ...w, total, usd, weight: totalUSD > 0 ? (usd / totalUSD) * 100 : 0 };
+      })
+      .sort((a, b) => b.usd - a.usd);
+  }, [walletAssets, priceByAsset, totalUSD]);
 
   return (
-    <div className="space-y-6">
-      {/* Total value strip */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {[
-          { label: 'Total Portfolio', value: `$${totalUSD.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, color: 'text-[color:var(--ibo-ink)]' },
-          { label: 'Available',       value: `$${availUSD.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, color: 'text-green-500' },
-          { label: 'Locked',          value: `$${(totalUSD - availUSD).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, color: 'text-gold' },
-        ].map(s => (
-          <div
-            key={s.label}
-            className="rounded-2xl border border-[color:var(--ibo-border-solid)] bg-[color:var(--ibo-card)] p-5 shadow-[var(--ibo-shadow)]"
-          >
-            <p className="text-[color:var(--ibo-muted)] text-xs mb-1 uppercase tracking-wider font-semibold">{s.label}</p>
-            <p className={`text-2xl font-extrabold tabular-nums ${s.color}`}>{s.value}</p>
+    <div className="space-y-5 sm:space-y-6">
+      {/* Portfolio command band */}
+      <section className="wallet-surface overflow-hidden">
+        <div className="flex flex-col xl:flex-row xl:items-stretch">
+          <div className="flex-1 min-w-0 px-5 sm:px-6 py-5 sm:py-6 border-b xl:border-b-0 xl:border-r border-[color:var(--ibo-border-solid)]">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--ibo-muted)]">
+              Spot portfolio
+            </p>
+            <p className="mt-2 text-3xl sm:text-4xl font-bold tabular-nums tracking-tight text-[color:var(--ibo-ink)]">
+              {money(totalUSD)}
+            </p>
+            <p className="mt-1 text-xs text-[color:var(--ibo-muted)]">
+              Estimated USD · {walletAssets.length} asset{walletAssets.length === 1 ? '' : 's'}
+            </p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <button type="button" onClick={() => onTab?.('deposit')} className="wallet-action-primary">
+                <ArrowDownCircle size={14} /> Deposit
+              </button>
+              <button type="button" onClick={() => onTab?.('withdraw')} className="wallet-action-ghost">
+                <ArrowUpCircle size={14} /> Withdraw
+              </button>
+              <button type="button" onClick={() => onOpenSwap?.()} className="wallet-action-ghost">
+                <ArrowLeftRight size={14} /> Swap
+              </button>
+            </div>
           </div>
-        ))}
-      </div>
+          <div className="xl:w-[min(100%,22rem)] grid grid-cols-3 xl:grid-cols-1 divide-x xl:divide-x-0 xl:divide-y divide-[color:var(--ibo-border-solid)]">
+            {[
+              { label: 'Available', value: money(availUSD), tone: 'text-[#0ECB81]' },
+              { label: 'Locked', value: money(lockedUSD), tone: 'text-[#FE6C02]' },
+              { label: 'In orders', value: money(lockedUSD), tone: 'text-[color:var(--ibo-ink-secondary)]' },
+            ].map((s) => (
+              <div key={s.label} className="px-4 sm:px-5 py-4 min-w-0">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[color:var(--ibo-muted)] truncate">
+                  {s.label}
+                </p>
+                <p className={`mt-1.5 text-base sm:text-lg font-bold tabular-nums tracking-tight ${s.tone}`}>
+                  {s.value}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-      {/* Asset table */}
-      <div className="rounded-2xl border border-[color:var(--ibo-border-solid)] bg-[color:var(--ibo-card)] overflow-hidden shadow-[var(--ibo-shadow)]">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[color:var(--ibo-border-solid)] bg-[color:var(--ibo-elevated)]">
-          <p className="text-[color:var(--ibo-ink)] font-bold text-lg">Your Assets</p>
-          <button onClick={fetchWallet} disabled={walletLoading}
-            className="flex items-center gap-1.5 text-xs text-[color:var(--ibo-muted)] hover:text-[color:var(--ibo-ink)] transition-colors disabled:opacity-40">
+      {/* Asset inventory list */}
+      <section className="wallet-surface overflow-hidden">
+        <div className="flex items-center justify-between gap-3 px-5 sm:px-6 py-3.5 border-b border-[color:var(--ibo-border-solid)]">
+          <div>
+            <h2 className="text-sm font-bold text-[color:var(--ibo-ink)]">Balances</h2>
+            <p className="text-[11px] text-[color:var(--ibo-muted)] mt-0.5">Spot holdings by USD weight</p>
+          </div>
+          <button
+            type="button"
+            onClick={fetchWallet}
+            disabled={walletLoading}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[color:var(--ibo-muted)] hover:text-[color:var(--ibo-ink)] disabled:opacity-40"
+          >
             <RefreshCw size={13} className={walletLoading ? 'animate-spin' : ''} /> Refresh
           </button>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="text-[11px] text-[color:var(--ibo-muted)] uppercase tracking-wider border-b border-[color:var(--ibo-border-solid)]">
-                {['Asset', 'Available', 'Locked', 'Total', 'Value (USD)', 'Actions'].map(h => (
-                  <th key={h} className={`px-6 py-3 font-bold ${h === 'Asset' ? 'text-left' : 'text-right'}`}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {walletAssets.map(w => {
-                const total = w.available + w.locked;
-                const usd   = total * px(w.asset);
-                const icon  = COIN_ICONS[w.asset];
-                return (
-                  <tr key={w.asset} className="ibo-hover-table-row border-b border-[color:var(--ibo-border-solid)] transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        {icon ? <img src={icon} alt={w.asset} className="w-8 h-8 rounded-full" />
-                               : <div className="w-8 h-8 rounded-full bg-gold/15 flex items-center justify-center text-gold text-xs font-bold">{w.asset.slice(0, 2)}</div>}
-                        <span className="text-[color:var(--ibo-ink)] font-bold">{w.asset}</span>
+
+        {ranked.length === 0 ? (
+          <div className="px-6 py-14 text-center">
+            <Wallet className="mx-auto text-[color:var(--ibo-muted)] opacity-40 mb-3" size={28} />
+            <p className="text-sm font-semibold text-[color:var(--ibo-ink)]">No spot balances yet</p>
+            <p className="text-xs text-[color:var(--ibo-muted)] mt-1">Deposit crypto or INR to fund your wallet.</p>
+            <button type="button" onClick={() => onTab?.('deposit')} className="wallet-action-primary mt-4 mx-auto">
+              Deposit now
+            </button>
+          </div>
+        ) : (
+          <ul className="divide-y divide-[color:var(--ibo-border-solid)]">
+            {ranked.map((w) => {
+              const icon = COIN_ICONS[w.asset];
+              const dp = w.asset === 'USDT' ? 2 : 6;
+              return (
+                <li
+                  key={w.asset}
+                  className="px-5 sm:px-6 py-4 sm:py-3.5 flex flex-col gap-3 sm:gap-0 sm:flex-row sm:items-center sm:justify-between hover:bg-white/[0.02] transition-colors"
+                >
+                  <div className="flex items-center gap-3 min-w-0 sm:w-[28%]">
+                    {icon
+                      ? <img src={icon} alt="" className="w-9 h-9 rounded-full shrink-0" />
+                      : (
+                        <div className="w-9 h-9 rounded-full bg-[#FE6C02]/15 flex items-center justify-center text-[#FE6C02] text-xs font-bold shrink-0">
+                          {w.asset.slice(0, 2)}
+                        </div>
+                      )}
+                    <div className="min-w-0">
+                      <p className="font-bold text-[color:var(--ibo-ink)]">{walletAssetLabel(w.asset)}</p>
+                      <div className="mt-1.5 h-1 w-24 sm:w-28 rounded-full bg-white/[0.06] overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-[#FE6C02]/80"
+                          style={{ width: `${Math.min(100, Math.max(w.weight, w.weight > 0 ? 2 : 0))}%` }}
+                        />
                       </div>
-                    </td>
-                    <td className="px-6 py-4 text-right text-green-500 font-mono font-semibold tabular-nums">
-                      {w.available.toFixed(w.asset === 'USDT' ? 2 : 6)}
-                    </td>
-                    <td className="px-6 py-4 text-right text-gold font-mono font-semibold tabular-nums">
-                      {w.locked.toFixed(w.asset === 'USDT' ? 2 : 6)}
-                    </td>
-                    <td className="px-6 py-4 text-right text-[color:var(--ibo-ink)] font-mono tabular-nums">
-                      {total.toFixed(w.asset === 'USDT' ? 2 : 6)}
-                    </td>
-                    <td className="px-6 py-4 text-right text-[color:var(--ibo-ink)] font-semibold tabular-nums">
-                      ${usd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex flex-wrap justify-end gap-2">
-                        {w.asset === 'IBO' && onOpenSwap ? (
-                          <button
-                            type="button"
-                            onClick={onOpenSwap}
-                            className="text-xs font-bold px-3 py-1.5 rounded-lg bg-gold/15 text-gold border border-gold/30 hover:bg-gold/25 transition-colors"
-                          >
-                            Swap
-                          </button>
-                        ) : null}
-                        <Link
-                          to={`/trade/${w.asset}USDT?side=buy`}
-                          className="text-xs font-bold px-3 py-1.5 rounded-lg bg-green-500/15 text-green-400 border border-green-500/25 hover:bg-green-500/25 transition-colors"
-                        >
-                          Buy
-                        </Link>
-                        {w.asset !== 'USDT' && (
-                          <Link
-                            to={`/trade/${w.asset}USDT?side=sell`}
-                            className={`text-xs font-bold px-3 py-1.5 rounded-lg border transition-colors ${
-                              w.available > 1e-12
-                                ? 'bg-red-500/15 text-red-400 border-red-500/25 hover:bg-red-500/25'
-                                : 'bg-white/[.04] text-white/35 border-[color:var(--ibo-border-solid)] pointer-events-none cursor-not-allowed'
-                            }`}
-                            title={w.available <= 1e-12 ? 'No available balance to sell' : 'Sell spot balance'}
-                            aria-disabled={w.available <= 1e-12}
-                            onClick={e => { if (w.available <= 1e-12) e.preventDefault(); }}
-                          >
-                            Sell
-                          </Link>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                      <p className="text-[10px] text-[color:var(--ibo-muted)] mt-0.5 tabular-nums">
+                        {w.weight.toFixed(1)}% portfolio
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3 sm:flex sm:items-center sm:gap-8 sm:flex-1 min-w-0">
+                    <div className="min-w-0 sm:text-right sm:min-w-[5.5rem]">
+                      <p className="text-[10px] uppercase tracking-wide text-[color:var(--ibo-muted)]">Available</p>
+                      <p className="font-mono text-sm font-semibold text-[#0ECB81] tabular-nums truncate">
+                        {w.available.toFixed(dp)}
+                      </p>
+                    </div>
+                    <div className="min-w-0 sm:text-right sm:min-w-[5.5rem]">
+                      <p className="text-[10px] uppercase tracking-wide text-[color:var(--ibo-muted)]">Locked</p>
+                      <p className="font-mono text-sm font-semibold text-[#FE6C02] tabular-nums truncate">
+                        {w.locked.toFixed(dp)}
+                      </p>
+                    </div>
+                    <div className="min-w-0 sm:text-right sm:min-w-[6.5rem]">
+                      <p className="text-[10px] uppercase tracking-wide text-[color:var(--ibo-muted)]">Value</p>
+                      <p className="font-mono text-sm font-bold text-[color:var(--ibo-ink)] tabular-nums">
+                        {money(w.usd)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5 sm:justify-end sm:w-auto sm:shrink-0 sm:ml-4">
+                    {w.asset === 'IBO' && onOpenSwap ? (
+                      <button type="button" onClick={onOpenSwap} className="wallet-chip-btn">
+                        Swap
+                      </button>
+                    ) : null}
+                    <Link to={`/trade/${w.asset}USDT?side=buy`} className="wallet-chip-btn wallet-chip-btn--pos">
+                      Buy
+                    </Link>
+                    {w.asset !== 'USDT' && (
+                      <Link
+                        to={`/trade/${w.asset}USDT?side=sell`}
+                        className={`wallet-chip-btn ${w.available > 1e-12 ? 'wallet-chip-btn--neg' : 'opacity-35 pointer-events-none'}`}
+                        onClick={(e) => { if (w.available <= 1e-12) e.preventDefault(); }}
+                      >
+                        Sell
+                      </Link>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }
@@ -454,32 +512,31 @@ function DepositTab({ kycBlocked, kyc }) {
     || isCatalogDepositReady(selectedCatalogItem);
 
   return (
-    <div className="space-y-6">
-      <div className="ibo-account-promo">
-        <div>
-          <p className="text-ink font-display font-bold flex flex-wrap items-center gap-2">
-            <IndianRupee size={18} className="text-gold shrink-0" />
+    <div className="space-y-5">
+      <div className="wallet-surface px-5 sm:px-6 py-4 sm:py-5 flex flex-wrap items-center justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-[color:var(--ibo-ink)] font-bold flex flex-wrap items-center gap-2 text-sm sm:text-base">
+            <IndianRupee size={16} className="text-[#FE6C02] shrink-0" />
             <span>Deposit via INR (Bank / UPI / QR)</span>
             <InrMinDepositChip minDepositInr={minDepositInr} />
           </p>
-          <p className="text-sm text-ink-muted mt-1 max-w-xl">
-            Pay in Indian Rupees, upload your transfer proof, and receive tokens after admin approval.
+          <p className="text-xs sm:text-sm text-[color:var(--ibo-muted)] mt-1 max-w-xl leading-relaxed">
+            Pay in Indian Rupees, upload transfer proof, receive tokens after admin approval.
           </p>
           <InrMinDepositNote minDepositInr={minDepositInr} className="mt-2 max-w-xl" />
         </div>
-        <Link to="/wallet/deposit/inr" className="ibo-btn-primary shrink-0">
+        <Link to="/wallet/deposit/inr" className="wallet-action-primary shrink-0">
           Deposit INR
         </Link>
       </div>
 
-    <div className="grid md:grid-cols-2 gap-5 lg:gap-7">
+    <div className="grid md:grid-cols-2 gap-5 lg:gap-6">
       {/* Address panel (left column — was the manual submit form) */}
-      <div className="ibo-account-panel">
-        <h3 className="font-display text-lg font-bold text-ink mb-1">Your Deposit Address</h3>
-        <p className="text-ink-secondary text-sm mb-6 leading-relaxed">
+      <div className="wallet-surface p-5 sm:p-6">
+        <h3 className="text-base font-bold text-[color:var(--ibo-ink)] mb-1">Your deposit address</h3>
+        <p className="text-[color:var(--ibo-ink-secondary)] text-sm mb-5 leading-relaxed">
           Send funds to your personal address below. Deposits are detected on-chain and credited
-          after enough confirmations (and KYC rules). Use <strong className="text-ink">Wallet → History → Deposits</strong> to
-          see progress, tx hash, and when your balance is credited.
+          after confirmations. Track progress under <strong className="text-[color:var(--ibo-ink)]">History → Deposits</strong>.
         </p>
 
         {kycBlocked && (
@@ -662,10 +719,12 @@ function DepositTab({ kycBlocked, kyc }) {
       </div>
 
       {/* Info panel */}
-      <div className="space-y-5">
-        <div className="ibo-account-panel">
-          <p className="text-ink font-display font-bold mb-3 flex items-center gap-2"><Info size={15} className="text-gold" /> How it works</p>
-          <ol className="space-y-3 text-sm text-ink-secondary">
+      <div className="space-y-4">
+        <div className="wallet-surface p-5 sm:p-6">
+          <p className="text-[color:var(--ibo-ink)] font-bold mb-3 flex items-center gap-2 text-sm">
+            <Info size={15} className="text-[#FE6C02]" /> How it works
+          </p>
+          <ol className="space-y-3 text-sm text-[color:var(--ibo-ink-secondary)]">
             {[
               'Pick the asset and network you want to deposit.',
               'Scan the QR code or copy your personal deposit address.',
@@ -673,16 +732,18 @@ function DepositTab({ kycBlocked, kyc }) {
               'The network confirms, we detect the transaction and credit your balance automatically.',
             ].map((step, i) => (
               <li key={i} className="flex items-start gap-3">
-                <span className="ibo-step-num">{i + 1}</span>
+                <span className="wallet-step-num">{i + 1}</span>
                 {step}
               </li>
             ))}
           </ol>
         </div>
 
-        <div className="ibo-notice-warn !p-5 !text-sm rounded-2xl">
-          <p className="text-gold-light font-semibold text-sm flex items-center gap-1.5 mb-2"><AlertCircle size={14} /> Important</p>
-          <ul className="text-xs text-ink-secondary space-y-1.5 list-disc list-inside">
+        <div className="wallet-surface p-5 border-[#FE6C02]/25">
+          <p className="text-[#FE6C02] font-semibold text-sm flex items-center gap-1.5 mb-2">
+            <AlertCircle size={14} /> Important
+          </p>
+          <ul className="text-xs text-[color:var(--ibo-ink-secondary)] space-y-1.5 list-disc list-inside">
             <li>Always send on the correct network to avoid permanent loss.</li>
             <li>Minimum deposit: {MIN_WALLET_NOTIONAL_USDT} USDT equivalent.</li>
             <li>Your balance is credited automatically once the required confirmations are reached.</li>
@@ -872,7 +933,7 @@ function WithdrawTab({ walletAssets, kycBlocked, kyc, priceByAsset = { USDT: 1 }
       return;
     }
     if (String(asset).toUpperCase() === 'IBO' && !withdrawReady) {
-      setSubmitError('IBO on-chain withdrawal is not enabled yet. Use Withdraw INR for bank/UPI, or try again later.');
+      setSubmitError('Delta on-chain withdrawal is not enabled yet. Use Withdraw INR for bank/UPI, or try again later.');
       return;
     }
     if (!withdrawReady) {
@@ -888,7 +949,7 @@ function WithdrawTab({ walletAssets, kycBlocked, kyc, priceByAsset = { USDT: 1 }
     }
     if (totalIboFees > 0 && totalIboFees > iboAvailable + 1e-12) {
       setSubmitError(
-        `Insufficient IBO for fees (need ~${totalIboFees.toFixed(8)} IBO: `
+        `Insufficient Delta for fees (need ~${totalIboFees.toFixed(8)} Delta: `
         + `${platformFeeIbo > 0 ? `platform ~${platformFeeIbo.toFixed(8)}` : ''}`
         + `${platformFeeIbo > 0 && iboGasFee > 0 ? ', ' : ''}`
         + `${iboGasFee > 0 ? `gas ${iboGasFee.toFixed(8)}` : ''}).`,
@@ -926,28 +987,28 @@ function WithdrawTab({ walletAssets, kycBlocked, kyc, priceByAsset = { USDT: 1 }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="ibo-account-promo">
-        <div>
-          <p className="text-ink font-display font-bold flex items-center gap-2">
-            <IndianRupee size={18} className="text-gold" />
+    <div className="space-y-5">
+      <div className="wallet-surface px-5 sm:px-6 py-4 sm:py-5 flex flex-wrap items-center justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-[color:var(--ibo-ink)] font-bold flex items-center gap-2 text-sm sm:text-base">
+            <IndianRupee size={16} className="text-[#FE6C02]" />
             Withdraw to INR (Bank / UPI)
           </p>
-          <p className="text-sm text-ink-muted mt-1 max-w-xl">
-            Sell IBO for rupees — the only way to cash out IBO. Send INR to your saved bank or UPI after admin approval.
+          <p className="text-xs sm:text-sm text-[color:var(--ibo-muted)] mt-1 max-w-xl leading-relaxed">
+            Sell Delta for rupees — cash out Delta to bank or UPI after admin approval.
           </p>
         </div>
-        <Link to="/wallet/withdraw/inr" className="ibo-btn-primary shrink-0">
+        <Link to="/wallet/withdraw/inr" className="wallet-action-primary shrink-0">
           Withdraw INR
         </Link>
       </div>
 
-    <div className="grid md:grid-cols-2 gap-5 lg:gap-7">
-      <div className="ibo-account-panel">
-        <h3 className="font-display text-lg font-bold text-ink mb-1">Withdraw Funds</h3>
-        <p className="text-ink-secondary text-sm mb-6 leading-relaxed">
+    <div className="grid md:grid-cols-2 gap-5 lg:gap-6">
+      <div className="wallet-surface p-5 sm:p-6">
+        <h3 className="text-base font-bold text-[color:var(--ibo-ink)] mb-1">On-chain withdraw</h3>
+        <p className="text-[color:var(--ibo-ink-secondary)] text-sm mb-5 leading-relaxed">
           Withdrawals are broadcast on-chain automatically. Large amounts may require admin
-          review before broadcast.
+          approval. Track progress in the History tab.
         </p>
 
         {kycBlocked && (
@@ -986,7 +1047,7 @@ function WithdrawTab({ walletAssets, kycBlocked, kyc, priceByAsset = { USDT: 1 }
           <form onSubmit={onSubmit} className="space-y-4">
             {isIboSelected && !withdrawReady && (
               <div className="rounded-xl border border-gold/30 bg-gold/10 px-4 py-3 text-sm text-gold/90">
-                IBO on-chain withdrawal is not active on this network yet. Use{' '}
+                Delta on-chain withdrawal is not active on this network yet. Use{' '}
                 <Link to="/wallet/withdraw/inr" className="font-bold text-gold underline">
                   Withdraw INR
                 </Link>{' '}
@@ -995,7 +1056,7 @@ function WithdrawTab({ walletAssets, kycBlocked, kyc, priceByAsset = { USDT: 1 }
             )}
             {isIboSelected && withdrawReady && (
               <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
-                Send IBO to any external BEP-20 wallet. For INR (bank/UPI), use{' '}
+                Send Delta to any external BEP-20 wallet. For INR (bank/UPI), use{' '}
                 <Link to="/wallet/withdraw/inr" className="font-bold text-emerald-200 underline">
                   Withdraw INR
                 </Link>.
@@ -1095,15 +1156,15 @@ function WithdrawTab({ walletAssets, kycBlocked, kyc, priceByAsset = { USDT: 1 }
                     <span>Platform fee ({(withdrawConfig.withdraw_fee_rate * 100).toFixed(2)}% notional)</span>
                     <span className="font-mono text-ink">
                       {platformFeeIbo > 0
-                        ? `~${platformFeeIbo.toFixed(8)} IBO`
-                        : 'IBO (rate applies to USDT notional)'}
+                        ? `~${platformFeeIbo.toFixed(8)} Delta`
+                        : 'Delta (rate applies to USDT notional)'}
                     </span>
                   </div>
                 )}
                 {iboGasFee > 0 && (
                   <div className="flex justify-between gap-3">
-                    <span>Network gas fee (IBO)</span>
-                    <span className="font-mono text-ink">{iboGasFee.toFixed(8)} IBO</span>
+                    <span>Network gas fee (Delta)</span>
+                    <span className="font-mono text-ink">{iboGasFee.toFixed(8)} Delta</span>
                   </div>
                 )}
                 <div className="flex justify-between gap-3 pt-1 border-t border-surface-border/60">
@@ -1112,17 +1173,17 @@ function WithdrawTab({ walletAssets, kycBlocked, kyc, priceByAsset = { USDT: 1 }
                 </div>
                 {totalIboFees > 0 && (
                   <div className="flex justify-between gap-3">
-                    <span className="font-semibold text-ink">Total IBO fees</span>
-                    <span className="font-mono font-semibold text-gold">~{totalIboFees.toFixed(8)} IBO</span>
+                    <span className="font-semibold text-ink">Total Delta fees</span>
+                    <span className="font-mono font-semibold text-gold">~{totalIboFees.toFixed(8)} Delta</span>
                   </div>
                 )}
                 {(totalIboFees > 0 || withdrawConfig.platform_fee_description) && (
                   <p className="text-[11px] text-ink-muted leading-relaxed">
                     {withdrawConfig.platform_fee_description
-                      || 'Platform and gas fees are charged in IBO from your spot wallet.'}
+                      || 'Platform and gas fees are charged in Delta from your spot wallet.'}
                     {' '}
                     {withdrawConfig.gas_fee_description || ''}
-                    {' '}IBO available: <span className="font-mono text-ink-secondary">{iboAvailable.toFixed(4)}</span>
+                    {' '}Delta available: <span className="font-mono text-ink-secondary">{iboAvailable.toFixed(4)}</span>
                   </p>
                 )}
               </div>
@@ -1212,10 +1273,12 @@ function WithdrawTab({ walletAssets, kycBlocked, kyc, priceByAsset = { USDT: 1 }
         )}
       </div>
 
-      <div className="space-y-5">
-        <div className="ibo-account-panel">
-          <p className="text-ink font-display font-bold mb-3 flex items-center gap-2"><Info size={15} className="text-gold" /> How it works</p>
-          <ol className="space-y-3 text-sm text-ink-secondary">
+      <div className="space-y-4">
+        <div className="wallet-surface p-5 sm:p-6">
+          <p className="text-[color:var(--ibo-ink)] font-bold mb-3 flex items-center gap-2 text-sm">
+            <Info size={15} className="text-[#FE6C02]" /> How it works
+          </p>
+          <ol className="space-y-3 text-sm text-[color:var(--ibo-ink-secondary)]">
             {[
               'Pick the asset, network and paste your destination address.',
               'We lock the amount (plus the platform fee) in your balance the moment you submit.',
@@ -1223,16 +1286,18 @@ function WithdrawTab({ walletAssets, kycBlocked, kyc, priceByAsset = { USDT: 1 }
               'Once the network confirms the transaction, the lock is released from your balance.',
             ].map((step, i) => (
               <li key={i} className="flex items-start gap-3">
-                <span className="ibo-step-num">{i + 1}</span>
+                <span className="wallet-step-num">{i + 1}</span>
                 {step}
               </li>
             ))}
           </ol>
         </div>
 
-        <div className="ibo-notice-warn !p-5 !text-sm rounded-2xl">
-          <p className="text-gold-light font-semibold text-sm flex items-center gap-1.5 mb-2"><AlertCircle size={14} /> Important</p>
-          <ul className="text-xs text-ink-secondary space-y-1.5 list-disc list-inside">
+        <div className="wallet-surface p-5 border-[#FE6C02]/25">
+          <p className="text-[#FE6C02] font-semibold text-sm flex items-center gap-1.5 mb-2">
+            <AlertCircle size={14} /> Important
+          </p>
+          <ul className="text-xs text-[color:var(--ibo-ink-secondary)] space-y-1.5 list-disc list-inside">
             <li>Double-check the destination address — on-chain sends are irreversible.</li>
             <li>Withdrawals to the platform&apos;s own deposit addresses are blocked.</li>
             <li>Network fees come out of the treasury; you are charged the platform fee rate on top of your amount.</li>
@@ -1419,7 +1484,9 @@ function HistoryTab() {
       type="button"
       onClick={() => setMainTab(id)}
       className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-        mainTab === id ? 'bg-gold/20 text-gold' : 'text-white/70 hover:text-white'
+        mainTab === id
+          ? 'bg-[#FE6C02]/15 text-[#FE6C02]'
+          : 'text-[color:var(--ibo-muted)] hover:text-[color:var(--ibo-ink)]'
       }`}
     >
       {label}
@@ -1431,7 +1498,9 @@ function HistoryTab() {
       type="button"
       onClick={() => setOnchainTab(id)}
       className={`px-3 py-1 text-[11px] font-semibold rounded-lg capitalize transition-colors ${
-        onchainTab === id ? 'bg-white/10 text-white' : 'text-white/50 hover:text-white/80'
+        onchainTab === id
+          ? 'bg-white/[0.08] text-[color:var(--ibo-ink)]'
+          : 'text-[color:var(--ibo-muted)] hover:text-[color:var(--ibo-ink-secondary)]'
       }`}
     >
       {label}
@@ -1443,7 +1512,9 @@ function HistoryTab() {
       type="button"
       onClick={() => setInrFilter(id)}
       className={`px-3 py-1 text-[11px] font-semibold rounded-lg capitalize transition-colors ${
-        inrFilter === id ? 'bg-gold/15 text-gold' : 'text-white/50 hover:text-white/80'
+        inrFilter === id
+          ? 'bg-[#FE6C02]/12 text-[#FE6C02]'
+          : 'text-[color:var(--ibo-muted)] hover:text-[color:var(--ibo-ink-secondary)]'
       }`}
     >
       {label}
@@ -1452,13 +1523,13 @@ function HistoryTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap gap-1 border border-surface-border rounded-xl p-1 bg-surface-DEFAULT">
+      <div className="wallet-surface px-3 sm:px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-1 p-0.5 rounded-xl bg-white/[0.02] border border-[color:var(--ibo-border-solid)]">
           {mainTabBtn('onchain', 'On-chain')}
           {mainTabBtn('inr', 'INR history')}
         </div>
         <button onClick={load} disabled={loading}
-          className="flex items-center gap-1.5 text-xs text-white hover:text-white transition-colors disabled:opacity-40">
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[color:var(--ibo-muted)] hover:text-[color:var(--ibo-ink)] disabled:opacity-40">
           <RefreshCw size={12} className={loading ? 'animate-spin' : ''} /> Refresh
         </button>
       </div>
@@ -1499,7 +1570,7 @@ function HistoryTab() {
       )}
 
       {mainTab === 'onchain' && onchainTab === 'deposits' && (
-        <div className="bg-surface-DEFAULT border border-surface-border rounded-2xl overflow-hidden -mt-1">
+        <div className="wallet-surface overflow-hidden -mt-1">
           {loading ? (
             <div className="flex items-center justify-center py-16 gap-3 text-white">
               <RefreshCw size={20} className="animate-spin" /> Loading deposits…
@@ -1573,7 +1644,7 @@ function HistoryTab() {
       )}
 
       {mainTab === 'inr' && (
-        <div className="bg-surface-DEFAULT border border-surface-border rounded-2xl overflow-hidden">
+        <div className="wallet-surface overflow-hidden">
           {loading ? (
             <div className="flex items-center justify-center py-16 gap-3 text-white">
               <RefreshCw size={20} className="animate-spin" /> Loading INR history…
@@ -1587,7 +1658,7 @@ function HistoryTab() {
                 {inrFilter === 'all' && 'No INR activity yet'}
               </p>
               <p className="text-xs text-white/50 max-w-sm text-center">
-                Bank deposits and IBO sell payouts (bank/UPI) appear here with status and UTR references.
+                Bank deposits and Delta sell payouts (bank/UPI) appear here with status and UTR references.
               </p>
             </div>
           ) : (
@@ -1595,7 +1666,7 @@ function HistoryTab() {
               <table className="w-full min-w-[720px]">
                 <thead>
                   <tr className="text-[11px] text-white uppercase tracking-wider border-b border-surface-border">
-                    {['Date', 'Type', 'Amount (INR)', 'IBO', 'Reference', 'Details', 'Status', 'Action'].map((h) => (
+                    {['Date', 'Type', 'Amount (INR)', 'Delta', 'Reference', 'Details', 'Status', 'Action'].map((h) => (
                       <th key={h} className={`px-5 py-3 ${h === 'Status' || h === 'Action' ? 'text-center' : 'text-left'}`}>{h}</th>
                     ))}
                   </tr>
@@ -1703,7 +1774,7 @@ function HistoryTab() {
       )}
 
       {mainTab === 'onchain' && onchainTab === 'withdrawals' && (
-        <div className="bg-surface-DEFAULT border border-surface-border rounded-2xl overflow-hidden -mt-1">
+        <div className="wallet-surface overflow-hidden -mt-1">
           {loading ? (
             <div className="flex items-center justify-center py-16 gap-3 text-white">
               <RefreshCw size={20} className="animate-spin" /> Loading withdrawals…
@@ -1785,7 +1856,7 @@ function HistoryTab() {
             <div className="px-5 py-4 border-b border-surface-border">
               <h3 className="text-white font-bold text-lg">Cancel withdrawal request?</h3>
               <p className="text-white/60 text-sm mt-1">
-                This will cancel your pending INR withdrawal request and unlock reserved IBO.
+                This will cancel your pending INR withdrawal request and unlock reserved Delta.
               </p>
             </div>
             <div className="px-5 py-4 flex justify-end gap-2">
@@ -1943,22 +2014,22 @@ function LedgerTab() {
   };
 
   return (
-    <div className="space-y-5">
-      <div className="bg-surface-DEFAULT border border-surface-border rounded-2xl p-5 sm:p-6">
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
+    <div className="space-y-4">
+      <div className="wallet-surface p-5 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-5">
           <div>
-            <p className="text-white font-bold text-lg flex items-center gap-2">
-              <ScrollText size={18} className="text-gold shrink-0" /> Activity ledger
+            <p className="text-[color:var(--ibo-ink)] font-bold text-sm flex items-center gap-2">
+              <ScrollText size={16} className="text-[#FE6C02] shrink-0" /> Activity ledger
             </p>
-            <p className="text-sm text-white/55 mt-1 max-w-2xl">
-              Balance movements, INR deposits, and INR sell/payout requests. Sell IBO for rupees — payout UTR appears in Reference when paid. Newest first.
+            <p className="text-xs sm:text-sm text-[color:var(--ibo-muted)] mt-1 max-w-2xl leading-relaxed">
+              Balance movements, INR deposits, and payouts. Newest first.
             </p>
           </div>
           <button
             type="button"
             onClick={() => { setSkip(0); load(); }}
             disabled={loading}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-surface-border text-sm font-bold text-white hover:border-gold/40 disabled:opacity-40 self-start"
+            className="wallet-action-ghost disabled:opacity-40 self-start"
           >
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
           </button>
@@ -1966,11 +2037,11 @@ function LedgerTab() {
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
           <div>
-            <label className="block text-[11px] font-bold text-white/45 uppercase tracking-wider mb-1.5">Asset</label>
+            <label className="block text-[11px] font-bold text-[color:var(--ibo-muted)] uppercase tracking-wider mb-1.5">Asset</label>
             <select
               value={asset}
               onChange={(e) => { setSkip(0); setAsset(e.target.value); }}
-              className="w-full bg-surface-card border border-surface-border rounded-xl px-4 py-3 text-sm text-white focus:border-gold/50 outline-none"
+              className="wallet-field"
             >
               <option value="">All assets</option>
               {ledgerAssets.map((a) => (
@@ -1979,11 +2050,11 @@ function LedgerTab() {
             </select>
           </div>
           <div>
-            <label className="block text-[11px] font-bold text-white/45 uppercase tracking-wider mb-1.5">Type</label>
+            <label className="block text-[11px] font-bold text-[color:var(--ibo-muted)] uppercase tracking-wider mb-1.5">Type</label>
             <select
               value={type}
               onChange={(e) => { setSkip(0); setType(e.target.value); }}
-              className="w-full bg-surface-card border border-surface-border rounded-xl px-4 py-3 text-sm text-white focus:border-gold/50 outline-none"
+              className="wallet-field"
             >
               {LEDGER_TYPES.map((t) => (
                 <option key={t || 'all'} value={t}>{t ? t.replace(/_/g, ' ') : 'All types'}</option>
@@ -1991,51 +2062,51 @@ function LedgerTab() {
             </select>
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-[11px] font-bold text-white/45 uppercase tracking-wider mb-1.5">Reference ID</label>
+            <label className="block text-[11px] font-bold text-[color:var(--ibo-muted)] uppercase tracking-wider mb-1.5">Reference ID</label>
             <input
               value={refId}
               onChange={(e) => { setSkip(0); setRefId(e.target.value); }}
               placeholder="Order id, withdrawal id, …"
-              className="w-full bg-surface-card border border-surface-border rounded-xl px-4 py-3 text-sm text-white font-mono placeholder:text-white/35 focus:border-gold/50 outline-none"
+              className="wallet-field font-mono"
             />
           </div>
           <div>
-            <label className="block text-[11px] font-bold text-white/45 uppercase tracking-wider mb-1.5">From</label>
+            <label className="block text-[11px] font-bold text-[color:var(--ibo-muted)] uppercase tracking-wider mb-1.5">From</label>
             <input
               type="date"
               value={dateFrom}
               onChange={(e) => { setSkip(0); setDateFrom(e.target.value); }}
-              className="w-full bg-surface-card border border-surface-border rounded-xl px-4 py-3 text-sm text-white focus:border-gold/50 outline-none"
+              className="wallet-field"
             />
           </div>
           <div>
-            <label className="block text-[11px] font-bold text-white/45 uppercase tracking-wider mb-1.5">To</label>
+            <label className="block text-[11px] font-bold text-[color:var(--ibo-muted)] uppercase tracking-wider mb-1.5">To</label>
             <input
               type="date"
               value={dateTo}
               onChange={(e) => { setSkip(0); setDateTo(e.target.value); }}
-              className="w-full bg-surface-card border border-surface-border rounded-xl px-4 py-3 text-sm text-white focus:border-gold/50 outline-none"
+              className="wallet-field"
             />
           </div>
         </div>
       </div>
 
       {err && (
-        <div className="rounded-xl border border-red-500/25 bg-red-500/10 px-4 py-3 text-sm text-red-200 flex items-start gap-2">
+        <div className="rounded-xl border border-[#F6465D]/25 bg-[#F6465D]/10 px-4 py-3 text-sm text-[#F6465D] flex items-start gap-2">
           <AlertCircle size={16} className="shrink-0 mt-0.5" /> {err}
         </div>
       )}
 
-      <div className="bg-surface-DEFAULT border border-surface-border rounded-2xl overflow-hidden">
+      <div className="wallet-surface overflow-hidden">
         {loading ? (
-          <div className="flex items-center justify-center py-16 gap-3 text-white">
+          <div className="flex items-center justify-center py-16 gap-3 text-[color:var(--ibo-muted)]">
             <RefreshCw size={22} className="animate-spin" /> Loading ledger…
           </div>
         ) : items.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 gap-2 text-white px-4 text-center">
-            <ScrollText size={32} className="text-white/30" />
-            <p className="font-semibold">No ledger entries match</p>
-            <p className="text-xs text-white/45 max-w-md">Try widening filters or trade / move funds to generate ledger rows.</p>
+          <div className="flex flex-col items-center justify-center py-16 gap-2 text-[color:var(--ibo-muted)] px-4 text-center">
+            <ScrollText size={32} className="opacity-30" />
+            <p className="font-semibold text-[color:var(--ibo-ink)]">No ledger entries match</p>
+            <p className="text-xs max-w-md">Try widening filters or trade / move funds to generate ledger rows.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -2271,85 +2342,126 @@ export default function WalletPage() {
 
   if (!user) { navigate('/login'); return null; }
 
-  return (
-    <div className="ibo-page font-ui">
-      <div className="w-full px-4 sm:px-5 md:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6 sm:py-8 pb-16">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="ibo-account-hero"
-        >
-          <p className="ibo-eyebrow mb-1.5">Funds</p>
-          <h1 className="ibo-account-title flex flex-wrap items-center gap-3">
-            <Wallet className="text-gold flex-shrink-0" size={26} /> Wallet
-          </h1>
-          <p className="ibo-account-subtitle truncate max-w-full">{user.email}</p>
-        </motion.div>
+  const tabMeta = TABS.find((t) => t.id === tab) || TABS[0];
+  const TabIcon = tabMeta.icon;
 
-        <WalletChainsBanner />
-        {/* Tabs + actions — one toolbar row uses full width without duplicating balance stats */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-[color:var(--ibo-border-solid)] pb-0 mb-6 w-full min-w-0">
-          <div className="flex gap-1 overflow-x-auto scrollbar-hide -mb-px flex-1 min-w-0">
-            {TABS.map(t => {
-              const Icon = t.icon;
-              return (
-                <button key={t.id} type="button" onClick={() => selectTab(t.id)}
-                  className={`flex items-center gap-2 px-4 sm:px-5 py-3 text-sm font-bold flex-shrink-0 ${
-                    tab === t.id
-                      ? 'ibo-tab-active'
-                      : 'ibo-tab-idle'
-                  }`}>
-                  <Icon size={15} /> {t.label}
-                </button>
-              );
-            })}
+  return (
+    <div className="ibo-page font-ui wallet-hub relative">
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-[280px] opacity-90"
+        style={{
+          background:
+            'radial-gradient(ellipse 70% 60% at 8% -10%, rgba(254,108,2,0.12), transparent 55%), radial-gradient(ellipse 40% 40% at 92% 10%, rgba(14,203,129,0.04), transparent 50%)',
+        }}
+      />
+
+      <div className="relative w-full px-4 sm:px-5 md:px-6 lg:px-8 xl:px-10 2xl:px-12 pt-5 sm:pt-7 pb-16">
+        <div className="w-full max-w-7xl mx-auto min-w-0">
+          {/* Masthead */}
+          <header className="mb-5 sm:mb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#FE6C02]">
+                Funds
+              </p>
+              <h1 className="mt-1.5 text-[1.75rem] sm:text-[2rem] font-bold tracking-tight text-[color:var(--ibo-ink)] leading-none flex items-center gap-2.5">
+                <Wallet className="text-[#FE6C02] shrink-0" size={24} strokeWidth={2.25} />
+                Wallet
+              </h1>
+              <p className="mt-2 text-sm text-[color:var(--ibo-muted)] truncate max-w-full">
+                {user.email}
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => fetchWallet()}
+                disabled={walletLoading}
+                className="wallet-action-ghost disabled:opacity-40"
+              >
+                <RefreshCw size={14} className={walletLoading ? 'animate-spin' : ''} />
+                Refresh
+              </button>
+              <Link to="/trade/IBOUSDT" className="wallet-action-primary">
+                <BarChart2 size={14} /> Trade
+              </Link>
+            </div>
+          </header>
+
+          <div className="mb-5">
+            <WalletChainsBanner />
           </div>
-          <div className="flex flex-wrap items-center gap-2 sm:gap-2 shrink-0 pb-3 sm:pb-0 justify-end">
-            <button
-              type="button"
-              onClick={() => fetchWallet()}
-              disabled={walletLoading}
-              className="ibo-btn-outline !rounded-lg !px-3 !py-2 text-xs sm:text-sm disabled:opacity-40"
-            >
-              <RefreshCw size={14} className={walletLoading ? 'animate-spin' : ''} />
-              Refresh
-            </button>
-            <Link
-              to="/trade/IBOUSDT"
-              className="ibo-btn-primary !rounded-lg !px-3 !py-2 text-xs sm:text-sm"
-            >
-              <BarChart2 size={14} /> Trade
-            </Link>
+
+          {/* Hub layout: rail + workspace */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-7 items-start">
+            <aside className="lg:col-span-3 xl:col-span-2 lg:sticky lg:top-20">
+              <nav
+                className="wallet-surface p-1.5 sm:p-2 flex lg:flex-col gap-1 overflow-x-auto scrollbar-hide"
+                aria-label="Wallet sections"
+              >
+                {TABS.map((t) => {
+                  const Icon = t.icon;
+                  const active = tab === t.id;
+                  return (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => selectTab(t.id)}
+                      className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-colors shrink-0 lg:w-full ${
+                        active
+                          ? 'bg-[#FE6C02]/12 text-[#FE6C02]'
+                          : 'text-[color:var(--ibo-muted)] hover:text-[color:var(--ibo-ink)] hover:bg-white/[0.03]'
+                      }`}
+                    >
+                      <Icon size={16} strokeWidth={2.1} className="shrink-0" />
+                      <span className="truncate">{t.label}</span>
+                    </button>
+                  );
+                })}
+              </nav>
+            </aside>
+
+            <div className="lg:col-span-9 xl:col-span-10 min-w-0">
+              <div className="mb-4 flex items-center gap-2 text-[color:var(--ibo-ink-secondary)]">
+                <TabIcon size={15} className="text-[#FE6C02] shrink-0" />
+                <h2 className="text-sm font-bold text-[color:var(--ibo-ink)]">{tabMeta.label}</h2>
+              </div>
+
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={tab}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.18 }}
+                >
+                  {tab === 'balances' && (
+                    <BalancesTab
+                      walletAssets={walletAssets}
+                      walletLoading={walletLoading}
+                      fetchWallet={fetchWallet}
+                      priceByAsset={priceByAsset}
+                      onOpenSwap={() => selectTab('swap')}
+                      onTab={selectTab}
+                    />
+                  )}
+                  {tab === 'swap' && <IboSwapPanel />}
+                  {tab === 'futures' && <FuturesWalletTab />}
+                  {tab === 'deposit' && <DepositTab kycBlocked={kycBlocked} kyc={kyc} />}
+                  {tab === 'withdraw' && (
+                    <WithdrawTab
+                      walletAssets={walletAssets}
+                      kycBlocked={kycBlocked}
+                      kyc={kyc}
+                      priceByAsset={priceByAsset}
+                    />
+                  )}
+                  {tab === 'history' && <HistoryTab />}
+                  {tab === 'ledger' && <LedgerTab />}
+                </motion.div>
+              </AnimatePresence>
+            </div>
           </div>
         </div>
-
-        {/* Tab content */}
-        <AnimatePresence mode="wait">
-          <motion.div key={tab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-            {tab === 'balances'  && (
-              <BalancesTab
-                walletAssets={walletAssets}
-                walletLoading={walletLoading}
-                fetchWallet={fetchWallet}
-                priceByAsset={priceByAsset}
-                onOpenSwap={() => selectTab('swap')}
-              />
-            )}
-            {tab === 'swap'      && <IboSwapPanel />}
-            {tab === 'futures'   && <FuturesWalletTab />}
-            {tab === 'deposit'   && <DepositTab kycBlocked={kycBlocked} kyc={kyc} />}
-            {tab === 'withdraw'  && (
-              <WithdrawTab
-                walletAssets={walletAssets}
-                kycBlocked={kycBlocked}
-                kyc={kyc}
-                priceByAsset={priceByAsset}
-              />
-            )}
-            {tab === 'history'   && <HistoryTab />}
-            {tab === 'ledger'    && <LedgerTab />}
-          </motion.div>
-        </AnimatePresence>
       </div>
     </div>
   );

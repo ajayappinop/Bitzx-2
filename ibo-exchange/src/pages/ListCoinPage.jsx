@@ -29,9 +29,9 @@ const REQUIREMENTS = [
 ];
 
 const inputCls =
-  'w-full rounded-xl bg-[color:var(--ibo-elevated)] border border-[color:var(--ibo-border-solid)] ' +
+  'w-full rounded-lg bg-transparent border border-[color:var(--ibo-border-solid)] ' +
   'px-3.5 py-2.5 text-sm text-[color:var(--ibo-ink)] placeholder:text-[color:var(--ibo-muted)] ' +
-  'focus:outline-none focus:border-[rgba(91,184,255,0.55)] focus:ring-2 focus:ring-[rgba(91,184,255,0.15)] ' +
+  'focus:outline-none focus:border-[rgba(254, 108, 2,0.55)] focus:ring-2 focus:ring-[rgba(254, 108, 2,0.12)] ' +
   'transition-colors';
 
 const labelCls =
@@ -119,18 +119,18 @@ export default function ListCoinPage() {
         aria-hidden
         style={{
           background:
-            'radial-gradient(ellipse 70% 40% at 8% 0%, rgba(14,164,171,0.1), transparent 55%), ' +
-            'radial-gradient(ellipse 55% 35% at 92% 8%, rgba(91,184,255,0.08), transparent 50%)',
+            'radial-gradient(ellipse 70% 40% at 8% 0%, rgba(254, 108, 2,0.1), transparent 55%), ' +
+            'radial-gradient(ellipse 55% 35% at 92% 8%, rgba(254, 157, 85,0.08), transparent 50%)',
         }}
       />
 
       <div className="ibo-landing-container relative z-10 py-8 md:py-12 lg:py-14">
         <div className="grid w-full min-w-0 gap-8 lg:gap-10 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] xl:items-start">
           <aside className="min-w-0 xl:sticky xl:top-24">
-            <p className="ibo-eyebrow mb-3 text-[#0a8f95]">Token listing</p>
-            <h1 className="ibo-title-lg mb-4 text-[color:var(--ibo-ink)]">List your coin on Ibo</h1>
+            <p className="ibo-eyebrow mb-3 text-[#B44D01]">Token listing</p>
+            <h1 className="ibo-title-lg mb-4 text-[color:var(--ibo-ink)]">List your coin on Delta</h1>
             <p className="ibo-lead-wide text-[color:var(--ibo-muted)] mb-8">
-              Apply to list your token on Ibo Exchange. Projects need a deployed smart contract,
+              Apply to list your token on Delta Exchange. Projects need a deployed smart contract,
               live on-chain supply, and active DEX liquidity. Our team reviews every application before
               enabling deposits, withdrawals, and spot trading.
             </p>
@@ -139,14 +139,14 @@ export default function ListCoinPage() {
               {REQUIREMENTS.map(({ icon: Icon, title, sub }) => (
                 <div
                   key={title}
-                  className="rounded-xl border border-[color:var(--ibo-border-solid)] bg-[color:var(--ibo-card)] p-4
-                    shadow-[var(--ibo-shadow)] hover:border-[rgba(91,184,255,0.4)] transition-colors"
+                  className="rounded-lg border border-[color:var(--ibo-border-solid)] bg-transparent p-4
+                    hover:border-[rgba(254, 108, 2,0.4)] transition-colors"
                 >
                   <div
                     className="mb-2.5 inline-flex h-9 w-9 items-center justify-center rounded-lg"
-                    style={{ background: 'rgba(91,184,255,0.12)', border: '1px solid rgba(91,184,255,0.25)' }}
+                    style={{ background: 'rgba(254, 157, 85,0.12)', border: '1px solid rgba(254, 157, 85,0.25)' }}
                   >
-                    <Icon size={18} className="text-[#5BB8FF]" />
+                    <Icon size={18} className="text-[#FE9D55]" />
                   </div>
                   <p className="font-bold text-sm text-[color:var(--ibo-ink)]">{title}</p>
                   <p className="text-xs text-[color:var(--ibo-muted)] mt-1">{sub}</p>
@@ -155,11 +155,11 @@ export default function ListCoinPage() {
             </div>
 
             <div
-              className="rounded-xl border border-[color:var(--ibo-border-solid)] bg-[color:var(--ibo-card)] p-4
-                text-sm text-[color:var(--ibo-muted)] leading-relaxed shadow-[var(--ibo-shadow)]"
+              className="rounded-lg border border-[color:var(--ibo-border-solid)] bg-transparent p-4
+                text-sm text-[color:var(--ibo-muted)] leading-relaxed"
             >
               <p className="font-semibold text-[color:var(--ibo-ink)] mb-2 flex items-center gap-2">
-                <Globe size={16} className="text-[#5BB8FF]" />
+                <Globe size={16} className="text-[#FE9D55]" />
                 Supported networks
               </p>
               <p>
@@ -168,7 +168,7 @@ export default function ListCoinPage() {
               </p>
               <Link
                 to="/markets"
-                className="inline-block mt-3 text-[#5BB8FF] text-sm font-semibold hover:underline"
+                className="inline-block mt-3 text-[#FE9D55] text-sm font-semibold hover:underline"
               >
                 View live markets →
               </Link>
@@ -200,8 +200,8 @@ export default function ListCoinPage() {
 
             <form
               onSubmit={onSubmit}
-              className="w-full space-y-5 rounded-2xl border border-[color:var(--ibo-border-solid)]
-                bg-[color:var(--ibo-card)] p-5 sm:p-6 md:p-8 shadow-[var(--ibo-shadow)]"
+              className="w-full space-y-5 rounded-xl border border-[color:var(--ibo-border-solid)]
+                bg-transparent p-5 sm:p-6 md:p-8"
             >
               <h2 className="text-lg font-bold border-b border-[color:var(--ibo-border-solid)] pb-3 text-[color:var(--ibo-ink)]">
                 Project details
@@ -210,7 +210,7 @@ export default function ListCoinPage() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <Field label="Project name *" value={form.project_name} onChange={(v) => set('project_name', v)} required minLength={2} maxLength={120} />
                 <Field label="Token name *" value={form.token_name} onChange={(v) => set('token_name', v)} required minLength={2} maxLength={80} />
-                <Field label="Token symbol *" value={form.token_symbol} onChange={(v) => set('token_symbol', v.toUpperCase())} placeholder="e.g. IBO" required minLength={2} maxLength={12} />
+                <Field label="Token symbol *" value={form.token_symbol} onChange={(v) => set('token_symbol', v.toUpperCase())} placeholder="e.g. Delta" required minLength={2} maxLength={12} />
                 <div>
                   <label className={labelCls}>Blockchain network *</label>
                   <select
@@ -259,16 +259,16 @@ export default function ListCoinPage() {
                     <img
                       src={logoPreview}
                       alt=""
-                      className="w-16 h-16 rounded-full object-cover ring-2 ring-[rgba(91,184,255,0.45)]"
+                      className="w-16 h-16 rounded-full object-cover ring-2 ring-[rgba(254, 157, 85,0.45)]"
                     />
                   )}
                   <button
                     type="button"
                     onClick={() => fileRef.current?.click()}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-dashed
                       border-[color:var(--ibo-border-solid)] text-sm text-[color:var(--ibo-ink)]
-                      bg-[color:var(--ibo-elevated)] hover:border-[rgba(91,184,255,0.5)]
-                      hover:text-[#5BB8FF] transition-colors"
+                      bg-transparent hover:border-[rgba(254, 108, 2,0.5)]
+                      hover:text-[#FE9D55] transition-colors"
                   >
                     <Upload size={16} />
                     {logoFile ? logoFile.name : 'Choose PNG, JPG, or WebP (max 2 MB)'}
@@ -283,9 +283,9 @@ export default function ListCoinPage() {
                 className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-extrabold text-sm
                   disabled:opacity-50 transition-opacity"
                 style={{
-                  background: 'linear-gradient(135deg, #0EA4AB, #5BB8FF)',
-                  color: '#050a1a',
-                  boxShadow: '0 10px 28px rgba(14,164,171,0.22)',
+                  background: 'linear-gradient(135deg, #FE6C02, #FE9D55)',
+                  color: '#101013',
+                  boxShadow: '0 10px 28px rgba(254, 108, 2,0.22)',
                 }}
               >
                 {loading ? 'Submitting…' : (

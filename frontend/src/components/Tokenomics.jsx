@@ -15,8 +15,8 @@ const tokenomicsData = [
 ];
 
 const tokenDetails = [
-  { label: 'Token Name', value: 'IBO' },
-  { label: 'Symbol', value: '$IBO', highlight: true },
+  { label: 'Token Name', value: 'Delta' },
+  { label: 'Symbol', value: '$DELTA', highlight: true },
   { label: 'Network', value: 'BNB Chain' },
   { label: 'Standard', value: 'BEP-20' },
   { label: 'Total Supply', value: '90,00,00,000' },
@@ -169,7 +169,7 @@ export const Tokenomics = () => {
                   <div className="relative w-24 h-24 sm:w-36 sm:h-36 md:w-44 md:h-44 rounded-full bg-gradient-to-br from-surface-card via-surface-card to-surface border-2 border-[#0EA4AB]/50 flex items-center justify-center shadow-[0_0_40px_rgba(14,164,171,0.4),inset_0_0_30px_rgba(14,164,171,0.2)]">
                     <motion.img
                       src={LOGO_ICON_URL}
-                      alt="IBO"
+                      alt="Delta"
                       className="w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28 object-contain drop-shadow-[0_0_20px_rgba(197,227,91,0.5)]"
                       animate={{ rotateY: [0, 360] }}
                       transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
@@ -187,7 +187,7 @@ export const Tokenomics = () => {
               className="hidden sm:block absolute -left-4 md:left-0 top-1/4 bg-gradient-to-r from-surface-card to-surface-card border border-[#0EA4AB]/30 rounded-xl px-4 py-3 shadow-lg"
             >
               <p className="text-ink-muted text-xs">Total Supply</p>
-              <p className="text-ink-accent font-bold text-lg">900M $IBO</p>
+              <p className="text-ink-accent font-bold text-lg">900M $DELTA</p>
             </motion.div>
 
             <motion.div

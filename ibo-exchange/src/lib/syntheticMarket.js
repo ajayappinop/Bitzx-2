@@ -1,5 +1,5 @@
 /**
- * Synthetic spot market display (IBO-quoted pairs) — mirrors backend generators.
+ * Synthetic spot market display (Delta-quoted pairs) — mirrors backend generators.
  * UI shows live-looking depth/candles anchored to the real ticker price used for matching.
  */
 

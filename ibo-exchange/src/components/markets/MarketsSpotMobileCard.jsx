@@ -80,7 +80,7 @@ export default function MarketsSpotMobileCard({ market, isFavorite, onToggleFavo
 
       <Link
         to={`/trade/${market.symbol}`}
-        className="flex items-center justify-center gap-2 w-full py-2.5 rounded-md bg-[#C5E35B] text-[#0a1208] font-bold text-sm hover:brightness-95 transition-[filter]"
+        className="flex items-center justify-center gap-2 w-full py-2.5 rounded-md bg-[color:var(--ibo-accent)] text-[#101013] font-bold text-sm hover:brightness-110 transition-[filter]"
       >
         Trade {base}
         {isUp ? <TrendingUp size={14} /> : <TrendingDown size={14} />}

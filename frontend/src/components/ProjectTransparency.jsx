@@ -90,7 +90,7 @@ export const ProjectTransparency = () => {
             Verification and Transparency
           </h2>
           <p className="text-ink-soft text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
-            This section is reserved for the official IBO project details reviewers
+            This section is reserved for the official Delta project details reviewers
             and community members look for: website, contact channel, token contract,
             legal information, and public team profiles.
           </p>

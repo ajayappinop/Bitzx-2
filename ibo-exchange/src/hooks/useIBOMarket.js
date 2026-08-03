@@ -1,5 +1,5 @@
 /**
- * useIBOMarket — real-time IBO pair market data hook.
+ * useIBOMarket — real-time Delta pair market data hook.
  *
  * Flow
  * ────
@@ -228,12 +228,12 @@ export function useIBOMarket({ symbol = 'IBOUSDT', interval = '1m', enabled = tr
         // 4403 = mock market disabled server-side, 4400 = unsupported symbol.
         if (evt.code === 4403) {
           noRetry = true;
-          setError('IBO mock market is disabled on the server (IBO_MOCK_MARKET=true needed).');
+          setError('Delta mock market is disabled on the server (IBO_MOCK_MARKET=true needed).');
           return;
         }
         if (evt.code === 4400) {
           noRetry = true;
-          setError(`Unsupported IBO symbol: ${sym}`);
+          setError(`Unsupported Delta symbol: ${sym}`);
           return;
         }
 

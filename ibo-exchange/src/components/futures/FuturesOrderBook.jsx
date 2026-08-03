@@ -48,14 +48,6 @@ function fmtQty(n) {
   return v.toFixed(4);
 }
 
-function fmtTotal(n) {
-  const v = parseFloat(n);
-  if (!Number.isFinite(v)) return '—';
-  if (v >= 1e6) return (v / 1e6).toFixed(3) + 'M';
-  if (v >= 1e3) return (v / 1e3).toFixed(3) + 'K';
-  return v >= 1 ? v.toFixed(2) : v.toFixed(6);
-}
-
 function tickLabel(t) {
   if (t >= 1) return String(t);
   return t.toFixed(8).replace(/\.?0+$/, '') || String(t);
@@ -105,9 +97,10 @@ function normFromContext(levels) {
 
 // ── Row ───────────────────────────────────────────────────────────────────
 
-const Row = memo(function Row({ price, qty, side, pct, cumPct, tick, onPriceClick }) {
-  const isGreen = side === 'bid';
-  const total   = price * qty;
+const Row = memo(function Row({ price, qty, side, cumSize, maxCum, tick, onPriceClick }) {
+  const isBid = side === 'bid';
+  const depth = maxCum > 0 ? Math.min(100, (cumSize / maxCum) * 100) : 0;
+  const bar = isBid ? '14, 203, 129' : '246, 70, 93';
   return (
     <div
       role="button"
@@ -119,42 +112,24 @@ const Row = memo(function Row({ price, qty, side, pct, cumPct, tick, onPriceClic
           onPriceClick?.(fmtPrice(price, tick));
         }
       }}
-      className="relative isolate flex w-full min-h-[26px] items-center px-3 py-0.5 cursor-pointer
-        hover:bg-white/[.05] outline-none focus-visible:ring-1 focus-visible:ring-[#C5E35B]/40 focus-visible:ring-inset"
+      className="delta-ob-row relative flex h-[22px] w-full items-center px-2.5 cursor-pointer select-none outline-none hover:bg-white/[0.035]"
     >
-      {/* Cumulative bar */}
       <div
-        className={`pointer-events-none absolute inset-y-0 z-0 ${isGreen ? 'left-0' : 'right-0'}`}
+        className="pointer-events-none absolute inset-y-[1px] right-0 z-0"
         style={{
-          width:      `${cumPct}%`,
-          background:  isGreen ? 'rgba(34,197,94,0.07)' : 'rgba(244,63,94,0.07)',
+          width: `${Math.max(depth * 0.65, depth > 0 ? 3 : 0)}%`,
+          background: `rgba(${bar}, 0.22)`,
         }}
       />
-      {/* Per-level bar (brighter) */}
-      <div
-        className={`pointer-events-none absolute inset-y-0 z-0 ${isGreen ? 'left-0' : 'right-0'}`}
-        style={{
-          width:      `${pct}%`,
-          background:  isGreen ? 'rgba(34,197,94,0.14)' : 'rgba(244,63,94,0.14)',
-        }}
-      />
-      <span className={`relative z-[2] w-1/3 min-w-0 font-mono font-bold text-[13px] ${isGreen ? 'text-emerald-300' : 'text-rose-300'}`}>
-        {fmtPrice(price, tick)}
-      </span>
-      <span className="relative z-[2] w-1/3 min-w-0 text-right font-mono text-[12px] text-white/90 font-semibold">
-        {fmtQty(qty)}
-      </span>
-      <span className="relative z-[2] w-1/3 min-w-0 text-right font-mono text-[11px] text-white/60">
-        {fmtTotal(total)}
-      </span>
+      <span className={`relative z-[1] w-[36%] min-w-0 font-mono text-[12px] tabular-nums font-semibold leading-none ${
+        isBid ? 'text-[#0ECB81]' : 'text-[#F6465D]'
+      }`}>{fmtPrice(price, tick)}</span>
+      <span className="relative z-[1] w-[30%] min-w-0 text-right font-mono text-[11px] tabular-nums text-[color:var(--ibo-ink)] leading-none">{fmtQty(qty)}</span>
+      <span className="relative z-[1] w-[34%] min-w-0 text-right font-mono text-[11px] tabular-nums text-[color:var(--ibo-ink-secondary)] leading-none">{fmtQty(cumSize)}</span>
     </div>
   );
 }, (a, b) =>
-  a.price === b.price &&
-  a.qty === b.qty &&
-  a.pct === b.pct &&
-  a.cumPct === b.cumPct &&
-  a.tick === b.tick,
+  a.price === b.price && a.qty === b.qty && a.cumSize === b.cumSize && a.maxCum === b.maxCum && a.tick === b.tick,
 );
 
 // ── Main component ────────────────────────────────────────────────────────
@@ -203,190 +178,130 @@ export default function FuturesOrderBook({ onPriceClick }) {
   // Bids: highest first → take last N from sorted-asc, then reverse
   const bids = useMemo(() => bidsAgg.slice(-rows).reverse(), [bidsAgg, rows]);
 
-  // ── Spread / mid ────────────────────────────────────────────────────────
+  // Mid-book as last-ish display; mark stays on the right of the strip
   const bestAsk = asksAgg.length ? asksAgg[0][0] : 0;
   const bestBid = bidsAgg.length ? bidsAgg[bidsAgg.length - 1][0] : 0;
-  const spread  = bestAsk > 0 && bestBid > 0 ? bestAsk - bestBid : 0;
-  const spreadPct = bestBid > 0 ? (spread / bestBid) * 100 : 0;
-  // Prefer mark price as mid (more stable than book mid for futures)
-  const mid = markPx > 0 ? markPx : (bestAsk > 0 && bestBid > 0 ? (bestAsk + bestBid) / 2 : bestAsk || bestBid);
+  const bookMid = bestAsk > 0 && bestBid > 0 ? (bestAsk + bestBid) / 2 : bestAsk || bestBid;
+  const lastPx = bookMid > 0 ? bookMid : markPx;
 
-  // ── Depth visualization ─────────────────────────────────────────────────
-  // Per-level totals (price × qty) and cumulative totals for the bars.
-  const askLevelTotals = asks.map(([p, q]) => p * q);
-  const bidLevelTotals = bids.map(([p, q]) => p * q);
-  const maxTotal = Math.max(...askLevelTotals, ...bidLevelTotals, 1);
-
-  // Cumulative total down from best ask (worst first in our render order)
-  const askCumTotals = (() => {
-    const arr = [...asks].reverse();         // best-ask first
-    const cum = [];
+  // Cumulative base size (Delta Total)
+  const askCumSizes = useMemo(() => {
+    const out = new Array(asks.length);
     let run = 0;
-    for (const [p, q] of arr) { run += p * q; cum.push(run); }
-    return cum.reverse();                    // back to worst-first (render order)
-  })();
-  const maxAskCum = askCumTotals[0] || 1;
+    for (let i = asks.length - 1; i >= 0; i -= 1) {
+      run += Number(asks[i][1]) || 0;
+      out[i] = run;
+    }
+    return out;
+  }, [asks]);
 
-  // Cumulative total down from best bid (avoid IIFE mutation to satisfy linter)
-  const bidCumTotals = useMemo(() => {
+  const bidCumSizes = useMemo(() => {
     let run = 0;
-    return bids.map(([p, q]) => { run += p * q; return run; });
+    return bids.map(([, q]) => {
+      run += Number(q) || 0;
+      return run;
+    });
   }, [bids]);
-  const maxBidCum = bidCumTotals[bidCumTotals.length - 1] || 1;
+
+  const maxCum = Math.max(askCumSizes[0] || 0, bidCumSizes[bidCumSizes.length - 1] || 0, 1);
 
   const isEmpty = asksAgg.length === 0 && bidsAgg.length === 0;
+  const lastDirUp = markPx > 0 && lastPx > 0 ? lastPx >= markPx * 0.9995 : true;
 
   return (
-    <div className="flex flex-col h-full min-h-0 overflow-hidden bg-[color:var(--ibo-surface)] select-none">
-
-      {/* ── Header ── */}
-      <div className="px-3 pt-2.5 pb-2 border-b border-[color:var(--ibo-border)] shrink-0">
-        <div className="flex items-center justify-between gap-2 mb-1.5">
-          <span className="text-[12px] font-semibold text-[color:var(--ibo-ink)]">Order Book</span>
-          <div className="flex items-center gap-0.5 shrink-0">
-            <button type="button" title="Bids and asks"
-              onClick={() => setViewMode('all')}
-              className={`inline-flex h-7 w-7 items-center justify-center rounded transition-colors ${viewMode === 'all' ? 'bg-[#C5E35B]/15 ring-1 ring-[#C5E35B]/30' : 'text-white/60 hover:bg-white/10'}`}>
-              <Columns2 size={14} strokeWidth={2.25} className={viewMode === 'all' ? 'text-[#C5E35B]' : ''} />
+    <div className="delta-ob flex flex-col h-full min-h-0 overflow-hidden bg-transparent select-none font-mono">
+      <div className="flex items-center justify-between gap-1.5 px-2.5 h-[32px] shrink-0 border-b border-[color:var(--ibo-border)]">
+        <span className="text-[12px] font-semibold text-[color:var(--ibo-ink)] tracking-tight font-sans">Order Book</span>
+        <div className="flex items-center gap-0.5">
+          <button type="button" title="Bids & asks" onClick={() => setViewMode('all')}
+            className={`inline-flex h-6 w-6 items-center justify-center rounded ${viewMode === 'all' ? 'text-[#FE6C02] bg-[#FE6C02]/12' : 'text-[color:var(--ibo-muted)]'}`}>
+            <Columns2 size={13} strokeWidth={2.2} />
+          </button>
+          <button type="button" title="Bids only" onClick={() => setViewMode('bids')}
+            className={`inline-flex h-6 w-6 items-center justify-center rounded ${viewMode === 'bids' ? 'text-[#FE6C02] bg-[#FE6C02]/12' : 'text-[color:var(--ibo-muted)]'}`}>
+            <TrendingUp size={13} className="text-[#0ECB81]" strokeWidth={2.2} />
+          </button>
+          <button type="button" title="Asks only" onClick={() => setViewMode('asks')}
+            className={`inline-flex h-6 w-6 items-center justify-center rounded ${viewMode === 'asks' ? 'text-[#FE6C02] bg-[#FE6C02]/12' : 'text-[color:var(--ibo-muted)]'}`}>
+            <TrendingDown size={13} className="text-[#F6465D]" strokeWidth={2.2} />
+          </button>
+          <div className="relative ml-0.5" ref={tickRef}>
+            <button type="button" onClick={() => setTickOpen((o) => !o)}
+              className="flex h-6 min-w-[3.4rem] items-center justify-between gap-1 rounded border border-[color:var(--ibo-border-solid)] bg-transparent px-1.5 text-[11px] tabular-nums text-[color:var(--ibo-ink)]">
+              <span className="truncate">{tickLabel(tickSize)}</span>
+              <ChevronDown size={11} className="text-[color:var(--ibo-muted)] shrink-0" />
             </button>
-            <button type="button" title="Bids only"
-              onClick={() => setViewMode('bids')}
-              className={`inline-flex h-7 w-7 items-center justify-center rounded transition-colors ${viewMode === 'bids' ? 'bg-[#C5E35B]/15 ring-1 ring-[#C5E35B]/30' : 'text-white/60 hover:bg-white/10'}`}>
-              <TrendingUp size={14} strokeWidth={2.25} className={viewMode === 'bids' ? 'text-[#C5E35B]' : 'text-emerald-400'} />
-            </button>
-            <button type="button" title="Asks only"
-              onClick={() => setViewMode('asks')}
-              className={`inline-flex h-7 w-7 items-center justify-center rounded transition-colors ${viewMode === 'asks' ? 'bg-[#C5E35B]/15 ring-1 ring-[#C5E35B]/30' : 'text-white/60 hover:bg-white/10'}`}>
-              <TrendingDown size={14} strokeWidth={2.25} className={viewMode === 'asks' ? 'text-[#C5E35B]' : 'text-rose-400'} />
-            </button>
-            <div className="relative ml-1" ref={tickRef}>
-              <button
-                type="button"
-                onClick={() => setTickOpen((o) => !o)}
-                className="flex h-7 min-w-[4.5rem] items-center justify-between gap-1 rounded border border-[color:var(--ibo-border-solid)] bg-[color:var(--ibo-elevated)] px-2 text-[11px] font-mono tabular-nums font-semibold text-[color:var(--ibo-ink)] hover:border-[#0ea4ab]/40"
-              >
-                <span className="truncate">{tickLabel(tickSize)}</span>
-                <ChevronDown size={12} className="text-[color:var(--ibo-muted)] shrink-0" />
-              </button>
-              {tickOpen && (
-                <div className="absolute right-0 top-full z-40 mt-1 max-h-48 overflow-y-auto rounded-lg border border-[color:var(--ibo-border-solid)] bg-[color:var(--ibo-card)] py-1 shadow-2xl scrollbar-hide min-w-[100px]">
-                  {TICK_PRESETS.map((t) => (
-                    <button
-                      key={t}
-                      type="button"
-                      onClick={() => { setTickSize(t); setTickOpen(false); }}
-                      className={`flex w-full items-center px-3 py-1.5 text-left text-[11px] font-mono tabular-nums hover:bg-[color:var(--ibo-elevated)] ${
-                        t === tickSize ? 'text-[#0ea4ab] bg-[#0ea4ab]/10' : 'text-[color:var(--ibo-ink)]'
-                      }`}
-                    >
-                      {tickLabel(t)}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            {tickOpen && (
+              <div className="absolute right-0 top-full z-40 mt-0.5 max-h-44 overflow-y-auto rounded border border-[color:var(--ibo-border-solid)] bg-[color:var(--ibo-bg)] py-0.5 min-w-[96px] shadow-xl scrollbar-hide">
+                {TICK_PRESETS.map((t) => (
+                  <button key={t} type="button" onClick={() => { setTickSize(t); setTickOpen(false); }}
+                    className={`flex w-full px-2.5 py-1 text-left text-[11px] tabular-nums hover:bg-white/[0.04] ${t === tickSize ? 'text-[#FE6C02]' : 'text-[color:var(--ibo-ink)]'}`}>
+                    {tickLabel(t)}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* ── Column headers ── */}
-      <div className="flex px-3 py-1.5 text-[10px] text-[color:var(--ibo-muted)] font-medium shrink-0 border-b border-white/[0.04]">
-        <span className="w-1/3">Price (USD)</span>
-        <span className="w-1/3 text-right">Size ({base})</span>
-        <span className="w-1/3 text-right">Total (USD)</span>
+      <div className="flex px-2.5 h-[24px] items-center text-[10px] text-[color:var(--ibo-muted)] shrink-0 border-b border-[color:var(--ibo-border)] font-sans">
+        <span className="w-[36%]">Price (USD)</span>
+        <span className="w-[30%] text-right">Size ({base})</span>
+        <span className="w-[34%] text-right">Total ({base})</span>
       </div>
 
       {isEmpty ? (
-        <div className="flex-1 flex items-center justify-center text-xs text-white/40">
-          Waiting for depth data…
-        </div>
+        <div className="flex-1 flex items-center justify-center text-[11px] text-[color:var(--ibo-muted)] font-sans">Waiting for depth…</div>
       ) : (
-        <div className="flex flex-1 min-h-0 flex-col overflow-y-auto scrollbar-hide">
-
-          {/* Asks (sells) — best ask closest to the spread */}
+        <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
           {viewMode !== 'bids' && (
-            <div className="flex min-h-0 flex-col justify-end flex-1">
-              <div className="flex flex-col min-h-0 max-h-full">
-                <div className="px-3 py-1 shrink-0">
-                  <span className="text-[10px] text-rose-400/80 uppercase tracking-widest font-extrabold">
-                    ▼ Asks
-                  </span>
-                </div>
+            <div className="flex min-h-0 flex-1 flex-col justify-end overflow-hidden">
+              <div className="flex flex-col min-h-0 max-h-full overflow-y-auto scrollbar-hide">
                 {asks.length === 0 ? (
-                  <div className="px-3 py-4 text-center text-[11px] text-white/40">No asks</div>
+                  <div className="px-2 py-3 text-center text-[10px] text-[color:var(--ibo-muted)] font-sans">No asks</div>
                 ) : (
                   asks.map(([p, q], i) => (
-                    <Row
-                      key={`ask-${p}`}
-                      price={p}
-                      qty={q}
-                      side="ask"
-                      tick={tickSize}
-                      onPriceClick={onPriceClick}
-                      pct={Math.min((p * q / maxTotal) * 100, 100)}
-                      cumPct={Math.min((askCumTotals[i] / maxAskCum) * 100, 100)}
-                    />
+                    <Row key={`ask-${p}`} price={p} qty={q} side="ask" tick={tickSize} onPriceClick={onPriceClick}
+                      cumSize={askCumSizes[i] || 0} maxCum={maxCum} />
                   ))
                 )}
               </div>
             </div>
           )}
 
-          {/* MID / spread bar — clickable (snaps to mid price) */}
-          <button
-            type="button"
-            onClick={() => mid > 0 && onPriceClick?.(fmtPrice(mid, tickSize))}
-            className="flex items-center justify-between px-3 py-2
-              border-y border-[color:var(--ibo-border)] bg-[color:var(--ibo-elevated)]
-              hover:bg-white/[.04] shrink-0 transition-colors"
-          >
-            <div className="flex items-center gap-2">
-              <span className="text-[15px] font-extrabold text-[#C5E35B] font-mono tracking-tight tabular-nums">
-                {mid > 0 ? fmtPrice(mid, tickSize) : '—'}
+          <button type="button" onClick={() => lastPx > 0 && onPriceClick?.(fmtPrice(lastPx, tickSize))}
+            className="flex h-[30px] shrink-0 items-center justify-between gap-2 px-2.5 border-y border-[color:var(--ibo-border)] hover:bg-white/[0.03]">
+            <span className={`font-mono text-[15px] font-bold tabular-nums ${
+              lastDirUp ? 'text-[#0ECB81]' : 'text-[#F6465D]'
+            }`}>
+              {lastPx > 0 ? fmtPrice(lastPx, tickSize) : '—'}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="font-mono text-[12px] tabular-nums text-[color:var(--ibo-ink-secondary)]">
+                {markPx > 0 ? fmtPrice(markPx, tickSize) : '—'}
               </span>
-              <span className="text-[9px] text-white/45 bg-white/[.05] px-1.5 py-0.5 rounded font-bold uppercase">
-                Mark
+              <span className="inline-flex h-4 min-w-[1rem] items-center justify-center rounded px-1 text-[9px] font-bold text-[color:var(--ibo-muted)] border border-[color:var(--ibo-border-solid)] font-sans" title="Mark">
+                M
               </span>
-            </div>
-            <div className="text-right">
-              <div className="text-[11px] text-white/70 font-semibold">
-                Spread {spread > 0 ? fmtPrice(spread, tickSize) : '—'}
-              </div>
-              {spreadPct > 0 && (
-                <div className="text-[10px] text-white/40">{spreadPct.toFixed(3)}%</div>
-              )}
-            </div>
+            </span>
           </button>
 
-          {/* Bids (buys) */}
           {viewMode !== 'asks' && (
-            <div className="flex-1 min-h-0">
-              <div className="px-3 py-1 shrink-0">
-                <span className="text-[10px] text-emerald-400/80 uppercase tracking-widest font-extrabold">
-                  ▲ Bids
-                </span>
-              </div>
+            <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide">
               {bids.length === 0 ? (
-                <div className="px-3 py-4 text-center text-[11px] text-white/40">No bids</div>
+                <div className="px-2 py-3 text-center text-[10px] text-[color:var(--ibo-muted)] font-sans">No bids</div>
               ) : (
                 bids.map(([p, q], i) => (
-                  <Row
-                    key={`bid-${p}`}
-                    price={p}
-                    qty={q}
-                    side="bid"
-                    tick={tickSize}
-                    onPriceClick={onPriceClick}
-                    pct={Math.min((p * q / maxTotal) * 100, 100)}
-                    cumPct={Math.min((bidCumTotals[i] / maxBidCum) * 100, 100)}
-                  />
+                  <Row key={`bid-${p}`} price={p} qty={q} side="bid" tick={tickSize} onPriceClick={onPriceClick}
+                    cumSize={bidCumSizes[i] || 0} maxCum={maxCum} />
                 ))
               )}
             </div>
           )}
-
         </div>
       )}
     </div>
   );
 }
+

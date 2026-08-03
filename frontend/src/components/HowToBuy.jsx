@@ -26,8 +26,8 @@ const steps = [
   {
     step: 4,
     icon: ArrowDownUp,
-    title: 'Swap for $IBO',
-    description: 'Enter the $IBO contract address, set your slippage to 5-10%, and swap your BNB for $IBO tokens.',
+    title: 'Swap for $DELTA',
+    description: 'Enter the $DELTA contract address, set your slippage to 5-10%, and swap your BNB for $DELTA tokens.',
   },
 ];
 
@@ -67,10 +67,10 @@ export const HowToBuy = () => {
             How to Buy
           </span>
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-ink mb-6">
-            Get $IBO in 4 Simple Steps
+            Get $DELTA in 4 Simple Steps
           </h2>
           <p className="text-ink-soft text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
-            Follow these easy steps to become a $IBO holder and join the IBO ecosystem
+            Follow these easy steps to become a $DELTA holder and join the Delta ecosystem
           </p>
         </motion.div>
 
@@ -136,7 +136,7 @@ export const HowToBuy = () => {
             whileTap={{ scale: 0.98 }}
             data-testid="pancakeswap-buy-btn"
           >
-            Buy $IBO
+            Buy $DELTA
           </motion.button>
 
           <p className="text-ink-muted text-sm mt-4">

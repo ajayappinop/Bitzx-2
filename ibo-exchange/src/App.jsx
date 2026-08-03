@@ -102,16 +102,14 @@ function Layout() {
       {/* Single scroll root so sticky navbar works on every page */}
       <div
         data-ibo-scroll-root
-        className={`relative flex flex-col flex-1 min-h-0 overflow-x-hidden ${
-          isTrade ? 'overflow-hidden' : 'overflow-y-auto'
-        }`}
+        className={`relative flex flex-col flex-1 min-h-0 overflow-x-hidden overflow-y-auto`}
         style={{ zIndex: 3 }}
       >
         <Navbar />
         <ImpersonationBanner />
         <FeaturesPausedBanner />
         <SignupBonusKycPrompt />
-        <main className={`flex w-full min-w-0 flex-col flex-1 ${isTrade ? 'min-h-0 overflow-hidden' : 'shrink-0'}`}>
+        <main className={`flex w-full min-w-0 flex-col ${isTrade ? 'flex-1' : 'shrink-0 flex-1'}`}>
           <Outlet />
         </main>
         {!isTrade && <Footer />}
@@ -182,8 +180,8 @@ export default function App() {
   if (!launch.checked) {
     return (
       <div className="min-h-screen bg-[color:var(--ibo-bg)] flex flex-col items-center justify-center gap-4 px-6">
-        <div className="w-10 h-10 border-2 border-[#0EA4AB] border-t-transparent rounded-full animate-spin" />
-        <p className="text-sm text-[color:var(--ibo-ink-secondary)]">Loading IBO Exchange…</p>
+        <div className="w-10 h-10 border-2 border-[#FE6C02] border-t-transparent rounded-full animate-spin" />
+        <p className="text-sm text-[color:var(--ibo-ink-secondary)]">Loading Delta Exchange…</p>
       </div>
     );
   }
@@ -258,7 +256,7 @@ export default function App() {
           <ProtectedRoute><SettingsPage /></ProtectedRoute>
         } />
 
-        {/* ── IBO Markets ──────────────────────────────────────────────── */}
+        {/* ── Delta Markets ──────────────────────────────────────────────── */}
         <Route path="/ibo-markets" element={<IBOMarketsPage />} />
         <Route path="/ibo-market" element={<IBOMarket />} />
 

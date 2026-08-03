@@ -6,7 +6,7 @@ const API = exchangeApiOrigin(import.meta.env.VITE_BACKEND_URL);
 const PAGE_SIZE = 40;
 
 /**
- * Optimized IBO markets — paginated REST + lightweight WS (featured/top ~48).
+ * Optimized Delta markets — paginated REST + lightweight WS (featured/top ~48).
  */
 export function useIboMarkets({ tier: initialTier = 'all' } = {}) {
   const [tier, setTier] = useState(initialTier);
@@ -71,7 +71,7 @@ export function useIboMarkets({ tier: initialTier = 'all' } = {}) {
       } catch {
         if (!append) {
           setItems([]);
-          setError('Could not load IBO markets.');
+          setError('Could not load Delta markets.');
         }
       } finally {
         setLoading(false);

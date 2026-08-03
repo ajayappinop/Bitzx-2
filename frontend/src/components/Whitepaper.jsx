@@ -16,7 +16,7 @@ const whitepaperSections = [
   {
     icon: Building,
     title: 'Exchange Development',
-    description: 'Technical roadmap for IBO Exchange, featuring spot trading and advanced features.',
+    description: 'Technical roadmap for Delta Exchange, featuring spot trading and advanced features.',
   },
   {
     icon: BookOpen,
@@ -51,7 +51,7 @@ export const Whitepaper = () => {
             Whitepaper
           </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-ink mb-6">
-            Deep Dive Into IBO
+            Deep Dive Into Delta
           </h2>
           <p className="text-ink-soft text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
             Our comprehensive whitepaper covers everything from technical architecture to long-term vision
@@ -74,10 +74,10 @@ export const Whitepaper = () => {
               </div>
 
               <h3 className="text-2xl md:text-3xl font-bold text-ink text-center mb-4">
-                IBO Whitepaper v1.0
+                Delta Whitepaper v1.0
               </h3>
               <p className="text-ink-muted text-center mb-8">
-                The complete guide to understanding the IBO ecosystem, tokenomics, and future roadmap.
+                The complete guide to understanding the Delta ecosystem, tokenomics, and future roadmap.
               </p>
 
               {/* Stats */}

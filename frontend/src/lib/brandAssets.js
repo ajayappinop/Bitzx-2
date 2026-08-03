@@ -1,9 +1,22 @@
-/** Ibo brand logo — served from public/ so production builds stay self-contained. */
+/** Brand logo — served from public/ (transparent PNG). */
 
 const PUBLIC_BASE = (process.env.PUBLIC_URL || '').replace(/\/$/, '');
 
-/** Absolute path to the bundled logo (works with CRA PUBLIC_URL subpaths). */
-export const BRAND_LOGO = PUBLIC_BASE ? `${PUBLIC_BASE}/ibo-logo.png` : '/ibo-logo.png';
+const v = '18';
+
+/** Full wordmark for dark backgrounds (2nd logo / white text). */
+export const BRAND_LOGO = PUBLIC_BASE
+  ? `${PUBLIC_BASE}/ibo-exchange-logo.png?v=${v}`
+  : `/ibo-exchange-logo.png?v=${v}`;
+
+export const BRAND_LOGO_LIGHT = PUBLIC_BASE
+  ? `${PUBLIC_BASE}/ibo-exchange-logo-light.png?v=${v}`
+  : `/ibo-exchange-logo-light.png?v=${v}`;
+
+/** Compact icon mark. */
+export const BRAND_MARK = PUBLIC_BASE
+  ? `${PUBLIC_BASE}/ibo-logo.png?v=${v}`
+  : `/ibo-logo.png?v=${v}`;
 
 /** Hosts that no longer serve assets — fall back to BRAND_LOGO instead. */
 const BLOCKED_LOGO_PATTERN = /emergentagent\.com|emergent\.sh/i;

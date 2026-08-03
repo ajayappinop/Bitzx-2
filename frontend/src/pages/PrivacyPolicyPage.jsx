@@ -26,7 +26,7 @@ const sections = [
   {
     title: "Contact",
     body:
-      "For privacy-related questions, please contact the IBO project using the public contact email listed below.",
+      "For privacy-related questions, please contact the Delta project using the public contact email listed below.",
   },
 ];
 
@@ -50,7 +50,7 @@ export default function PrivacyPolicyPage() {
           </p>
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Privacy Policy</h1>
           <p className="text-ink-muted max-w-3xl leading-relaxed">
-            This page outlines the current privacy baseline for the IBO website.
+            This page outlines the current privacy baseline for the Delta website.
             It should be reviewed and finalized with the project&apos;s official
             legal and operating details before production launch.
           </p>

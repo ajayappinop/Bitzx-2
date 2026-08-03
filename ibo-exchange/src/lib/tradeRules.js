@@ -149,7 +149,7 @@ export function validateSpotOrder({
           : quoteNotional * Number(feeRate) / Math.max(Number(iboPriceUsdt) || 0, 1e-12);
       const iboBal = Number(balanceIBO) || 0;
       if (feeIbo > iboBal + 1e-12) {
-        errors.balance = `Insufficient IBO for fee. Need ≈ ${feeIbo.toFixed(8)} IBO, available ${iboBal.toFixed(8)} IBO.`;
+        errors.balance = `Insufficient Delta for fee. Need ≈ ${feeIbo.toFixed(8)} Delta, available ${iboBal.toFixed(8)} Delta.`;
       }
     }
   }

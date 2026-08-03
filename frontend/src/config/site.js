@@ -61,7 +61,7 @@ function buildTeam() {
       role: env("REACT_APP_TEAM_DIRECTOR_ROLE", "Founder"),
       bio: env(
         "REACT_APP_TEAM_DIRECTOR_BIO",
-        "Founder of Ibo Private Limited, the organization behind the IBO project.",
+        "Founder of Delta Private Limited, the organization behind the Delta project.",
       ),
       linkedin,
     },
@@ -69,9 +69,9 @@ function buildTeam() {
 }
 
 export const SITE_CONFIG = {
-  projectName: env("REACT_APP_PROJECT_NAME", "IBO"),
-  tokenName: env("REACT_APP_TOKEN_NAME", "IBO"),
-  tokenSymbol: env("REACT_APP_TOKEN_SYMBOL", "IBO"),
+  projectName: env("REACT_APP_PROJECT_NAME", "Delta"),
+  tokenName: env("REACT_APP_TOKEN_NAME", "Delta"),
+  tokenSymbol: env("REACT_APP_TOKEN_SYMBOL", "Delta"),
   launchYear: env("REACT_APP_LAUNCH_YEAR", "2026"),
   networkLabel: env("REACT_APP_NETWORK_LABEL", "BNB Smart Chain (BEP-20)"),
   brandLogoUrl: logoEnv("REACT_APP_BRAND_LOGO_URL", BRAND_LOGO),
@@ -81,7 +81,7 @@ export const SITE_CONFIG = {
   supportEmail: SUPPORT_EMAIL,
   shortDescription: env(
     "REACT_APP_SHORT_DESCRIPTION",
-    "IBO is a BNB Chain utility token focused on building accessible crypto trading infrastructure and a broader token ecosystem.",
+    "Delta is a BNB Chain utility token focused on building accessible crypto trading infrastructure and a broader token ecosystem.",
   ),
   buyUrl: DEX_SWAP,
   bscScanUrl: `https://bscscan.com/token/${CONTRACT}`,
@@ -102,11 +102,11 @@ export const SITE_CONFIG = {
     urlDisplay: env("REACT_APP_EXCHANGE_URL_DISPLAY", "exchange.ibo.io"),
     summary: env(
       "REACT_APP_EXCHANGE_SUMMARY",
-      "IBO Exchange is live at exchange.ibo.io — spot trading, professional charts, INR deposits and payouts for Indian users, and IBO utility across the platform.",
+      "Delta Exchange is live at exchange.ibo.io — spot trading, professional charts, INR deposits and payouts for Indian users, and Delta utility across the platform.",
     ),
   },
   organization: {
-    legalEntityName: env("REACT_APP_LEGAL_ENTITY_NAME", "Ibo Private Limited"),
+    legalEntityName: env("REACT_APP_LEGAL_ENTITY_NAME", "Delta Private Limited"),
     registrationCountry: env("REACT_APP_REGISTRATION_COUNTRY", ""),
     headquarters: env("REACT_APP_HEADQUARTERS", "10 Anson Road, #10-01 International Plaza"),
   },

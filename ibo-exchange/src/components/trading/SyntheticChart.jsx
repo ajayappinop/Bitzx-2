@@ -1,5 +1,5 @@
 /**
- * Live synthetic candlestick chart for IBO-quoted pairs (and IBOUSDT).
+ * Live synthetic candlestick chart for Delta-quoted pairs (and IBOUSDT).
  * Data from backend klines, last candle tracks the real ticker price.
  */
 import { useEffect, useRef, useState, useCallback } from 'react';
@@ -54,12 +54,12 @@ function chartTheme(isLight) {
   }
   return {
     layout: {
-      background: { color: '#0a0b0f' },
+      background: { color: '#101013' },
       textColor: '#9ca3af',
     },
     grid: {
-      vertLines: { color: 'rgba(26,29,36,0.85)' },
-      horzLines: { color: 'rgba(26,29,36,0.85)' },
+      vertLines: { color: 'rgba(255,255,255,0.04)' },
+      horzLines: { color: 'rgba(255,255,255,0.04)' },
     },
     rightPriceScale: { borderColor: 'rgba(255,255,255,0.08)' },
     timeScale: { borderColor: 'rgba(255,255,255,0.08)', timeVisible: true },
@@ -97,12 +97,12 @@ export default function SyntheticChart({ symbol, lastPrice }) {
     });
 
     const series = chart.addCandlestickSeries({
-      upColor: '#22c55e',
-      downColor: '#ef4444',
-      borderUpColor: '#22c55e',
-      borderDownColor: '#ef4444',
-      wickUpColor: '#22c55e',
-      wickDownColor: '#ef4444',
+      upColor: '#00a876',
+      downColor: '#eb5454',
+      borderUpColor: '#00a876',
+      borderDownColor: '#eb5454',
+      wickUpColor: '#00a876',
+      wickDownColor: '#eb5454',
     });
 
     chartRef.current = chart;
@@ -161,7 +161,7 @@ export default function SyntheticChart({ symbol, lastPrice }) {
   return (
     <div
       className="absolute inset-0 flex flex-col"
-      style={{ background: isLight ? 'var(--ibo-card)' : '#0a0b0f' }}
+      style={{ background: isLight ? 'var(--ibo-card)' : '#101013' }}
     >
       <div
         className="flex items-center justify-between gap-2 px-3 py-2 border-b shrink-0"

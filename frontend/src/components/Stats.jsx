@@ -6,7 +6,7 @@ import { getExchangeStatusLabel } from '@/config/site';
 const PROJECT_FACTS = [
   {
     label: 'Token Symbol',
-    value: '$IBO',
+    value: '$DELTA',
     icon: Coins,
     highlight: true,
   },

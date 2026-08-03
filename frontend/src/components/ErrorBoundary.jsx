@@ -8,7 +8,7 @@ export class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, info) {
-    console.error("IBO render error:", error, info);
+    console.error("Delta render error:", error, info);
   }
 
   render() {

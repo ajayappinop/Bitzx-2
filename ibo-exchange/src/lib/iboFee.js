@@ -1,6 +1,6 @@
-/** IBO fee estimates — matches backend/services/ibo_fee.py */
+/** Delta fee estimates — matches backend/services/ibo_fee.py */
 
-export const FEE_ASSET = 'IBO';
+export const FEE_ASSET = 'Delta';
 export const DEFAULT_IBO_PRICE_USDT = 0.4523;
 
 export function estimateIboFee({
