@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Debug builds only: Metro serves the JS bundle over plain HTTP (any host:8081).
+  The main manifest's network config is restricted to the API host, which blocks
+  Metro and triggers "Unable to load script" on device/emulator.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

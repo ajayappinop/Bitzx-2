@@ -1,0 +1,1 @@
+"""INR fiat deposit module."""

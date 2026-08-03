@@ -1,0 +1,1988 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@400..800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*  Theme tokens (dark default = current IBO canvas)  */
+:root,
+html[data-theme='dark'] {
+  --ibo-bg: #08090c;
+  --ibo-bg-rgb: 8 9 12;
+  --ibo-surface: #0c0f18;
+  --ibo-card: #0e1219;
+  --ibo-elevated: rgba(255, 255, 255, 0.04);
+  --ibo-hover: #141824;
+  --ibo-border: rgba(255, 255, 255, 0.1);
+  --ibo-border-solid: #1c2433;
+  --ibo-ink: #f4f4f5;
+  --ibo-ink-secondary: #a1a1aa;
+  --ibo-muted: #71717a;
+  --ibo-glass: rgba(14, 18, 28, 0.72);
+  --ibo-glass-border: rgba(255, 255, 255, 0.08);
+  --ibo-nav: rgba(10, 11, 15, 0.92);
+  --ibo-bloom-cyan: rgba(14, 164, 171, 0.14);
+  --ibo-bloom-lime: rgba(197, 227, 91, 0.1);
+  --ibo-bloom-blue: rgba(27, 95, 255, 0.08);
+  --ibo-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+  --ibo-accent: #0ea4ab;
+  --ibo-accent-soft: rgba(14, 164, 171, 0.14);
+  color-scheme: dark;
+}
+
+/*
+ * Branded light theme — cool slate mist + brand accents.
+ * Hierarchy: page → surface → card → elevated. Cyan/lime reserved for accents,
+ * not as fill/border tint on every surface (avoids mint wash + muddy contrast).
+ */
+html[data-theme='light'] {
+  --ibo-bg: #eef3f6;
+  --ibo-bg-rgb: 238 243 246;
+  --ibo-surface: #f6f9fb;
+  --ibo-card: #ffffff;
+  --ibo-elevated: rgba(12, 28, 38, 0.045);
+  --ibo-hover: #e5edf2;
+  --ibo-border: rgba(12, 28, 38, 0.1);
+  --ibo-border-solid: #d0dbe3;
+  --ibo-ink: #0c1922;
+  --ibo-ink-secondary: #4a6070;
+  --ibo-muted: #6e8494;
+  --ibo-glass: rgba(255, 255, 255, 0.86);
+  --ibo-glass-border: rgba(12, 28, 38, 0.09);
+  --ibo-nav: rgba(255, 255, 255, 0.9);
+  --ibo-bloom-cyan: rgba(14, 164, 171, 0.09);
+  --ibo-bloom-lime: rgba(197, 227, 91, 0.1);
+  --ibo-bloom-blue: rgba(27, 95, 255, 0.05);
+  --ibo-shadow: 0 14px 36px rgba(12, 25, 34, 0.08);
+  --ibo-accent: #0ea4ab;
+  --ibo-accent-soft: rgba(14, 164, 171, 0.12);
+  color-scheme: light;
+}
+
+@layer base {
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+    max-width: 100vw;
+    -webkit-text-size-adjust: 100%;
+  }
+  #root {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  body {
+    background: var(--ibo-bg);
+    color: var(--ibo-ink);
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    overflow-x: hidden;
+    max-width: 100vw;
+    font-feature-settings: 'kern' 1, 'liga' 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.015em;
+  }
+  * { box-sizing: border-box; }
+}
+
+/* Syne - headings, navbar, and buttons */
+.ibo-display,
+.ibo-title,
+.ibo-title-lg,
+.font-display,
+header,
+header a,
+header button,
+header nav,
+button,
+a.bg-logo-gradient,
+.bg-logo-gradient {
+  font-family: 'Syne', system-ui, sans-serif !important;
+}
+
+/* Numbers / prices / tickers — Inter only (wins over Syne in header & display) */
+.font-mono,
+.tabular-nums,
+header .font-mono,
+header .tabular-nums,
+header a.font-mono,
+.font-display .font-mono,
+.font-display .tabular-nums,
+.order-book-panel .font-mono,
+.order-book-panel .tabular-nums {
+  font-family: Inter, 'Plus Jakarta Sans', system-ui, sans-serif !important;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Trade / form UI labels — Inter (overrides global Syne on buttons) */
+button.font-ui,
+.font-ui,
+.font-ui button,
+.font-ui input,
+.font-ui select,
+.font-ui textarea {
+  font-family: Inter, 'Plus Jakarta Sans', system-ui, sans-serif !important;
+}
+
+/* Landing / marketing typography - consistent scale & rhythm */
+@layer components {
+  /* Full-width layout - uses almost all screen; padding keeps text off the rim */
+  .ibo-landing-container {
+    @apply w-full mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 2xl:px-16;
+  }
+  .ibo-landing-wide {
+    @apply ibo-landing-container;
+  }
+  .ibo-section-y {
+    @apply py-20 md:py-24 lg:py-28;
+  }
+  .ibo-section-y-tight {
+    @apply py-12 md:py-16 lg:py-20;
+  }
+  .ibo-eyebrow {
+    @apply text-[11px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-gold;
+  }
+  .ibo-display {
+    @apply font-display font-bold tracking-tight;
+    color: var(--ibo-ink);
+    font-size: clamp(2rem, 4.2vw, 3.125rem);
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+  }
+  .ibo-title {
+    @apply font-display font-semibold tracking-tight;
+    color: var(--ibo-ink);
+    font-size: clamp(1.5rem, 2.75vw, 2.375rem);
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+  }
+  .ibo-title-lg {
+    @apply font-display font-semibold tracking-tight;
+    color: var(--ibo-ink);
+    font-size: clamp(1.75rem, 3.25vw, 2.75rem);
+    line-height: 1.18;
+    letter-spacing: -0.032em;
+  }
+  .ibo-lead {
+    @apply text-[15px] sm:text-base leading-[1.65] font-normal;
+    color: var(--ibo-ink-secondary);
+    max-width: 36rem;
+  }
+  .ibo-lead-wide {
+    @apply text-base sm:text-[1.0625rem] leading-[1.7] font-normal;
+    color: var(--ibo-ink-secondary);
+    max-width: 42rem;
+  }
+  .ibo-muted {
+    color: var(--ibo-muted);
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; width: 0; height: 0; }
+
+  .order-book-panel {
+    -webkit-tap-highlight-color: transparent;
+    color-scheme: dark;
+  }
+  /* Vertical scroll for depth lists; scrollbar hidden (same as .scrollbar-hide). */
+  .order-book-scroll {
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .order-book-scroll::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  /* Option chain: outer = vertical list of expiries; inner = horizontal table scroll. */
+  .options-chain-scroll-v {
+    max-width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(197, 227, 91, 0.35) rgba(0, 0, 0, 0.25);
+  }
+  .options-chain-scroll-v::-webkit-scrollbar {
+    height: 0;
+    width: 10px;
+  }
+  .options-chain-scroll {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(197, 227, 91, 0.35) rgba(0, 0, 0, 0.25);
+  }
+  .options-chain-scroll::-webkit-scrollbar {
+    height: 10px;
+    width: 0;
+  }
+
+  /* Chain top bar: horizontal scroll + visible vertical overflow (no clipped descenders). */
+  .options-chain-toolbar {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(197, 227, 91, 0.35) rgba(0, 0, 0, 0.25);
+  }
+  .options-chain-toolbar::-webkit-scrollbar {
+    height: 10px;
+    width: 0;
+  }
+  .options-chain-toolbar::-webkit-scrollbar-thumb,
+  .options-chain-scroll::-webkit-scrollbar-thumb,
+  .options-chain-scroll-v::-webkit-scrollbar-thumb {
+    background: rgba(197, 227, 91, 0.35);
+    border-radius: 5px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  .options-chain-toolbar::-webkit-scrollbar-track,
+  .options-chain-scroll::-webkit-scrollbar-track,
+  .options-chain-scroll-v::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  /* No contain:paint - it clips stacked depth bars and can hide price text (Chrome/Edge). */
+  .order-book-row {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .glass {
+    background: var(--ibo-glass);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--ibo-glass-border);
+  }
+
+  /* App page shell - matches landing canvas */
+  .ibo-page {
+    @apply min-h-screen w-full min-w-0 overflow-x-hidden;
+    background: var(--ibo-bg);
+    color: var(--ibo-ink);
+  }
+  .ibo-card {
+    @apply rounded-2xl;
+    border: 1px solid var(--ibo-border);
+    background: color-mix(in srgb, var(--ibo-card) 88%, transparent);
+    box-shadow: none;
+  }
+  .ibo-card-solid {
+    @apply rounded-2xl;
+    border: 1px solid var(--ibo-border);
+    background: var(--ibo-card);
+    box-shadow: var(--ibo-shadow);
+  }
+  .ibo-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-[#050a1a] bg-logo-gradient transition-[filter];
+    box-shadow: 0 12px 36px rgba(197, 227, 91, 0.16);
+  }
+  .ibo-btn-primary:hover {
+    filter: brightness(1.1);
+  }
+  .ibo-btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition-colors;
+    border: 1px solid var(--ibo-border);
+    color: var(--ibo-ink-secondary);
+  }
+  .ibo-btn-secondary:hover {
+    background: var(--ibo-elevated);
+    border-color: rgba(14, 164, 171, 0.35);
+    color: var(--ibo-ink);
+  }
+  .ibo-btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition-colors;
+    border: 1px solid var(--ibo-border);
+    background: transparent;
+    color: var(--ibo-ink);
+  }
+  .ibo-btn-outline:hover {
+    background: var(--ibo-elevated);
+    border-color: rgba(14, 164, 171, 0.35);
+  }
+  /* Dark default Quick Trade chip — lime highlight (light theme overridden below) */
+  .ibo-btn-accent {
+    @apply inline-flex items-center justify-center gap-1.5 font-bold transition-all;
+    border: 1px solid rgba(197, 227, 91, 0.38);
+    background: linear-gradient(135deg, rgba(14, 164, 171, 0.22), rgba(197, 227, 91, 0.18));
+    color: #c5e35b;
+    box-shadow: none;
+    text-decoration: none;
+  }
+  .ibo-btn-accent:hover {
+    filter: brightness(1.08);
+  }
+  .ibo-input {
+    @apply w-full rounded-xl px-4 py-3 text-sm outline-none transition-colors;
+    color: var(--ibo-ink);
+    border: 1px solid var(--ibo-border);
+    background: var(--ibo-elevated);
+  }
+  .ibo-input::placeholder {
+    color: var(--ibo-muted);
+  }
+  .ibo-input:focus {
+    border-color: rgba(14, 164, 171, 0.5);
+    box-shadow: 0 0 0 1px rgba(14, 164, 171, 0.25);
+  }
+
+  /* Account surfaces — wallet deposit/withdraw, profile, KYC, support */
+  .ibo-account-hero {
+    @apply relative overflow-hidden rounded-2xl p-5 sm:p-7 mb-6;
+    border: 1px solid var(--ibo-border-solid);
+    background:
+      radial-gradient(ellipse 70% 120% at 100% 0%, rgba(14, 164, 171, 0.18), transparent 55%),
+      radial-gradient(ellipse 50% 80% at 0% 100%, rgba(197, 227, 91, 0.08), transparent 50%),
+      var(--ibo-card);
+  }
+  .ibo-account-panel {
+    @apply rounded-2xl p-5 sm:p-6;
+    border: 1px solid var(--ibo-border);
+    background: var(--ibo-card);
+    box-shadow: var(--ibo-shadow);
+  }
+  .ibo-account-panel-soft {
+    @apply rounded-2xl p-5 sm:p-6;
+    border: 1px solid var(--ibo-border);
+    background: var(--ibo-elevated);
+  }
+  .ibo-account-promo {
+    @apply rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4;
+    border: 1px solid rgba(14, 164, 171, 0.28);
+    background:
+      linear-gradient(105deg, rgba(14, 164, 171, 0.12) 0%, rgba(197, 227, 91, 0.06) 45%, transparent 100%);
+  }
+  .ibo-account-title {
+    @apply font-display font-bold tracking-tight text-2xl sm:text-3xl;
+    color: var(--ibo-ink);
+  }
+  .ibo-account-subtitle {
+    @apply text-sm mt-1.5;
+    color: var(--ibo-muted);
+  }
+  .ibo-field-label {
+    @apply block text-[11px] font-bold uppercase tracking-[0.08em] mb-2;
+    color: var(--ibo-ink-secondary);
+  }
+  .ibo-mode-chip {
+    @apply px-3.5 py-1.5 rounded-full text-xs font-bold border transition-colors;
+    border-color: var(--ibo-border-solid);
+    color: var(--ibo-muted);
+    background: transparent;
+  }
+  .ibo-mode-chip:hover {
+    border-color: rgba(14, 164, 171, 0.4);
+    color: var(--ibo-ink);
+  }
+  .ibo-mode-chip-active {
+    border-color: rgba(14, 164, 171, 0.55) !important;
+    background: linear-gradient(135deg, rgba(14, 164, 171, 0.18), rgba(197, 227, 91, 0.12)) !important;
+    color: #0ea4ab !important;
+  }
+  .ibo-step-num {
+    @apply w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5;
+    background: rgba(14, 164, 171, 0.18);
+    color: #0ea4ab;
+  }
+  .ibo-notice-info {
+    @apply rounded-xl border px-3.5 py-2.5 text-xs;
+    border-color: rgba(14, 164, 171, 0.32);
+    background: rgba(14, 164, 171, 0.1);
+    color: color-mix(in srgb, #0ea4ab 88%, var(--ibo-ink));
+  }
+  .ibo-notice-warn {
+    @apply rounded-xl border px-3.5 py-2.5 text-xs;
+    border-color: rgba(197, 227, 91, 0.35);
+    background: rgba(197, 227, 91, 0.1);
+    color: color-mix(in srgb, #c5e35b 70%, var(--ibo-ink));
+  }
+  .ibo-notice-danger {
+    @apply rounded-xl border px-3.5 py-2.5 text-xs;
+    border-color: rgba(239, 68, 68, 0.35);
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+  }
+  .ibo-tab-active {
+    @apply border-b-2 whitespace-nowrap transition-colors;
+    border-color: #0ea4ab;
+    color: #0ea4ab;
+  }
+  .ibo-tab-idle {
+    @apply border-b-2 border-transparent whitespace-nowrap transition-colors;
+    color: var(--ibo-ink-secondary);
+  }
+  .ibo-tab-idle:hover {
+    color: var(--ibo-ink);
+  }
+
+  /* Auth login/register — keep typed + browser-autofilled values visible */
+  .ibo-auth-input {
+    color: var(--ibo-ink) !important;
+    -webkit-text-fill-color: var(--ibo-ink);
+    caret-color: #c5e35b;
+  }
+  .ibo-auth-input:-webkit-autofill,
+  .ibo-auth-input:-webkit-autofill:hover,
+  .ibo-auth-input:-webkit-autofill:focus,
+  .ibo-auth-input:-webkit-autofill:active {
+    -webkit-text-fill-color: var(--ibo-ink) !important;
+    caret-color: #c5e35b;
+    transition: background-color 99999s ease-out;
+    box-shadow: 0 0 0 1000px var(--ibo-elevated) inset !important;
+  }
+
+  .gold-glow    { box-shadow: 0 0 30px rgba(14,164,171,0.3); }
+  .gold-border  { border: 1px solid rgba(14,164,171,0.3); }
+  .text-gradient {
+    background: linear-gradient(135deg, #4D8AFF 0%, #2ECAD0 50%, #D8F07A 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Logo gradient for CTAs / primary buttons - matches IBO emblem */
+  .bg-logo-gradient {
+    background-image: linear-gradient(
+      to top right,
+      #0B5FFF 0%,
+      #1B5FFF 22%,
+      #0EA4AB 52%,
+      #2ECAD0 72%,
+      #C5E35B 100%
+    );
+  }
+
+  /* Hero Create Account - interactive CTA */
+  .hero-cta-btn {
+    box-shadow:
+      0 0 28px rgba(14, 164, 171, 0.35),
+      0 8px 24px rgba(0, 0, 0, 0.25);
+    transition:
+      box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+      filter 0.35s ease;
+  }
+  .hero-cta-btn:hover {
+    box-shadow:
+      0 0 40px rgba(14, 164, 171, 0.55),
+      0 0 72px rgba(197, 227, 91, 0.28),
+      0 12px 28px rgba(0, 0, 0, 0.3);
+    filter: brightness(1.06);
+  }
+  .hero-cta-btn:active {
+    box-shadow:
+      0 0 20px rgba(14, 164, 171, 0.4),
+      0 4px 12px rgba(0, 0, 0, 0.28);
+  }
+  .hero-cta-shimmer {
+    background: linear-gradient(
+      105deg,
+      transparent 35%,
+      rgba(255, 255, 255, 0.45) 50%,
+      transparent 65%
+    );
+    transform: translateX(-120%);
+    animation: hero-cta-shimmer 3.2s ease-in-out infinite;
+  }
+  .hero-cta-btn:hover .hero-cta-shimmer {
+    animation-duration: 1.4s;
+  }
+  @keyframes hero-cta-shimmer {
+    0%,
+    55% {
+      transform: translateX(-120%);
+    }
+    80%,
+    100% {
+      transform: translateX(120%);
+    }
+  }
+
+  @keyframes hero-type-caret-blink {
+    0%,
+    45% {
+      opacity: 1;
+    }
+    50%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .hero-type-caret {
+    animation: hero-type-caret-blink 1s step-end infinite;
+  }
+
+  /*
+   * IBO premium hover - soft, long easing, minimal motion (no harsh snaps).
+   * Easing: smooth deceleration similar to iOS / Material expressive.
+   */
+  .ibo-hover-lift {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    transition:
+      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.55s cubic-bezier(0.33, 1, 0.68, 1),
+      background-color 0.55s ease;
+  }
+  .ibo-hover-lift:hover {
+    transform: translate3d(0, -3px, 0);
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.2),
+      0 16px 48px rgba(0, 0, 0, 0.28),
+      0 0 0 1px rgba(197, 227, 91, 0.1);
+  }
+
+  /* Soft top highlight - fades in (no sliding flash) */
+  .ibo-hover-glow {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+  .ibo-hover-glow::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+      130% 90% at 50% -10%,
+      rgba(197, 227, 91, 0.14) 0%,
+      rgba(14, 164, 171, 0.04) 42%,
+      transparent 72%
+    );
+    opacity: 0;
+    transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .ibo-hover-glow:hover::before {
+    opacity: 1;
+  }
+
+  .ibo-hover-border {
+    transition:
+      border-color 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 0.55s ease;
+  }
+  .ibo-hover-border:hover {
+    border-color: rgba(197, 227, 91, 0.28);
+    box-shadow:
+      0 0 0 1px rgba(197, 227, 91, 0.06),
+      0 8px 32px rgba(0, 0, 0, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .ibo-hover-table-row {
+    transition:
+      background-color 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .ibo-hover-table-row:hover {
+    background-color: rgba(255, 255, 255, 0.038);
+    box-shadow: inset 3px 0 0 rgba(197, 227, 91, 0.42);
+  }
+
+  .ibo-hover-scale {
+    transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .ibo-hover-scale:hover {
+    transform: scale(1.014);
+  }
+  .ibo-hover-scale:active {
+    transform: scale(0.992);
+    transition-duration: 0.2s;
+  }
+
+  .ibo-nav-link {
+    position: relative;
+  }
+  .ibo-nav-link::after {
+    content: '';
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 4px;
+    height: 2px;
+    border-radius: 99px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(197, 227, 91, 0.55) 20%,
+      rgba(197, 227, 91, 0.85) 50%,
+      rgba(197, 227, 91, 0.55) 80%,
+      transparent
+    );
+    opacity: 0;
+    transform: scaleX(0.35);
+    transform-origin: center;
+    transition:
+      opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+  }
+  .ibo-nav-link:hover::after {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+
+  .ibo-ticker-link {
+    transition:
+      transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 0.45s ease;
+  }
+  .ibo-ticker-link:hover {
+    transform: translate3d(0, -1px, 0);
+    opacity: 1;
+  }
+
+  .ibo-footer-link {
+    display: inline-block;
+    transition:
+      color 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .ibo-footer-link:hover {
+    color: #C5E35B;
+    transform: translate3d(3px, 0, 0);
+  }
+
+  .ibo-social-btn {
+    transition:
+      transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.5s ease,
+      box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 0.45s ease,
+      color 0.4s ease;
+  }
+  .ibo-social-btn:hover {
+    transform: translate3d(0, -2px, 0) scale(1.04);
+    box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.28),
+      0 0 0 1px rgba(197, 227, 91, 0.16);
+  }
+
+  .ibo-chip {
+    transition:
+      transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.45s ease,
+      box-shadow 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .ibo-chip:hover {
+    transform: scale(1.008);
+    box-shadow:
+      0 6px 20px rgba(0, 0, 0, 0.28),
+      0 0 0 1px rgba(197, 227, 91, 0.18);
+  }
+  .ibo-chip:active {
+    transform: scale(0.995);
+    transition-duration: 0.2s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ibo-hover-lift,
+    .ibo-hover-lift:hover,
+    .ibo-hover-scale,
+    .ibo-hover-scale:hover,
+    .ibo-hover-scale:active,
+    .ibo-ticker-link,
+    .ibo-ticker-link:hover,
+    .ibo-footer-link:hover,
+    .ibo-social-btn,
+    .ibo-social-btn:hover,
+    .ibo-chip,
+    .ibo-chip:hover,
+    .ibo-chip:active {
+      transform: none !important;
+      transition-duration: 0.01ms !important;
+    }
+    .ibo-hover-glow::before {
+      opacity: 0 !important;
+      transition: none !important;
+    }
+    .ibo-nav-link::after {
+      display: none;
+    }
+    .hero-cta-shimmer {
+      animation: none !important;
+      opacity: 0;
+    }
+    .hero-type-caret {
+      animation: none !important;
+      opacity: 0;
+    }
+  }
+}
+
+@keyframes ticker {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes hero-orbit-spin {
+  to { transform: rotate(360deg); }
+}
+
+.hero-orbit-spin-slow {
+  animation: hero-orbit-spin 48s linear infinite;
+  will-change: transform;
+}
+
+.hero-orbit-spin-slower {
+  animation: hero-orbit-spin 72s linear infinite;
+  will-change: transform;
+}
+
+.hero-orbit-spin-rev {
+  animation: hero-orbit-spin 40s linear infinite reverse;
+  will-change: transform;
+}
+
+.hero-orbit-glow-dot {
+  filter: drop-shadow(0 0 6px rgba(14, 164, 171, 0.9));
+}
+
+.hero-orbit-travel-spark {
+  filter: drop-shadow(0 0 8px rgba(197, 227, 91, 0.95));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-orbit-spin-slow,
+  .hero-orbit-spin-slower,
+  .hero-orbit-spin-rev {
+    animation: none !important;
+  }
+}
+
+@keyframes product-strip-scroll {
+  0%   { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+.product-strip-marquee {
+  overflow: hidden;
+  width: 100%;
+  /* Room for hover lift + glow so icons aren’t clipped */
+  padding-block: 0.85rem;
+  mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
+}
+
+.product-strip-track {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: max-content;
+  will-change: transform;
+  animation: product-strip-scroll 42s linear infinite;
+}
+
+.product-strip-marquee:hover .product-strip-track {
+  animation-play-state: paused;
+}
+
+.product-strip-item {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.7rem 1.1rem 0.7rem 0.75rem;
+  border-radius: 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(14, 164, 171, 0.06) 100%);
+  text-decoration: none;
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.product-strip-item:hover {
+  border-color: rgba(14, 164, 171, 0.4);
+  background:
+    linear-gradient(145deg, rgba(14, 164, 171, 0.12) 0%, rgba(197, 227, 91, 0.08) 100%);
+  transform: translateY(-3px);
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.22),
+    0 0 24px rgba(14, 164, 171, 0.12);
+}
+
+.product-strip-icon-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .product-strip-icon-wrap {
+    width: 3.6rem;
+    height: 3.6rem;
+  }
+}
+
+.product-strip-icon-glow {
+  position: absolute;
+  inset: -18%;
+  border-radius: 9999px;
+  background: radial-gradient(circle, var(--strip-glow, rgba(14, 164, 171, 0.4)) 0%, transparent 70%);
+  opacity: 0.55;
+  filter: blur(8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+
+.product-strip-item:hover .product-strip-icon-glow {
+  opacity: 0.95;
+  transform: scale(1.12);
+}
+
+.product-strip-icon {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  background: transparent;
+  transition: transform 0.35s ease;
+  filter:
+    drop-shadow(0 0 10px rgba(14, 164, 171, 0.2))
+    drop-shadow(0 6px 12px rgba(0, 0, 0, 0.28));
+}
+
+.product-strip-item:hover .product-strip-icon {
+  transform: scale(1.08) translateY(-2px);
+}
+
+.product-strip-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  text-align: left;
+}
+
+.product-strip-label {
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--ibo-ink);
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.product-strip-sub {
+  margin-top: 2px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ibo-muted);
+  white-space: nowrap;
+}
+
+.product-strip-item:hover .product-strip-label {
+  color: var(--ibo-accent);
+}
+
+@media (min-width: 640px) {
+  .product-strip-item {
+    gap: 1rem;
+    padding: 0.8rem 1.25rem 0.8rem 0.85rem;
+  }
+  .product-strip-label {
+    font-size: 15px;
+  }
+}
+
+html[data-theme='light'] .product-strip-item {
+  border-color: var(--ibo-border-solid);
+  background: linear-gradient(145deg, #ffffff 0%, #f3fafb 55%, #f7fbe9 100%);
+  box-shadow: 0 4px 14px rgba(12, 25, 34, 0.05);
+}
+
+html[data-theme='light'] .product-strip-item:hover {
+  border-color: rgba(14, 164, 171, 0.4);
+  background: linear-gradient(145deg, #ffffff 0%, rgba(14, 164, 171, 0.08) 55%, rgba(197, 227, 91, 0.1) 100%);
+  box-shadow:
+    0 12px 28px rgba(14, 164, 171, 0.12),
+    0 0 20px rgba(197, 227, 91, 0.1);
+}
+
+html[data-theme='dark'] .product-strip-label {
+  color: rgba(244, 244, 245, 0.92);
+}
+
+html[data-theme='dark'] .product-strip-item:hover .product-strip-label {
+  color: #c5e35b;
+}
+
+@keyframes coin-marquee-scroll {
+  0%   { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+.coin-marquee {
+  overflow: hidden;
+  width: 100%;
+  /* Vertical padding so chip shadows / hover lift aren't clipped by overflow */
+  padding-block: 0.85rem;
+  margin-block: -0.25rem;
+  mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+}
+
+.coin-marquee-track {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: max-content;
+  will-change: transform;
+  animation: coin-marquee-scroll 32s linear infinite;
+}
+
+.coin-marquee:hover .coin-marquee-track {
+  animation-play-state: paused;
+}
+
+.coin-marquee-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+  width: 4.75rem;
+  padding: 0.85rem 0.5rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s ease;
+}
+
+.coin-marquee-item:hover {
+  background: rgba(255, 255, 255, 0.055);
+  border-color: rgba(14, 164, 171, 0.35);
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-strip-track {
+    animation: none;
+  }
+
+  .coin-marquee-track {
+    animation: none;
+  }
+}
+
+@keyframes float-up {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-12px); }
+}
+
+@keyframes platform-cubes-float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-10px); }
+}
+
+.platform-cubes-float {
+  animation: platform-cubes-float 5.5s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes ibo-token-float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50%       { transform: translateY(-16px) rotate(2deg); }
+}
+
+.ibo-token-float {
+  animation: ibo-token-float 6s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes platform-visual-float {
+  0%, 100% { transform: translate(-50%, -50%); }
+  50%       { transform: translate(-50%, calc(-50% - 14px)); }
+}
+
+.platform-visual-float {
+  animation: platform-visual-float 5.5s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes platform-visual-float-scene {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-12px); }
+}
+
+.platform-visual-float-scene {
+  animation: platform-visual-float-scene 5.5s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes platform-visual-orbit {
+  to { transform: rotate(360deg); }
+}
+
+.platform-visual-orbit {
+  animation: platform-visual-orbit 18s linear infinite;
+}
+
+.platform-visual-orbit-slow {
+  animation: platform-visual-orbit 28s linear infinite;
+}
+
+.platform-visual-orbit-rev {
+  animation: platform-visual-orbit 22s linear infinite reverse;
+}
+
+@keyframes platform-visual-pulse {
+  0%   { transform: translate(-50%, -50%) scale(0.92); opacity: 0.55; }
+  70%  { transform: translate(-50%, -50%) scale(1.12); opacity: 0; }
+  100% { transform: translate(-50%, -50%) scale(1.12); opacity: 0; }
+}
+
+.platform-visual-pulse {
+  animation: platform-visual-pulse 3.2s ease-out infinite;
+}
+
+@keyframes platform-visual-chip {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+
+.platform-visual-chip {
+  animation: platform-visual-chip 4.2s ease-in-out infinite;
+}
+
+.platform-visual-chip-alt {
+  animation: platform-visual-chip 5s ease-in-out infinite reverse;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .platform-cubes-float,
+  .ibo-token-float {
+    animation: none;
+  }
+
+  .platform-visual-float,
+  .platform-visual-float-scene,
+  .platform-visual-orbit,
+  .platform-visual-orbit-slow,
+  .platform-visual-orbit-rev,
+  .platform-visual-pulse,
+  .platform-visual-chip,
+  .platform-visual-chip-alt {
+    animation: none !important;
+  }
+}
+
+/* Crisp 3D icon rendering — no color grading (prevents light-theme distortion) */
+.ibo-3d-icon,
+.ibo-3d-icon--soft,
+.ibo-3d-icon--sm,
+.ibo-3d-icon--lg {
+  object-fit: contain;
+  object-position: center;
+  background: transparent;
+  image-rendering: auto;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  /* Do NOT set transform here — fights Framer Motion / hover transforms */
+  max-width: 100%;
+}
+
+.ibo-3d-icon {
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.35));
+}
+
+.ibo-3d-icon--soft {
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.28));
+}
+
+.ibo-3d-icon--glow {
+  filter:
+    drop-shadow(0 0 18px rgba(14, 164, 171, 0.35))
+    drop-shadow(0 0 36px rgba(197, 227, 91, 0.22))
+    drop-shadow(0 16px 32px rgba(0, 0, 0, 0.35));
+}
+
+.ibo-3d-icon--sm {
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.3));
+}
+
+.ibo-3d-icon--lg {
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.35));
+}
+
+/* Brand logo — always transparent canvas */
+.ibo-brand-logo {
+  background: transparent !important;
+  object-fit: contain;
+  object-position: left center;
+}
+
+@keyframes hero-scan {
+  0%   { transform: translateY(-100%); opacity: 0; }
+  15%  { opacity: 0.06; }
+  85%  { opacity: 0.06; }
+  100% { transform: translateY(100%); opacity: 0; }
+}
+
+@keyframes hero-pulse-ring {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50%      { opacity: 0.15; transform: scale(1.02); }
+}
+
+/* Landing promo modal - premium dark / gold */
+@keyframes promo-shimmer {
+  0% { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+@keyframes promo-float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-10px) rotate(2deg); }
+}
+@keyframes promo-float-alt {
+  0%, 100% { transform: translateY(4px) rotate(6deg); }
+  50% { transform: translateY(-6px) rotate(10deg); }
+}
+@keyframes promo-ring-pulse {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+@keyframes promo-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.promo-modal-shell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(94vw, 420px);
+  max-height: min(90dvh, 90vh);
+  border-radius: 1rem;
+  overflow: hidden;
+  background: linear-gradient(165deg, var(--ibo-card) 0%, var(--ibo-surface) 55%, var(--ibo-card) 100%);
+  border: 1px solid var(--ibo-border-solid);
+  box-shadow:
+    var(--ibo-shadow),
+    0 0 0 1px rgba(91, 184, 255, 0.12),
+    0 0 64px rgba(14, 164, 171, 0.14);
+}
+@media (min-width: 640px) {
+  .promo-modal-shell {
+    width: min(92vw, 520px);
+    max-height: min(92dvh, 520px);
+    aspect-ratio: 1 / 1;
+    border-radius: 1.25rem;
+  }
+}
+.promo-modal-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.promo-modal-footer {
+  flex-shrink: 0;
+}
+@media (max-width: 639px) {
+  .promo-coin-stage--compact {
+    height: 148px;
+    min-height: 148px;
+  }
+  .promo-coin-img {
+    width: 7.25rem;
+    height: 7.25rem;
+  }
+  .promo-coin-orbit {
+    width: 8.5rem;
+    height: 8.5rem;
+  }
+  .promo-phone {
+    width: 4.25rem;
+    height: 7.75rem;
+  }
+  .promo-app-pedestal {
+    width: 8.5rem;
+  }
+  .promo-app-glow-floor {
+    width: 8rem;
+    margin-left: -4rem;
+  }
+}
+.promo-modal-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 90% 55% at 50% -5%, rgba(91, 184, 255, 0.16), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 100% 50%, rgba(14, 164, 171, 0.1), transparent 50%),
+    radial-gradient(ellipse 45% 35% at 0% 80%, rgba(91, 184, 255, 0.06), transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+.promo-modal-watermark {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 58%;
+  opacity: 0.05;
+  filter: blur(0.5px);
+  pointer-events: none;
+  z-index: 0;
+}
+.promo-title-gradient {
+  background: linear-gradient(180deg, #5BB8FF 0%, #0EA4AB 55%, #0c7a80 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 2px 12px rgba(91, 184, 255, 0.2));
+}
+.promo-title-shimmer {
+  background: linear-gradient(
+    105deg,
+    #0EA4AB 0%,
+    #5BB8FF 28%,
+    #7dd3fc 46%,
+    #5BB8FF 58%,
+    #0EA4AB 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: promo-shimmer 4s linear infinite;
+}
+.promo-tagline-gold {
+  color: #0EA4AB;
+  text-shadow: none;
+}
+.promo-coin-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  height: 200px;
+  min-height: 200px;
+  padding-bottom: 1.25rem;
+  overflow: visible;
+}
+.promo-coin-stage--compact {
+  height: 168px;
+  min-height: 168px;
+  padding-bottom: 1rem;
+}
+.promo-coin-glow {
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  width: 9.5rem;
+  height: 4.5rem;
+  margin-left: -4.75rem;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(91, 184, 255, 0.35) 0%, rgba(14, 164, 171, 0.12) 42%, transparent 72%);
+  filter: blur(6px);
+  pointer-events: none;
+  z-index: 0;
+}
+.promo-coin-orbit {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: 9.75rem;
+  height: 9.75rem;
+  margin-left: -4.875rem;
+  margin-top: -4.875rem;
+  border-radius: 50%;
+  border: 1px solid rgba(91, 184, 255, 0.28);
+  box-shadow: 0 0 24px rgba(91, 184, 255, 0.12), inset 0 0 18px rgba(14, 164, 171, 0.08);
+  animation: promo-ring-pulse 2.8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+.promo-coin-float {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.promo-coin-img {
+  width: 8.5rem;
+  height: 8.5rem;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 28px rgba(14, 164, 171, 0.32));
+}
+.promo-coin-img--masked {
+  /* Hide black square behind the circular token art without editing the PNG */
+  clip-path: circle(46% at 50% 50%);
+  border-radius: 50%;
+}
+.promo-coin-stage--compact .promo-coin-img {
+  width: 7.75rem;
+  height: 7.75rem;
+}
+.promo-coin-base {
+  position: absolute;
+  left: 50%;
+  bottom: 1.1rem;
+  width: 6.5rem;
+  height: 0.55rem;
+  margin-left: -3.25rem;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, transparent, rgba(14, 164, 171, 0.45), transparent);
+  box-shadow: 0 0 18px rgba(91, 184, 255, 0.25);
+  z-index: 1;
+  pointer-events: none;
+}
+.promo-coin-caption {
+  position: relative;
+  z-index: 2;
+  margin-top: 0.35rem;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #0EA4AB;
+}
+.promo-app-pedestal {
+  position: relative;
+  width: 11rem;
+  height: 0.5rem;
+  margin: 0 auto;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, #0EA4AB, #5BB8FF, #0EA4AB, transparent);
+  box-shadow:
+    0 0 20px rgba(91, 184, 255, 0.45),
+    0 0 40px rgba(14, 164, 171, 0.25);
+}
+.promo-app-glow-floor {
+  position: absolute;
+  left: 50%;
+  bottom: -1.25rem;
+  width: 10rem;
+  height: 3rem;
+  margin-left: -5rem;
+  background: radial-gradient(ellipse, rgba(91, 184, 255, 0.35) 0%, transparent 70%);
+  filter: blur(8px);
+}
+.promo-phone {
+  width: 5.25rem;
+  height: 9.5rem;
+  border-radius: 1.1rem;
+  border: 2px solid var(--ibo-border-solid);
+  background: linear-gradient(180deg, var(--ibo-elevated) 0%, var(--ibo-card) 100%);
+  box-shadow:
+    0 16px 32px rgba(12, 25, 34, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+.promo-download-bar {
+  background: var(--ibo-elevated);
+  border-top: 1px solid var(--ibo-border-solid);
+}
+.promo-progress-track {
+  height: 2px;
+  background: rgba(14, 164, 171, 0.12);
+}
+.promo-progress-fill {
+  height: 100%;
+  transform-origin: left;
+  background: linear-gradient(90deg, #0EA4AB, #5BB8FF);
+  animation: promo-progress linear forwards;
+}
+
+/* Trade page - TradingView: hide side toolbar width + footer promo strip */
+.ibo-tv-chart .tradingview-widget-copyright {
+  display: none !important;
+}
+
+/* Hide lightweight-charts free tier attribution logo on IBO charts */
+#tv-attr-logo,
+.tv-lightweight-charts-watermark,
+.tv-lightweight-charts-logo,
+.tv-lightweight-charts-logo-container {
+  display: none !important;
+}
+
+.ibo-tv-chart .tradingview-widget-container__widget {
+  width: 100% !important;
+}
+
+
+/* ---------------------------------------------------------------------------
+   LIGHT THEME — cool slate mist + brand accents (coordinated hierarchy)
+   --------------------------------------------------------------------------- */
+
+html[data-theme='light'] body {
+  background:
+    radial-gradient(ellipse 85% 50% at 6% -6%, rgba(14, 164, 171, 0.1), transparent 55%),
+    radial-gradient(ellipse 65% 45% at 98% 2%, rgba(197, 227, 91, 0.09), transparent 50%),
+    radial-gradient(ellipse 50% 35% at 50% 108%, rgba(27, 95, 255, 0.04), transparent 58%),
+    var(--ibo-bg);
+  color: var(--ibo-ink);
+}
+
+html[data-theme='light'] .ibo-page {
+  background:
+    radial-gradient(ellipse 70% 40% at 0% 0%, rgba(14, 164, 171, 0.07), transparent 52%),
+    radial-gradient(ellipse 50% 35% at 100% 8%, rgba(197, 227, 91, 0.07), transparent 48%),
+    var(--ibo-bg);
+  color: var(--ibo-ink);
+}
+
+/* Hard-coded dark canvases → page / surface / card hierarchy */
+html[data-theme='light'] .bg-black,
+html[data-theme='light'] .bg-\[\#08090c\],
+html[data-theme='light'] .bg-\[\#05070c\],
+html[data-theme='light'] .bg-\[\#050a1a\],
+html[data-theme='light'] .bg-\[\#050505\] {
+  background-color: var(--ibo-bg) !important;
+}
+html[data-theme='light'] .bg-\[\#0a0b0d\],
+html[data-theme='light'] .bg-\[\#0a0b0f\],
+html[data-theme='light'] .bg-\[\#0c0e12\],
+html[data-theme='light'] .bg-\[\#0c0f18\],
+html[data-theme='light'] .bg-\[\#0d0f14\],
+html[data-theme='light'] .bg-\[\#0d1018\],
+html[data-theme='light'] .bg-\[\#0d1420\] {
+  background-color: var(--ibo-surface) !important;
+}
+html[data-theme='light'] .bg-\[\#12141a\],
+html[data-theme='light'] .bg-\[\#12151c\],
+html[data-theme='light'] .bg-\[\#141824\],
+html[data-theme='light'] .bg-\[\#1a1d24\] {
+  background-color: var(--ibo-card) !important;
+}
+html[data-theme='light'] .from-\[\#050505\],
+html[data-theme='light'] .from-\[\#05070c\],
+html[data-theme='light'] .from-\[\#08090c\] {
+  --tw-gradient-from: var(--ibo-bg) !important;
+}
+html[data-theme='light'] .to-\[\#05070c\],
+html[data-theme='light'] .to-\[\#08090c\] {
+  --tw-gradient-to: var(--ibo-bg) !important;
+}
+
+html[data-theme='light'] .bg-surface-dark { background-color: var(--ibo-bg) !important; }
+html[data-theme='light'] .bg-surface,
+html[data-theme='light'] .bg-surface-DEFAULT { background-color: var(--ibo-surface) !important; }
+html[data-theme='light'] .bg-surface-card { background-color: var(--ibo-card) !important; }
+html[data-theme='light'] .bg-surface-hover { background-color: var(--ibo-hover) !important; }
+html[data-theme='light'] .border-surface-border { border-color: var(--ibo-border-solid) !important; }
+
+/* Dark border hexes used across P2P / trade */
+html[data-theme='light'] .border-\[\#1e2028\],
+html[data-theme='light'] .border-\[\#1a1d24\],
+html[data-theme='light'] .border-\[\#1c2433\],
+html[data-theme='light'] .divide-\[\#1e2028\] > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--ibo-border-solid) !important;
+}
+
+/* Ink remaps — use theme tokens for consistent navy / slate hierarchy */
+html[data-theme='light'] .text-white { color: var(--ibo-ink); }
+html[data-theme='light'] .text-white\/95 { color: color-mix(in srgb, var(--ibo-ink) 95%, transparent); }
+html[data-theme='light'] .text-white\/90 { color: color-mix(in srgb, var(--ibo-ink) 90%, transparent); }
+html[data-theme='light'] .text-white\/85 { color: color-mix(in srgb, var(--ibo-ink) 88%, transparent); }
+html[data-theme='light'] .text-white\/80 { color: color-mix(in srgb, var(--ibo-ink) 82%, transparent); }
+html[data-theme='light'] .text-white\/75,
+html[data-theme='light'] .text-white\/75,
+html[data-theme='light'] .text-white\/70 { color: var(--ibo-ink-secondary); }
+html[data-theme='light'] .text-white\/60 { color: color-mix(in srgb, var(--ibo-ink-secondary) 92%, transparent); }
+html[data-theme='light'] .text-white\/55,
+html[data-theme='light'] .text-white\/50 { color: var(--ibo-muted); }
+html[data-theme='light'] .text-white\/45,
+html[data-theme='light'] .text-white\/40 { color: color-mix(in srgb, var(--ibo-muted) 88%, transparent); }
+html[data-theme='light'] .text-white\/35,
+html[data-theme='light'] .text-white\/30 { color: color-mix(in srgb, var(--ibo-muted) 70%, transparent); }
+html[data-theme='light'] .text-white\/20 { color: color-mix(in srgb, var(--ibo-accent) 40%, transparent); }
+html[data-theme='light'] .placeholder\:text-white\/25::placeholder,
+html[data-theme='light'] .placeholder\:text-white\/45::placeholder,
+html[data-theme='light'] .placeholder\:text-white\/50::placeholder { color: var(--ibo-muted); }
+
+html[data-theme='light'] .text-zinc-100,
+html[data-theme='light'] .text-zinc-200,
+html[data-theme='light'] .text-zinc-300 { color: var(--ibo-ink); }
+html[data-theme='light'] .text-zinc-400 { color: var(--ibo-ink-secondary); }
+html[data-theme='light'] .text-zinc-500,
+html[data-theme='light'] .text-zinc-600 { color: var(--ibo-muted); }
+
+/* Frosted / translucent panels → solid matching cards in light */
+html[data-theme='light'] .bg-white\/\[0\.02\],
+html[data-theme='light'] .bg-white\/\[0\.03\],
+html[data-theme='light'] .bg-white\/\[\.03\],
+html[data-theme='light'] .bg-white\/\[0\.04\],
+html[data-theme='light'] .bg-white\/\[\.04\],
+html[data-theme='light'] .bg-white\/\[0\.05\],
+html[data-theme='light'] .bg-white\/5,
+html[data-theme='light'] .bg-white\/\[0\.06\],
+html[data-theme='light'] .bg-white\/\[0\.07\],
+html[data-theme='light'] .bg-white\/\[0\.08\] {
+  background-color: var(--ibo-card) !important;
+}
+html[data-theme='light'] .border-white\/\[0\.05\],
+html[data-theme='light'] .border-white\/\[0\.06\],
+html[data-theme='light'] .border-white\/\[0\.07\],
+html[data-theme='light'] .border-white\/\[0\.08\],
+html[data-theme='light'] .border-white\/\[0\.1\],
+html[data-theme='light'] .border-white\/\[\.05\],
+html[data-theme='light'] .border-white\/\[\.06\],
+html[data-theme='light'] .border-white\/\[\.08\],
+html[data-theme='light'] .border-white\/10,
+html[data-theme='light'] .border-white\/12,
+html[data-theme='light'] .border-white\/\[0\.12\],
+html[data-theme='light'] .border-white\/20 {
+  border-color: var(--ibo-border-solid) !important;
+}
+html[data-theme='light'] .hover\:bg-white\/\[0\.02\]:hover,
+html[data-theme='light'] .hover\:bg-white\/\[0\.04\]:hover,
+html[data-theme='light'] .hover\:bg-white\/\[0\.05\]:hover,
+html[data-theme='light'] .hover\:bg-white\/\[0\.06\]:hover,
+html[data-theme='light'] .hover\:bg-white\/\[0\.07\]:hover,
+html[data-theme='light'] .hover\:bg-white\/5:hover,
+html[data-theme='light'] .group:hover .lg\:group-hover\:bg-white\/\[0\.04\],
+html[data-theme='light'] .lg\:group-hover\:bg-white\/\[0\.04\]:is(:hover *) {
+  background-color: var(--ibo-hover) !important;
+}
+html[data-theme='light'] .hover\:bg-\[\#1a1d24\]:hover,
+html[data-theme='light'] .hover\:bg-\[\#141824\]:hover,
+html[data-theme='light'] .group-hover\:bg-\[\#12151c\],
+html[data-theme='light'] .group:hover .group-hover\:bg-\[\#12151c\] {
+  background-color: var(--ibo-hover) !important;
+}
+
+/* Primary gradient CTAs — deep ink on brand gradient */
+html[data-theme='light'] a.bg-logo-gradient,
+html[data-theme='light'] button.bg-logo-gradient,
+html[data-theme='light'] .ibo-btn-primary,
+html[data-theme='light'] .hero-cta-btn,
+html[data-theme='light'] .hero-cta-btn .text-white,
+html[data-theme='light'] a.bg-logo-gradient .text-white,
+html[data-theme='light'] button.bg-logo-gradient .text-white,
+html[data-theme='light'] .text-\[\#050a1a\],
+html[data-theme='light'] .text-surface-dark {
+  color: #050a1a !important;
+  -webkit-text-fill-color: #050a1a;
+}
+html[data-theme='light'] .ibo-btn-primary,
+html[data-theme='light'] a.bg-logo-gradient,
+html[data-theme='light'] button.bg-logo-gradient,
+html[data-theme='light'] .hero-cta-btn {
+  box-shadow: 0 10px 28px rgba(14, 164, 171, 0.22) !important;
+}
+
+/* Outline / secondary CTAs — cyan-accent soft pills (readable on mist) */
+html[data-theme='light'] .ibo-btn-outline {
+  background: linear-gradient(135deg, rgba(14, 164, 171, 0.1) 0%, rgba(255, 255, 255, 0.92) 55%, rgba(197, 227, 91, 0.1) 100%) !important;
+  border: 1px solid rgba(14, 164, 171, 0.35) !important;
+  color: #0a8f95 !important;
+  -webkit-text-fill-color: #0a8f95;
+  box-shadow: 0 6px 18px rgba(14, 164, 171, 0.1);
+}
+html[data-theme='light'] .ibo-btn-outline:hover {
+  background: linear-gradient(135deg, rgba(14, 164, 171, 0.16) 0%, #ffffff 50%, rgba(197, 227, 91, 0.14) 100%) !important;
+  border-color: rgba(14, 164, 171, 0.5) !important;
+  color: #087a80 !important;
+  -webkit-text-fill-color: #087a80;
+}
+html[data-theme='light'] .ibo-btn-accent {
+  background: linear-gradient(135deg, rgba(14, 164, 171, 0.14) 0%, rgba(255, 255, 255, 0.95) 55%, rgba(197, 227, 91, 0.12) 100%) !important;
+  border: 1px solid rgba(14, 164, 171, 0.4) !important;
+  color: #0a8f95 !important;
+  -webkit-text-fill-color: #0a8f95;
+  box-shadow: 0 6px 16px rgba(14, 164, 171, 0.12);
+}
+html[data-theme='light'] .ibo-btn-accent:hover {
+  border-color: rgba(14, 164, 171, 0.55) !important;
+  color: #087a80 !important;
+  -webkit-text-fill-color: #087a80;
+}
+
+html[data-theme='light'] .ibo-mode-chip-active {
+  color: #0a8f95 !important;
+  border-color: rgba(14, 164, 171, 0.45) !important;
+  background: linear-gradient(135deg, rgba(14, 164, 171, 0.14), rgba(197, 227, 91, 0.12)) !important;
+}
+html[data-theme='light'] .ibo-tab-active {
+  color: #0a8f95 !important;
+  border-color: #0a8f95 !important;
+}
+html[data-theme='light'] .ibo-step-num {
+  color: #0a8f95;
+  background: rgba(14, 164, 171, 0.14);
+}
+html[data-theme='light'] .ibo-account-promo {
+  border-color: rgba(14, 164, 171, 0.28);
+  background: linear-gradient(105deg, rgba(14, 164, 171, 0.1) 0%, rgba(197, 227, 91, 0.08) 45%, #ffffff 100%);
+}
+
+/* Lime accent text → darker cyan for readable light contrast */
+html[data-theme='light'] .text-\[\#C5E35B\],
+html[data-theme='light'] .text-gold-light {
+  color: #0a8f95 !important;
+}
+
+html[data-theme='light'] .text-gradient {
+  background: linear-gradient(135deg, #1B5FFF 0%, #0EA4AB 48%, #5a9a12 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Nav — full-width top bar (accent only on hover links) */
+html[data-theme='light'] .ibo-nav-shell {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border-color: var(--ibo-border-solid) !important;
+  box-shadow: none;
+}
+html[data-theme='light'] .ibo-dropdown-panel {
+  background: #ffffff !important;
+  border-color: var(--ibo-border-solid) !important;
+  box-shadow: var(--ibo-shadow);
+}
+
+html[data-theme='light'] footer,
+html[data-theme='light'] .ibo-footer {
+  background:
+    radial-gradient(ellipse 48% 55% at 0% 0%, rgba(14, 164, 171, 0.07), transparent 55%),
+    linear-gradient(180deg, rgba(238, 243, 246, 0.4), #e6edf2 50%, #dde6ec 100%);
+  border-top-color: var(--ibo-border-solid);
+  color: var(--ibo-ink-secondary);
+}
+
+/* Cards — one solid white surface across the app */
+html[data-theme='light'] .ibo-card,
+html[data-theme='light'] .ibo-card-solid {
+  background: var(--ibo-card) !important;
+  border-color: var(--ibo-border-solid) !important;
+  box-shadow: 0 8px 24px rgba(12, 25, 34, 0.06);
+}
+
+html[data-theme='light'] .glass {
+  background: var(--ibo-card);
+  border-color: var(--ibo-border-solid);
+  backdrop-filter: none;
+}
+
+html[data-theme='light'] .ibo-input {
+  background: var(--ibo-card);
+  border-color: var(--ibo-border-solid);
+  color: var(--ibo-ink);
+  box-shadow: 0 1px 2px rgba(12, 25, 34, 0.03);
+}
+html[data-theme='light'] .ibo-input:focus {
+  border-color: rgba(14, 164, 171, 0.55);
+  box-shadow: 0 0 0 3px rgba(14, 164, 171, 0.15);
+}
+html[data-theme='light'] .ibo-btn-secondary {
+  background: var(--ibo-card);
+  border-color: var(--ibo-border-solid);
+  color: var(--ibo-ink);
+}
+html[data-theme='light'] .ibo-btn-secondary:hover {
+  background: var(--ibo-hover);
+  border-color: rgba(14, 164, 171, 0.4);
+  color: var(--ibo-ink);
+}
+
+/* Hero polish */
+html[data-theme='light'] .hero-typewriter {
+  text-shadow: none !important;
+  color: var(--ibo-ink) !important;
+}
+html[data-theme='light'] .hero-type-caret {
+  background: #0ea4ab !important;
+}
+html[data-theme='light'] .hero-orbit-dashed {
+  stroke: rgba(14, 164, 171, 0.22) !important;
+}
+html[data-theme='light'] .hero-light .hero-orbit-travel-spark {
+  filter: drop-shadow(0 0 4px rgba(14, 164, 171, 0.45));
+}
+
+/* Images / 3D icons — soft shadow only in light (no color grading) */
+html[data-theme='light'] .ibo-3d-icon,
+html[data-theme='light'] .ibo-3d-icon--soft,
+html[data-theme='light'] .ibo-3d-icon--sm,
+html[data-theme='light'] .ibo-3d-icon--lg,
+html[data-theme='light'] img.ibo-3d-icon {
+  filter: drop-shadow(0 8px 18px rgba(12, 25, 34, 0.12)) !important;
+  -webkit-filter: drop-shadow(0 8px 18px rgba(12, 25, 34, 0.12)) !important;
+  object-fit: contain !important;
+  background: transparent !important;
+}
+
+html[data-theme='light'] .ibo-3d-icon--glow,
+html[data-theme='light'] img.ibo-3d-icon--glow {
+  filter:
+    drop-shadow(0 0 16px rgba(14, 164, 171, 0.3))
+    drop-shadow(0 0 28px rgba(197, 227, 91, 0.2))
+    drop-shadow(0 10px 22px rgba(12, 25, 34, 0.1)) !important;
+  -webkit-filter:
+    drop-shadow(0 0 16px rgba(14, 164, 171, 0.3))
+    drop-shadow(0 0 28px rgba(197, 227, 91, 0.2))
+    drop-shadow(0 10px 22px rgba(12, 25, 34, 0.1)) !important;
+}
+
+/* Hero canvas fades follow page bg in light */
+html[data-theme='light'] .hero-fade-top {
+  background: linear-gradient(to bottom, rgb(var(--ibo-bg-rgb) / 0.85), transparent) !important;
+}
+html[data-theme='light'] .hero-fade-bottom {
+  background: linear-gradient(to top, rgb(var(--ibo-bg-rgb) / 0.95), transparent) !important;
+}
+
+/* Marquee / strip chips */
+html[data-theme='light'] .coin-marquee-item {
+  background: var(--ibo-card);
+  border-color: var(--ibo-border-solid);
+  box-shadow: 0 4px 14px rgba(12, 25, 34, 0.05);
+}
+html[data-theme='light'] .coin-marquee-item:hover {
+  background: var(--ibo-card);
+  border-color: rgba(14, 164, 171, 0.45);
+  box-shadow: 0 6px 18px rgba(14, 164, 171, 0.12);
+}
+
+/* Hover utilities */
+html[data-theme='light'] .ibo-hover-lift:hover {
+  box-shadow:
+    0 4px 12px rgba(12, 25, 34, 0.06),
+    0 16px 36px rgba(12, 25, 34, 0.08),
+    0 0 0 1px rgba(14, 164, 171, 0.18);
+}
+html[data-theme='light'] .ibo-hover-table-row:hover {
+  background: rgba(14, 164, 171, 0.06) !important;
+}
+
+html[data-theme='light'] .promo-coin-glow {
+  background: radial-gradient(ellipse, rgba(91, 184, 255, 0.28) 0%, rgba(14, 164, 171, 0.1) 45%, transparent 72%);
+}
+html[data-theme='light'] .promo-coin-orbit {
+  border-color: rgba(14, 164, 171, 0.28);
+  box-shadow: 0 0 22px rgba(91, 184, 255, 0.14), inset 0 0 14px rgba(14, 164, 171, 0.06);
+}
+html[data-theme='light'] .promo-coin-img {
+  filter: drop-shadow(0 12px 24px rgba(12, 25, 34, 0.16)) drop-shadow(0 8px 20px rgba(14, 164, 171, 0.22));
+}
+html[data-theme='light'] .promo-progress-track {
+  background: rgba(14, 164, 171, 0.14);
+}
+html[data-theme='light'] .promo-modal-shell {
+  background: linear-gradient(165deg, #ffffff 0%, #f4fafb 48%, #ffffff 100%);
+  box-shadow:
+    0 24px 64px rgba(12, 25, 34, 0.14),
+    0 0 0 1px rgba(14, 164, 171, 0.16),
+    0 0 48px rgba(91, 184, 255, 0.12);
+}
+html[data-theme='light'] .promo-modal-shell::before {
+  background:
+    radial-gradient(ellipse 90% 55% at 50% -5%, rgba(91, 184, 255, 0.18), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 100% 55%, rgba(14, 164, 171, 0.1), transparent 50%),
+    radial-gradient(ellipse 45% 35% at 0% 85%, rgba(91, 184, 255, 0.08), transparent 50%);
+}
+html[data-theme='light'] .promo-modal-watermark {
+  opacity: 0.04;
+}
+html[data-theme='light'] .promo-tagline-gold {
+  color: #0EA4AB;
+}
+html[data-theme='light'] .promo-title-shimmer {
+  background: linear-gradient(
+    105deg,
+    #0a6e74 0%,
+    #0EA4AB 22%,
+    #5BB8FF 48%,
+    #0EA4AB 72%,
+    #0a6e74 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+html[data-theme='light'] .promo-download-bar {
+  background: linear-gradient(180deg, rgba(14, 164, 171, 0.04) 0%, rgba(91, 184, 255, 0.08) 100%);
+}
+html[data-theme='light'] .promo-phone {
+  background: linear-gradient(180deg, #ffffff 0%, #eef5f8 100%);
+  border-color: #c5d6df;
+  box-shadow: 0 14px 28px rgba(12, 25, 34, 0.1);
+}
+html[data-theme='light'] .promo-coin-base {
+  background: linear-gradient(90deg, transparent, rgba(14, 164, 171, 0.5), transparent);
+  box-shadow: 0 0 16px rgba(14, 164, 171, 0.2);
+}
+html[data-theme='light'] .promo-backdrop {
+  background: rgba(12, 25, 34, 0.42) !important;
+}
+
+/* Trading panels stay readable in light (no forced dark chrome) */
+html[data-theme='light'] .order-book-panel {
+  color-scheme: light;
+  background: var(--ibo-card);
+  border-color: var(--ibo-border-solid);
+}
+
+/* Auth split + promo panel */
+html[data-theme='light'] .ibo-page.flex .border-r,
+html[data-theme='light'] .ibo-page.flex .border-l {
+  border-color: var(--ibo-border-solid) !important;
+}
+html[data-theme='light'] .ibo-auth-promo {
+  background:
+    radial-gradient(ellipse 80% 60% at 100% 0%, rgba(14, 164, 171, 0.14), transparent 55%),
+    radial-gradient(ellipse 60% 50% at 0% 100%, rgba(197, 227, 91, 0.12), transparent 50%),
+    linear-gradient(165deg, #ffffff 0%, #f0f7f9 55%, #e8f2f5 100%) !important;
+  border-color: var(--ibo-border-solid) !important;
+}
+
+/* Stacked feature deck shell matches card system */
+html[data-theme='light'] .ibo-feature-stack-shell {
+  background: var(--ibo-surface) !important;
+  box-shadow: 0 20px 50px rgba(12, 25, 34, 0.08) !important;
+}
+
+/* Bento / feature cards — solid white in light, keep accent border */
+html[data-theme='light'] .ibo-feature-bento {
+  background: var(--ibo-card) !important;
+  box-shadow: 0 10px 28px rgba(12, 25, 34, 0.06);
+}
+html[data-theme='light'] .ibo-feature-bento:hover {
+  box-shadow: 0 14px 36px rgba(12, 25, 34, 0.09);
+}
+
+/* Auth primary submit + common gradient fills keep readable ink */
+html[data-theme='light'] button.bg-logo-gradient svg,
+html[data-theme='light'] a.bg-logo-gradient svg,
+html[data-theme='light'] .ibo-btn-primary svg,
+html[data-theme='light'] .hero-cta-btn svg {
+  color: #050a1a !important;
+  stroke: #050a1a;
+}
+
+/* Soft gold/cyan tint fills stay readable on light */
+html[data-theme='light'] .bg-gold\/5,
+html[data-theme='light'] .bg-gold\/10,
+html[data-theme='light'] .hover\:bg-gold\/10:hover {
+  background-color: rgba(14, 164, 171, 0.08) !important;
+}
+html[data-theme='light'] .border-gold\/25,
+html[data-theme='light'] .border-gold\/35,
+html[data-theme='light'] .border-gold\/50 {
+  border-color: rgba(14, 164, 171, 0.35) !important;
+}
+html[data-theme='light'] .text-gold {
+  color: #0a8f95 !important;
+}
+
+/* Markets page — remaining dark-first utilities */
+html[data-theme='light'] .text-white\/25 {
+  color: var(--ibo-muted) !important;
+}
+html[data-theme='light'] .placeholder\:text-white\/30::placeholder,
+html[data-theme='light'] .placeholder\:text-white\/40::placeholder {
+  color: var(--ibo-muted) !important;
+}
+html[data-theme='light'] .bg-white\/10,
+html[data-theme='light'] .bg-black\/20,
+html[data-theme='light'] .bg-black\/30,
+html[data-theme='light'] .bg-black\/40 {
+  background-color: var(--ibo-elevated) !important;
+}
+html[data-theme='light'] .bg-black\/50,
+html[data-theme='light'] .bg-black\/70 {
+  background-color: rgba(12, 25, 34, 0.45) !important;
+}
+html[data-theme='light'] .bg-\[\#0c0d12\]\/80,
+html[data-theme='light'] .bg-\[\#161820\],
+html[data-theme='light'] .bg-\[\#111318\] {
+  background-color: var(--ibo-card) !important;
+}
+html[data-theme='light'] .border-white\/5,
+html[data-theme='light'] .border-white\/15,
+html[data-theme='light'] .border-white\/40 {
+  border-color: var(--ibo-border-solid) !important;
+}
+html[data-theme='light'] .divide-white\/\[0\.05\] > :not([hidden]) ~ :not([hidden]),
+html[data-theme='light'] .divide-white\/\[0\.06\] > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--ibo-border-solid) !important;
+}
+html[data-theme='light'] .hover\:bg-white\/\[0\.055\]:hover,
+html[data-theme='light'] .hover\:bg-white\/\[0\.03\]:hover {
+  background-color: var(--ibo-hover) !important;
+}
+html[data-theme='light'] .ring-white\/10 {
+  --tw-ring-color: var(--ibo-border-solid) !important;
+}
+html[data-theme='light'] .text-sky-200 {
+  color: #0369a1 !important;
+}
+html[data-theme='light'] .text-emerald-300,
+html[data-theme='light'] .text-emerald-300\/90,
+html[data-theme='light'] .text-emerald-400 {
+  color: #059669 !important;
+}
+html[data-theme='light'] .text-rose-300,
+html[data-theme='light'] .text-rose-300\/90,
+html[data-theme='light'] .text-rose-400 {
+  color: #e11d48 !important;
+}
+html[data-theme='light'] .text-green-300,
+html[data-theme='light'] .text-green-400 {
+  color: #16a34a !important;
+}
+html[data-theme='light'] .text-red-300,
+html[data-theme='light'] .text-red-400 {
+  color: #dc2626 !important;
+}
+html[data-theme='light'] .text-white\/25:hover,
+html[data-theme='light'] .group-hover\:text-white\/50 {
+  color: var(--ibo-ink-secondary) !important;
+}
+
+/* Options chain — soften dark ITM / Call-Put header washes for light theme */
+html[data-theme='light'] .bg-emerald-950\/60,
+html[data-theme='light'] .bg-emerald-950\/55 {
+  background-color: rgba(16, 185, 129, 0.12) !important;
+}
+html[data-theme='light'] .bg-rose-950\/60,
+html[data-theme='light'] .bg-rose-950\/55 {
+  background-color: rgba(244, 63, 94, 0.12) !important;
+}
+html[data-theme='light'] .bg-emerald-900\/25 {
+  background-color: rgba(16, 185, 129, 0.08) !important;
+}
+html[data-theme='light'] .bg-rose-900\/25 {
+  background-color: rgba(244, 63, 94, 0.08) !important;
+}
+html[data-theme='light'] .text-rose-200 {
+  color: #e11d48 !important;
+}
+html[data-theme='light'] .bg-\[\#5BB8FF\] {
+  background-color: #5BB8FF !important;
+}

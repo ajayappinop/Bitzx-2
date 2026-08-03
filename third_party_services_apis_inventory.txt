@@ -1,0 +1,198 @@
+IBO PROJECT - THIRD-PARTY SERVICES AND APIS (CURRENT USAGE)
+Generated from current codebase scan.
+
+IMPORTANT
+- This file lists integrations and API endpoints/methods used by code.
+- It does NOT include secrets/keys.
+- Some integrations are optional and only work when env variables are configured.
+
+====================================================================
+1) QUICKNODE (BLOCKCHAIN RPC PROVIDER)
+====================================================================
+Used for: crypto deposit detection, balance reads, and ETH/USDT withdrawal broadcasts.
+Where: backend/services/blockchain_service.py
+
+Base URLs from env:
+- QUICKNODE_ETH_URL (Ethereum JSON-RPC)
+- QUICKNODE_BTC_URL (Bitcoin JSON-RPC)
+
+RPC methods currently used:
+Ethereum side:
+- eth_chainId
+- eth_getTransactionCount
+- eth_sendRawTransaction
+- eth_getTransactionReceipt
+- eth_blockNumber
+- eth_getBalance
+- eth_call
+- eth_estimateGas
+- eth_getBlockByNumber
+- eth_getLogs
+- eth_maxPriorityFeePerGas
+- eth_gasPrice
+
+Bitcoin side:
+- scantxoutset
+
+Notes:
+- Provider mode: BLOCKCHAIN_PROVIDER=quicknode
+- ETH/USDT withdrawals require TREASURY_ETH_PRIVATE_KEY
+- USDT uses USDT_ERC20_CONTRACT
+
+
+====================================================================
+2) BINANCE SPOT API
+====================================================================
+Used for: market prices, market metadata, hedger account, and market order execution.
+Where:
+- backend/services/hedger_service.py
+- backend/server.py
+- backend/options/services/settlement.py
+
+Base URLs:
+- https://api.binance.com (mainnet)
+- https://testnet.binance.vision (testnet)
+
+REST endpoints currently used:
+- GET  /api/v3/ticker/price
+- GET  /api/v3/exchangeInfo
+- GET  /api/v3/account         (signed)
+- POST /api/v3/order           (signed; MARKET orders)
+- GET  /api/v3/ticker/24hr
+- GET  /api/v3/klines
+- GET  /api/v3/depth
+- GET  /api/v3/trades
+
+Notes:
+- Options settlement also fetches Binance ticker price.
+- Hedger can run testnet-first depending on BINANCE_TESTNET.
+
+
+====================================================================
+3) MONGODB
+====================================================================
+Used for: primary database (users, wallets, orders, compliance, audit, etc.)
+Where: backend/server.py and backend services
+
+Connection:
+- MONGO_URL (MongoDB connection string)
+
+API usage style:
+- MongoDB via Motor/PyMongo operations (find, insert_one, update_one, aggregate, indexes).
+
+
+====================================================================
+4) ALERT WEBHOOK (GENERIC EXTERNAL WEBHOOK)
+====================================================================
+Used for: pushing operational alerts to external systems.
+Where:
+- backend/services/alert_service.py
+- backend/server.py platform controls
+
+Endpoint pattern:
+- POST {alert_webhook_url} with JSON payload
+
+Config:
+- alert_webhook_url
+- alert_webhook_min_severity
+
+Typical target examples:
+- Slack / Teams / custom webhook receiver (depends on your configured URL)
+
+
+====================================================================
+5) FIU WEBHOOK (GENERIC EXTERNAL REGULATORY SUBMISSION HOOK)
+====================================================================
+Used for: optional outward submission event when FIU report is submitted.
+Where: backend/services/compliance_service.py
+
+Endpoint pattern:
+- POST {FIU_WEBHOOK_URL} with JSON payload
+
+Config:
+- FIU_WEBHOOK_URL
+
+
+====================================================================
+6) TRADINGVIEW (FRONTEND CHART EMBED)
+====================================================================
+Used for: advanced market chart widget in exchange UI.
+Where: ibo-exchange/src/components/trading/TVChart.jsx
+
+Script/API used:
+- https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js
+
+Related host in config:
+- https://www.tradingview.com
+
+Type:
+- JavaScript embed widget API (not REST fetch from our backend)
+
+
+====================================================================
+7) QR IMAGE API (FRONTEND)
+====================================================================
+Used for: rendering QR image for 2FA setup otpauth URL.
+Where: ibo-exchange/src/pages/ProfilePage.jsx
+
+API endpoint used:
+- https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=<encoded>
+
+
+====================================================================
+8) GOOGLE FONTS (FRONTEND ASSET DELIVERY)
+====================================================================
+Used for: UI fonts in exchange frontend.
+Where: ibo-exchange/src/index.css
+
+CSS import used:
+- https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans...&family=JetBrains+Mono...
+
+
+====================================================================
+9) COINGECKO ASSET CDN (FRONTEND ICON URLS)
+====================================================================
+Used for: coin icon image URLs (BTC, ETH, BNB, etc.)
+Where: ibo-exchange/src/services/marketApi.js
+
+Host used:
+- https://assets.coingecko.com/coins/images/...
+
+Note:
+- This is image CDN usage (icon URLs), not CoinGecko market data API calls.
+
+
+====================================================================
+10) BSCSCAN LINK (PUBLIC EXPLORER URL)
+====================================================================
+Used for: contract explorer link shown in API response/UI.
+Where: backend/server.py
+
+URL pattern:
+- https://bscscan.com/token/{contract}
+
+Type:
+- Public explorer URL (link generation), not authenticated API integration.
+
+
+====================================================================
+11) EMERGENT CUSTOMER ASSETS CDN (STATIC IMAGES)
+====================================================================
+Used for: project logo/image asset URLs in frontend.
+Where:
+- ibo-exchange pages/components
+- ibo-admin assets
+
+Host used:
+- https://customer-assets.emergentagent.com/...
+
+Type:
+- Static asset hosting, not business API calls.
+
+
+====================================================================
+NOT COUNTED AS THIRD-PARTY APIS
+====================================================================
+These are internal to your own backend service:
+- /api/* REST endpoints served by backend/server.py
+- /api/ws/* WebSocket endpoints used by admin/exchange frontends

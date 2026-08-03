@@ -1,0 +1,68 @@
+CLIENT WALLET DETAILS REQUIRED (FROM CLIENT)
+
+Purpose:
+- Collect all wallet details needed to configure hot/cold wallets and withdrawal signing.
+- Use this as a handover checklist with the client.
+
+IMPORTANT SECURITY NOTE:
+- Never ask for or store private keys in chat, email, or plain text documents.
+- Private keys must be shared only through a secure secret manager or secure vault process.
+- This file is only a checklist/template.
+
+============================================================
+1) HOT WALLET DETAILS (REQUIRED)
+============================================================
+For each coin/network we support now:
+- BTC / Bitcoin Network
+- ETH / ERC-20 (Ethereum)
+- USDT / ERC-20 (Ethereum)
+
+Please provide:
+1. Public wallet address (required)
+2. Wallet label/name (example: "Main Hot Wallet - ETH")
+3. Network confirmation (exact network name)
+4. Whether this should be the default payout wallet (Yes/No)
+
+For backend signing setup (secure channel only):
+5. Private key for payout signer (required for ETH/USDT withdrawals)
+   - Must be provided ONLY via secure secret sharing process.
+   - Do not send in normal messages/documents.
+
+============================================================
+2) COLD WALLET DETAILS (OPTIONAL BUT RECOMMENDED)
+============================================================
+Please provide:
+1. Public cold wallet address
+2. Wallet label/name (example: "Cold Treasury 1")
+3. Network confirmation
+4. Storage/custody note (optional)
+
+============================================================
+3) QUICKNODE / BLOCKCHAIN ACCESS (REQUIRED FOR ON-CHAIN FEATURES)
+============================================================
+Please provide:
+1. Ethereum RPC URL (QuickNode)
+2. Bitcoin RPC URL (QuickNode) - if BTC on-chain flow is needed
+3. USDT ERC-20 contract confirmation
+
+============================================================
+4) CLIENT CONFIRMATION CHECKLIST
+============================================================
+- [ ] All hot wallet public addresses shared
+- [ ] Hot wallet address matches intended server payout signer address
+- [ ] Default payout wallet selected (hot only)
+- [ ] Cold wallet public addresses shared (if used)
+- [ ] RPC URLs shared
+- [ ] Private key shared securely (not in plain text/chat/email)
+- [ ] Client approved go-live wallet mapping
+
+============================================================
+5) READY-TO-FILL TABLE (COPY AND FILL)
+============================================================
+Wallet Type | Coin | Network | Public Address | Label | Default Payout | Key Shared Securely
+Hot         | BTC  | Bitcoin Network   |            |       | Yes/No         | N/A
+Hot         | ETH  | ERC-20 (Ethereum) |            |       | Yes/No         | Yes/No
+Hot         | USDT | ERC-20 (Ethereum) |            |       | Yes/No         | Yes/No
+Cold        | BTC  | Bitcoin Network   |            |       | No             | N/A
+Cold        | ETH  | ERC-20 (Ethereum) |            |       | No             | N/A
+Cold        | USDT | ERC-20 (Ethereum) |            |       | No             | N/A

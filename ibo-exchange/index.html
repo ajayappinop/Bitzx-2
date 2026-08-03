@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en" class="dark" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/ibo-logo.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="/ibo-logo.png" sizes="48x48" />
+    <link rel="shortcut icon" type="image/png" href="/ibo-logo.png" />
+    <link rel="apple-touch-icon" href="/ibo-logo.png" sizes="180x180" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#08090c" />
+    <title>IBO Exchange — Trade Crypto</title>
+    <meta name="description" content="IBO Exchange — Next-generation centralized crypto exchange. Spot trading for IBO and 100+ crypto pairs." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400..800&display=swap" rel="stylesheet" />
+    <script>
+      (function () {
+        try {
+          var KEY = 'ibo-exchange-theme-v2';
+          var t = localStorage.getItem(KEY);
+          if (t !== 'light' && t !== 'dark') {
+            try { localStorage.removeItem('ibo-exchange-theme'); } catch (e) {}
+            t = 'dark';
+          }
+          var root = document.documentElement;
+          root.setAttribute('data-theme', t);
+          root.style.colorScheme = t;
+          root.classList.remove('light', 'dark');
+          root.classList.add(t);
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

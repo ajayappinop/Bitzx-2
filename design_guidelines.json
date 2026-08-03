@@ -1,0 +1,189 @@
+{
+  "design_system": {
+    "typography": {
+      "headings": {
+        "font_family": "Outfit, sans-serif",
+        "weights": ["600", "700", "800"],
+        "styles": {
+          "h1": "text-5xl md:text-7xl font-bold tracking-tight leading-none bg-gradient-to-br from-white via-[#EBD38D] to-[#9C7941] bg-clip-text text-transparent drop-shadow-sm",
+          "h2": "text-4xl md:text-5xl font-bold tracking-tight mb-6 text-white",
+          "h3": "text-2xl md:text-3xl font-semibold mb-4 text-[#EBD38D]"
+        }
+      },
+      "body": {
+        "font_family": "Plus Jakarta Sans, sans-serif",
+        "weights": ["400", "500", "600"],
+        "styles": {
+          "base": "text-base md:text-lg text-[#D5D5D0] leading-relaxed",
+          "small": "text-sm text-[#4A4B50]",
+          "mono": "font-mono text-sm text-[#EBD38D] bg-[#1B1E20]/50 px-2 py-1 rounded"
+        }
+      },
+      "code": {
+        "font_family": "JetBrains Mono, monospace"
+      }
+    },
+    "colors": {
+      "brand": {
+        "primary": "#9C7941",
+        "secondary": "#EBD38D",
+        "dark": "#1B1E20",
+        "gray": "#4A4B50",
+        "silver": "#D5D5D0"
+      },
+      "background": {
+        "default": "#1B1E20",
+        "paper": "#232628",
+        "card": "rgba(27, 30, 32, 0.6)"
+      },
+      "text": {
+        "primary": "#FFFFFF",
+        "secondary": "#D5D5D0",
+        "muted": "#8A8B90",
+        "accent": "#EBD38D"
+      },
+      "border": {
+        "default": "#4A4B50",
+        "active": "#9C7941"
+      }
+    },
+    "layout": {
+      "spacing": {
+        "section_padding": "py-24 md:py-32",
+        "container_padding": "px-6 md:px-12",
+        "grid_gap": "gap-8 md:gap-12"
+      },
+      "container": {
+        "max_width": "max-w-7xl mx-auto"
+      },
+      "grid": {
+        "bento": "grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[300px]"
+      }
+    },
+    "visual_enhancers": {
+      "glassmorphism": {
+        "default": "backdrop-blur-xl bg-[#1B1E20]/70 border border-[#EBD38D]/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]",
+        "hover": "hover:bg-[#1B1E20]/80 hover:border-[#EBD38D]/30 transition-all duration-300"
+      },
+      "gradients": {
+        "gold_glow": "bg-gradient-to-r from-[#9C7941] to-[#EBD38D]",
+        "dark_overlay": "bg-gradient-to-t from-[#1B1E20] via-[#1B1E20]/80 to-transparent"
+      },
+      "shadows": {
+        "glow": "shadow-[0_0_20px_rgba(156,121,65,0.3)]"
+      },
+      "borders": {
+        "thin_gold": "border border-[#9C7941]/20"
+      }
+    }
+  },
+  "components": {
+    "Button": {
+      "variants": {
+        "primary": "bg-gradient-to-r from-[#9C7941] to-[#EBD38D] text-[#1B1E20] font-bold px-8 py-4 rounded-full hover:scale-105 transition-transform shadow-[0_0_20px_rgba(156,121,65,0.4)]",
+        "secondary": "bg-transparent border border-[#EBD38D] text-[#EBD38D] font-bold px-8 py-4 rounded-full hover:bg-[#EBD38D]/10 transition-colors",
+        "ghost": "text-[#D5D5D0] hover:text-[#EBD38D] font-medium"
+      }
+    },
+    "Card": {
+      "styles": "bg-[#1B1E20]/50 backdrop-blur-md border border-[#4A4B50]/30 rounded-2xl p-8 hover:border-[#9C7941]/50 transition-colors group relative overflow-hidden"
+    },
+    "Input": {
+      "styles": "bg-[#000000]/20 border border-[#4A4B50] text-[#D5D5D0] rounded-xl px-4 py-3 focus:border-[#EBD38D] focus:ring-1 focus:ring-[#EBD38D] outline-none transition-all placeholder:text-[#4A4B50]"
+    }
+  },
+  "assets": {
+    "logo_url": "https://customer-assets.emergentagent.com/job_ibo-launch/artifacts/h737hj7m_Ibo%20Logo.png",
+    "images": {
+      "hero_bg": "https://images.unsplash.com/photo-1764437358247-51f409686853?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA0MTJ8MHwxfHNlYXJjaHwxfHxnb2xkJTIwYWJzdHJhY3QlMjAzZCUyMGZ1dHVyaXN0aWMlMjBjcnlwdG8lMjBuZXR3b3JrJTIwZGFyayUyMGJhY2tncm91bmR8ZW58MHx8fHwxNzc0NDM0MDExfDA&ixlib=rb-4.1.0&q=85",
+      "exchange_preview": "https://images.unsplash.com/photo-1667372393086-9d4001d51cf1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzZ8MHwxfHNlYXJjaHw0fHxjcnlwdG8lMjBleGNoYW5nZSUyMG1vYmlsZSUyMGFwcCUyMHVpJTIwZGFyayUyMGdvbGQlMjBjeWJlciUyMHNlY3VyaXR5JTIwc2hpZWxkJTIwZGlnaXRhbCUyMG5ldHdvcmslMjBtYXB8ZW58MHx8fHwxNzc0NDM0MDIzfDA&ixlib=rb-4.1.0&q=85",
+      "security_feature": "https://images.unsplash.com/photo-1631632286519-cb83e10e3d98?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzZ8MHwxfHNlYXJjaHwyfHxjcnlwdG8lMjBleGNoYW5nZSUyMG1vYmlsZSUyMGFwcCUyMHVpJTIwZGFyayUyMGdvbGQlMjBjeWJlciUyMHNlY3VyaXR5JTIwc2hpZWxkJTIwZGlnaXRhbCUyMG5ldHdvcmslMjBtYXB8ZW58MHx8fHwxNzc0NDM0MDIzfDA&ixlib=rb-4.1.0&q=85",
+      "global_network": "https://images.unsplash.com/photo-1772048201306-3625dc892fdd?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA0MTJ8MHwxfHNlYXJjaHwyfHxnb2xkJTIwYWJzdHJhY3QlMjAzZCUyMGZ1dHVyaXN0aWMlMjBjcnlwdG8lMjBuZXR3b3JrJTIwZGFyayUyMGJhY2tncm91bmR8ZW58MHx8fHwxNzc0NDM0MDExfDA&ixlib=rb-4.1.0&q=85"
+    }
+  },
+  "sections": [
+    {
+      "name": "Hero",
+      "type": "hero",
+      "layout": "split_asymmetrical",
+      "content": {
+        "headline": "The Future of Decentralized \u0026 Centralized Exchange",
+        "subheadline": "IBO ($IBO) powers the next-gen crypto ecosystem. Secure, fast, and community-driven.",
+        "cta_primary": "Buy $IBO Now",
+        "cta_secondary": "Read Whitepaper"
+      },
+      "visuals": {
+        "bg_effect": "particles_gold_dust",
+        "3d_element": "floating_gold_coin_or_abstract_shape"
+      }
+    },
+    {
+      "name": "Stats",
+      "type": "stats_ticker",
+      "layout": "horizontal_bar",
+      "style": "glass_panel_floating"
+    },
+    {
+      "name": "About",
+      "type": "feature_split",
+      "layout": "image_left_text_right",
+      "visuals": {
+        "image": "security_feature"
+      }
+    },
+    {
+      "name": "Utility",
+      "type": "bento_grid",
+      "items": [
+        {"title": "Staking Rewards", "icon": "Coins", "size": "large"},
+        {"title": "Governance", "icon": "Vote", "size": "small"},
+        {"title": "Low Fees", "icon": "Percent", "size": "small"},
+        {"title": "Exchange Access", "icon": "Building", "size": "tall"}
+      ]
+    },
+    {
+      "name": "CEX Exchange Preview",
+      "type": "showcase",
+      "layout": "centered_focus",
+      "visuals": {
+        "image": "exchange_preview",
+        "effect": "tilt_shift_parallax"
+      }
+    },
+    {
+      "name": "Roadmap",
+      "type": "timeline",
+      "style": "vertical_glowing_nodes"
+    },
+    {
+      "name": "Tokenomics",
+      "type": "chart_section",
+      "visuals": {
+        "chart_type": "donut",
+        "library": "recharts"
+      }
+    },
+    {
+      "name": "FAQ",
+      "type": "accordion",
+      "style": "minimal_glass"
+    }
+  ],
+  "technical_instructions": {
+    "framework": "React (Create React App structure)",
+    "styling": "Tailwind CSS",
+    "animation_library": "framer-motion",
+    "icons": "lucide-react",
+    "charts": "recharts",
+    "particles": "react-tsparticles",
+    "font_loading": "Import Google Fonts: Outfit (Display) and Plus Jakarta Sans (Body) in index.css",
+    "file_extension": "Use .js and .jsx for components"
+  },
+  "universal_guidelines": [
+    "Use 'data-testid' on all interactive elements.",
+    "Do not use transparent backgrounds for dropdowns/overlays; use semi-transparent glassmorphism.",
+    "Ensure 4.5:1 contrast ratio for text.",
+    "Micro-interactions on all hover states.",
+    "Mobile-first responsive design."
+  ]
+}

@@ -1,0 +1,47 @@
+fastapi==0.110.1
+# Resize token logo for GET /api/token-logo (32x32 PNG).
+Pillow>=10.2.0
+uvicorn==0.25.0
+boto3>=1.34.129
+requests-oauthlib>=2.0.0
+cryptography>=42.0.8
+python-dotenv>=1.0.1
+pymongo==4.5.0
+pydantic>=2.6.4
+email-validator>=2.2.0
+pyjwt>=2.10.1
+bcrypt==4.1.3
+passlib>=1.7.4
+tzdata>=2024.2
+motor==3.3.1
+pytest>=8.0.0
+black>=24.1.1
+isort>=5.13.2
+flake8>=7.0.0
+mypy>=1.8.0
+python-jose>=3.3.0
+requests>=2.31.0
+pandas>=2.2.0
+numpy>=1.26.0
+openpyxl>=3.1.5
+python-multipart>=0.0.9
+jq>=1.6.0
+typer>=0.9.0
+# Phase 3 — blockchain integration
+# bip_utils: BIP32/39/44/84 HD wallet derivation (BTC native segwit + ETH/EVM).
+bip_utils>=2.9.3
+# httpx: async JSON-RPC client for QuickNode (BTC/ETH) + REST add-ons.
+httpx>=0.27.0
+websockets>=12.0
+redis>=5.0.0
+# Phase 6 — on-chain withdrawal signing.
+# eth-account: offline signing of EIP-1559 / legacy Ethereum transactions
+# (standalone, no full web3 dependency). Used by the withdrawal executor to
+# turn a pending request into a broadcast-ready raw transaction hex.
+eth-account>=0.11.0
+# tronpy: Tron TRX + USDT TRC-20 withdrawal signing/broadcast.
+tronpy>=0.4.0
+# Phase 7a — TOTP (RFC 6238) helpers. pyotp generates the base32 secrets,
+# builds the otpauth:// URI that the frontend renders as a QR, and
+# time-window-verifies user-supplied 6-digit codes.
+pyotp>=2.9.0

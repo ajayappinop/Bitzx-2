@@ -1,0 +1,453 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Logo gradient — matches IBO emblem (blue → cyan → lime) */
+.bg-logo-gradient {
+  background-image: linear-gradient(
+    to top right,
+    #0B5FFF 0%,
+    #1B5FFF 22%,
+    #0EA4AB 52%,
+    #2ECAD0 72%,
+    #C5E35B 100%
+  );
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+  color-scheme: dark;
+}
+
+#root {
+  min-height: 100%;
+  min-height: 100dvh;
+}
+
+/* Lock document height when admin shell is mounted so the sidebar nav can scroll. */
+#root:has(.admin-panel-root) {
+  height: 100dvh;
+  max-height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Horizontal table / chart regions: smooth touch scroll on phones */
+.adm-table-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x pan-y;
+}
+
+body {
+  color: #ffffff;
+  font-size: 16px;
+  line-height: 1.6;
+  font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background:
+    radial-gradient(1200px 500px at -10% -20%, rgba(14, 164, 171, 0.1), transparent 60%),
+    radial-gradient(900px 460px at 110% 0%, rgba(27, 95, 255, 0.08), transparent 58%),
+    radial-gradient(900px 520px at 40% 120%, rgba(14, 165, 233, 0.08), transparent 62%),
+    #000510;
+  background-attachment: fixed;
+}
+
+@keyframes adminFadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes adminPulseGlow {
+  0%, 100% { box-shadow: 0 0 0 rgba(14, 164, 171, 0.0); }
+  50% { box-shadow: 0 0 28px rgba(14, 164, 171, 0.22); }
+}
+
+@keyframes adminBlobFloat {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(18px, -14px, 0) scale(1.05); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+.admin-panel-root {
+  animation: adminFadeUp 360ms ease-out;
+}
+
+.adm-main-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.admin-bg-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(42px);
+  pointer-events: none;
+  opacity: 0.55;
+  animation: adminBlobFloat 12s ease-in-out infinite;
+}
+
+.admin-bg-blob.one {
+  width: 340px;
+  height: 340px;
+  top: -120px;
+  left: -120px;
+  background: rgba(14, 164, 171, 0.18);
+}
+
+.admin-bg-blob.two {
+  width: 300px;
+  height: 300px;
+  top: 10%;
+  right: -110px;
+  background: rgba(27, 95, 255, 0.16);
+  animation-delay: 1.5s;
+}
+
+.admin-bg-blob.three {
+  width: 360px;
+  height: 360px;
+  bottom: -160px;
+  left: 32%;
+  background: rgba(14, 164, 171, 0.14);
+  animation-delay: 0.75s;
+}
+
+/* Improve readability across admin screens */
+@layer utilities {
+  .text-xs { font-size: 0.875rem !important; line-height: 1.35 !important; }
+  .text-sm { font-size: 1rem !important; line-height: 1.45 !important; }
+  .text-base { font-size: 1.0625rem !important; line-height: 1.5 !important; }
+  .text-lg { font-size: 1.1875rem !important; line-height: 1.45 !important; }
+}
+
+/* Replace low-contrast white/opacity text with readable white */
+[class*="text-white/"] {
+  color: rgba(255, 255, 255, 0.96) !important;
+}
+
+/* Inputs and placeholders: higher contrast */
+input, select, textarea {
+  color: #ffffff !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Dropdown/select visibility + consistency */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: rgba(16, 18, 24, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+  padding-right: 2.1rem !important;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #ffffff 50%),
+    linear-gradient(135deg, #ffffff 50%, transparent 50%);
+  background-position:
+    calc(100% - 16px) calc(50% - 2px),
+    calc(100% - 11px) calc(50% - 2px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+select:hover {
+  border-color: rgba(197, 227, 91, 0.5) !important;
+  background-color: rgba(20, 23, 30, 0.98) !important;
+}
+
+select:focus,
+input:focus,
+textarea:focus {
+  outline: none !important;
+  border-color: rgba(197, 227, 91, 0.72) !important;
+  box-shadow: 0 0 0 2px rgba(197, 227, 91, 0.22) !important;
+}
+
+select option {
+  background-color: #11141b !important;
+  color: #ffffff !important;
+}
+
+select option:checked,
+select option:hover {
+  background-color: #263044 !important;
+  color: #ffffff !important;
+}
+
+/* Date/time picker indicator icon to white */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(1.6);
+  opacity: 1;
+  cursor: pointer;
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(14, 164, 171, 0.35) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(14, 164, 171, 0.35);
+  border-radius: 4px;
+}
+
+/* Theming polish for cards/nav/buttons */
+.bg-surface-card {
+  background:
+    radial-gradient(120% 100% at 0% 0%, rgba(16, 185, 129, 0.14), transparent 44%),
+    radial-gradient(110% 100% at 100% 100%, rgba(56, 189, 248, 0.12), transparent 50%),
+    linear-gradient(155deg, rgba(8, 14, 23, 0.96), rgba(3, 9, 18, 0.95)) !important;
+  border-color: rgba(148, 163, 184, 0.26) !important;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.34);
+}
+
+.bg-surface-dark {
+  background: linear-gradient(160deg, rgba(11, 14, 17, 0.96), rgba(0, 5, 16, 0.96)) !important;
+}
+
+.border-surface-border {
+  border-color: rgba(148, 163, 184, 0.28) !important;
+}
+
+a.rounded-2xl,
+button.rounded-xl,
+button.rounded-2xl,
+.adm-card {
+  transition: transform 220ms ease, box-shadow 240ms ease, border-color 220ms ease, background-color 220ms ease;
+}
+
+a.rounded-2xl:hover,
+button.rounded-xl:hover,
+button.rounded-2xl:hover,
+.adm-card:hover {
+  transform: translateY(-2px);
+}
+
+.adm-card:hover {
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(14, 164, 171, 0.22);
+}
+
+.admin-nav-link-active {
+  background: linear-gradient(90deg, rgba(14, 164, 171, 0.2), rgba(14, 164, 171, 0.08));
+  border-color: rgba(14, 164, 171, 0.36) !important;
+  animation: adminPulseGlow 3.2s ease-in-out infinite;
+}
+
+@layer components {
+  .admin-page {
+    @apply min-w-0 max-w-full space-y-5;
+    animation: adminFadeUp 300ms ease-out;
+  }
+
+  .admin-hero {
+    @apply relative overflow-hidden rounded-3xl border border-surface-border bg-surface-card p-5 sm:p-6;
+    box-shadow: 0 14px 38px rgba(0, 0, 0, 0.34);
+  }
+
+  .admin-hero::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    z-index: 0;
+    background:
+      radial-gradient(50% 60% at 5% 0%, rgba(56, 189, 248, 0.12), transparent 70%),
+      radial-gradient(45% 55% at 95% 0%, rgba(129, 140, 248, 0.15), transparent 72%),
+      radial-gradient(55% 70% at 50% 120%, rgba(197, 227, 91, 0.1), transparent 70%);
+    pointer-events: none;
+  }
+
+  .admin-hero > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .admin-title {
+    @apply text-3xl sm:text-4xl font-black tracking-tight text-white;
+  }
+
+  .admin-subtitle {
+    @apply text-base sm:text-lg text-white/80 mt-2 max-w-4xl leading-relaxed;
+  }
+
+  /* Short explanation under page titles (plain language, easy to read) */
+  .admin-page-lead {
+    @apply text-base sm:text-lg text-white/80 max-w-4xl leading-relaxed;
+  }
+
+  .admin-kpi-card {
+    @apply rounded-2xl border border-surface-border bg-surface-card p-4 sm:p-5;
+    background-image: linear-gradient(160deg, rgba(30, 35, 41, 0.95), rgba(18, 22, 30, 0.95));
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+  }
+
+  .admin-kpi-value {
+    @apply text-2xl sm:text-3xl font-black text-white mt-1 font-mono tracking-tight;
+  }
+
+  .admin-pill {
+    @apply inline-flex items-center rounded-full border px-3 py-1.5 text-sm font-bold;
+  }
+
+  .admin-tabs {
+    @apply flex gap-1 p-1 rounded-xl border border-surface-border bg-surface-dark/70;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .admin-tab-btn {
+    @apply inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-bold border border-transparent text-white/65 hover:text-white hover:bg-surface-hover transition-colors whitespace-nowrap;
+    transition: all 180ms ease;
+  }
+
+  .admin-tab-btn.active {
+    @apply text-[#0B0E11] border-[#0EA4AB]/40;
+    background-image: linear-gradient(135deg, #4D8AFF 0%, #3DA0FF 22%, #2ECAD0 52%, #A0EC6E 78%, #D8F07A 100%);
+    box-shadow: 0 8px 20px rgba(14, 164, 171, 0.28);
+  }
+
+  .admin-filter-bar {
+    @apply rounded-xl border border-surface-border bg-surface-card p-4 sm:p-5;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+  }
+
+  .admin-section {
+    @apply rounded-xl border border-surface-border bg-surface-card;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.3);
+  }
+
+  .admin-section-title {
+    @apply text-lg sm:text-xl font-extrabold text-white mb-3;
+  }
+
+  .admin-data-table {
+    @apply w-full text-base;
+  }
+
+  .admin-data-table thead tr {
+    @apply text-left text-sm text-white/70 border-b border-surface-border bg-white/[0.03];
+    letter-spacing: 0.02em;
+  }
+
+  .admin-data-table tbody tr {
+    @apply border-b border-surface-border/60;
+    transition: background-color 180ms ease;
+  }
+
+  .admin-data-table tbody tr:hover {
+    background: linear-gradient(90deg, rgba(34, 211, 238, 0.06), rgba(16, 185, 129, 0.05));
+  }
+
+  /* Keep only the top layout header title across all admin pages. */
+  .admin-page .admin-hero,
+  .admin-page .admin-title,
+  .admin-page .admin-page-lead,
+  .admin-page .admin-subtitle {
+    display: none;
+  }
+}
+
+.admin-page h1 {
+  letter-spacing: -0.01em;
+}
+
+.admin-page h2 {
+  letter-spacing: -0.005em;
+}
+
+.admin-page p,
+.admin-page label,
+.admin-page span {
+  text-wrap: pretty;
+}
+
+.admin-page table td,
+.admin-page table th {
+  vertical-align: middle;
+}
+
+.admin-content > * {
+  border-radius: 1.25rem;
+}
+
+.admin-content h1 {
+  font-size: clamp(1.75rem, 2.8vw, 2.35rem);
+  font-weight: 900;
+  color: #fff;
+}
+
+.admin-content h2 {
+  font-size: clamp(1.25rem, 2vw, 1.55rem);
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.96);
+}
+
+.admin-content .rounded-2xl,
+.admin-content .rounded-xl {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(3px);
+}
+
+.admin-content :is(div, section, article).rounded-2xl {
+  padding: clamp(0.95rem, 1.5vw, 1.25rem);
+}
+
+.admin-content :is(div, section, article).rounded-xl {
+  padding: clamp(0.75rem, 1.2vw, 1rem);
+}
+
+/* Opaque base under the gradient so sticky thead cells don’t show scrolling rows through them */
+.admin-content .adm-table-x table thead tr th {
+  font-size: 0.95rem !important;
+  color: rgba(255, 255, 255, 1) !important;
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.22), rgba(56, 189, 248, 0.2)), #0f172a;
+  box-shadow: 0 1px 0 0 rgba(148, 163, 184, 0.2);
+}
+
+.admin-content .adm-table-x table tbody tr td,
+.admin-content .adm-table-x table thead tr th {
+  padding-top: 0.85rem !important;
+  padding-bottom: 0.85rem !important;
+}
+
+.admin-content input,
+.admin-content select,
+.admin-content textarea,
+.admin-content button {
+  min-height: 2.65rem;
+}
+
+.admin-content input,
+.admin-content select,
+.admin-content textarea {
+  border-radius: 0.75rem;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+  background: linear-gradient(180deg, rgba(18, 22, 30, 0.95), rgba(9, 12, 17, 0.95)) !important;
+}
+
+.admin-content button {
+  transition: transform 160ms ease, box-shadow 180ms ease, filter 180ms ease;
+}
+
+.admin-content button:hover {
+  transform: translateY(-1px);
+}
+
+.admin-content button:active {
+  transform: translateY(0);
+}
+
+.admin-content .rounded-2xl > .adm-table-x table tbody tr:hover,
+.admin-content .rounded-xl > .adm-table-x table tbody tr:hover {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.12), rgba(56, 189, 248, 0.11));
+}
