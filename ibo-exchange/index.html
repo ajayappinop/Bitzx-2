@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="dark" data-theme="dark">
+<html lang="en" class="light" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/ibo-logo.png?v=18" sizes="32x32" />
@@ -7,7 +7,7 @@
     <link rel="shortcut icon" type="image/png" href="/ibo-logo.png?v=18" />
     <link rel="apple-touch-icon" href="/ibo-logo.png?v=18" sizes="180x180" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#101013" />
+    <meta name="theme-color" content="#F3F4F6" />
     <title>Delta Exchange — Trade Crypto</title>
     <meta name="description" content="Delta Exchange — Next-generation centralized crypto exchange. Spot trading for Delta and 100+ crypto pairs." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -16,11 +16,14 @@
     <script>
       (function () {
         try {
-          var KEY = 'ibo-exchange-theme-v2';
+          var KEY = 'ibo-exchange-theme-v3';
           var t = localStorage.getItem(KEY);
           if (t !== 'light' && t !== 'dark') {
-            try { localStorage.removeItem('ibo-exchange-theme'); } catch (e) {}
-            t = 'dark';
+            try {
+              localStorage.removeItem('ibo-exchange-theme-v2');
+              localStorage.removeItem('ibo-exchange-theme');
+            } catch (e) {}
+            t = 'light';
           }
           var root = document.documentElement;
           root.setAttribute('data-theme', t);

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Routes, Route, Navigate, useLocation, Outlet } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, Outlet, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { exchangeApiOrigin } from '@/lib/apiBase';
 import ComingSoonPage from '@/pages/ComingSoonPage';
@@ -16,18 +16,33 @@ import RegisterPage  from '@/pages/RegisterPage';
 import EmailVerificationPage from '@/pages/EmailVerificationPage';
 import ForgotPasswordPage        from '@/pages/ForgotPasswordPage';
 import ResetPasswordPage          from '@/pages/ResetPasswordPage';
-import DashboardPage from '@/pages/DashboardPage';
-import WalletPage    from '@/pages/WalletPage';
 import InrDepositPage from '@/pages/InrDepositPage';
 import InrWithdrawPage from '@/pages/InrWithdrawPage';
-import ProfilePage      from '@/pages/ProfilePage';
-import KYCPage          from '@/pages/KYCPage';
 import QuickTradePage   from '@/pages/QuickTradePage';
-import PnLAnalyticsPage from '@/pages/PnLAnalyticsPage';
-import SupportDisputesPage from '@/pages/SupportDisputesPage';
 import FuturesTradePage from '@/pages/FuturesTradePage';
 import OptionsTradePage from '@/pages/OptionsTradePage';
-import SettingsPage          from '@/pages/SettingsPage';
+import AccountLayout from '@/components/account/AccountLayout';
+import {
+  AccountIndexRedirect,
+  AccountPositions,
+  AccountOrders,
+  AccountTradeHistory,
+  AccountBalances,
+  AccountDeposits,
+  AccountWithdrawals,
+  AccountTransactionLogs,
+  AccountTransfer,
+  AccountPnL,
+  AccountInvoices,
+  AccountProfile,
+  AccountSecurity,
+  AccountBankDetails,
+  AccountKyc,
+  AccountPreferences,
+  AccountRefer,
+  AccountSupport,
+  AccountApiKeys,
+} from '@/pages/account/AccountSections';
 import P2PMarketplacePage    from '@/pages/p2p/P2PMarketplacePage';
 import P2PAdDetailPage       from '@/pages/p2p/P2PAdDetailPage';
 import P2POrderDetailPage    from '@/pages/p2p/P2POrderDetailPage';
@@ -85,11 +100,29 @@ function ProtectedRoute({ children }) {
   return user ? children : <Navigate to="/login" replace />;
 }
 
+/** Map legacy /wallet?tab=… URLs into the Delta-style /account hub */
+function WalletLegacyRedirect() {
+  const [params] = useSearchParams();
+  const tab = params.get('tab');
+  const map = {
+    balances: 'balances',
+    deposit: 'deposits',
+    withdraw: 'withdrawals',
+    swap: 'transfer',
+    ledger: 'transaction-logs',
+    history: 'transaction-logs',
+    futures: 'balances',
+  };
+  const dest = map[tab] || 'balances';
+  return <Navigate to={`/account/${dest}`} replace />;
+}
+
 // ── Main layout (Navbar + optional Footer) ───────────────────────────────────
 function Layout() {
   const { pathname } = useLocation();
   const isTrade  = pathname.startsWith('/trade') || pathname.startsWith('/futures') || pathname.startsWith('/options');
   const isHome   = pathname === '/';
+  const isAccount = pathname === '/account' || pathname.startsWith('/account/');
 
   return (
     <div className="relative h-[100dvh] max-h-[100dvh] flex flex-col overflow-hidden">
@@ -99,20 +132,27 @@ function Layout() {
         </div>
       )}
 
-      {/* Single scroll root so sticky navbar works on every page */}
+      {/* Single scroll root so sticky navbar works on every page.
+          Trade + Account fill the remaining viewport and scroll internally (Delta shell). */}
       <div
         data-ibo-scroll-root
-        className={`relative flex flex-col flex-1 min-h-0 overflow-x-hidden overflow-y-auto`}
+        className={`relative flex flex-col flex-1 min-h-0 overflow-x-hidden ${
+          isTrade || isAccount ? 'overflow-y-hidden' : 'overflow-y-auto'
+        }`}
         style={{ zIndex: 3 }}
       >
         <Navbar />
         <ImpersonationBanner />
         <FeaturesPausedBanner />
         <SignupBonusKycPrompt />
-        <main className={`flex w-full min-w-0 flex-col ${isTrade ? 'flex-1' : 'shrink-0 flex-1'}`}>
+        <main
+          className={`flex w-full min-w-0 flex-col ${
+            isTrade || isAccount ? 'flex-1 min-h-0 overflow-hidden' : 'shrink-0 flex-1'
+          }`}
+        >
           <Outlet />
         </main>
-        {!isTrade && <Footer />}
+        {!isTrade && !isAccount && <Footer />}
       </div>
     </div>
   );
@@ -222,11 +262,9 @@ export default function App() {
         />
 
         <Route path="/dashboard" element={
-          <ProtectedRoute><DashboardPage /></ProtectedRoute>
+          <Navigate to="/account/positions" replace />
         } />
-        <Route path="/wallet" element={
-          <ProtectedRoute><WalletPage /></ProtectedRoute>
-        } />
+        <Route path="/wallet" element={<WalletLegacyRedirect />} />
         <Route path="/wallet/deposit/inr" element={
           <ProtectedRoute><InrDepositPage /></ProtectedRoute>
         } />
@@ -234,27 +272,55 @@ export default function App() {
           <ProtectedRoute><InrWithdrawPage /></ProtectedRoute>
         } />
         <Route path="/wallet/withdrawals/inr" element={
-          <Navigate to="/wallet?tab=history&inr=withdraw" replace />
+          <Navigate to="/account/withdrawals" replace />
         } />
-        <Route path="/wallet/deposits" element={<Navigate to="/wallet?tab=ledger" replace />} />
+        <Route path="/wallet/deposits" element={<Navigate to="/account/transaction-logs" replace />} />
         <Route path="/portfolio" element={
-          <ProtectedRoute><PnLAnalyticsPage /></ProtectedRoute>
+          <Navigate to="/account/pnl" replace />
         } />
         <Route path="/profile" element={
-          <ProtectedRoute><ProfilePage /></ProtectedRoute>
+          <Navigate to="/account/profile" replace />
         } />
         <Route path="/refer-earn" element={
-          <ProtectedRoute><ReferAndEarnPage /></ProtectedRoute>
+          <Navigate to="/account/refer" replace />
         } />
         <Route path="/kyc" element={
-          <ProtectedRoute><KYCPage /></ProtectedRoute>
+          <Navigate to="/account/kyc" replace />
         } />
         <Route path="/support-disputes" element={
-          <ProtectedRoute><SupportDisputesPage /></ProtectedRoute>
+          <Navigate to="/account/support" replace />
         } />
         <Route path="/settings" element={
-          <ProtectedRoute><SettingsPage /></ProtectedRoute>
+          <Navigate to="/account/preferences" replace />
         } />
+
+        {/* Delta-style account hub — full option set */}
+        <Route path="/account" element={
+          <ProtectedRoute><AccountLayout /></ProtectedRoute>
+        }>
+          <Route index element={<AccountIndexRedirect />} />
+          <Route path="positions" element={<AccountPositions />} />
+          <Route path="open-orders" element={<AccountOrders mode="open" />} />
+          <Route path="order-history" element={<AccountOrders mode="history" />} />
+          <Route path="trade-history" element={<AccountTradeHistory />} />
+          <Route path="pnl" element={<AccountPnL />} />
+          <Route path="portfolio" element={<Navigate to="/account/pnl" replace />} />
+          <Route path="balances" element={<AccountBalances />} />
+          <Route path="deposits" element={<AccountDeposits />} />
+          <Route path="withdrawals" element={<AccountWithdrawals />} />
+          <Route path="bank-details" element={<AccountBankDetails />} />
+          <Route path="transaction-logs" element={<AccountTransactionLogs />} />
+          <Route path="transfer" element={<AccountTransfer />} />
+          <Route path="invoices" element={<AccountInvoices />} />
+          <Route path="profile" element={<AccountProfile />} />
+          <Route path="security" element={<AccountSecurity />} />
+          <Route path="api-keys" element={<AccountApiKeys />} />
+          <Route path="preferences" element={<AccountPreferences />} />
+          <Route path="refer" element={<AccountRefer />} />
+          <Route path="overview" element={<Navigate to="/account/positions" replace />} />
+          <Route path="kyc" element={<AccountKyc />} />
+          <Route path="support" element={<AccountSupport />} />
+        </Route>
 
         {/* ── Delta Markets ──────────────────────────────────────────────── */}
         <Route path="/ibo-markets" element={<IBOMarketsPage />} />

@@ -1,46 +1,311 @@
-import { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ChevronDown, LogOut, User, LayoutDashboard, Menu, X, Wallet, Bell,
-  ExternalLink, Shield, Zap, LineChart, HelpCircle, Settings, Smartphone,
-  Download, MoreHorizontal, Coins, Gift,
+  ChevronDown, LogOut, User, LayoutDashboard, Menu, X, Wallet,
+  ExternalLink, Shield, Zap, LineChart, HelpCircle, Settings,
+  Download, Coins, Gift, Search, ArrowLeftRight, CircleHelp,
+  LayoutGrid, Sun, Moon, CircleDollarSign,
+  BookOpen, BarChart3, Store, QrCode, Users,
+  Database, FileText, Banknote, ShieldCheck, Share2, Monitor,
+  StickyNote, Mail,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
-import ThemeToggle from '@/components/ThemeToggle';
 import { exchangeWsPath, normalizeMarketsList } from '@/services/marketApi';
 import { exchangeApiOrigin } from '@/lib/apiBase';
 import BrandLogo from '@/components/ui/BrandLogo';
 import { useMobileAppRelease } from '@/hooks/useMobileAppRelease';
+import { SITE_CONFIG } from '@/lib/siteConfig';
 
 const API = exchangeApiOrigin(import.meta.env.VITE_BACKEND_URL);
 const IS_DEV = import.meta.env.DEV;
 
 const TICKER_PAIRS = ['IBOUSDT', 'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'XRPUSDT'];
-const USER_MENU_WIDTH_PX = 208;
-const USER_MENU_EDGE_GAP = 8;
-const MORE_MENU_WIDTH_PX = 220;
+const USER_MENU_WIDTH_PX = 220;
+const DROPDOWN_EDGE_GAP = 8;
+const MORE_MENU_WIDTH_PX = 280;
+const SEARCH_PANEL_WIDTH_PX = 360;
 
-/** Always visible on large screens */
+/** Primary — Trade · Markets · Futures · Options · Spot (flat, no nested menus) */
 const NAV_PRIMARY = [
-  { label: 'Markets', to: '/markets' },
   { label: 'Trade', to: '/trade/IBOUSDT' },
+  { label: 'Markets', to: '/markets' },
   { label: 'Futures', to: '/futures/BTCUSDT-PERP' },
-  { label: 'Wallet', to: '/wallet' },
+  { label: 'Options', to: '/options/BTCUSDT' },
+  { label: 'Spot', to: '/trade/IBOUSDT' },
 ];
 
-/** Grouped under “More” until xl, or always in mobile drawer */
+/** More — other products only; none of the primary labels/routes */
 const NAV_MORE = [
-  { label: 'Refer & Earn', to: '/refer-earn', icon: Gift },
+  { label: 'Account', to: '/account/positions', icon: LayoutDashboard },
+  { label: 'Wallet', to: '/account/balances', icon: Wallet },
+  { label: 'P2P', to: '/p2p', icon: Store },
+  { label: 'Refer & Earn', to: '/account/refer', icon: Gift },
   { label: 'List Your Coin', to: '/list-coin', icon: Coins },
-  { label: 'Delta Markets', to: '/ibo-markets' },
-  { label: 'Options', to: '/options/BTCUSDT' },
-  { label: 'P2P', to: '/p2p' },
-  { label: 'P&L', to: '/portfolio' },
+  { label: 'IBO Markets', to: '/ibo-markets', icon: BarChart3 },
   { label: 'Quick Trade', to: '/quick-trade', icon: Zap },
 ];
+
+const APPS_RESOURCES = [
+  { label: 'Trading Fees', to: '/terms-of-service', icon: CircleDollarSign },
+  { label: 'API Docs', href: 'https://docs.delta.exchange/', icon: Database, external: true },
+  { label: 'Contract Specifications', to: '/futures/BTCUSDT-PERP', icon: LayoutGrid },
+  { label: 'Trade Data', to: '/markets', icon: LineChart },
+  { label: 'Blog', href: 'https://www.delta.exchange/blog', icon: FileText, external: true },
+  { label: 'Settlement Prices', to: '/markets', icon: Banknote },
+  { label: 'Platform Status', href: 'https://status.delta.exchange/', icon: ShieldCheck, external: true },
+  { label: 'Offers', to: '/account/refer', icon: Gift },
+  { label: 'Refer and Earn', to: '/account/refer', icon: Share2 },
+  { label: 'Demo Trading', to: '/register', icon: Monitor },
+];
+
+const APPS_HELP = [
+  { label: 'Raise a Support Ticket', to: '/account/support', icon: StickyNote },
+  { label: 'User Guide', href: 'https://guides.delta.exchange/', icon: BookOpen, external: true },
+  { label: 'Support Center', href: `mailto:${SITE_CONFIG.supportEmail}`, icon: Mail, external: true },
+  { label: 'Tax Info', to: '/terms-of-service', icon: FileText },
+];
+
+const YOUTUBE_URL = 'https://www.youtube.com/@Delta_Exchange';
+const COMMUNITY_URL = 'https://t.me/iboofficial';
+
+const SEARCH_SHORTCUTS = [
+  { label: 'Markets', to: '/markets', hint: 'Browse all pairs' },
+  { label: 'BTC Futures', to: '/futures/BTCUSDT-PERP', hint: 'BTCUSDT-PERP' },
+  { label: 'BTC Options', to: '/options/BTCUSDT', hint: 'Options chain' },
+  { label: 'Spot Trade', to: '/trade/IBOUSDT', hint: 'IBO / USDT' },
+  { label: 'Positions', to: '/account/positions', hint: 'Open positions' },
+  { label: 'P&L Analytics', to: '/account/pnl', hint: 'Profit & loss' },
+  { label: 'Wallet', to: '/account/balances', hint: 'Balances' },
+  { label: 'Bank Details', to: '/account/bank-details', hint: 'INR payout' },
+  { label: 'Profile', to: '/account/profile', hint: 'Account info' },
+  { label: 'Security', to: '/account/security', hint: '2FA & password' },
+  { label: 'Add Funds', to: '/wallet/deposit/inr', hint: 'INR deposit' },
+  { label: 'Quick Trade', to: '/quick-trade', hint: 'Convert' },
+  { label: 'P2P', to: '/p2p', hint: 'Marketplace' },
+  { label: 'Support', to: '/account/support', hint: 'Help centre' },
+];
+
+function YoutubeIcon({ size = 22 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31.5 31.5 0 0 0 0 12a31.5 31.5 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31.5 31.5 0 0 0 24 12a31.5 31.5 0 0 0-.5-5.8ZM9.75 15.5v-7l6.5 3.5-6.5 3.5Z" />
+    </svg>
+  );
+}
+
+function AppsPanelLink({ item, onClick }) {
+  const Icon = item.icon;
+  const className = 'delta-apps-link';
+  const inner = (
+    <>
+      <Icon size={18} strokeWidth={1.6} className="delta-apps-link__icon" />
+      <span>{item.label}</span>
+    </>
+  );
+  if (item.href) {
+    return (
+      <a
+        href={item.href}
+        className={className}
+        onClick={onClick}
+        {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+      >
+        {inner}
+      </a>
+    );
+  }
+  return (
+    <Link to={item.to} className={className} onClick={onClick}>
+      {inner}
+    </Link>
+  );
+}
+
+function AppsSidePanel({
+  open,
+  onClose,
+  panelRef,
+  isLight,
+  appAvailable,
+  appStoreHref,
+  appLinkProps,
+  appIsGooglePlay,
+  appRelease,
+}) {
+  const [topOffset, setTopOffset] = useState(48);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, [open]);
+
+  useLayoutEffect(() => {
+    if (!open) return undefined;
+
+    const measure = () => {
+      const shell = document.querySelector('[data-delta-nav-shell]');
+      if (shell) {
+        const { bottom } = shell.getBoundingClientRect();
+        setTopOffset(Math.max(0, Math.round(bottom)));
+        return;
+      }
+      const header = document.querySelector('header.delta-navbar');
+      if (header) {
+        const { bottom } = header.getBoundingClientRect();
+        setTopOffset(Math.max(0, Math.round(bottom)));
+      }
+    };
+
+    measure();
+    window.addEventListener('resize', measure);
+    window.addEventListener('scroll', measure, true);
+    return () => {
+      window.removeEventListener('resize', measure);
+      window.removeEventListener('scroll', measure, true);
+    };
+  }, [open]);
+
+  return (
+    <AnimatePresence>
+      {open ? (
+        <div
+          className="delta-apps-root"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Resources and apps"
+          style={{ top: topOffset }}
+        >
+          <motion.button
+            type="button"
+            aria-label="Close apps panel"
+            className="delta-apps-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={onClose}
+          />
+          <motion.aside
+            ref={panelRef}
+            className={`delta-apps-panel${isLight ? ' delta-apps-panel--light' : ' delta-apps-panel--dark'}`}
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'tween', duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div className="delta-apps-panel__scroll">
+              {/* App download card */}
+              <div className="delta-apps-card delta-apps-download">
+                <div className="delta-apps-qr" aria-hidden>
+                  <QrCode size={48} strokeWidth={1.25} />
+                </div>
+                <div className="delta-apps-store-btns">
+                  {appAvailable && appStoreHref && appLinkProps ? (
+                    <a {...appLinkProps} className="delta-apps-store-btn" onClick={onClose}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                        <path d="M3.6 1.8 13.5 12 3.6 22.2c-.5-.3-.9-.9-.9-1.6V3.4c0-.7.4-1.3.9-1.6Zm12.1 7.4 2.8 1.6c.9.5.9 1.9 0 2.4l-2.8 1.6L12 12l3.7-2.8ZM5.1 1.1l9.7 5.6-3.3 2.5L5.1 1.1Zm6.4 13.7 3.3 2.5-9.7 5.6 6.4-8.1Z" />
+                      </svg>
+                      <span>
+                        <small>{appIsGooglePlay ? 'GET IT ON' : 'DOWNLOAD'}</small>
+                        <strong>{appIsGooglePlay ? 'Google Play' : `App${appRelease?.version ? ` v${appRelease.version}` : ''}`}</strong>
+                      </span>
+                    </a>
+                  ) : (
+                    <a
+                      href="https://play.google.com/store"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="delta-apps-store-btn"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                        <path d="M3.6 1.8 13.5 12 3.6 22.2c-.5-.3-.9-.9-.9-1.6V3.4c0-.7.4-1.3.9-1.6Zm12.1 7.4 2.8 1.6c.9.5.9 1.9 0 2.4l-2.8 1.6L12 12l3.7-2.8ZM5.1 1.1l9.7 5.6-3.3 2.5L5.1 1.1Zm6.4 13.7 3.3 2.5-9.7 5.6 6.4-8.1Z" />
+                      </svg>
+                      <span>
+                        <small>GET IT ON</small>
+                        <strong>Google Play</strong>
+                      </span>
+                    </a>
+                  )}
+                  <a
+                    href="https://apps.apple.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="delta-apps-store-btn"
+                  >
+                    <svg width="16" height="18" viewBox="0 0 16 20" fill="currentColor" aria-hidden>
+                      <path d="M13.2 10.6c0-2.1 1.7-3.1 1.8-3.2-1-1.4-2.5-1.6-3-1.6-1.3-.1-2.5.8-3.1.8-.7 0-1.7-.7-2.8-.7-1.4 0-2.8.9-3.5 2.2-1.5 2.6-.4 6.5 1.1 8.6.7 1 1.6 2.2 2.7 2.2 1.1 0 1.5-.7 2.9-.7s1.7.7 2.9.7 1.9-1 2.6-2c.8-1.2 1.1-2.3 1.1-2.4 0 0-2.2-.9-2.2-3.4ZM11.2 4.4c.6-.7 1-1.7.9-2.7-1 .1-2.1.6-2.7 1.4-.6.7-1.1 1.7-1 2.7 1 .1 2.1-.5 2.8-1.4Z" />
+                    </svg>
+                    <span>
+                      <small>Download on the</small>
+                      <strong>App Store</strong>
+                    </span>
+                  </a>
+                </div>
+              </div>
+
+              {/* YouTube */}
+              <a
+                href={YOUTUBE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="delta-apps-card delta-apps-promo"
+                onClick={onClose}
+              >
+                <span className="delta-apps-promo__icon delta-apps-promo__icon--yt">
+                  <YoutubeIcon size={22} />
+                </span>
+                <span className="delta-apps-promo__text">
+                  Subscribe to our channel for trade setups &amp; more
+                </span>
+              </a>
+
+              {/* Community */}
+              <a
+                href={COMMUNITY_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="delta-apps-card delta-apps-promo"
+                onClick={onClose}
+              >
+                <span className="delta-apps-promo__icon delta-apps-promo__icon--community">
+                  <Users size={20} strokeWidth={1.6} />
+                </span>
+                <span className="delta-apps-promo__text">
+                  Join India&apos;s Leading Crypto Trading Community
+                </span>
+              </a>
+
+              {/* Resources */}
+              <div className="delta-apps-card">
+                <p className="delta-apps-section-title">Resources</p>
+                <div className="delta-apps-grid">
+                  {APPS_RESOURCES.map((item) => (
+                    <AppsPanelLink key={item.label} item={item} onClick={onClose} />
+                  ))}
+                </div>
+              </div>
+
+              {/* Help */}
+              <div className="delta-apps-card">
+                <p className="delta-apps-section-title">Help</p>
+                <div className="delta-apps-grid">
+                  {APPS_HELP.map((item) => (
+                    <AppsPanelLink key={item.label} item={item} onClick={onClose} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.aside>
+        </div>
+      ) : null}
+    </AnimatePresence>
+  );
+}
 
 function userAvatarSrc(user) {
   if (!user?.avatar_url) return null;
@@ -51,9 +316,46 @@ function userAvatarSrc(user) {
 }
 
 function pathActive(pathname, to) {
+  if (!to) return false;
+  // Exact first (avoids /trade activating /quick-trade and similar)
   if (pathname === to) return true;
-  const base = to.split('/').slice(0, 2).join('/');
-  return base.length > 1 && pathname.startsWith(base);
+  const base = to.split('?')[0];
+  if (base === '/markets') {
+    return pathname === '/markets' || pathname.startsWith('/markets/');
+  }
+  if (base.startsWith('/trade/') || base === '/trade') {
+    return pathname === '/trade' || pathname.startsWith('/trade/');
+  }
+  if (base.startsWith('/futures')) {
+    return pathname.startsWith('/futures');
+  }
+  if (base.startsWith('/options')) {
+    return pathname.startsWith('/options');
+  }
+  if (base.startsWith('/quick-trade')) {
+    return pathname.startsWith('/quick-trade');
+  }
+  if (base.startsWith('/ibo-markets')) {
+    return pathname.startsWith('/ibo-markets') || pathname.startsWith('/ibo-market');
+  }
+  if (base.startsWith('/p2p')) {
+    return pathname === '/p2p' || pathname.startsWith('/p2p/');
+  }
+  if (base.startsWith('/wallet')) {
+    return pathname === '/wallet' || pathname.startsWith('/wallet/') || pathname.startsWith('/account/balances')
+      || pathname.startsWith('/account/deposits') || pathname.startsWith('/account/withdrawals')
+      || pathname.startsWith('/account/transfer') || pathname.startsWith('/account/transaction-logs');
+  }
+  if (base.startsWith('/account')) {
+    return pathname === '/account' || pathname.startsWith('/account/');
+  }
+  return pathname === base || pathname.startsWith(`${base}/`);
+}
+
+function formatInrBalance(balance) {
+  const n = Number(balance?.INR ?? balance?.USDT ?? 0);
+  if (!Number.isFinite(n)) return '0.00';
+  return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function LiveTicker() {
@@ -88,17 +390,12 @@ function LiveTicker() {
       closed = true;
       if (reconnectTimer) window.clearTimeout(reconnectTimer);
       if (ws) {
-        try {
-          ws.close();
-        } catch {
-          /* ignore */
-        }
+        try { ws.close(); } catch { /* ignore */ }
       }
     };
   }, []);
 
   if (!tickers.length) return null;
-
   const items = [...tickers, ...tickers];
 
   return (
@@ -140,43 +437,66 @@ function LiveTicker() {
   );
 }
 
-function NavLink({ to, label, active, compact, icon: Icon, accent }) {
+function DropdownPanel({ style, width, children, panelRef, className = '' }) {
+  return (
+    <motion.div
+      ref={panelRef}
+      initial={{ opacity: 0, y: -4 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.12 }}
+      className={`delta-dd ${className}`}
+      style={{
+        position: 'fixed',
+        width,
+        zIndex: 10050,
+        ...style,
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function DropdownItem({ to, label, desc, icon: Icon, active, onClick }) {
   return (
     <Link
       to={to}
-      className={`rounded-lg font-semibold transition-colors whitespace-nowrap inline-flex items-center gap-1.5 ${
-        compact ? 'px-2.5 py-1.5 text-sm' : 'px-3 py-2 text-sm'
-      } ${
-        active
-          ? 'text-gold-light bg-gold/10'
-          : accent
-            ? 'text-gold-light/90 hover:text-gold-light hover:bg-gold/10 ibo-nav-link'
-            : 'text-white/90 hover:text-white hover:bg-white/[0.06] ibo-nav-link'
-      }`}
-      aria-current={active ? 'page' : undefined}
+      onClick={onClick}
+      className={`delta-dd__item${active ? ' is-active' : ''}`}
     >
-      {Icon ? <Icon size={14} className="flex-shrink-0 opacity-90" /> : null}
-      {label}
+      {Icon ? (
+        <span className="delta-dd__icon">
+          <Icon size={16} strokeWidth={1.75} />
+        </span>
+      ) : null}
+      <span className="min-w-0">
+        <span className="delta-dd__label">{label}</span>
+        {desc ? <span className="delta-dd__desc">{desc}</span> : null}
+      </span>
     </Link>
   );
 }
 
 export default function Navbar() {
-  const { user, logout } = useAuth();
-  const { isLight } = useTheme();
+  const { user, logout, balance, fetchWallet } = useAuth();
+  const { isLight, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
+  const [openMenu, setOpenMenu] = useState(null); // more | apps | search
   const [scrolled, setScrolled] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const [userMenuPos, setUserMenuPos] = useState(null);
-  const [moreMenuPos, setMoreMenuPos] = useState(null);
+  const [menuPos, setMenuPos] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const userTriggerRef = useRef(null);
   const userMenuPanelRef = useRef(null);
-  const moreTriggerRef = useRef(null);
-  const moreMenuPanelRef = useRef(null);
+  const menuTriggerRefs = useRef({});
+  const menuPanelRef = useRef(null);
+  const appsPanelRef = useRef(null);
+  const searchInputRef = useRef(null);
+  const searchWrapRef = useRef(null);
 
   const isTrade =
     location.pathname.startsWith('/trade')
@@ -193,10 +513,23 @@ export default function Navbar() {
 
   const moreActive = NAV_MORE.some((l) => pathActive(location.pathname, l.to));
 
+  const searchResults = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return SEARCH_SHORTCUTS;
+    return SEARCH_SHORTCUTS.filter(
+      (s) => s.label.toLowerCase().includes(q) || s.hint.toLowerCase().includes(q) || s.to.toLowerCase().includes(q),
+    );
+  }, [searchQuery]);
+
+  useEffect(() => {
+    if (user) fetchWallet?.();
+  }, [user, fetchWallet]);
+
   useEffect(() => {
     setUserOpen(false);
-    setMoreOpen(false);
+    setOpenMenu(null);
     setMenuOpen(false);
+    setSearchQuery('');
   }, [location.pathname]);
 
   useEffect(() => {
@@ -213,34 +546,56 @@ export default function Navbar() {
     if (!menuOpen) return undefined;
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = prev;
-    };
+    return () => { document.body.style.overflow = prev; };
   }, [menuOpen]);
+
+  /* "/" opens search (Delta shortcut) */
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === '/' && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        const tag = (e.target?.tagName || '').toLowerCase();
+        if (tag === 'input' || tag === 'textarea' || e.target?.isContentEditable) return;
+        e.preventDefault();
+        setOpenMenu('search');
+        window.setTimeout(() => searchInputRef.current?.focus(), 30);
+      }
+      if (e.key === 'Escape') {
+        setOpenMenu(null);
+        setUserOpen(false);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   const updateUserMenuPosition = useCallback(() => {
     const el = userTriggerRef.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
     let left = r.right - USER_MENU_WIDTH_PX;
-    left = Math.max(
-      USER_MENU_EDGE_GAP,
-      Math.min(left, window.innerWidth - USER_MENU_WIDTH_PX - USER_MENU_EDGE_GAP),
-    );
-    setUserMenuPos({ top: r.bottom + USER_MENU_EDGE_GAP, left });
+    left = Math.max(DROPDOWN_EDGE_GAP, Math.min(left, window.innerWidth - USER_MENU_WIDTH_PX - DROPDOWN_EDGE_GAP));
+    setUserMenuPos({ top: r.bottom + DROPDOWN_EDGE_GAP, left });
   }, []);
 
-  const updateMoreMenuPosition = useCallback(() => {
-    const el = moreTriggerRef.current;
+  const updateOpenMenuPosition = useCallback(() => {
+    if (!openMenu || openMenu === 'apps') {
+      setMenuPos(null);
+      return;
+    }
+    const el = openMenu === 'search'
+      ? searchWrapRef.current
+      : menuTriggerRefs.current[openMenu];
     if (!el) return;
     const r = el.getBoundingClientRect();
-    let left = r.left;
-    left = Math.max(
-      USER_MENU_EDGE_GAP,
-      Math.min(left, window.innerWidth - MORE_MENU_WIDTH_PX - USER_MENU_EDGE_GAP),
-    );
-    setMoreMenuPos({ top: r.bottom + USER_MENU_EDGE_GAP, left });
-  }, []);
+    const width = openMenu === 'search'
+      ? SEARCH_PANEL_WIDTH_PX
+      : openMenu === 'more'
+        ? MORE_MENU_WIDTH_PX
+        : 260;
+    let left = openMenu === 'search' ? r.right - width : r.left;
+    left = Math.max(DROPDOWN_EDGE_GAP, Math.min(left, window.innerWidth - width - DROPDOWN_EDGE_GAP));
+    setMenuPos({ top: r.bottom + DROPDOWN_EDGE_GAP, left, width });
+  }, [openMenu]);
 
   useLayoutEffect(() => {
     if (!userOpen) {
@@ -257,45 +612,57 @@ export default function Navbar() {
   }, [userOpen, updateUserMenuPosition]);
 
   useLayoutEffect(() => {
-    if (!moreOpen) {
-      setMoreMenuPos(null);
+    if (!openMenu || openMenu === 'apps') {
+      setMenuPos(null);
       return undefined;
     }
-    updateMoreMenuPosition();
-    window.addEventListener('scroll', updateMoreMenuPosition, true);
-    window.addEventListener('resize', updateMoreMenuPosition);
+    updateOpenMenuPosition();
+    window.addEventListener('scroll', updateOpenMenuPosition, true);
+    window.addEventListener('resize', updateOpenMenuPosition);
     return () => {
-      window.removeEventListener('scroll', updateMoreMenuPosition, true);
-      window.removeEventListener('resize', updateMoreMenuPosition);
+      window.removeEventListener('scroll', updateOpenMenuPosition, true);
+      window.removeEventListener('resize', updateOpenMenuPosition);
     };
-  }, [moreOpen, updateMoreMenuPosition]);
+  }, [openMenu, updateOpenMenuPosition]);
 
   useEffect(() => {
     const onClick = (e) => {
       if (userTriggerRef.current?.contains(e.target)) return;
       if (userMenuPanelRef.current?.contains(e.target)) return;
-      if (moreTriggerRef.current?.contains(e.target)) return;
-      if (moreMenuPanelRef.current?.contains(e.target)) return;
+      if (menuPanelRef.current?.contains(e.target)) return;
+      if (appsPanelRef.current?.contains(e.target)) return;
+      if (searchWrapRef.current?.contains(e.target)) return;
+      if (Object.values(menuTriggerRefs.current).some((el) => el?.contains(e.target))) return;
       setUserOpen(false);
-      setMoreOpen(false);
+      setOpenMenu(null);
     };
     document.addEventListener('mousedown', onClick);
     return () => document.removeEventListener('mousedown', onClick);
   }, []);
 
-  const handleLogout = () => {
-    setLogoutModalOpen(true);
-  };
+  const handleLogout = () => setLogoutModalOpen(true);
 
   const confirmLogout = () => {
     logout();
     navigate('/');
     setLogoutModalOpen(false);
     setUserOpen(false);
-    setMoreOpen(false);
+    setOpenMenu(null);
     setMenuOpen(false);
   };
+
+  const closeAll = () => {
+    setOpenMenu(null);
+    setUserOpen(false);
+  };
+
+  const toggleDropdown = (id) => {
+    setUserOpen(false);
+    setOpenMenu((prev) => (prev === id ? null : id));
+  };
+
   const navAvatarSrc = user ? userAvatarSrc(user) : null;
+  const inrBal = formatInrBalance(balance);
 
   return (
     <>
@@ -307,259 +674,290 @@ export default function Navbar() {
           Exchange UI · API {API.replace(/^https?:\/\//, '')}
         </div>
       ) : null}
-      <div className="sticky top-0 z-50 w-full">
+      <div className="sticky top-0 z-[10050] w-full" data-delta-nav-shell>
         {!isTrade && !isHome && <LiveTicker />}
         <header
-          className={`ibo-nav-shell w-full transition-colors duration-300 font-display border-b ${
-            scrolled
-              ? isLight
-                ? 'bg-[rgba(246,249,251,0.97)] backdrop-blur-xl border-[color:var(--ibo-border-solid)]'
-                : 'bg-[rgba(10,11,15,0.96)] backdrop-blur-xl border-white/[0.08]'
-              : isLight
-                ? 'bg-[rgba(255,255,255,0.92)] backdrop-blur-xl border-[color:var(--ibo-border-solid)]'
-                : 'bg-[rgba(12,14,20,0.88)] backdrop-blur-xl border-white/[0.06]'
-          }`}
+          className={`delta-navbar ibo-nav-shell w-full transition-colors duration-200 ${
+            scrolled ? 'delta-navbar--scrolled' : 'delta-navbar--top'
+          } ${isLight ? 'delta-navbar--light' : 'delta-navbar--dark'}`}
         >
-        <div className="w-full flex items-center gap-2 sm:gap-2.5 lg:gap-3 min-h-[56px] sm:min-h-[60px] lg:min-h-[64px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-8 min-w-0">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 flex-shrink-0 min-w-0 max-w-[42%] sm:max-w-[220px] lg:max-w-[180px] xl:max-w-[220px] 2xl:max-w-[260px]">
-            <motion.div
-              className="min-w-0"
-              whileHover={{ scale: 1.02 }}
-              transition={{ type: 'spring', stiffness: 300 }}
-            >
-              <BrandLogo
-                alt="Exchange"
-                className="h-8 sm:h-9 lg:h-9 xl:h-10 w-auto max-w-full object-contain object-left"
-              />
-            </motion.div>
-          </Link>
-
-          {/* Desktop nav */}
-          <nav className="hidden lg:flex items-center gap-0.5 min-w-0 flex-1 justify-center overflow-hidden">
-            {NAV_PRIMARY.map((l) => (
-              <NavLink
-                key={l.to}
-                to={l.to}
-                label={l.label}
-                icon={l.icon}
-                accent={l.accent}
-                active={pathActive(location.pathname, l.to)}
-                compact
-              />
-            ))}
-
-            <div className="hidden 2xl:flex items-center gap-0.5 shrink-0">
-              {NAV_MORE.filter((l) => l.to !== '/quick-trade').map((l) => (
-                <NavLink
-                  key={l.to}
-                  to={l.to}
-                  label={l.label}
-                  icon={l.icon}
-                  active={pathActive(location.pathname, l.to)}
-                  compact
+          <div className="delta-navbar__inner">
+            <div className="delta-navbar__left">
+              <Link to="/" className="delta-navbar__brand" aria-label="Home">
+                <BrandLogo
+                  alt="Delta Exchange"
+                  className="h-[30px] w-auto max-w-[139px] object-contain object-left"
                 />
-              ))}
-            </div>
+              </Link>
 
-            <div className="2xl:hidden relative flex-shrink-0" ref={moreTriggerRef}>
-              <button
-                type="button"
-                onClick={() => setMoreOpen((v) => !v)}
-                className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-sm font-semibold transition-colors ${
-                  moreOpen || moreActive
-                    ? 'text-gold-light bg-gold/10'
-                    : 'text-white/90 hover:bg-white/[0.06]'
-                }`}
-              >
-                <MoreHorizontal size={16} />
-                More
-                <ChevronDown size={14} className={`transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
-              </button>
-            </div>
-          </nav>
+              <nav className="delta-navbar__links" aria-label="Primary">
+                {NAV_PRIMARY.map((l) => (
+                  <Link
+                    key={l.label}
+                    to={l.to}
+                    className={`delta-nav-link${pathActive(location.pathname, l.to) ? ' is-active' : ''}`}
+                    aria-current={pathActive(location.pathname, l.to) ? 'page' : undefined}
+                  >
+                    {l.label}
+                  </Link>
+                ))}
 
-          {/* Right cluster — rearranged: auth first, then Quick */}
-          <div className="ml-auto flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-            {user ? (
-              <>
-                <button
-                  type="button"
-                  className="hidden xl:block relative p-2 rounded-lg text-white/80 hover:text-white hover:bg-white/[0.06] transition-colors"
-                  aria-label="Notifications"
+                <div
+                  className="relative h-full flex items-center"
+                  ref={(el) => { menuTriggerRefs.current.more = el; }}
                 >
-                  <Bell size={17} />
-                  <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-gold rounded-full" />
-                </button>
-
-                <div className="relative" ref={userTriggerRef}>
                   <button
                     type="button"
-                    onClick={() => setUserOpen((v) => !v)}
-                    className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-white/[0.04] border border-white/[0.1] hover:border-[#FE6C02]/40 hover:bg-white/[0.06] transition-colors max-w-[140px] sm:max-w-[180px]"
+                    onClick={() => toggleDropdown('more')}
+                    className={`delta-nav-link delta-nav-link--btn${openMenu === 'more' || moreActive ? ' is-active' : ''}`}
                   >
-                    <div className="w-7 h-7 rounded-full bg-gold/20 flex items-center justify-center text-gold-light text-sm font-bold overflow-hidden flex-shrink-0">
-                      {navAvatarSrc ? (
-                        <img src={navAvatarSrc} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        user.name?.[0]?.toUpperCase()
-                      )}
-                    </div>
-                    <span className="hidden md:block text-sm text-white font-semibold truncate">
-                      {user.name}
-                    </span>
-                    <ChevronDown size={14} className="text-white/70 flex-shrink-0 hidden sm:block" />
+                    More
+                    <ChevronDown size={13} className={`transition-transform ${openMenu === 'more' ? 'rotate-180' : ''}`} />
                   </button>
                 </div>
+              </nav>
+            </div>
 
-                {typeof document !== 'undefined' && userOpen && userMenuPos != null && createPortal(
-                  <motion.div
-                    ref={userMenuPanelRef}
-                    role="menu"
-                    initial={{ opacity: 0, y: -6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.15 }}
-                    className="w-52 rounded-xl border border-white/[0.1] bg-[rgba(12,14,20,0.96)] backdrop-blur-xl shadow-2xl py-1 ibo-dropdown-panel"
-                    style={{
-                      position: 'fixed',
-                      top: userMenuPos.top,
-                      left: userMenuPos.left,
-                      zIndex: 10050,
-                    }}
+            <div className="delta-navbar__right">
+              {user ? (
+                <>
+                  {/* Search — Delta style */}
+                  <div className="delta-nav-search hidden md:flex" ref={searchWrapRef}>
+                    <Search size={15} className="delta-nav-search__icon" strokeWidth={1.75} />
+                    <input
+                      ref={searchInputRef}
+                      type="search"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onFocus={() => { setUserOpen(false); setOpenMenu('search'); }}
+                      placeholder="Search"
+                      className="delta-nav-search__input"
+                      aria-label="Search"
+                    />
+                    <kbd className="delta-nav-search__kbd">/</kbd>
+                  </div>
+
+                  <Link to="/wallet/deposit/inr" className="delta-nav-add-funds hidden sm:inline-flex">
+                    Add Funds
+                  </Link>
+
+                  <Link to="/account/balances" className="delta-nav-balance hidden sm:inline-flex" title="Wallet balance">
+                    <span className="delta-nav-balance__rupee" aria-hidden>₹</span>
+                    <span className="delta-nav-balance__amt tabular-nums">{inrBal}</span>
+                  </Link>
+
+                  <Link
+                    to="/account/transfer"
+                    className="delta-nav-tool-btn hidden lg:inline-flex"
+                    title="Transfer / swap"
+                    aria-label="Transfer"
                   >
-                    <Link to="/dashboard" onClick={() => setUserOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-white hover:bg-white/[0.05] transition-colors">
-                      <LayoutDashboard size={16} /> Dashboard
-                    </Link>
-                    <Link to="/refer-earn" onClick={() => setUserOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-white hover:bg-white/[0.05] transition-colors">
-                      <Gift size={16} /> Refer &amp; Earn
-                    </Link>
-                    <Link to="/portfolio" onClick={() => setUserOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-white hover:bg-white/[0.05] transition-colors">
-                      <LineChart size={16} /> P&amp;L &amp; fills
-                    </Link>
-                    <Link to="/wallet" onClick={() => setUserOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-white hover:bg-white/[0.05] transition-colors">
-                      <Wallet size={16} /> My Wallet
-                    </Link>
-                    <Link to="/profile" onClick={() => setUserOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-white hover:bg-white/[0.05] transition-colors">
-                      <User size={16} /> Edit Profile
-                    </Link>
-                    <Link to="/kyc" onClick={() => setUserOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-white hover:bg-white/[0.05] transition-colors">
-                      <Shield size={16} /> KYC
-                    </Link>
-                    <Link to="/support-disputes" onClick={() => setUserOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-white hover:bg-white/[0.05] transition-colors">
-                      <HelpCircle size={16} /> Support
-                    </Link>
-                    <Link to="/settings" onClick={() => setUserOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-white hover:bg-white/[0.05] transition-colors">
-                      <Settings size={16} /> Settings
-                    </Link>
-                    <div className="border-t border-white/[0.08] my-1" />
-                    <button type="button" onClick={handleLogout}
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-400 hover:bg-white/[0.05] transition-colors">
-                      <LogOut size={16} /> Sign Out
+                    <ArrowLeftRight size={18} strokeWidth={1.6} />
+                  </Link>
+
+                  <Link
+                    to="/account/support"
+                    className="delta-nav-tool-btn hidden lg:inline-flex"
+                    title="Support"
+                    aria-label="Support"
+                  >
+                    <CircleHelp size={18} strokeWidth={1.6} />
+                  </Link>
+
+                  <div className="relative" ref={userTriggerRef}>
+                    <button
+                      type="button"
+                      onClick={() => { setOpenMenu(null); setUserOpen((v) => !v); }}
+                      className="delta-nav-tool-btn"
+                      aria-label="Account"
+                      title="Account"
+                    >
+                      {navAvatarSrc ? (
+                        <img src={navAvatarSrc} alt="" className="w-5 h-5 rounded-full object-cover" />
+                      ) : (
+                        <User size={18} strokeWidth={1.6} />
+                      )}
                     </button>
-                  </motion.div>,
-                  document.body,
-                )}
-              </>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Link
-                  to="/login"
-                  className="hidden sm:block px-3 py-1.5 text-sm font-semibold text-white/90 hover:text-white transition-colors"
-                >
-                  Log In
-                </Link>
-                <Link
-                  to="/register"
-                  className="text-sm font-bold whitespace-nowrap transition-all px-5 py-2 rounded-full bg-logo-gradient text-surface-dark uppercase tracking-wide shadow-[0_0_24px_rgba(254, 108, 2,0.3)] hover:brightness-105"
-                >
-                  Sign Up
-                </Link>
-              </div>
-            )}
+                  </div>
 
-            <Link
-              to="/quick-trade"
-              className="ibo-btn-accent ibo-hover-scale hidden xl:flex flex-shrink-0 rounded-lg px-3 py-1.5 text-sm"
-            >
-              <Zap size={14} />
-              Quick Trade
-            </Link>
+                  <button
+                    type="button"
+                    onClick={toggleTheme}
+                    className="delta-nav-tool-btn hidden sm:inline-flex"
+                    aria-label={isLight ? 'Switch to dark theme' : 'Switch to light theme'}
+                    title={isLight ? 'Switch to dark theme' : 'Switch to light theme'}
+                  >
+                    {isLight ? <Moon size={18} strokeWidth={1.6} /> : <Sun size={18} strokeWidth={1.6} />}
+                  </button>
 
-            <ThemeToggle className="hidden sm:inline-flex" />
+                  <div
+                    className="relative hidden md:flex"
+                    ref={(el) => { menuTriggerRefs.current.apps = el; }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => toggleDropdown('apps')}
+                      className={`delta-nav-tool-btn${openMenu === 'apps' ? ' is-active' : ''}`}
+                      aria-label="Apps"
+                      title="Apps"
+                    >
+                      <LayoutGrid size={18} strokeWidth={1.6} />
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="delta-nav-search hidden lg:flex" ref={searchWrapRef}>
+                    <Search size={15} className="delta-nav-search__icon" strokeWidth={1.75} />
+                    <input
+                      ref={searchInputRef}
+                      type="search"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onFocus={() => setOpenMenu('search')}
+                      placeholder="Search"
+                      className="delta-nav-search__input"
+                      aria-label="Search"
+                    />
+                    <kbd className="delta-nav-search__kbd">/</kbd>
+                  </div>
+                  <Link to="/login" className="delta-nav-login hidden sm:inline-flex">
+                    Log In
+                  </Link>
+                  <Link to="/register" className="delta-nav-signup">
+                    Sign Up
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={toggleTheme}
+                    className="delta-nav-tool-btn hidden sm:inline-flex"
+                    aria-label={isLight ? 'Switch to dark theme' : 'Switch to light theme'}
+                  >
+                    {isLight ? <Moon size={18} strokeWidth={1.6} /> : <Sun size={18} strokeWidth={1.6} />}
+                  </button>
+                </>
+              )}
 
-            {appAvailable && appStoreHref && appLinkProps && (
-              <a
-                {...appLinkProps}
-                className="hidden xl:flex items-center gap-1.5 flex-shrink-0 px-3 py-1.5 rounded-lg font-bold text-sm text-emerald-300 border border-emerald-500/35 bg-emerald-500/10 hover:bg-emerald-500/20 transition-colors"
-                title={appIsGooglePlay ? 'Get Delta on Google Play' : `Download Delta Mobile v${appRelease?.version || ''}`}
+              <button
+                type="button"
+                onClick={() => setMenuOpen((v) => !v)}
+                className="delta-nav-tool-btn lg:hidden"
+                aria-expanded={menuOpen}
+                aria-label={menuOpen ? 'Close menu' : 'Open menu'}
               >
-                <Smartphone size={14} />
-                {appIsGooglePlay ? 'Play Store' : 'App'}
-              </a>
-            )}
-
-            <button
-              type="button"
-              onClick={() => setMenuOpen((v) => !v)}
-              className="lg:hidden p-2 rounded-lg text-white hover:bg-white/[0.06] transition-colors"
-              aria-expanded={menuOpen}
-              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-            >
-              {menuOpen ? <X size={22} /> : <Menu size={22} />}
-            </button>
+                {menuOpen ? <X size={22} /> : <Menu size={22} />}
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* More menu portal (lg–xl) */}
-        {typeof document !== 'undefined' && moreOpen && moreMenuPos != null && createPortal(
-          <motion.div
-            ref={moreMenuPanelRef}
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.15 }}
-            className="bg-[rgba(12,14,20,0.96)] border border-white/[0.1] backdrop-blur-xl rounded-xl shadow-2xl py-1 overflow-hidden ibo-dropdown-panel"
-            style={{
-              position: 'fixed',
-              top: moreMenuPos.top,
-              left: moreMenuPos.left,
-              width: MORE_MENU_WIDTH_PX,
-              zIndex: 10050,
-            }}
-          >
-            {NAV_MORE.map((l) => {
-              const Icon = l.icon;
-              return (
+          {/* Dropdown portals (not apps — apps uses right drawer) */}
+          {typeof document !== 'undefined' && openMenu && openMenu !== 'apps' && menuPos != null && createPortal(
+            <DropdownPanel
+              panelRef={menuPanelRef}
+              width={menuPos.width}
+              style={{ top: menuPos.top, left: menuPos.left }}
+            >
+              {openMenu === 'more' ? (
+                <div className="py-1">
+                  {NAV_MORE.map((item) => (
+                    <DropdownItem
+                      key={item.to + item.label}
+                      to={item.to}
+                      label={item.label}
+                      icon={item.icon}
+                      active={pathActive(location.pathname, item.to)}
+                      onClick={closeAll}
+                    />
+                  ))}
+                </div>
+              ) : null}
+
+              {openMenu === 'search' ? (
+                <div className="py-1 max-h-[320px] overflow-y-auto">
+                  <p className="delta-dd__section-title px-3 pt-2">
+                    {searchQuery ? 'Results' : 'Quick jump'}
+                  </p>
+                  {searchResults.length === 0 ? (
+                    <p className="px-4 py-3 text-sm text-[color:var(--ibo-muted)]">No matches</p>
+                  ) : (
+                    searchResults.map((s) => (
+                      <Link
+                        key={s.to + s.label}
+                        to={s.to}
+                        onClick={closeAll}
+                        className="delta-dd__item"
+                      >
+                        <span className="delta-dd__icon"><Search size={15} /></span>
+                        <span className="min-w-0">
+                          <span className="delta-dd__label">{s.label}</span>
+                          <span className="delta-dd__desc">{s.hint}</span>
+                        </span>
+                      </Link>
+                    ))
+                  )}
+                </div>
+              ) : null}
+            </DropdownPanel>,
+            document.body,
+          )}
+
+          {typeof document !== 'undefined' && createPortal(
+            <AppsSidePanel
+              open={openMenu === 'apps'}
+              onClose={closeAll}
+              panelRef={appsPanelRef}
+              isLight={isLight}
+              appAvailable={appAvailable}
+              appStoreHref={appStoreHref}
+              appLinkProps={appLinkProps}
+              appIsGooglePlay={appIsGooglePlay}
+              appRelease={appRelease}
+            />,
+            document.body,
+          )}
+
+          {typeof document !== 'undefined' && userOpen && userMenuPos != null && createPortal(
+            <DropdownPanel
+              panelRef={userMenuPanelRef}
+              width={USER_MENU_WIDTH_PX}
+              style={{ top: userMenuPos.top, left: userMenuPos.left }}
+            >
+              <div className="px-3 py-2.5 border-b border-[color:var(--ibo-border-solid)]">
+                <p className="text-sm font-medium text-[color:var(--ibo-ink)] truncate">{user?.name}</p>
+                <p className="text-xs text-[color:var(--ibo-muted)] truncate">{user?.email}</p>
+              </div>
+              {[
+                { to: '/account/positions', label: 'Positions', icon: LayoutDashboard },
+                { to: '/account/pnl', label: 'P&L Analytics', icon: LineChart },
+                { to: '/account/balances', label: 'Balances', icon: Wallet },
+                { to: '/account/bank-details', label: 'Bank Details', icon: CircleDollarSign },
+                { to: '/account/profile', label: 'Profile', icon: User },
+                { to: '/account/security', label: 'Security', icon: Shield },
+                { to: '/account/preferences', label: 'Preferences', icon: Settings },
+                { to: '/account/support', label: 'Support', icon: HelpCircle },
+              ].map(({ to, label, icon: Icon }) => (
                 <Link
-                  key={l.to}
-                  to={l.to}
-                  onClick={() => setMoreOpen(false)}
-                  className={`flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors ${
-                    pathActive(location.pathname, l.to)
-                      ? 'text-gold-light bg-gold/10'
-                      : 'text-white hover:bg-white/[0.05]'
-                  }`}
+                  key={to}
+                  to={to}
+                  onClick={() => setUserOpen(false)}
+                  className="delta-dd__item"
                 >
-                  {Icon ? <Icon size={16} className="flex-shrink-0 opacity-80" /> : null}
-                  {l.label}
+                  <span className="delta-dd__icon"><Icon size={16} /></span>
+                  <span className="delta-dd__label">{label}</span>
                 </Link>
-              );
-            })}
-          </motion.div>,
-          document.body,
-        )}
-
-      </header>
+              ))}
+              <div className="border-t border-[color:var(--ibo-border-solid)] my-1" />
+              <button type="button" onClick={handleLogout} className="delta-dd__item delta-dd__item--danger w-full text-left">
+                <span className="delta-dd__icon"><LogOut size={16} /></span>
+                <span className="delta-dd__label">Sign Out</span>
+              </button>
+            </DropdownPanel>,
+            document.body,
+          )}
+        </header>
       </div>
 
-      {/* Mobile drawer — portaled (header backdrop-filter traps fixed children otherwise) */}
+      {/* Mobile drawer */}
       {typeof document !== 'undefined' && createPortal(
         <AnimatePresence>
           {menuOpen && (
@@ -578,19 +976,19 @@ export default function Navbar() {
                 animate={{ x: 0 }}
                 exit={{ x: '100%' }}
                 transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-                className="fixed top-0 right-0 z-[10071] flex flex-col w-full max-w-[min(100vw,340px)] h-[100dvh] max-h-[100dvh] border-l border-white/10 shadow-2xl ibo-dropdown-panel"
+                className="fixed top-0 right-0 z-[10071] flex flex-col w-full max-w-[min(100vw,340px)] h-[100dvh] max-h-[100dvh] border-l border-[color:var(--ibo-border-solid)] shadow-2xl ibo-dropdown-panel"
                 style={{
-                  background: 'var(--ibo-card)',
+                  background: 'var(--ibo-bg)',
                   paddingTop: 'env(safe-area-inset-top, 0px)',
                   paddingBottom: 'env(safe-area-inset-bottom, 0px)',
                 }}
               >
-                <div className="flex items-center justify-between px-4 py-4 border-b border-white/10 flex-shrink-0">
-                  <span className="text-sm font-bold text-white/80 uppercase tracking-wider">Menu</span>
+                <div className="flex items-center justify-between px-4 py-4 border-b border-[color:var(--ibo-border-solid)] flex-shrink-0">
+                  <span className="text-sm font-semibold text-[color:var(--ibo-ink)]">Menu</span>
                   <button
                     type="button"
                     onClick={() => setMenuOpen(false)}
-                    className="p-2.5 rounded-lg text-white/70 hover:bg-white/10 touch-manipulation"
+                    className="p-2.5 rounded text-[color:var(--ibo-ink-secondary)] hover:bg-black/[0.04] touch-manipulation"
                     aria-label="Close menu"
                   >
                     <X size={22} />
@@ -598,106 +996,140 @@ export default function Navbar() {
                 </div>
 
                 <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-3 py-4 space-y-4 pb-6">
-                  <Link
-                    to="/quick-trade"
-                    onClick={() => setMenuOpen(false)}
-                    className="ibo-btn-accent w-full py-3.5 rounded-xl touch-manipulation"
-                  >
-                    <Zap size={16} /> Quick Trade
-                  </Link>
-
-                  {appAvailable && appStoreHref && appLinkProps ? (
-                    <a
-                      {...appLinkProps}
-                      onClick={() => setMenuOpen(false)}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl font-bold text-sm text-emerald-300 border border-emerald-500/35 bg-emerald-500/10 touch-manipulation"
-                    >
-                      {appIsGooglePlay ? <ExternalLink size={16} /> : <Download size={16} />}
-                      {appIsGooglePlay
-                        ? 'Get on Google Play'
-                        : `App${appRelease?.version ? ` v${appRelease.version}` : ''}`}
-                    </a>
+                  {user ? (
+                    <div className="flex items-center gap-2">
+                      <Link
+                        to="/wallet/deposit/inr"
+                        onClick={() => setMenuOpen(false)}
+                        className="delta-nav-add-funds flex-1 !mr-0 justify-center"
+                      >
+                        Add Funds
+                      </Link>
+                      <Link
+                        to="/account/balances"
+                        onClick={() => setMenuOpen(false)}
+                        className="delta-nav-balance !mr-0"
+                      >
+                        <span className="delta-nav-balance__rupee">₹</span>
+                        <span className="delta-nav-balance__amt">{inrBal}</span>
+                      </Link>
+                    </div>
                   ) : null}
 
-                  <div>
-                    <p className="px-2 mb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Trade</p>
-                    <div className="space-y-1">
-                      {[...NAV_PRIMARY, ...NAV_MORE.filter((l) => l.to !== '/quick-trade')].map((l) => (
-                        <Link
-                          key={l.to}
-                          to={l.to}
-                          onClick={() => setMenuOpen(false)}
-                          className={`flex items-center gap-2.5 px-3 py-3 rounded-lg text-[15px] font-semibold transition-colors touch-manipulation ${
-                            pathActive(location.pathname, l.to)
-                              ? 'text-gold-light bg-gold/10'
-                              : l.accent
-                                ? 'text-gold-light/90 hover:bg-gold/10'
-                                : 'text-white hover:bg-white/[0.06]'
-                          }`}
-                        >
-                          {l.icon ? <l.icon size={16} className="flex-shrink-0 opacity-80" /> : null}
-                          {l.label}
-                        </Link>
-                      ))}
+                  <div className="space-y-3">
+                    <div>
+                      <p className="px-2 mb-1 text-[10px] font-semibold text-[color:var(--ibo-muted)] uppercase tracking-widest">
+                        Trade
+                      </p>
+                      <div className="space-y-0.5">
+                        {NAV_PRIMARY.map((l) => (
+                          <Link
+                            key={l.label}
+                            to={l.to}
+                            onClick={() => setMenuOpen(false)}
+                            className={`flex items-center gap-2.5 px-3 py-2.5 rounded text-[14px] touch-manipulation ${
+                              pathActive(location.pathname, l.to)
+                                ? 'text-[#fe8935]'
+                                : 'text-[color:var(--ibo-ink)] hover:bg-black/[0.04]'
+                            }`}
+                          >
+                            {l.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="px-2 mb-1 text-[10px] font-semibold text-[color:var(--ibo-muted)] uppercase tracking-widest">
+                        More
+                      </p>
+                      <div className="space-y-0.5">
+                        {NAV_MORE.map((l) => {
+                          const Icon = l.icon;
+                          return (
+                            <Link
+                              key={l.to + l.label}
+                              to={l.to}
+                              onClick={() => setMenuOpen(false)}
+                              className={`flex items-center gap-2.5 px-3 py-2.5 rounded text-[14px] touch-manipulation ${
+                                pathActive(location.pathname, l.to)
+                                  ? 'text-[#fe8935]'
+                                  : 'text-[color:var(--ibo-ink)] hover:bg-black/[0.04]'
+                              }`}
+                            >
+                              {Icon ? <Icon size={16} className="opacity-70 flex-shrink-0" /> : null}
+                              {l.label}
+                            </Link>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
 
                   {user ? (
                     <div>
-                      <p className="px-2 mb-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">Account</p>
-                      <div className="space-y-1">
+                      <p className="px-2 mb-1 text-[10px] font-semibold text-[color:var(--ibo-muted)] uppercase tracking-widest">Account</p>
+                      <div className="space-y-0.5">
                         {[
-                          { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-                          { to: '/refer-earn', label: 'Refer & Earn', icon: Gift },
-                          { to: '/portfolio', label: 'P&L & fills', icon: LineChart },
-                          { to: '/wallet', label: 'Wallet', icon: Wallet },
-                          { to: '/profile', label: 'Profile', icon: User },
-                          { to: '/kyc', label: 'KYC', icon: Shield },
-                          { to: '/support-disputes', label: 'Support', icon: HelpCircle },
-                          { to: '/settings', label: 'Settings', icon: Settings },
+                          { to: '/account/positions', label: 'Positions', icon: LayoutDashboard },
+                          { to: '/account/pnl', label: 'P&L Analytics', icon: LineChart },
+                          { to: '/account/balances', label: 'Balances', icon: Wallet },
+                          { to: '/account/bank-details', label: 'Bank Details', icon: CircleDollarSign },
+                          { to: '/account/profile', label: 'Profile', icon: User },
+                          { to: '/account/security', label: 'Security', icon: Shield },
+                          { to: '/account/preferences', label: 'Preferences', icon: Settings },
+                          { to: '/account/support', label: 'Support', icon: HelpCircle },
                         ].map(({ to, label, icon: Icon }) => (
                           <Link
                             key={to}
                             to={to}
                             onClick={() => setMenuOpen(false)}
-                            className="flex items-center gap-2.5 px-3 py-3 rounded-lg text-[15px] font-medium touch-manipulation text-white/90 hover:bg-white/[0.06]"
+                            className="flex items-center gap-2.5 px-3 py-2.5 rounded text-[14px] text-[color:var(--ibo-ink)] hover:bg-black/[0.04] touch-manipulation"
                           >
-                            <Icon size={16} className="opacity-70 flex-shrink-0" />
-                            {label}
+                            <Icon size={16} className="opacity-70" /> {label}
                           </Link>
                         ))}
                         <button
                           type="button"
                           onClick={handleLogout}
-                          className="w-full flex items-center gap-2.5 px-3 py-3 rounded-lg text-[15px] font-medium text-red-400 hover:bg-white/[0.06] touch-manipulation"
+                          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded text-[14px] text-red-500 touch-manipulation"
                         >
                           <LogOut size={16} /> Sign Out
                         </button>
                       </div>
                     </div>
                   ) : (
-                    <div className="space-y-2 pt-2 border-t border-white/10">
-                      <Link
-                        to="/login"
-                        onClick={() => setMenuOpen(false)}
-                        className="block w-full text-center px-4 py-3 rounded-xl border border-white/12 text-white font-semibold text-[15px] touch-manipulation"
-                      >
+                    <div className="space-y-2 pt-2 border-t border-[color:var(--ibo-border-solid)]">
+                      <Link to="/login" onClick={() => setMenuOpen(false)} className="delta-nav-login !mr-0 w-full justify-center h-11">
                         Log In
                       </Link>
-                      <Link
-                        to="/register"
-                        onClick={() => setMenuOpen(false)}
-                        className="block w-full text-center px-4 py-3 rounded-xl bg-logo-gradient text-surface-dark font-bold text-[15px] touch-manipulation"
-                      >
+                      <Link to="/register" onClick={() => setMenuOpen(false)} className="delta-nav-signup !ml-0 !mr-0 w-full h-11">
                         Sign Up
                       </Link>
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between px-3 py-2 rounded-xl border border-white/10 bg-white/[0.03]">
-                    <span className="text-sm font-semibold text-white/80">Appearance</span>
-                    <ThemeToggle compact />
-                  </div>
+                  {appAvailable && appStoreHref && appLinkProps ? (
+                    <a
+                      {...appLinkProps}
+                      onClick={() => setMenuOpen(false)}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded text-sm text-[color:var(--ibo-ink)] border border-[color:var(--ibo-border-solid)]"
+                    >
+                      {appIsGooglePlay ? <ExternalLink size={16} /> : <Download size={16} />}
+                      {appIsGooglePlay ? 'Get on Google Play' : `App${appRelease?.version ? ` v${appRelease.version}` : ''}`}
+                    </a>
+                  ) : null}
+
+                  <button
+                    type="button"
+                    onClick={toggleTheme}
+                    className="w-full flex items-center justify-between px-3 py-2.5 rounded border border-[color:var(--ibo-border-solid)] text-sm text-[color:var(--ibo-ink)]"
+                  >
+                    Appearance
+                    <span className="inline-flex items-center gap-1.5 text-[color:var(--ibo-ink-secondary)]">
+                      {isLight ? <Moon size={16} /> : <Sun size={16} />}
+                      {isLight ? 'Dark' : 'Light'}
+                    </span>
+                  </button>
                 </div>
               </motion.div>
             </div>
@@ -720,11 +1152,11 @@ export default function Navbar() {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.97, y: 8 }}
                 transition={{ duration: 0.16 }}
-                className="w-full max-w-md rounded-2xl border border-white/[0.1] bg-[rgba(12,14,20,0.96)] backdrop-blur-xl shadow-2xl"
+                className="w-full max-w-md rounded-lg border border-[color:var(--ibo-border-solid)] bg-[color:var(--ibo-bg)] shadow-2xl"
               >
-                <div className="px-5 py-4 border-b border-white/[0.08]">
-                  <h3 className="text-white font-bold text-lg">Sign out?</h3>
-                  <p className="text-white/60 text-sm mt-1">
+                <div className="px-5 py-4 border-b border-[color:var(--ibo-border-solid)]">
+                  <h3 className="text-[color:var(--ibo-ink)] font-semibold text-lg">Sign out?</h3>
+                  <p className="text-[color:var(--ibo-muted)] text-sm mt-1">
                     You will be signed out of this device.
                   </p>
                 </div>
@@ -732,14 +1164,14 @@ export default function Navbar() {
                   <button
                     type="button"
                     onClick={() => setLogoutModalOpen(false)}
-                    className="px-4 py-2 rounded-xl border border-white/[0.08] text-sm font-semibold text-white/80 hover:bg-white/5"
+                    className="px-4 py-2 rounded text-sm font-medium text-[color:var(--ibo-ink-secondary)] border border-[color:var(--ibo-border-solid)] hover:bg-black/[0.04]"
                   >
                     Cancel
                   </button>
                   <button
                     type="button"
                     onClick={confirmLogout}
-                    className="px-4 py-2 rounded-xl border border-red-500/40 bg-red-500/15 text-sm font-semibold text-red-200 hover:bg-red-500/25"
+                    className="px-4 py-2 rounded text-sm font-medium text-white bg-red-500 hover:bg-red-600"
                   >
                     Sign out
                   </button>

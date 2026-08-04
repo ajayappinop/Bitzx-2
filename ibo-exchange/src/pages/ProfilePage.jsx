@@ -2128,119 +2128,82 @@ function SessionsCard() {
 
 
 
-export default function ProfilePage() {
-
+export default function ProfilePage({ accountMode = false, forcedTab = null } = {}) {
   const { user, updateUser } = useAuth();
-
-  const [activeTab, setActiveTab] = useState('profile');
-
-
-
-  const TABS = [
-
-    { id: 'profile',  label: 'Profile Info', icon: User },
-
-    { id: 'security', label: 'Security',      icon: Lock },
-
-  ];
-
-
-
-  return (
-
-    <div className="ibo-page font-ui">
-
-      <div className="w-full px-4 sm:px-5 md:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6 sm:py-8 pb-16">
-
-        <div className="ibo-account-hero">
-
-          <p className="ibo-eyebrow mb-1.5">Account</p>
-
-          <h1 className="ibo-account-title">Profile &amp; security</h1>
-
-          <p className="ibo-account-subtitle truncate">{user?.email}</p>
-
-        </div>
-
-
-
-        {/* Tabs — same pattern as Wallet */}
-
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-surface-border pb-0 mb-6 w-full min-w-0">
-
-          <div className="flex gap-1 overflow-x-auto scrollbar-hide -mb-px flex-1 min-w-0">
-
-            {TABS.map(({ id, label, icon: Icon }) => (
-
-              <button
-
-                key={id}
-
-                type="button"
-
-                onClick={() => setActiveTab(id)}
-
-                className={`flex items-center gap-2 px-4 sm:px-5 py-3 text-sm font-bold flex-shrink-0 ${
-
-                  activeTab === id ? 'ibo-tab-active' : 'ibo-tab-idle'
-
-                }`}
-
-              >
-
-                <Icon size={15} /> {label}
-
-              </button>
-
-            ))}
-
-          </div>
-
-          <div className="flex items-center gap-2 shrink-0 mb-3 sm:mb-0">
-
-            <Link to="/refer-earn" className="ibo-btn-accent !rounded-lg px-3 py-2 text-xs sm:text-sm">
-
-              <Gift size={14} /> Refer & Earn
-
-            </Link>
-
-            <Link to="/kyc" className="ibo-btn-outline !rounded-lg px-3 py-2 text-xs sm:text-sm">
-
-              <Shield size={14} /> KYC
-
-            </Link>
-
-          </div>
-
-        </div>
-
-
-
-        <motion.div
-
-          key={activeTab}
-
-          initial={{ opacity: 0, y: 8 }}
-
-          animate={{ opacity: 1, y: 0 }}
-
-          transition={{ duration: 0.2 }}
-
-          className="w-full min-w-0 ibo-account-panel !p-5 sm:!p-8"
-
-        >
-
-          {activeTab === 'profile' && <ProfileTab user={user} updateUser={updateUser} />}
-
-          {activeTab === 'security' && <SecurityTab />}
-
-        </motion.div>
-
-      </div>
-
-    </div>
-
+  const [activeTab, setActiveTab] = useState(
+    forcedTab === 'security' || forcedTab === 'profile' ? forcedTab : 'profile',
   );
 
+  useEffect(() => {
+    if (forcedTab === 'security' || forcedTab === 'profile') {
+      setActiveTab(forcedTab);
+    }
+  }, [forcedTab]);
+
+  const TABS = [
+    { id: 'profile',  label: 'Profile Info', icon: User },
+    { id: 'security', label: 'Security',      icon: Lock },
+  ];
+
+  const body = (
+    <>
+      {!accountMode || !forcedTab ? (
+        <div className={`flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-surface-border pb-0 mb-6 w-full min-w-0${accountMode ? '' : ''}`}>
+          <div className="flex gap-1 overflow-x-auto scrollbar-hide -mb-px flex-1 min-w-0">
+            {TABS.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setActiveTab(id)}
+                className={`flex items-center gap-2 px-4 sm:px-5 py-3 text-sm font-bold flex-shrink-0 ${
+                  activeTab === id ? 'ibo-tab-active' : 'ibo-tab-idle'
+                }`}
+              >
+                <Icon size={15} /> {label}
+              </button>
+            ))}
+          </div>
+          {!accountMode ? (
+            <div className="flex items-center gap-2 shrink-0 mb-3 sm:mb-0">
+              <Link to="/account/refer" className="ibo-btn-accent !rounded-lg px-3 py-2 text-xs sm:text-sm">
+                <Gift size={14} /> Refer & Earn
+              </Link>
+              <Link to="/account/kyc" className="ibo-btn-outline !rounded-lg px-3 py-2 text-xs sm:text-sm">
+                <Shield size={14} /> KYC
+              </Link>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+      <motion.div
+        key={activeTab}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
+        className={`w-full min-w-0 ${accountMode ? '' : 'ibo-account-panel !p-5 sm:!p-8'}`}
+      >
+        {activeTab === 'profile' && <ProfileTab user={user} updateUser={updateUser} />}
+        {activeTab === 'security' && <SecurityTab />}
+      </motion.div>
+    </>
+  );
+
+  if (accountMode) {
+    return <div className="font-ui min-w-0">{body}</div>;
+  }
+
+  return (
+    <div className="ibo-page font-ui">
+      <div className="w-full px-4 sm:px-5 md:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6 sm:py-8 pb-16">
+        <div className="ibo-account-hero">
+          <p className="ibo-eyebrow mb-1.5">Account</p>
+          <h1 className="ibo-account-title">Profile &amp; security</h1>
+          <p className="ibo-account-subtitle truncate">{user?.email}</p>
+        </div>
+        {body}
+      </div>
+    </div>
+  );
 }
 

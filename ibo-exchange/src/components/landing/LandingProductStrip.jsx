@@ -42,7 +42,7 @@ const ITEMS = [
 
     sub: 'Delta ↔ USDT instant',
 
-    icon: '/hero/ibo-token-3d.png?v=1',
+    icon: '/hero/ibo-token-3d.png?v=12',
 
     glow: 'rgba(254, 108, 2,0.38)',
 

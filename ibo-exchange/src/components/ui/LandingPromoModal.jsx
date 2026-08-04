@@ -66,7 +66,7 @@ function PromoBrand({ label = 'Delta', centered = true }) {
 
 
 
-const DEFAULT_COIN_IMG = '/hero/ibo-token-3d.png';
+const DEFAULT_COIN_IMG = '/hero/ibo-token-3d.png?v=12';
 
 
 

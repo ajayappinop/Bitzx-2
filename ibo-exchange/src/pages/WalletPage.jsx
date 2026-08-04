@@ -2269,11 +2269,11 @@ function tabFromSearchParams(params) {
   return TABS.some(x => x.id === t) ? t : 'balances';
 }
 
-export default function WalletPage() {
+export default function WalletPage({ accountMode = false, forcedTab = null } = {}) {
   const { user, walletAssets, walletLoading, fetchWallet, kyc, fetchKyc } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [tab, setTab] = useState(() => tabFromSearchParams(searchParams));
+  const [tab, setTab] = useState(() => forcedTab || tabFromSearchParams(searchParams));
   const [priceByAsset, setPriceByAsset] = useState({ USDT: 1 });
   const kycBlocked = user && kyc?.status !== 'approved';
 
@@ -2324,8 +2324,12 @@ export default function WalletPage() {
   }, []);
 
   useEffect(() => {
+    if (forcedTab) {
+      setTab(forcedTab);
+      return;
+    }
     setTab(tabFromSearchParams(searchParams));
-  }, [searchParams]);
+  }, [searchParams, forcedTab]);
 
   useEffect(() => {
     if (user && (tab === 'deposit' || tab === 'withdraw')) fetchKyc();
@@ -2333,6 +2337,7 @@ export default function WalletPage() {
 
   const selectTab = id => {
     setTab(id);
+    if (accountMode) return;
     if (id === 'balances') setSearchParams({}, { replace: true });
     else if (id === 'history') {
       const inr = searchParams.get('inr');
@@ -2344,6 +2349,77 @@ export default function WalletPage() {
 
   const tabMeta = TABS.find((t) => t.id === tab) || TABS[0];
   const TabIcon = tabMeta.icon;
+
+  const workspace = (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={tab}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.18 }}
+      >
+        {tab === 'balances' && (
+          <BalancesTab
+            walletAssets={walletAssets}
+            walletLoading={walletLoading}
+            fetchWallet={fetchWallet}
+            priceByAsset={priceByAsset}
+            onOpenSwap={() => (accountMode ? navigate('/account/transfer') : selectTab('swap'))}
+            onTab={accountMode
+              ? (id) => {
+                if (id === 'deposit') navigate('/account/deposits');
+                else if (id === 'withdraw') navigate('/account/withdrawals');
+                else if (id === 'swap') navigate('/account/transfer');
+                else selectTab(id);
+              }
+              : selectTab}
+          />
+        )}
+        {tab === 'swap' && <IboSwapPanel />}
+        {tab === 'futures' && <FuturesWalletTab />}
+        {tab === 'deposit' && <DepositTab kycBlocked={kycBlocked} kyc={kyc} />}
+        {tab === 'withdraw' && (
+          <WithdrawTab
+            walletAssets={walletAssets}
+            kycBlocked={kycBlocked}
+            kyc={kyc}
+            priceByAsset={priceByAsset}
+          />
+        )}
+        {tab === 'history' && <HistoryTab />}
+        {tab === 'ledger' && <LedgerTab />}
+      </motion.div>
+    </AnimatePresence>
+  );
+
+  if (accountMode) {
+    return (
+      <div className="wallet-hub font-ui min-w-0">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-[color:var(--ibo-ink-secondary)]">
+            <TabIcon size={15} className="text-[#FE6C02] shrink-0" />
+            <h2 className="text-sm font-bold text-[color:var(--ibo-ink)]">{tabMeta.label}</h2>
+          </div>
+          <button
+            type="button"
+            onClick={() => fetchWallet()}
+            disabled={walletLoading}
+            className="wallet-action-ghost disabled:opacity-40"
+          >
+            <RefreshCw size={14} className={walletLoading ? 'animate-spin' : ''} />
+            Refresh
+          </button>
+        </div>
+        {(tab === 'deposit' || tab === 'withdraw') && (
+          <div className="mb-4">
+            <WalletChainsBanner />
+          </div>
+        )}
+        {workspace}
+      </div>
+    );
+  }
 
   return (
     <div className="ibo-page font-ui wallet-hub relative">
@@ -2425,40 +2501,7 @@ export default function WalletPage() {
                 <TabIcon size={15} className="text-[#FE6C02] shrink-0" />
                 <h2 className="text-sm font-bold text-[color:var(--ibo-ink)]">{tabMeta.label}</h2>
               </div>
-
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={tab}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.18 }}
-                >
-                  {tab === 'balances' && (
-                    <BalancesTab
-                      walletAssets={walletAssets}
-                      walletLoading={walletLoading}
-                      fetchWallet={fetchWallet}
-                      priceByAsset={priceByAsset}
-                      onOpenSwap={() => selectTab('swap')}
-                      onTab={selectTab}
-                    />
-                  )}
-                  {tab === 'swap' && <IboSwapPanel />}
-                  {tab === 'futures' && <FuturesWalletTab />}
-                  {tab === 'deposit' && <DepositTab kycBlocked={kycBlocked} kyc={kyc} />}
-                  {tab === 'withdraw' && (
-                    <WithdrawTab
-                      walletAssets={walletAssets}
-                      kycBlocked={kycBlocked}
-                      kyc={kyc}
-                      priceByAsset={priceByAsset}
-                    />
-                  )}
-                  {tab === 'history' && <HistoryTab />}
-                  {tab === 'ledger' && <LedgerTab />}
-                </motion.div>
-              </AnimatePresence>
+              {workspace}
             </div>
           </div>
         </div>

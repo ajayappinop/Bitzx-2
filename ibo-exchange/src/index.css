@@ -1,15 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 /*
- * Theme tokens — Delta Exchange India-inspired palette:
+ * Theme tokens â€” Delta Exchange India-inspired palette:
  * graphite surfaces + orange brand CTAs + green/red trading colors.
  * Single-font (Inter). Dark is the product default.
  */
 :root,
 html[data-theme='dark'] {
-  /* Flat Delta product canvas — surfaces match page bg (no mid-grey #222 slabs) */
+  /* Flat Delta product canvas â€” surfaces match page bg (no mid-grey #222 slabs) */
   --ibo-bg: #101013;
   --ibo-bg-rgb: 16 16 19;
   --ibo-surface: #101013;
@@ -35,11 +35,11 @@ html[data-theme='dark'] {
   color-scheme: dark;
 }
 /*
- * Branded light theme — neutral slate surfaces with the same orange
- * brand accent. Hierarchy: page → surface → card → elevated.
+ * Branded light theme â€” neutral slate surfaces with the same orange
+ * brand accent. Hierarchy: page â†’ surface â†’ card â†’ elevated.
  */
 html[data-theme='light'] {
-  /* Flat light product canvas — white page + hairline chrome only */
+  /* Flat light product canvas â€” white page + hairline chrome only */
   --ibo-bg: #ffffff;
   --ibo-bg-rgb: 255 255 255;
   --ibo-surface: #ffffff;
@@ -89,7 +89,7 @@ html[data-theme='light'] {
   }
   * { box-sizing: border-box; }
 }
-/* Single-font system (Inter, weighted) — headings, navbar, and buttons */
+/* Single-font system (Inter, weighted) â€” headings, navbar, and buttons */
 .ibo-display,
 .ibo-title,
 .ibo-title-lg,
@@ -103,7 +103,7 @@ a.bg-logo-gradient,
 .bg-logo-gradient {
   font-family: 'Inter', system-ui, sans-serif !important;
 }
-/* Numbers / prices / tickers — Inter, tabular figures */
+/* Numbers / prices / tickers â€” Inter, tabular figures */
 .font-mono,
 .tabular-nums,
 header .font-mono,
@@ -117,7 +117,7 @@ header a.font-mono,
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
 }
-/* Trade / form UI labels — Inter */
+/* Trade / form UI labels â€” Inter */
 button.font-ui,
 .font-ui,
 .font-ui button,
@@ -308,7 +308,7 @@ button.font-ui,
     background: var(--ibo-elevated);
     border-color: rgba(254, 108, 2, 0.35);
   }
-  /* Quick Trade / secondary CTA — brand orange (theme tokens) */
+  /* Quick Trade / secondary CTA â€” brand orange (theme tokens) */
   .ibo-btn-accent {
     @apply inline-flex items-center justify-center gap-1.5 font-bold transition-all;
     border: 1px solid color-mix(in srgb, var(--ibo-accent) 48%, transparent);
@@ -362,7 +362,7 @@ button.font-ui,
     background-color: #ffffff;
     color: #121214;
   }
-  /* Account surfaces — wallet deposit/withdraw, profile, KYC, support */
+  /* Account surfaces â€” wallet deposit/withdraw, profile, KYC, support */
   .ibo-account-hero {
     @apply relative overflow-hidden rounded-xl p-5 sm:p-7 mb-6;
     border: 1px solid var(--ibo-border-solid);
@@ -397,7 +397,7 @@ button.font-ui,
     color: var(--ibo-muted);
   }
 
-  /* Wallet hub — unified flat surfaces across all tabs */
+  /* Wallet hub â€” unified flat surfaces across all tabs */
   .wallet-surface {
     border: 1px solid var(--ibo-border-solid);
     border-radius: 1rem;
@@ -518,7 +518,7 @@ button.font-ui,
   .ibo-tab-idle:hover {
     color: var(--ibo-ink);
   }
-  /* Auth login/register — keep typed + browser-autofilled values visible */
+  /* Auth login/register â€” keep typed + browser-autofilled values visible */
   .ibo-auth-input {
     color: var(--ibo-ink) !important;
     -webkit-text-fill-color: var(--ibo-ink);
@@ -541,7 +541,7 @@ button.font-ui,
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-  /* Primary CTA gradient — Delta India orange ramp (no multi-brand green end) */
+  /* Primary CTA gradient â€” Delta India orange ramp (no multi-brand green end) */
   .bg-logo-gradient {
     background-image: linear-gradient(
       105deg,
@@ -696,17 +696,17 @@ button.font-ui,
   .ibo-nav-link::after {
     content: '';
     position: absolute;
-    left: 12px;
-    right: 12px;
-    bottom: 4px;
-    height: 2px;
+    left: 8px;
+    right: 8px;
+    bottom: 2px;
+    height: 1.5px;
     border-radius: 99px;
     background: linear-gradient(
       90deg,
       transparent,
-      rgba(0, 168, 118, 0.55) 20%,
-      rgba(0, 168, 118, 0.85) 50%,
-      rgba(0, 168, 118, 0.55) 80%,
+      rgba(254, 108, 2, 0.55) 20%,
+      rgba(254, 108, 2, 0.9) 50%,
+      rgba(254, 108, 2, 0.55) 80%,
       transparent
     );
     opacity: 0;
@@ -717,6 +717,745 @@ button.font-ui,
       transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
     pointer-events: none;
   }
+
+  /* â”€â”€ Delta Exchange India marketing navbar â”€â”€
+   * Layout & metrics mirror www.delta.exchange header:
+   * 48px bar, logo + flat links left, Log In + solid Sign Up right.
+   */
+  .delta-navbar {
+    border-bottom: 1px solid transparent;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  .delta-navbar--dark.delta-navbar--top {
+    background-color: #000000;
+  }
+  .delta-navbar--dark.delta-navbar--scrolled {
+    background-color: #101013;
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+  .delta-navbar--light.delta-navbar--top,
+  .delta-navbar--light.delta-navbar--scrolled {
+    background-color: #ffffff;
+    border-bottom-color: rgba(18, 20, 24, 0.1);
+  }
+  .delta-navbar__inner {
+    display: flex;
+    align-items: center;
+    height: 48px;
+    width: 94%;
+    max-width: 94%;
+    margin: 0 auto;
+    padding: 0 12px;
+  }
+  @media (min-width: 768px) {
+    .delta-navbar__inner {
+      padding: 0 24px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .delta-navbar__inner {
+      padding: 0 32px;
+    }
+  }
+  @media (min-width: 1280px) {
+    .delta-navbar__inner {
+      padding: 0 50px;
+    }
+  }
+  .delta-navbar__left {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    flex: 1 1 auto;
+    height: 100%;
+  }
+  .delta-navbar__brand {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    margin-right: 24px;
+    flex-shrink: 0;
+  }
+  .delta-navbar__links {
+    display: none;
+    align-items: center;
+    height: 100%;
+  }
+  @media (min-width: 1024px) {
+    .delta-navbar__links {
+      display: flex;
+    }
+  }
+  .delta-navbar__right {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    flex-shrink: 0;
+    height: 100%;
+  }
+  /* Flat header links (Markets / Futures / Options) */
+  a.delta-nav-link,
+  button.delta-nav-link,
+  .delta-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 100%;
+    margin-right: 24px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: 0;
+    white-space: nowrap;
+    text-decoration: none;
+    color: #ffffff;
+    cursor: pointer;
+    transition: color 0.15s ease;
+  }
+  .delta-navbar--light a.delta-nav-link,
+  .delta-navbar--light button.delta-nav-link,
+  .delta-navbar--light .delta-nav-link {
+    color: #121214;
+  }
+  a.delta-nav-link:hover,
+  button.delta-nav-link:hover,
+  .delta-nav-link:hover,
+  a.delta-nav-link.is-active,
+  button.delta-nav-link.is-active,
+  .delta-nav-link.is-active {
+    color: #fe8935;
+  }
+  .delta-navbar--light a.delta-nav-link:hover,
+  .delta-navbar--light button.delta-nav-link:hover,
+  .delta-navbar--light .delta-nav-link:hover,
+  .delta-navbar--light a.delta-nav-link.is-active,
+  .delta-navbar--light button.delta-nav-link.is-active,
+  .delta-navbar--light .delta-nav-link.is-active {
+    color: #e76202;
+  }
+  .delta-nav-link--btn {
+    font: inherit;
+  }
+  /* Log In â€” plain text, like Delta */
+  .delta-nav-login {
+    display: inline-flex;
+    align-items: center;
+    height: 100%;
+    margin-right: 20px;
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: #ffffff;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 0.15s ease;
+  }
+  .delta-navbar--light .delta-nav-login {
+    color: #121214;
+  }
+  .delta-nav-login:hover {
+    color: #fe8935;
+  }
+  .delta-navbar--light .delta-nav-login:hover {
+    color: #e76202;
+  }
+  /* Sign Up â€” solid brand CTA, 36px Ã— 4px radius (Delta India) */
+  .delta-nav-signup {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 36px;
+    margin-left: 0;
+    margin-right: 16px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 4px;
+    background-color: #fe6c02 !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff;
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    box-shadow: none !important;
+    transition: background-color 0.15s ease;
+  }
+  .delta-nav-signup:hover {
+    background-color: #e76202 !important;
+    filter: none;
+  }
+  .delta-nav-signup svg {
+    color: #ffffff !important;
+    stroke: #ffffff;
+  }
+  .delta-nav-icon-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    margin-right: 8px;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: #ffffff;
+    cursor: pointer;
+    transition: color 0.15s ease;
+  }
+  .delta-navbar--light .delta-nav-icon-btn {
+    color: #121214;
+  }
+  .delta-nav-icon-btn:hover {
+    color: #fe8935;
+  }
+  .delta-nav-icon-btn__dot {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fe6c02;
+  }
+  .delta-nav-user-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    margin-right: 12px;
+    padding: 0 8px 0 4px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+    background: transparent;
+    color: #e1e1e2;
+    font-size: 0.875rem;
+    font-weight: 400;
+    cursor: pointer;
+    max-width: 160px;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  .delta-navbar--light .delta-nav-user-btn {
+    color: #121214;
+    border-color: rgba(18, 20, 24, 0.12);
+  }
+  .delta-nav-user-btn:hover {
+    border-color: rgba(254, 108, 2, 0.45);
+    color: #fe8935;
+  }
+  .delta-nav-user-btn__avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 3px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(254, 108, 2, 0.18);
+    color: #fe8935;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .delta-nav-theme-toggle {
+    width: 36px !important;
+    height: 36px !important;
+    margin-right: 8px;
+    border-radius: 4px !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    background: transparent !important;
+    padding: 0 !important;
+  }
+  .delta-navbar--light .delta-nav-theme-toggle {
+    border-color: rgba(18, 20, 24, 0.12) !important;
+  }
+  .delta-nav-theme-toggle span:first-child {
+    width: 22px;
+    height: 22px;
+    border-radius: 3px;
+  }
+
+  /* Delta trading-app right cluster (Search Â· Add Funds Â· â‚¹ Â· icons) */
+  .delta-nav-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 34px;
+    width: 180px;
+    margin-right: 14px;
+    padding: 0 10px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    flex-shrink: 0;
+  }
+  .delta-navbar--light .delta-nav-search {
+    background: #f0f1f3;
+    border-color: transparent;
+  }
+  @media (min-width: 1280px) {
+    .delta-nav-search { width: 220px; }
+  }
+  .delta-nav-search__icon {
+    flex-shrink: 0;
+    color: #8e9298;
+    margin-right: 8px;
+  }
+  .delta-nav-search__input {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 100%;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: #e1e1e2;
+    font-size: 0.8125rem;
+    font-weight: 400;
+  }
+  .delta-navbar--light .delta-nav-search__input {
+    color: #121214;
+  }
+  .delta-nav-search__input::placeholder {
+    color: #8e9298;
+  }
+  .delta-nav-search__kbd {
+    flex-shrink: 0;
+    margin-left: 6px;
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1;
+    color: #8e9298;
+    border: 0;
+    background: transparent;
+    padding: 0;
+  }
+  .delta-nav-add-funds {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 34px;
+    margin-right: 14px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 4px;
+    background-color: #fe6c02 !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    box-shadow: none !important;
+    transition: background-color 0.15s ease;
+  }
+  .delta-nav-add-funds:hover {
+    background-color: #e76202 !important;
+  }
+  .delta-nav-balance {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 34px;
+    margin-right: 8px;
+    padding: 0 4px 0 0;
+    text-decoration: none;
+    color: #e1e1e2;
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .delta-navbar--light .delta-nav-balance {
+    color: #121214;
+  }
+  .delta-nav-balance:hover {
+    color: #fe8935;
+  }
+  .delta-nav-balance__rupee {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #00a876;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .delta-nav-balance__amt {
+    letter-spacing: -0.01em;
+  }
+  .delta-nav-tool-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    margin-right: 2px;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: #e1e1e2;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.15s ease, background-color 0.15s ease;
+  }
+  .delta-navbar--light .delta-nav-tool-btn {
+    color: #121214;
+  }
+  .delta-nav-tool-btn:hover,
+  .delta-nav-tool-btn.is-active {
+    color: #fe8935;
+    background: rgba(254, 108, 2, 0.08);
+  }
+
+  /* Dropdowns */
+  .delta-dd {
+    border-radius: 8px;
+    border: 1px solid var(--ibo-border-solid);
+    background: var(--ibo-bg);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+    color: var(--ibo-ink);
+  }
+  html[data-theme='dark'] .delta-dd {
+    background: #16161a;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+  }
+  .delta-dd__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+    text-decoration: none;
+    color: var(--ibo-ink);
+    transition: background-color 0.12s ease;
+  }
+  .delta-dd__item:hover,
+  .delta-dd__item.is-active {
+    background: rgba(254, 108, 2, 0.08);
+  }
+  .delta-dd__item.is-active .delta-dd__label {
+    color: #fe6c02;
+  }
+  .delta-dd__item--danger {
+    color: #eb5454;
+  }
+  .delta-dd__item--danger:hover {
+    background: rgba(235, 84, 84, 0.08);
+  }
+  .delta-dd__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: rgba(254, 108, 2, 0.1);
+    color: #fe6c02;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .delta-dd__label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.25;
+    color: inherit;
+  }
+  .delta-dd__desc {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--ibo-muted);
+    line-height: 1.3;
+  }
+  .delta-dd__mega {
+    display: grid;
+    grid-template-columns: 1fr;
+    max-height: min(70vh, 520px);
+    overflow-y: auto;
+    padding: 6px 0 10px;
+  }
+  @media (min-width: 900px) {
+    .delta-dd--wide.delta-dd {
+      width: 520px !important;
+    }
+    .delta-dd__mega {
+      grid-template-columns: 1fr 1fr;
+      gap: 4px 8px;
+      padding: 8px;
+    }
+  }
+  .delta-dd__section {
+    min-width: 0;
+  }
+  .delta-dd__section-title {
+    margin: 0;
+    padding: 8px 14px 4px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ibo-muted);
+  }
+  .delta-dd__apps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    padding: 10px;
+  }
+  .delta-dd__app {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 6px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--ibo-ink);
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-align: center;
+    transition: background-color 0.12s ease;
+  }
+  .delta-dd__app:hover {
+    background: rgba(254, 108, 2, 0.08);
+    color: #fe6c02;
+  }
+  .delta-dd__app-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(254, 108, 2, 0.1);
+    color: #fe6c02;
+  }
+
+  html[data-theme='light'] .delta-nav-add-funds,
+  html[data-theme='light'] a.delta-nav-add-funds {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+  html[data-theme='light'] .delta-nav-balance__rupee {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+
+  /* â”€â”€ Delta apps side panel (grid icon) â€” slides in from right, below navbar â”€â”€ */
+  .delta-apps-root {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* top is set inline from navbar bottom so it never covers the bar */
+    z-index: 10040;
+    pointer-events: none;
+  }
+  .delta-apps-backdrop {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.35);
+    pointer-events: auto;
+  }
+  .delta-apps-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(400px, 100vw);
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    box-shadow: -8px 0 40px rgba(0, 0, 0, 0.12);
+  }
+  .delta-apps-panel--dark {
+    background: #121214;
+    box-shadow: -8px 0 40px rgba(0, 0, 0, 0.55);
+  }
+  .delta-apps-panel__scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 16px 16px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .delta-apps-card {
+    background: #f3f4f6;
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .delta-apps-panel--dark .delta-apps-card {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .delta-apps-download {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .delta-apps-qr {
+    flex-shrink: 0;
+    width: 72px;
+    height: 72px;
+    border-radius: 8px;
+    background: #ffffff;
+    border: 1px solid rgba(18, 20, 24, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #121214;
+  }
+  .delta-apps-panel--dark .delta-apps-qr {
+    background: #1a1a1e;
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #e1e1e2;
+  }
+  .delta-apps-store-btns {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .delta-apps-store-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 6px;
+    background: #121214;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff;
+    text-decoration: none;
+    transition: filter 0.15s ease;
+  }
+  .delta-apps-store-btn:hover {
+    filter: brightness(1.12);
+  }
+  .delta-apps-store-btn span {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+    min-width: 0;
+  }
+  .delta-apps-store-btn small {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+  .delta-apps-store-btn strong {
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .delta-apps-promo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: #121214;
+    transition: background-color 0.15s ease;
+  }
+  .delta-apps-panel--dark .delta-apps-promo {
+    color: #e1e1e2;
+  }
+  .delta-apps-promo:hover {
+    background: #ebecef;
+  }
+  .delta-apps-panel--dark .delta-apps-promo:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .delta-apps-promo__icon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+  }
+  .delta-apps-panel--dark .delta-apps-promo__icon {
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .delta-apps-promo__icon--yt {
+    color: #ff0000;
+  }
+  .delta-apps-promo__icon--community {
+    color: #fe6c02;
+  }
+  .delta-apps-promo__text {
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.35;
+  }
+  .delta-apps-section-title {
+    margin: 0 0 12px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #8e9298;
+  }
+  .delta-apps-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 12px;
+  }
+  .delta-apps-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+    padding: 6px 4px;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #121214;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.25;
+    transition: background-color 0.12s ease, color 0.12s ease;
+  }
+  .delta-apps-panel--dark .delta-apps-link {
+    color: #e1e1e2;
+  }
+  .delta-apps-link:hover {
+    background: rgba(0, 0, 0, 0.04);
+    color: #fe6c02;
+  }
+  .delta-apps-panel--dark .delta-apps-link:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #fe8935;
+  }
+  .delta-apps-link__icon {
+    flex-shrink: 0;
+    color: #8e9298;
+  }
+  .delta-apps-link:hover .delta-apps-link__icon {
+    color: inherit;
+  }
+
   .ibo-nav-link:hover::after {
     opacity: 1;
     transform: scaleX(1);
@@ -842,7 +1581,7 @@ button.font-ui,
 .product-strip-marquee {
   overflow: hidden;
   width: 100%;
-  /* Room for hover lift + glow so icons aren’t clipped */
+  /* Room for hover lift + glow so icons arenâ€™t clipped */
   padding-block: 0.85rem;
   mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
   -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
@@ -953,11 +1692,11 @@ button.font-ui,
   color: var(--ibo-accent);
 }
 
-/* Spot / futures trade terminal — flat Delta canvas (page bg, no mid-grey panels) */
+/* Spot / futures trade terminal â€” flat Delta canvas (page bg, no mid-grey panels) */
 .delta-trade {
   background: var(--ibo-bg);
   color: var(--ibo-ink);
-  /* Pure page surface — hairline chrome only, no elevated grey slabs */
+  /* Pure page surface â€” hairline chrome only, no elevated grey slabs */
   --ibo-surface: var(--ibo-bg);
   --ibo-card: transparent;
   --ibo-elevated: transparent;
@@ -986,7 +1725,7 @@ html[data-theme='light'] .delta-trade {
 }
 
 
-/* Delta terminal columns — chart | book+trades | ticket (+ bottom dock) */
+/* Delta terminal columns â€” chart | book+trades | ticket (+ bottom dock) */
 .delta-trade-col.delta-trade-book {
   width: 240px;
 }
@@ -1029,7 +1768,7 @@ html[data-theme='light'] .delta-pair-panel .delta-pair-search {
   border-color: rgba(18, 20, 24, 0.12) !important;
 }
 
-/* Delta markets table — flat product canvas (no mid-grey card wash) */
+/* Delta markets table â€” flat product canvas (no mid-grey card wash) */
 .delta-markets-panel {
   background: var(--ibo-bg) !important;
   border-color: rgba(255, 255, 255, 0.06) !important;
@@ -1063,7 +1802,7 @@ html[data-theme='light'] .delta-pair-panel .delta-pair-search {
   background: rgba(255, 255, 255, 0.04) !important;
 }
 
-/* Movers strips (volume / gainers / losers) — flat, not grey elevated cards */
+/* Movers strips (volume / gainers / losers) â€” flat, not grey elevated cards */
 .delta-movers-card {
   background: transparent !important;
   border-color: rgba(255, 255, 255, 0.08) !important;
@@ -1139,7 +1878,7 @@ html[data-theme='light'] .delta-movers-card .delta-movers-fallback-icon {
   background: rgba(18, 20, 24, 0.06) !important;
 }
 
-/* Instant KYC visual stages — deep product stage, not grey card panel */
+/* Instant KYC visual stages â€” deep product stage, not grey card panel */
 .ibo-kyc-stage {
   isolation: isolate;
   background: #0a0b0e;
@@ -1345,7 +2084,7 @@ html[data-theme='dark'] .product-strip-item:hover .product-strip-label {
     animation: none !important;
   }
 }
-/* Crisp 3D icon rendering — no color grading (prevents light-theme distortion) */
+/* Crisp 3D icon rendering â€” no color grading (prevents light-theme distortion) */
 .ibo-3d-icon,
 .ibo-3d-icon--soft,
 .ibo-3d-icon--sm,
@@ -1356,7 +2095,7 @@ html[data-theme='dark'] .product-strip-item:hover .product-strip-label {
   image-rendering: auto;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  /* Do NOT set transform here — fights Framer Motion / hover transforms */
+  /* Do NOT set transform here â€” fights Framer Motion / hover transforms */
   max-width: 100%;
 }
 .ibo-3d-icon {
@@ -1367,9 +2106,16 @@ html[data-theme='dark'] .product-strip-item:hover .product-strip-label {
 }
 .ibo-3d-icon--glow {
   filter:
-    drop-shadow(0 0 18px rgba(254, 108, 2, 0.35))
-    drop-shadow(0 0 36px rgba(0, 168, 118, 0.22))
-    drop-shadow(0 16px 32px rgba(0, 0, 0, 0.35));
+    drop-shadow(0 0 14px rgba(254, 108, 2, 0.28))
+    drop-shadow(0 0 28px rgba(0, 168, 118, 0.16))
+    drop-shadow(0 18px 34px rgba(0, 0, 0, 0.28));
+}
+/* Hero mark â€” crisp edges, no halo from over-blur filters */
+.ibo-token-hero {
+  isolation: isolate;
+  -webkit-mask-image: none;
+  mask-image: none;
+  mix-blend-mode: normal;
 }
 .ibo-3d-icon--sm {
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.3));
@@ -1377,7 +2123,7 @@ html[data-theme='dark'] .product-strip-item:hover .product-strip-label {
 .ibo-3d-icon--lg {
   filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.35));
 }
-/* Brand logo — always transparent canvas, crisp downscale */
+/* Brand logo â€” always transparent canvas, crisp downscale */
 .ibo-brand-logo {
   background: transparent !important;
   object-fit: contain;
@@ -1694,7 +2440,7 @@ html[data-theme='light'] .ibo-brand-logo-wrap .ibo-brand-logo--light {
   width: 100% !important;
 }
 /* ---------------------------------------------------------------------------
-   LIGHT THEME — cool slate mist + brand accents (coordinated hierarchy)
+   LIGHT THEME â€” cool slate mist + brand accents (coordinated hierarchy)
    --------------------------------------------------------------------------- */
 html[data-theme='light'] body {
   background:
@@ -1711,7 +2457,7 @@ html[data-theme='light'] .ibo-page {
     var(--ibo-bg);
   color: var(--ibo-ink);
 }
-/* Hard-coded dark canvases → page / surface / card hierarchy */
+/* Hard-coded dark canvases â†’ page / surface / card hierarchy */
 html[data-theme='light'] .bg-black,
 html[data-theme='light'] .bg-\[\#101013\],
 html[data-theme='light'] .bg-\[\#101013\],
@@ -1756,7 +2502,7 @@ html[data-theme='light'] .border-\[\#1c2433\],
 html[data-theme='light'] .divide-\[\#1e2028\] > :not([hidden]) ~ :not([hidden]) {
   border-color: var(--ibo-border-solid) !important;
 }
-/* Ink remaps — use theme tokens for consistent navy / slate hierarchy */
+/* Ink remaps â€” use theme tokens for consistent navy / slate hierarchy */
 html[data-theme='light'] .text-white { color: var(--ibo-ink); }
 html[data-theme='light'] .text-white\/95 { color: color-mix(in srgb, var(--ibo-ink) 95%, transparent); }
 html[data-theme='light'] .text-white\/90 { color: color-mix(in srgb, var(--ibo-ink) 90%, transparent); }
@@ -1782,7 +2528,7 @@ html[data-theme='light'] .text-zinc-300 { color: var(--ibo-ink); }
 html[data-theme='light'] .text-zinc-400 { color: var(--ibo-ink-secondary); }
 html[data-theme='light'] .text-zinc-500,
 html[data-theme='light'] .text-zinc-600 { color: var(--ibo-muted); }
-/* Frosted / translucent panels → solid matching cards in light */
+/* Frosted / translucent panels â†’ solid matching cards in light */
 html[data-theme='light'] .bg-white\/\[0\.02\],
 html[data-theme='light'] .bg-white\/\[0\.03\],
 html[data-theme='light'] .bg-white\/\[\.03\],
@@ -1825,7 +2571,7 @@ html[data-theme='light'] .group-hover\:bg-\[\#12151c\],
 html[data-theme='light'] .group:hover .group-hover\:bg-\[\#12151c\] {
   background-color: var(--ibo-hover) !important;
 }
-/* Primary gradient CTAs — deep ink on brand gradient */
+/* Primary gradient CTAs â€” deep ink on brand gradient */
 html[data-theme='light'] a.bg-logo-gradient,
 html[data-theme='light'] button.bg-logo-gradient,
 html[data-theme='light'] .ibo-btn-primary,
@@ -1844,7 +2590,7 @@ html[data-theme='light'] button.bg-logo-gradient,
 html[data-theme='light'] .hero-cta-btn {
   box-shadow: 0 10px 28px rgba(254, 108, 2, 0.22) !important;
 }
-/* Outline / secondary CTAs — cyan-accent soft pills (readable on mist) */
+/* Outline / secondary CTAs â€” cyan-accent soft pills (readable on mist) */
 html[data-theme='light'] .ibo-btn-outline {
   background: linear-gradient(135deg, rgba(254, 108, 2, 0.1) 0%, rgba(255, 255, 255, 0.92) 55%, rgba(0, 168, 118, 0.1) 100%) !important;
   border: 1px solid rgba(254, 108, 2, 0.35) !important;
@@ -1888,7 +2634,7 @@ html[data-theme='light'] .ibo-account-promo {
   border-color: rgba(254, 108, 2, 0.28);
   background: linear-gradient(105deg, rgba(254, 108, 2, 0.1) 0%, rgba(0, 168, 118, 0.08) 45%, #ffffff 100%);
 }
-/* Lime accent text → darker cyan for readable light contrast */
+/* Lime accent text â†’ darker cyan for readable light contrast */
 html[data-theme='light'] .text-\[\#00A876\],
 html[data-theme='light'] .text-gold-light {
   color: #B44D01 !important;
@@ -1899,11 +2645,23 @@ html[data-theme='light'] .text-gradient {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-/* Nav — full-width top bar (accent only on hover links) */
-html[data-theme='light'] .ibo-nav-shell {
+/* Nav â€” full-width top bar (accent only on hover links) */
+html[data-theme='light'] .ibo-nav-shell:not(.delta-navbar) {
   background: rgba(255, 255, 255, 0.94) !important;
   border-color: var(--ibo-border-solid) !important;
   box-shadow: none;
+}
+html[data-theme='light'] .delta-navbar {
+  background-color: #ffffff !important;
+  border-bottom-color: rgba(18, 20, 24, 0.1) !important;
+  box-shadow: none;
+}
+/* Keep Sign Up CTA white-on-orange in light theme */
+html[data-theme='light'] .delta-nav-signup,
+html[data-theme='light'] a.delta-nav-signup,
+html[data-theme='light'] .delta-nav-signup:hover {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 html[data-theme='light'] .ibo-dropdown-panel {
   background: #ffffff !important;
@@ -1918,7 +2676,7 @@ html[data-theme='light'] .ibo-footer {
   border-top-color: var(--ibo-border-solid);
   color: var(--ibo-ink-secondary);
 }
-/* Cards — flat hairline only (no filled grey/white slab) */
+/* Cards â€” flat hairline only (no filled grey/white slab) */
 html[data-theme='light'] .ibo-card,
 html[data-theme='light'] .ibo-card-solid {
   background: transparent !important;
@@ -1964,7 +2722,7 @@ html[data-theme='light'] .hero-orbit-dashed {
 html[data-theme='light'] .hero-light .hero-orbit-travel-spark {
   filter: drop-shadow(0 0 4px rgba(254, 108, 2, 0.45));
 }
-/* Images / 3D icons — soft shadow only in light (no color grading) */
+/* Images / 3D icons â€” soft shadow only in light (no color grading) */
 html[data-theme='light'] .ibo-3d-icon,
 html[data-theme='light'] .ibo-3d-icon--soft,
 html[data-theme='light'] .ibo-3d-icon--sm,
@@ -1978,13 +2736,13 @@ html[data-theme='light'] img.ibo-3d-icon {
 html[data-theme='light'] .ibo-3d-icon--glow,
 html[data-theme='light'] img.ibo-3d-icon--glow {
   filter:
-    drop-shadow(0 0 16px rgba(254, 108, 2, 0.3))
-    drop-shadow(0 0 28px rgba(0, 168, 118, 0.2))
-    drop-shadow(0 10px 22px rgba(12, 25, 34, 0.1)) !important;
+    drop-shadow(0 0 12px rgba(254, 108, 2, 0.24))
+    drop-shadow(0 0 22px rgba(0, 168, 118, 0.14))
+    drop-shadow(0 12px 24px rgba(12, 25, 34, 0.1)) !important;
   -webkit-filter:
-    drop-shadow(0 0 16px rgba(254, 108, 2, 0.3))
-    drop-shadow(0 0 28px rgba(0, 168, 118, 0.2))
-    drop-shadow(0 10px 22px rgba(12, 25, 34, 0.1)) !important;
+    drop-shadow(0 0 12px rgba(254, 108, 2, 0.24))
+    drop-shadow(0 0 22px rgba(0, 168, 118, 0.14))
+    drop-shadow(0 12px 24px rgba(12, 25, 34, 0.1)) !important;
 }
 /* Hero canvas fades follow page bg in light */
 html[data-theme='light'] .hero-fade-top {
@@ -2097,7 +2855,7 @@ html[data-theme='light'] .ibo-feature-stack-shell {
   background: var(--ibo-surface) !important;
   box-shadow: 0 20px 50px rgba(12, 25, 34, 0.08) !important;
 }
-/* Bento / feature cards — solid white in light, keep accent border */
+/* Bento / feature cards â€” solid white in light, keep accent border */
 html[data-theme='light'] .ibo-feature-bento {
   background: var(--ibo-card) !important;
   box-shadow: 0 10px 28px rgba(12, 25, 34, 0.06);
@@ -2127,7 +2885,7 @@ html[data-theme='light'] .border-gold\/50 {
 html[data-theme='light'] .text-gold {
   color: #B44D01 !important;
 }
-/* Markets page — remaining dark-first utilities */
+/* Markets page â€” remaining dark-first utilities */
 html[data-theme='light'] .text-white\/25 {
   color: var(--ibo-muted) !important;
 }
@@ -2191,7 +2949,7 @@ html[data-theme='light'] .text-white\/25:hover,
 html[data-theme='light'] .group-hover\:text-white\/50 {
   color: var(--ibo-ink-secondary) !important;
 }
-/* Options chain — soften dark ITM / Call-Put header washes for light theme */
+/* Options chain â€” soften dark ITM / Call-Put header washes for light theme */
 html[data-theme='light'] .bg-emerald-950\/60,
 html[data-theme='light'] .bg-emerald-950\/55 {
   background-color: rgba(16, 185, 129, 0.12) !important;
@@ -2218,3 +2976,377 @@ html[data-theme='light'] .bg-\[\#FE9D55\] {
 .delta-ob .delta-ob-row { font-variant-numeric: tabular-nums; }
 .delta-ob .order-book-scroll { scrollbar-width: none; }
 .delta-ob .order-book-scroll::-webkit-scrollbar { display: none; width: 0; height: 0; }
+
+/* ── Delta Account hub (app/account/*) ─────────────────────────────────── */
+.delta-account {
+  display: flex;
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--ibo-bg);
+  color: var(--ibo-ink);
+}
+.delta-account__rail {
+  flex: 0 0 210px;
+  width: 210px;
+  border-right: 1px solid var(--ibo-border-solid);
+  background: color-mix(in srgb, var(--ibo-elevated, var(--ibo-card)) 100%, transparent);
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 6px 0 28px;
+  scrollbar-width: thin;
+}
+.delta-account__rail-head,
+.delta-account__rail-kicker,
+.delta-account__rail-user,
+.delta-account__rail-title,
+.delta-account__group-label,
+.delta-account__link-dot { display: none; }
+.delta-account__nav { padding: 0; }
+.delta-account__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.delta-account__link {
+  display: flex;
+  align-items: center;
+  padding: 8px 14px 8px 16px;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--ibo-ink-secondary);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  border-radius: 0;
+  transition: color 0.1s ease, background 0.1s ease, border-color 0.1s ease;
+}
+.delta-account__link:hover {
+  color: var(--ibo-ink);
+  background: rgba(253, 125, 2, 0.05);
+}
+.delta-account__link.is-active {
+  color: #fd7d02;
+  font-weight: 600;
+  background: rgba(253, 125, 2, 0.08);
+  border-left-color: #fd7d02;
+}
+.delta-account__main {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--ibo-bg);
+  overflow: hidden;
+}
+.delta-account__page-head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--ibo-border-solid);
+  background: color-mix(in srgb, var(--ibo-elevated, var(--ibo-card)) 55%, var(--ibo-bg));
+}
+.delta-account__page-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ibo-ink);
+}
+.delta-account__page-meta {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ibo-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 42%;
+}
+.delta-account__content {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 14px 16px 32px;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+.delta-account-embed .ibo-page {
+  min-height: 0 !important;
+  padding: 0 !important;
+}
+.delta-account-embed .ibo-page > div {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  max-width: none !important;
+}
+/* Flatten nested page chrome inside account shell */
+.delta-account-embed .ibo-account-hero,
+.delta-account-embed .ibo-eyebrow { display: none !important; }
+.delta-account-embed .ibo-account-title { display: none !important; }
+.delta-account-panel { min-width: 0; }
+.delta-account-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+@media (min-width: 900px) {
+  .delta-account-summary { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+.delta-account-summary__item {
+  border: 1px solid var(--ibo-border-solid);
+  border-radius: 4px;
+  padding: 10px 12px;
+  background: transparent;
+}
+.delta-account-summary__label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ibo-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.delta-account-summary__value {
+  margin-top: 4px;
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ibo-ink);
+}
+.delta-account-summary__value.is-up { color: #0ecb81; }
+.delta-account-summary__value.is-down { color: #f6465d; }
+.delta-account-tabs {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--ibo-border-solid);
+  margin-bottom: 12px;
+}
+.delta-account-tabs__btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--ibo-muted);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 14px;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+}
+.delta-account-tabs__btn:hover { color: var(--ibo-ink); }
+.delta-account-tabs__btn.is-active {
+  color: #fd7d02;
+  font-weight: 600;
+  border-bottom-color: #fd7d02;
+}
+.delta-account-tabs__refresh {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  border: 1px solid var(--ibo-border-solid);
+  color: var(--ibo-muted);
+  background: transparent;
+}
+.delta-account-tabs__refresh:hover {
+  color: var(--ibo-ink);
+  border-color: rgba(253, 125, 2, 0.45);
+}
+.delta-account-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.delta-account-table-wrap {
+  overflow: auto;
+  border: 1px solid var(--ibo-border-solid);
+  border-radius: 4px;
+}
+.delta-account-table {
+  width: 100%;
+  min-width: 880px;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.delta-account-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ibo-muted);
+  background: color-mix(in srgb, var(--ibo-elevated, var(--ibo-card)) 95%, var(--ibo-bg));
+  border-bottom: 1px solid var(--ibo-border-solid);
+  white-space: nowrap;
+  text-align: left;
+}
+.delta-account-table tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--ibo-border-solid) 70%, transparent);
+  color: var(--ibo-ink);
+  white-space: nowrap;
+}
+.delta-account-table tbody tr:hover {
+  background: rgba(253, 125, 2, 0.035);
+}
+.delta-account-pill {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ibo-muted);
+  border: 1px solid var(--ibo-border-solid);
+  border-radius: 2px;
+  padding: 1px 6px;
+}
+.delta-account-close-btn {
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 3px;
+  border: 1px solid rgba(246, 70, 93, 0.35);
+  background: rgba(246, 70, 93, 0.1);
+  color: #f6465d;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.delta-account-close-btn:hover { background: rgba(246, 70, 93, 0.2); }
+.delta-account-empty {
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px dashed var(--ibo-border-solid);
+  border-radius: 4px;
+  padding: 28px 16px;
+}
+.delta-account-empty__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ibo-muted);
+}
+.delta-account-empty__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fd7d02;
+  text-decoration: none;
+}
+.delta-account-empty__cta:hover { text-decoration: underline; }
+.delta-account-card {
+  border: 1px solid var(--ibo-border-solid);
+  border-radius: 4px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-decoration: none;
+  color: inherit;
+}
+.delta-account-card:hover {
+  border-color: rgba(253, 125, 2, 0.45);
+  background: rgba(253, 125, 2, 0.04);
+}
+.delta-account-card__label {
+  font-size: 11px;
+  color: var(--ibo-muted);
+  font-weight: 600;
+}
+.delta-account-card__value {
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.delta-account-primary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 3px;
+  padding: 8px 14px;
+  background: #fd7d02;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 0;
+  cursor: pointer;
+}
+.delta-account-primary-btn:hover { background: #fe8c1f; }
+.delta-account-ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 3px;
+  padding: 8px 14px;
+  border: 1px solid var(--ibo-border-solid);
+  color: var(--ibo-ink);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  background: transparent;
+  cursor: pointer;
+}
+.delta-account-ghost-btn:hover {
+  border-color: rgba(253, 125, 2, 0.45);
+  color: #fd7d02;
+}
+@media (max-width: 900px) {
+  .delta-account {
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+  .delta-account__rail {
+    width: 100%;
+    flex: 0 0 auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--ibo-border-solid);
+    padding: 0;
+    overflow: hidden;
+  }
+  .delta-account__nav {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0 4px;
+    scrollbar-width: thin;
+  }
+  .delta-account__list {
+    flex-direction: row;
+    min-width: max-content;
+  }
+  .delta-account__link {
+    border-left: 0;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    padding: 11px 12px 10px;
+    font-size: 12px;
+  }
+  .delta-account__link.is-active {
+    border-left-color: transparent;
+    border-bottom-color: #fd7d02;
+  }
+  .delta-account__page-meta { display: none; }
+  .delta-account__content { padding: 12px 12px 32px; }
+}
+html[data-theme='light'] .delta-account__rail { background: #f5f5f6; }
+html[data-theme='light'] .delta-account__page-head { background: #fafafa; }
+html[data-theme='dark'] .delta-account__rail { background: #0f1116; }

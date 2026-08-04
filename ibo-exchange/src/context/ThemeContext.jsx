@@ -1,21 +1,23 @@
 import { createContext, useCallback, useContext, useLayoutEffect, useMemo, useState } from 'react';
 
-/** Bumped so prior light prefs don't override the dark product default. */
-const STORAGE_KEY = 'ibo-exchange-theme-v2';
-const LEGACY_STORAGE_KEY = 'ibo-exchange-theme';
+/** Bumped so prior dark prefs don't override the light product default. */
+const STORAGE_KEY = 'ibo-exchange-theme-v3';
+const LEGACY_STORAGE_KEYS = ['ibo-exchange-theme-v2', 'ibo-exchange-theme'];
 const ThemeContext = createContext(null);
 
 function getInitialTheme() {
-  if (typeof window === 'undefined') return 'dark';
+  if (typeof window === 'undefined') return 'light';
   try {
     const stored = window.localStorage.getItem(STORAGE_KEY);
     if (stored === 'light' || stored === 'dark') return stored;
-    // Drop legacy key — do not inherit old light default
-    window.localStorage.removeItem(LEGACY_STORAGE_KEY);
+    // Drop legacy keys — do not inherit old dark default
+    for (const key of LEGACY_STORAGE_KEYS) {
+      window.localStorage.removeItem(key);
+    }
   } catch {
     /* ignore */
   }
-  return 'dark';
+  return 'light';
 }
 
 export function applyThemeToDocument(theme) {

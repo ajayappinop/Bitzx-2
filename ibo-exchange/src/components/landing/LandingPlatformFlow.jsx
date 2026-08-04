@@ -12,7 +12,7 @@ import { ArrowRight, TrendingUp, ChevronRight } from 'lucide-react';
 
 
 
-const IBO_TOKEN_3D = '/hero/ibo-token-3d.png?v=10';
+const IBO_TOKEN_3D = '/hero/ibo-token-3d.png?v=12';
 
 const CUBES_ICON = '/hero/platform-usdt.png?v=2';
 
@@ -508,7 +508,7 @@ export default function LandingPlatformFlow() {
 
               transition={{ duration: 0.6 }}
 
-              className="relative order-1 lg:order-2 flex items-center justify-center min-h-[280px] sm:min-h-[340px] lg:min-h-[420px]"
+              className="relative order-1 lg:order-2 flex items-center justify-center min-h-[340px] sm:min-h-[420px] lg:min-h-[520px] xl:min-h-[560px]"
 
             >
 
@@ -518,7 +518,7 @@ export default function LandingPlatformFlow() {
 
                 aria-hidden
 
-                className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[78%] h-[78%] max-w-[440px] rounded-full blur-3xl opacity-80"
+                className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[82%] h-[82%] max-w-[520px] rounded-full blur-3xl opacity-80"
 
                 style={{
 
@@ -534,7 +534,7 @@ export default function LandingPlatformFlow() {
 
                 aria-hidden
 
-                className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[48%] h-[48%] max-w-[260px] rounded-full blur-2xl opacity-90"
+                className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[52%] h-[52%] max-w-[300px] rounded-full blur-2xl opacity-90"
 
                 style={{
 
@@ -550,7 +550,7 @@ export default function LandingPlatformFlow() {
 
                 aria-hidden
 
-                className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[88%] max-w-[420px] aspect-square rounded-full border border-[rgba(254, 108, 2,0.18)]"
+                className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-[500px] aspect-square rounded-full border border-[rgba(254, 108, 2,0.18)]"
 
                 style={{ boxShadow: 'inset 0 0 50px rgba(254, 108, 2,0.1), 0 0 60px rgba(254, 108, 2,0.14)' }}
 
@@ -560,7 +560,7 @@ export default function LandingPlatformFlow() {
 
                 aria-hidden
 
-                className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[68%] max-w-[320px] aspect-square rounded-full border border-[rgba(0, 168, 118,0.2)]"
+                className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[72%] max-w-[380px] aspect-square rounded-full border border-[rgba(0, 168, 118,0.2)]"
 
                 style={{ boxShadow: '0 0 36px rgba(0, 168, 118,0.12)' }}
 
@@ -572,7 +572,7 @@ export default function LandingPlatformFlow() {
 
                 alt="Delta token"
 
-                className="ibo-3d-icon ibo-3d-icon--glow ibo-token-float relative z-[1] w-[min(100%,300px)] sm:w-[340px] lg:w-[380px] xl:w-[420px] h-auto"
+                className="ibo-3d-icon ibo-3d-icon--glow ibo-token-float ibo-token-hero relative z-[1] w-[min(100%,380px)] sm:w-[440px] lg:w-[500px] xl:w-[560px] h-auto object-contain"
 
                 draggable={false}
 
