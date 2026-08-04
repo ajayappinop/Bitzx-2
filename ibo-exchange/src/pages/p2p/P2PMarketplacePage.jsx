@@ -1,357 +1,383 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ArrowLeftRight, Plus, Loader2, AlertCircle, Search,
-  RefreshCw, ShieldCheck, TrendingUp, Users, Zap,
+  ArrowLeftRight,
+  Plus,
+  Loader2,
+  AlertCircle,
+  Search,
+  RefreshCw,
+  ShieldCheck,
+  Banknote,
+  Store,
+  ChevronRight,
+  IndianRupee,
 } from 'lucide-react';
 import { p2pApi } from '@/services/p2pApi';
 import { useAuth } from '@/context/AuthContext';
 
 const ASSETS = ['USDT', 'BTC', 'ETH', 'BNB', 'SOL', 'XRP'];
-const PMS    = ['UPI', 'IMPS', 'BANK', 'PAYTM', 'PHONEPE', 'GPAY'];
+const PMS = ['UPI', 'IMPS', 'BANK', 'PAYTM', 'PHONEPE', 'GPAY'];
 
-const fmtINR = (v) => Number(v || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+const fmtINR = (v) =>
+  Number(v || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 });
 
-/* ── small reusable pieces ─────────────────────────────────────────────── */
-function SidePill({ side }) {
-  return side === 'buy'
-    ? <span className="inline-flex items-center rounded-full border border-green-400/30 bg-green-400/10 px-2 py-0.5 text-[10px] font-bold uppercase text-green-400">BUY</span>
-    : <span className="inline-flex items-center rounded-full border border-red-400/30 bg-red-400/10 px-2 py-0.5 text-[10px] font-bold uppercase text-red-400">SELL</span>;
+function OfferCard({ ad, side }) {
+  const name = ad.maker?.nickname || 'Trader';
+  const initial = name[0]?.toUpperCase() || 'T';
+  const payments = ad.payment_methods || [];
+  const rate = ad.maker?.completion_rate_30d ?? 100;
+  const trades = ad.maker?.trades_total ?? 0;
+
+  return (
+    <article className="p2p-card">
+      <div className="p2p-card__top">
+        <div className="p2p-card__trader">
+          <div className="p2p-card__avatar" aria-hidden>
+            {initial}
+          </div>
+          <div className="min-w-0">
+            <div className="p2p-card__name">
+              <span className="truncate">{name}</span>
+              {ad.maker?.is_merchant ? (
+                <ShieldCheck size={13} className="p2p-card__merchant" aria-label="Merchant" />
+              ) : null}
+            </div>
+            <p className="p2p-card__stats">
+              {trades} trades · {Number(rate).toFixed(0)}% done
+            </p>
+          </div>
+        </div>
+        <div className="p2p-card__price-block">
+          <p className="p2p-card__price">
+            <span className="p2p-card__rupee">₹</span>
+            {fmtINR(ad.price)}
+          </p>
+          <p className="p2p-card__price-hint">per {ad.asset}</p>
+        </div>
+      </div>
+
+      <div className="p2p-card__metrics">
+        <div>
+          <p className="p2p-card__m-label">Available</p>
+          <p className="p2p-card__m-val tabular-nums">
+            {Number(ad.available_amount || 0).toFixed(4)}{' '}
+            <span className="p2p-card__m-unit">{ad.asset}</span>
+          </p>
+        </div>
+        <div>
+          <p className="p2p-card__m-label">Order limit</p>
+          <p className="p2p-card__m-val tabular-nums">
+            ₹{fmtINR(ad.min_order_inr)} – ₹{fmtINR(ad.max_order_inr)}
+          </p>
+        </div>
+      </div>
+
+      <div className="p2p-card__bottom">
+        <div className="p2p-card__pays">
+          {payments.slice(0, 4).map((p) => (
+            <span key={p.pm_id} className="p2p-pay-chip">
+              {p.type}
+            </span>
+          ))}
+          {payments.length > 4 ? (
+            <span className="p2p-pay-chip p2p-pay-chip--muted">+{payments.length - 4}</span>
+          ) : null}
+          {payments.length === 0 ? (
+            <span className="p2p-pay-chip p2p-pay-chip--muted">Any</span>
+          ) : null}
+        </div>
+        <Link
+          to={`/p2p/ads/${ad.ad_id}`}
+          className={`p2p-trade-btn p2p-trade-btn--${side === 'buy' ? 'buy' : 'sell'}`}
+        >
+          {side === 'buy' ? 'Buy' : 'Sell'} {ad.asset}
+          <ChevronRight size={14} />
+        </Link>
+      </div>
+    </article>
+  );
 }
 
 export default function P2PMarketplacePage() {
   const { user } = useAuth();
-  const [side, setSide]     = useState('buy');
-  const [asset, setAsset]   = useState('USDT');
-  const [pm, setPm]         = useState('');
+  const [side, setSide] = useState('buy');
+  const [asset, setAsset] = useState('USDT');
+  const [pm, setPm] = useState('');
   const [amount, setAmount] = useState('');
-  const [ads, setAds]       = useState(null);
-  const [error, setError]   = useState('');
+  const [ads, setAds] = useState(null);
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const load = async () => {
-    setLoading(true); setError('');
+    setLoading(true);
+    setError('');
     try {
       const params = { side, asset, fiat: 'INR', limit: 40 };
       if (pm) params.payment_type = pm;
       if (amount) params.amount = amount;
       const data = await p2pApi.listAds(params);
       setAds(data.ads || []);
-    } catch (e) { setError(e.message); }
-    finally { setLoading(false); }
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { load(); }, [side, asset, pm]); // eslint-disable-line
+  useEffect(() => {
+    load();
+  }, [side, asset, pm]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const bestPrice = useMemo(() => {
+    if (!ads?.length) return null;
+    const prices = ads.map((a) => Number(a.price) || 0).filter((n) => n > 0);
+    if (!prices.length) return null;
+    return side === 'buy' ? Math.min(...prices) : Math.max(...prices);
+  }, [ads, side]);
+
+  const countLabel =
+    ads == null ? '—' : loading ? '…' : `${ads.length} offer${ads.length === 1 ? '' : 's'}`;
 
   return (
-    <div className="ibo-page font-ui">
-      <div className="w-full px-4 sm:px-5 md:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6 sm:py-8 pb-16">
-
-        {/* ── Hero header ──────────────────────────────────────────── */}
-        <div
-          className="relative overflow-hidden rounded-xl border border-[color:var(--ibo-border-solid)] mb-6 p-6 sm:p-8"
-          style={{
-            background:
-              'radial-gradient(ellipse 70% 120% at 100% 0%, rgba(254, 108, 2, 0.12), transparent 55%), var(--ibo-bg)',
-          }}
-        >
-          <div
-            className="pointer-events-none absolute right-0 top-0 h-full w-1/3 opacity-20"
-            style={{ background: 'radial-gradient(ellipse at right center,#FE6C02,transparent 70%)' }}
-          />
-          <div
-            className="pointer-events-none absolute top-0 left-0 right-0 h-px"
-            style={{ background: 'linear-gradient(90deg,transparent,rgba(254, 108, 2,0.4) 50%,transparent)' }}
-          />
-
-          <div className="relative flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <div className="ibo-eyebrow mb-2 flex items-center gap-2">
-                <ArrowLeftRight size={12} /> P2P Trading
-              </div>
-              <h1
-                className="text-2xl sm:text-3xl font-extrabold text-[color:var(--ibo-ink)] tracking-tight"
-                style={{ fontFamily: "Inter, 'Plus Jakarta Sans', system-ui, sans-serif" }}
-              >
-                Peer-to-Peer Exchange
-              </h1>
-              <p className="mt-1 text-[color:var(--ibo-muted)] text-sm max-w-lg">
-                Buy and sell crypto directly with verified users. Every order is secured by platform escrow.
-              </p>
-
-              <div className="mt-4 flex flex-wrap gap-2">
-                {[
-                  { icon: ShieldCheck, text: 'Escrow protected' },
-                  { icon: Zap,         text: 'Instant release' },
-                  { icon: Users,       text: 'Verified traders' },
-                ].map(({ icon: Icon, text }) => (
-                  <span
-                    key={text}
-                    className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] font-semibold text-[color:var(--ibo-ink-secondary)] border border-[color:var(--ibo-border-solid)] bg-[color:var(--ibo-hover)]"
-                  >
-                    <Icon size={11} className="text-[color:var(--ibo-accent)]" />
-                    {text}
-                  </span>
-                ))}
-              </div>
+    <div className="ibo-page font-ui p2p-market">
+      <div className="p2p-market__shell">
+        {/* Slim command bar */}
+        <header className="p2p-bar">
+          <div className="p2p-bar__brand">
+            <span className="p2p-bar__mark" aria-hidden>
+              <ArrowLeftRight size={16} strokeWidth={2.2} />
+            </span>
+            <div className="min-w-0">
+              <h1 className="p2p-bar__title">P2P Exchange</h1>
+              <p className="p2p-bar__sub">INR peer market · escrow protected</p>
             </div>
-
-            {user && (
-              <div className="flex items-center gap-2 flex-wrap">
-                <Link
-                  to="/p2p/my-ads?action=create"
-                  className="ibo-hover-scale inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold text-[#101013] shadow-lg"
-                  style={{ background: 'linear-gradient(135deg,#FE6C02,#FE9D55)', boxShadow: '0 4px 20px rgba(254, 108, 2,0.35)' }}
-                >
-                  <Plus size={15} /> Post Ad
-                </Link>
-                <Link
-                  to="/p2p/orders"
-                  className="ibo-hover-border inline-flex items-center gap-2 rounded-xl border border-[color:var(--ibo-border-solid)] bg-transparent px-4 py-2.5 text-sm font-semibold text-[color:var(--ibo-ink)] hover:bg-[color:var(--ibo-hover)]"
-                >
-                  My Orders
-                </Link>
-                <Link
-                  to="/p2p/my-ads"
-                  className="ibo-hover-border inline-flex items-center gap-2 rounded-xl border border-[color:var(--ibo-border-solid)] bg-transparent px-4 py-2.5 text-sm font-semibold text-[color:var(--ibo-ink)] hover:bg-[color:var(--ibo-hover)]"
-                >
-                  My Ads
-                </Link>
-              </div>
-            )}
           </div>
-        </div>
 
-        {/* ── Buy / Sell toggle ─────────────────────────────────────── */}
-        <div
-          className="mb-5 grid w-full grid-cols-2 gap-1 rounded-xl p-1 bg-transparent"
-          style={{ border: '1px solid var(--ibo-border-solid)' }}
-        >
-          {[['buy', 'Buy Crypto'], ['sell', 'Sell Crypto']].map(([k, lbl]) => {
-            const on = side === k;
-            const buy = k === 'buy';
-            return (
+          <nav className="p2p-bar__nav" aria-label="P2P navigation">
+            {user ? (
+              <>
+                <Link to="/p2p/orders" className="p2p-bar__link">
+                  Orders
+                </Link>
+                <Link to="/p2p/my-ads" className="p2p-bar__link">
+                  My ads
+                </Link>
+                <Link to="/p2p/payment-methods" className="p2p-bar__link p2p-bar__link--desktop">
+                  Payments
+                </Link>
+                <Link to="/p2p/my-ads?action=create" className="p2p-primary-btn">
+                  <Plus size={14} /> Post ad
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="p2p-ghost-btn">
+                  Log in
+                </Link>
+                <Link to="/register" className="p2p-primary-btn">
+                  Sign up
+                </Link>
+              </>
+            )}
+          </nav>
+        </header>
+
+        {/* Split: control dock + offer feed */}
+        <div className="p2p-split">
+          <aside className="p2p-dock" aria-label="Market controls">
+            <p className="p2p-dock__label">You want to</p>
+            <div className="p2p-side-toggle" role="tablist" aria-label="Buy or sell">
               <button
-                key={k}
                 type="button"
-                onClick={() => setSide(k)}
-                className="w-full px-4 py-2.5 rounded-lg text-sm font-bold transition-all duration-200"
-                style={
-                  on
-                    ? buy
-                      ? {
-                          color: 'var(--ibo-positive)',
-                          background: 'color-mix(in srgb, var(--ibo-positive) 16%, transparent)',
-                          border: '1px solid color-mix(in srgb, var(--ibo-positive) 45%, transparent)',
-                        }
-                      : {
-                          color: 'var(--ibo-negative)',
-                          background: 'color-mix(in srgb, var(--ibo-negative) 16%, transparent)',
-                          border: '1px solid color-mix(in srgb, var(--ibo-negative) 45%, transparent)',
-                        }
-                    : {
-                        color: 'var(--ibo-muted)',
-                        background: 'transparent',
-                        border: '1px solid transparent',
-                      }
-                }
+                role="tab"
+                aria-selected={side === 'buy'}
+                className={`p2p-side-toggle__btn${side === 'buy' ? ' is-buy' : ''}`}
+                onClick={() => setSide('buy')}
               >
-                {lbl}
+                Buy
               </button>
-            );
-          })}
-        </div>
-
-        {/* ── Asset tabs ───────────────────────────────────────────── */}
-        <div className="mb-5 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
-          {ASSETS.map((a) => {
-            const on = asset === a;
-            return (
               <button
-                key={a}
                 type="button"
-                onClick={() => setAsset(a)}
-                className="w-full px-3 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all duration-200"
-                style={
-                  on
-                    ? {
-                        color: 'var(--ibo-accent)',
-                        background: 'var(--ibo-accent-soft)',
-                        border: '1px solid color-mix(in srgb, var(--ibo-accent) 50%, transparent)',
-                      }
-                    : {
-                        color: 'var(--ibo-muted)',
-                        background: 'transparent',
-                        border: '1px solid var(--ibo-border-solid)',
-                      }
-                }
+                role="tab"
+                aria-selected={side === 'sell'}
+                className={`p2p-side-toggle__btn${side === 'sell' ? ' is-sell' : ''}`}
+                onClick={() => setSide('sell')}
               >
-                {a}
+                Sell
               </button>
-            );
-          })}
-        </div>
-
-        {/* ── Filter bar ───────────────────────────────────────────── */}
-        <div className="rounded-xl border border-[color:var(--ibo-border-solid)] bg-transparent p-4 mb-5">
-          <div className="grid sm:grid-cols-3 gap-3">
-            <select
-              value={pm}
-              onChange={(e) => { setPm(e.target.value); }}
-              className="ibo-select w-full rounded-lg border border-[color:var(--ibo-border-solid)] px-3.5 py-2.5 text-sm text-[color:var(--ibo-ink)] focus:outline-none focus:border-[rgba(254, 108, 2,0.55)] transition-colors"
-            >
-              <option value="">All payment methods</option>
-              {PMS.map((p) => <option key={p} value={p}>{p}</option>)}
-            </select>
-            <div className="relative">
-              <Search size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[color:var(--ibo-muted)] pointer-events-none" />
-              <input
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="Filter by amount (₹)"
-                className="w-full rounded-lg bg-transparent border border-[color:var(--ibo-border-solid)] pl-9 pr-3.5 py-2.5 text-sm text-[color:var(--ibo-ink)] placeholder:text-[color:var(--ibo-muted)] focus:outline-none focus:border-[rgba(254, 108, 2,0.55)] transition-colors"
-              />
             </div>
+
+            <p className="p2p-dock__label">Asset</p>
+            <div className="p2p-asset-list" role="tablist" aria-label="Asset">
+              {ASSETS.map((a) => (
+                <button
+                  key={a}
+                  type="button"
+                  role="tab"
+                  aria-selected={asset === a}
+                  className={`p2p-asset-list__btn${asset === a ? ' is-on' : ''}`}
+                  onClick={() => setAsset(a)}
+                >
+                  <span>{a}</span>
+                  <span className="p2p-asset-list__fiat">INR</span>
+                </button>
+              ))}
+            </div>
+
+            <p className="p2p-dock__label">Payment</p>
+            <div className="p2p-pm-grid">
+              <button
+                type="button"
+                className={`p2p-pm-chip${!pm ? ' is-on' : ''}`}
+                onClick={() => setPm('')}
+              >
+                All
+              </button>
+              {PMS.map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  className={`p2p-pm-chip${pm === p ? ' is-on' : ''}`}
+                  onClick={() => setPm(p === pm ? '' : p)}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+
+            <label className="p2p-dock-field">
+              <span className="p2p-dock__label">Amount (₹)</span>
+              <span className="p2p-dock-field__wrap">
+                <IndianRupee size={14} aria-hidden />
+                <input
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') load();
+                  }}
+                  placeholder="Filter by order size"
+                  className="p2p-dock-field__input"
+                />
+              </span>
+            </label>
+
             <button
               type="button"
               onClick={load}
               disabled={loading}
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-[color:var(--ibo-border-solid)] bg-transparent px-4 py-2.5 text-sm font-semibold text-[color:var(--ibo-ink-secondary)] hover:bg-[color:var(--ibo-hover)] hover:text-[color:var(--ibo-ink)] transition-colors disabled:opacity-40"
+              className="p2p-primary-btn p2p-dock__apply"
             >
-              <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />Refresh
+              {loading ? (
+                <Loader2 size={15} className="animate-spin" />
+              ) : (
+                <Search size={15} />
+              )}
+              Find offers
             </button>
-          </div>
-        </div>
 
-        {error && (
-          <div className="flex items-center gap-2.5 rounded-xl border border-red-500/25 bg-red-500/10 p-3.5 text-red-400 text-sm mb-4">
-            <AlertCircle size={14} className="shrink-0" />{error}
-          </div>
-        )}
+            <div className="p2p-dock__aside">
+              <div className="p2p-dock__stat">
+                <span>Market</span>
+                <strong>
+                  {side === 'buy' ? 'Buy' : 'Sell'} {asset}/INR
+                </strong>
+              </div>
+              <div className="p2p-dock__stat">
+                <span>{side === 'buy' ? 'Best ask' : 'Best bid'}</span>
+                <strong className="tabular-nums">
+                  {bestPrice != null ? `₹${fmtINR(bestPrice)}` : '—'}
+                </strong>
+              </div>
+              <p className="p2p-dock__note">
+                Funds stay in escrow until the buyer confirms payment. Settles via bank / UPI.
+              </p>
+              {user ? (
+                <div className="p2p-dock__links">
+                  <Link to="/p2p/merchant">
+                    <ShieldCheck size={12} /> Merchant
+                  </Link>
+                  <Link to="/p2p/payment-methods">
+                    <Banknote size={12} /> Methods
+                  </Link>
+                </div>
+              ) : (
+                <p className="p2p-dock__note">Sign in to post ads and open orders.</p>
+              )}
+            </div>
+          </aside>
 
-        {/* ── Ads table ────────────────────────────────────────────── */}
-        <div className="rounded-xl border border-[color:var(--ibo-border-solid)] bg-transparent overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm min-w-[720px]">
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--ibo-border-solid)', background: 'transparent' }}>
-                  {['Advertiser', 'Price / Unit', 'Available', 'Order Limits', 'Payment', 'Action'].map((h, i) => (
-                    <th
-                      key={h}
-                      className={`px-5 py-3.5 text-[10px] font-bold uppercase tracking-widest text-[color:var(--ibo-muted)] ${i > 1 ? 'text-right' : 'text-left'}`}
-                      style={i === 5 ? { textAlign: 'right' } : i >= 2 ? { textAlign: 'right' } : {}}
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan={6} className="px-5 py-20 text-center">
-                      <Loader2 size={18} className="animate-spin inline text-[#FE9D55]" />
-                      <p className="text-[color:var(--ibo-muted)] text-sm mt-2">Loading ads…</p>
-                    </td>
-                  </tr>
-                ) : ads === null ? null
-                : ads.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="px-5 py-20 text-center">
-                      <TrendingUp size={32} className="text-[color:var(--ibo-muted)] opacity-30 mx-auto mb-3" />
-                      <p className="text-[color:var(--ibo-ink-secondary)] text-sm font-semibold">No {side} ads available for {asset}</p>
-                      <p className="text-[color:var(--ibo-muted)] text-xs mt-1">Try a different filter or be the first to post one.</p>
-                      {user && (
-                        <Link
-                          to="/p2p/my-ads?action=create"
-                          className="inline-flex items-center gap-1.5 mt-4 rounded-xl px-4 py-2 text-sm font-bold text-[#101013]"
-                          style={{ background: 'linear-gradient(135deg,#FE6C02,#FE9D55)' }}
-                        >
-                          <Plus size={13} /> Post Ad
-                        </Link>
-                      )}
-                    </td>
-                  </tr>
-                ) : ads.map((ad) => (
-                  <tr key={ad.ad_id} className="ibo-hover-table-row" style={{ borderBottom: '1px solid var(--ibo-border-solid)' }}>
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-extrabold shrink-0"
-                          style={{ background: 'rgba(254, 108, 2,0.15)', color: '#FE9D55', border: '1px solid rgba(254, 108, 2,0.2)' }}
-                        >
-                          {(ad.maker?.nickname || 'T')[0].toUpperCase()}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-1.5 text-[color:var(--ibo-ink)] font-semibold text-sm">
-                            {ad.maker?.nickname || 'Trader'}
-                            {ad.maker?.is_merchant && <ShieldCheck size={12} className="text-[#FE9D55]" />}
-                          </div>
-                          <div className="text-[color:var(--ibo-muted)] text-xs mt-0.5">
-                            {ad.maker?.trades_total ?? 0} trades · {(ad.maker?.completion_rate_30d ?? 100).toFixed(0)}% done
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-5 py-4">
-                      <div className="text-right">
-                        <p className="text-[color:var(--ibo-ink)] font-extrabold text-base tabular-nums">₹{fmtINR(ad.price)}</p>
-                        <p className="text-[color:var(--ibo-muted)] text-[10px] mt-0.5">per {ad.asset}</p>
-                      </div>
-                    </td>
-                    <td className="px-5 py-4 text-right">
-                      <p className="text-[color:var(--ibo-ink)] font-mono text-sm tabular-nums">{Number(ad.available_amount || 0).toFixed(4)}</p>
-                      <p className="text-[color:var(--ibo-muted)] text-[10px]">{ad.asset}</p>
-                    </td>
-                    <td className="px-5 py-4 text-right">
-                      <p className="text-[color:var(--ibo-ink-secondary)] text-xs whitespace-nowrap">₹{fmtINR(ad.min_order_inr)}</p>
-                      <p className="text-[color:var(--ibo-muted)] text-[10px]">– ₹{fmtINR(ad.max_order_inr)}</p>
-                    </td>
-                    <td className="px-5 py-4">
-                      <div className="flex flex-wrap gap-1 justify-end">
-                        {(ad.payment_methods || []).slice(0, 2).map((p) => (
-                          <span
-                            key={p.pm_id}
-                            className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase text-[#FE9D55]"
-                            style={{ background: 'rgba(254, 108, 2,0.1)', border: '1px solid rgba(254, 108, 2,0.2)' }}
-                          >
-                            {p.type}
-                          </span>
-                        ))}
-                        {(ad.payment_methods?.length || 0) > 2 && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] text-[color:var(--ibo-muted)] border border-[color:var(--ibo-border-solid)]">
-                            +{ad.payment_methods.length - 2}
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-5 py-4 text-right">
-                      <Link
-                        to={`/p2p/ads/${ad.ad_id}`}
-                        className={`ibo-hover-scale inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
-                          side === 'buy'
-                            ? 'border border-green-500/30 bg-green-500/15 text-green-400 hover:bg-green-500/25'
-                            : 'border border-red-500/30 bg-red-500/15 text-red-400 hover:bg-red-500/25'
-                        }`}
-                      >
-                        {side === 'buy' ? 'Buy' : 'Sell'} {ad.asset}
-                      </Link>
-                    </td>
-                  </tr>
+          <section className="p2p-feed" aria-label="P2P offers">
+            <div className="p2p-feed__head">
+              <div className="min-w-0">
+                <h2 className="p2p-feed__title">
+                  {side === 'buy' ? 'Buy' : 'Sell'} {asset}
+                </h2>
+                <p className="p2p-feed__meta">
+                  {countLabel}
+                  {pm ? (
+                    <>
+                      {' '}
+                      · <span>{pm}</span>
+                    </>
+                  ) : null}
+                  {amount ? (
+                    <>
+                      {' '}
+                      · near ₹{fmtINR(amount)}
+                    </>
+                  ) : null}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={load}
+                disabled={loading}
+                className="p2p-ghost-btn p2p-feed__refresh"
+                title="Refresh"
+              >
+                <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+                <span className="hidden sm:inline">Refresh</span>
+              </button>
+            </div>
+
+            {error ? (
+              <div className="p2p-market__error" role="alert">
+                <AlertCircle size={15} />
+                <span>{error}</span>
+              </div>
+            ) : null}
+
+            {loading && (!ads || ads.length === 0) ? (
+              <div className="p2p-feed__state">
+                <Loader2 size={22} className="animate-spin text-[#FE6C02]" />
+                <p>Loading live offers…</p>
+              </div>
+            ) : ads === null ? null : ads.length === 0 ? (
+              <div className="p2p-feed__state">
+                <Store size={28} className="opacity-40 text-[color:var(--ibo-muted)]" />
+                <p className="p2p-feed__state-title">
+                  No {side} ads for {asset}
+                </p>
+                <p className="p2p-feed__state-sub">
+                  Try another payment method, amount, or post the first ad.
+                </p>
+                {user ? (
+                  <Link to="/p2p/my-ads?action=create" className="p2p-primary-btn mt-2">
+                    <Plus size={14} /> Post ad
+                  </Link>
+                ) : null}
+              </div>
+            ) : (
+              <div className={`p2p-feed__grid${loading ? ' is-loading' : ''}`}>
+                {ads.map((ad) => (
+                  <OfferCard key={ad.ad_id} ad={ad} side={side} />
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </div>
+            )}
+          </section>
         </div>
-
-        {user && (
-          <div className="mt-5 flex items-center gap-4 text-sm text-[color:var(--ibo-muted)]">
-            <Link to="/p2p/payment-methods" className="hover:text-[#FE9D55] transition-colors">Payment Methods</Link>
-            <span className="opacity-40">·</span>
-            <Link to="/p2p/merchant" className="hover:text-[#FE9D55] transition-colors">Merchant Program</Link>
-          </div>
-        )}
       </div>
     </div>
   );

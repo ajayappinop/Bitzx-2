@@ -63,7 +63,7 @@ const TRUST = [
   {
     icon: Shield,
     title: 'CKYC-ready',
-    sub: 'Built for global compliance',
+    sub: 'FIU-aligned compliance',
     iconBg: 'linear-gradient(145deg, rgba(180, 77, 1,0.22) 0%, rgba(254, 108, 2,0.1) 100%)',
     iconBorder: 'rgba(180, 77, 1,0.35)',
     iconColor: '#4d8aff',
@@ -111,11 +111,11 @@ export default function LandingInstantKyc() {
             Instant KYC
           </p>
           <h2 className="ibo-title-lg mb-4">
-            Verify in minutes — <span className="text-gradient">not days</span>
+            Verify fast — <span className="text-gradient">start trading</span>
           </h2>
           <p className="ibo-lead text-zinc-400 max-w-none mx-auto">
-            Complete digital KYC on Delta Exchange: Aadhaar and PAN checks, live face match, and bank
-            verification — so you can deposit, withdraw, and unlock higher limits with confidence.
+            Complete digital KYC with Aadhaar, PAN, live face match, and bank linking — so you can deposit INR,
+            unlock limits, and trade futures, options, and spot with confidence.
           </p>
         </motion.div>
 

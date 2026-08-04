@@ -12,7 +12,7 @@ export const PROFILE_NAME_MIN = 2;
 export const PROFILE_NAME_MAX = 80;
 export const REGISTER_NAME_MAX = 50;
 export const PROFILE_PHONE_MAX = 32;
-export const PROFILE_COUNTRY_MAX = 80;
+export const PROFILE_COUNTRY_MAX = 120;
 export const PROFILE_BIO_MAX = 500;
 export const REGISTER_PASSWORD_MIN = STRONG_PASSWORD_MIN;
 export const REGISTER_PASSWORD_MAX = AUTH_PASSWORD_MAX;
@@ -47,8 +47,9 @@ export function validateProfileForm({ name, mobile, country, bio }) {
   }
 
   const c = (country || '').trim();
-  if (c.length < 2) e.country = 'Enter your country or region (at least 2 characters).';
-  else if (c.length > PROFILE_COUNTRY_MAX) e.country = `Country must be ${PROFILE_COUNTRY_MAX} characters or less.`;
+  if (!c) e.country = 'Enter your country, region, or city.';
+  else if (c.length < 2) e.country = 'Enter your country, region, or city.';
+  else if (c.length > PROFILE_COUNTRY_MAX) e.country = `Location must be ${PROFILE_COUNTRY_MAX} characters or less.`;
 
   const b = (bio || '').trim();
   if (b.length > PROFILE_BIO_MAX) e.bio = `Bio must be ${PROFILE_BIO_MAX} characters or less.`;

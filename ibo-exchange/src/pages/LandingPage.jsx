@@ -1,13 +1,10 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, useInView } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
-  ArrowRight, BarChart2, CheckCircle, X, Star, Quote,
-  Sparkles, Cpu, Eye, Zap,
+  ArrowRight, BarChart2,
+  Cpu, Eye, Zap, UserPlus, IndianRupee, LineChart, Smartphone,
 } from 'lucide-react';
 import { COIN_ICONS, PAIRS } from '@/services/marketApi';
-import { useLiveMarkets } from '@/hooks/useLiveMarkets';
-import { useMarketIntel } from '@/components/markets/CryptoMarketToday';
 import MobileAppDownload from '@/components/ui/MobileAppDownload';
 import MobileAppStickyBar from '@/components/ui/MobileAppStickyBar';
 import LandingPlatformFlow from '@/components/landing/LandingPlatformFlow';
@@ -20,16 +17,12 @@ import LandingHero from '@/components/landing/LandingHero';
 import LandingProductStrip from '@/components/landing/LandingProductStrip';
 import LandingFaqSupport from '@/components/landing/LandingFaqSupport';
 
-import { BRAND_MARK } from '@/lib/brandAssets';
-
-const MARK = BRAND_MARK;
-
 // ── Data ──────────────────────────────────────────────────────────────────────
 const FEATURES_BENTO = [
   {
     key: 'speed',
     title: 'Ultra-Fast Execution',
-    desc: 'Sub-millisecond matching engine handles 1M+ TPS. Orders confirmed before you blink.',
+    desc: 'Pro matching for F&O and spot — orders fill with low latency so you can react when the market moves.',
     art: '/hero/platform-dollar-medal.png?v=11',
     artFit: 'wide',
     span: 'sm:col-span-2 lg:col-span-7',
@@ -39,7 +32,7 @@ const FEATURES_BENTO = [
   {
     key: 'security',
     title: 'Bank-Grade Security',
-    desc: '95% cold wallet storage, 2FA, whitelisting, and real-time threat monitoring.',
+    desc: 'Multi-factor security, custody controls, withdrawal checks, and FIU-aligned compliance for Indian users.',
     art: '/hero/why-vault-safe.png?v=11',
     artFit: 'wide',
     span: 'sm:col-span-2 lg:col-span-5 lg:row-span-2',
@@ -49,7 +42,7 @@ const FEATURES_BENTO = [
   {
     key: 'charts',
     title: 'TradingView Charts',
-    desc: 'Full-feature charts with 100+ indicators, drawing tools, and multi-timeframe analysis.',
+    desc: 'Pro charts with 100+ indicators, drawings, and multi-timeframe analysis for futures, options, and spot.',
     art: '/hero/why-btc-coins.png?v=13',
     span: 'sm:col-span-1 lg:col-span-4',
     layout: 'square',
@@ -57,8 +50,8 @@ const FEATURES_BENTO = [
   },
   {
     key: 'liquidity',
-    title: 'Global Liquidity',
-    desc: 'Deep order books aggregated across providers for tight spreads around the clock.',
+    title: '24/7 Open Markets',
+    desc: 'Trade Bitcoin and Ether F&O around the clock with efficient margining and deep books.',
     art: '/hero/why-usdc-coin.png?v=1',
     span: 'sm:col-span-1 lg:col-span-3',
     layout: 'square',
@@ -66,8 +59,8 @@ const FEATURES_BENTO = [
   },
   {
     key: 'portfolio',
-    title: 'Multi-Asset Portfolio',
-    desc: 'Trade 100+ pairs. Manage USDT, crypto assets, and INR deposit/withdraw flow in one place.',
+    title: 'Positions & P/L',
+    desc: 'Track futures, options, and spot in one portfolio — margin and P/L ready for INR settlement rails.',
     art: '/hero/why-crypto-cubes.png?v=11',
     artFit: 'wide',
     span: 'sm:col-span-1 lg:col-span-4',
@@ -86,8 +79,8 @@ const FEATURES_BENTO = [
   },
   {
     key: 'inr',
-    title: 'INR Deposit & Payout',
-    desc: 'Deposit INR via bank or UPI; sell Delta and withdraw INR to your bank or UPI account.',
+    title: 'Deposit & Withdraw INR',
+    desc: 'Fund with bank or UPI, trade crypto without owning underlying coins, and withdraw INR to your verified account.',
     art: '/hero/why-shield.png?v=11',
     artFit: 'wide',
     span: 'sm:col-span-1 lg:col-span-4',
@@ -204,103 +197,10 @@ function FeatureBentoCard({ feature, index }) {
 }
 
 
-const TESTIMONIALS = [
-  { name: 'Alex R.',     role: 'Day Trader',         avatar: 'A', text: 'Delta execution speed is unreal. My limit orders fill almost instantly and the fees are the lowest I have seen on any exchange.', rating: 5 },
-  { name: 'Priya S.',    role: 'Crypto Investor',    avatar: 'P', text: 'The KYC process was smooth and the interface is very intuitive. Best exchange UI I have used. Charts are top notch.', rating: 5 },
-  { name: 'Marcus K.',   role: 'Portfolio Manager',  avatar: 'M', text: 'Love the portfolio P&L tracking in real time. Makes it very easy to monitor my positions and decide when to take profit.', rating: 5 },
-];
-
-const VS_TABLE = [
-  { feature: 'Trading fee (spot)', ibo: 'From 0.05% maker', other: 'Often 0.1–0.5%' },
-  { feature: 'Markets snapshot',   ibo: 'Full 24h OHLC + vol', other: 'Varies by app' },
-  { feature: 'Charting',           ibo: 'TradingView-grade', other: 'Basic' },
-  { feature: 'Portfolio & P&L',    ibo: 'Unified dashboard', other: 'Split tools' },
-  { feature: 'Quick trade',        ibo: 'Dedicated flow',   other: 'Not always' },
-  { feature: 'BEP-20 deposit search', ibo: 'Full Web3 catalog', other: 'Limited' },
-  { feature: 'Delta-quoted markets', ibo: 'Delta Markets hub', other: 'USDT only' },
-  { feature: 'KYC & withdrawals', ibo: 'Guided, secure', other: 'Slow / opaque' },
-  { feature: 'INR fiat (India)', ibo: 'Deposit & INR payout', other: 'Crypto-only' },
-];
-
-/** Landing market table — volume helpers */
-function fmtLandingVol(v) {
-  const n = parseFloat(v);
-  if (!Number.isFinite(n) || n === 0) return '—';
-  if (n >= 1e9) return `${(n / 1e9).toFixed(2)}B`;
-  if (n >= 1e6) return `${(n / 1e6).toFixed(2)}M`;
-  if (n >= 1e3) return `${(n / 1e3).toFixed(2)}K`;
-  return n.toFixed(2);
-}
-
-// ── Animated counter ──────────────────────────────────────────────────────────
-function AnimatedCounter({ end, duration = 2 }) {
-  const [count, setCount] = useState(0);
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true });
-  useEffect(() => {
-    if (!inView) return;
-    const numEnd = parseFloat(end.replace(/[^0-9.]/g, ''));
-    let start = 0;
-    const step = numEnd / (duration * 60);
-    const timer = setInterval(() => {
-      start += step;
-      if (start >= numEnd) { setCount(numEnd); clearInterval(timer); }
-      else setCount(start);
-    }, 1000 / 60);
-    return () => clearInterval(timer);
-  }, [inView, end, duration]);
-  const display = end.includes('B') ? `$${count.toFixed(2)}B`
-    : end.includes('M') ? `${count.toFixed(2)}M+`
-    : end.includes('%') ? `${count.toFixed(2)}%`
-    : `${Math.round(count)}+`;
-  return <span ref={ref}>{display}</span>;
-}
-
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function LandingPage() {
-  const { markets } = useLiveMarkets();
-
-  const marketIntel = useMarketIntel(markets);
-
-  const heroStatCards = useMemo(() => {
-    const volDisplay =
-      marketIntel.totalQuoteVol > 0
-        ? `$${fmtLandingVol(marketIntel.totalQuoteVol)}`
-        : '—';
-    return [
-      {
-        key: 'volume',
-        label: '24h volume',
-        value: volDisplay,
-        sub: 'USDT quote volume across all pairs',
-        accent: true,
-      },
-      {
-        key: 'pairs',
-        label: 'Spot pairs',
-        value: String(marketIntel.pairCount || '—'),
-        sub: 'Live USDT markets',
-      },
-      {
-        key: 'breadth',
-        label: '24h breadth',
-        value: null,
-        up: marketIntel.pairCount ? marketIntel.upCount : null,
-        down: marketIntel.pairCount ? marketIntel.downCount : null,
-        sub: 'Gainers vs losers',
-      },
-      {
-        key: 'users',
-        label: 'Traders',
-        value: '2.55M+',
-        sub: 'Registered globally',
-        animate: true,
-      },
-    ];
-  }, [marketIntel]);
-
   return (
-    <div style={{ background: 'transparent' }}>
+    <div className="ibo-landing-page" style={{ background: 'transparent' }}>
       <MobileAppStickyBar />
 
       <LandingHero />
@@ -315,83 +215,6 @@ export default function LandingPage() {
 
       <LandingInrFiat />
 
-      {/* APK download — primary banner */}
-      <section className="relative ibo-landing-container py-6 md:py-8">
-        <MobileAppDownload variant="banner" />
-      </section>
-
-      {/* ══════════════════════════════════════════════════════════════════
-          STATS — live metrics band (no icons)
-          ══════════════════════════════════════════════════════════════════ */}
-      <section
-        className="relative border-y border-white/[0.06] overflow-hidden"
-        style={{ background: 'linear-gradient(180deg, var(--ibo-bg) 0%, var(--ibo-surface) 100%)' }}
-      >
-        <div
-          className="pointer-events-none absolute inset-0 opacity-70"
-          style={{
-            background:
-              'radial-gradient(ellipse 60% 80% at 10% 50%, rgba(254, 108, 2,0.07) 0%, transparent 55%), radial-gradient(ellipse 50% 70% at 90% 40%, rgba(0, 168, 118,0.05) 0%, transparent 50%)',
-          }}
-        />
-        <div className="relative ibo-landing-container ibo-section-y">
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-8 md:mb-10 max-w-xl"
-          >
-            <p className="ibo-eyebrow mb-2">Live platform</p>
-            <h2 className="font-display text-[1.35rem] sm:text-[1.5rem] font-bold text-white tracking-tight">
-              Numbers that move with the market
-            </h2>
-          </motion.div>
-
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-10 gap-x-6 sm:gap-x-8 lg:gap-0">
-            {heroStatCards.map((s, i) => (
-              <motion.div
-                key={s.key}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.07, duration: 0.45 }}
-                className={`min-w-0 lg:px-8 first:lg:pl-0 last:lg:pr-0 ${
-                  i > 0 ? 'lg:border-l lg:border-white/[0.07]' : ''
-                }`}
-              >
-                <p className="text-[11px] sm:text-[12px] font-semibold uppercase tracking-[0.14em] text-zinc-500 mb-3">
-                  {s.label}
-                </p>
-                {s.key === 'breadth' ? (
-                  <p className="font-display text-[1.85rem] sm:text-[2.15rem] lg:text-[2.35rem] font-bold tracking-tight tabular-nums leading-none">
-                    {s.up == null ? (
-                      <span className="text-white">—</span>
-                    ) : (
-                      <>
-                        <span className="text-emerald-400">{s.up}</span>
-                        <span className="text-zinc-600 font-medium mx-1.5">/</span>
-                        <span className="text-red-400">{s.down}</span>
-                      </>
-                    )}
-                  </p>
-                ) : (
-                  <p
-                    className={`font-display text-[1.85rem] sm:text-[2.15rem] lg:text-[2.35rem] font-bold tracking-tight tabular-nums leading-none ${
-                      s.accent ? 'text-gradient' : 'text-white'
-                    }`}
-                  >
-                    {s.animate ? <AnimatedCounter end="2.55M+" /> : s.value}
-                  </p>
-                )}
-                <p className="mt-3 text-[13px] sm:text-[14px] text-zinc-500 leading-relaxed max-w-[16rem]">
-                  {s.sub}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ══════════════════════════════════════════════════════════════════
           PLATFORM PREVIEW STRIP
           ══════════════════════════════════════════════════════════════════ */}
@@ -401,9 +224,9 @@ export default function LandingPage() {
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             className="text-center mb-12 md:mb-16 max-w-3xl mx-auto">
             <p className="ibo-eyebrow mb-4">Pro platform</p>
-            <h2 className="ibo-title-lg mb-5">Spot · Charts · Portfolio in one place</h2>
+            <h2 className="ibo-title-lg mb-5">Futures · Options · Spot in one place</h2>
             <p className="ibo-lead-wide mx-auto text-zinc-400">
-              Same workflow as leading pro apps: pick a market, read full 24h stats, trade with depth, track P&amp;L — without switching tools.
+              Best-in-class pro features: open a market, read 24h stats, trade with depth, and track margin &amp; P/L — without switching tools.
             </p>
           </motion.div>
 
@@ -428,31 +251,31 @@ export default function LandingPage() {
                 {[
                   {
                     title: 'Matching Engine',
-                    stat: '< 1ms latency',
+                    stat: 'Pro latency',
                     accent: '#00A876',
                     icon: Cpu,
-                    blurb: 'Sub-millisecond order matching built for high-frequency flow.',
+                    blurb: 'Fast order matching built for liquid F&O and spot flows.',
                   },
                   {
                     title: 'TradingView Charts',
                     stat: '100+ indicators',
                     accent: '#60a5fa',
                     icon: BarChart2,
-                    blurb: 'Pro charting with indicators, drawings, and multi-timeframes.',
+                    blurb: 'Pro charting for futures, options underlyings, and spot pairs.',
                   },
                   {
                     title: 'Live P&L Tracking',
                     stat: 'Real-time updates',
                     accent: '#22c55e',
                     icon: Eye,
-                    blurb: 'See open positions and performance update as the market moves.',
+                    blurb: 'See open positions and performance update as the market moves — INR-ready.',
                   },
                   {
                     title: 'Quick Trade',
                     stat: '1-click orders',
                     accent: '#f97316',
                     icon: Zap,
-                    blurb: 'Place orders in one click from markets, charts, or the terminal.',
+                    blurb: 'Place orders fast from markets, charts, or the terminal.',
                   },
                 ].map((item, i) => {
                   const Icon = item.icon;
@@ -501,7 +324,7 @@ export default function LandingPage() {
           </div>
 
           {/* Coin showcase — infinite auto-loop carousel */}
-          <div className="relative -mx-4 sm:mx-0 py-2">
+          <div className="relative -mx-[var(--ibo-shell-pad-x)] sm:mx-0 py-2 overflow-x-hidden">
             <div
               className="pointer-events-none absolute inset-y-0 left-0 z-[2] w-12 sm:w-20 md:w-28"
               style={{ background: 'linear-gradient(90deg, var(--ibo-surface) 0%, transparent 100%)' }}
@@ -557,8 +380,8 @@ export default function LandingPage() {
             ariaLabel="Why Delta stacked feature cards"
             stackDepth={5}
             eyebrow="Why Delta"
-            title="Built for serious traders"
-            lead="Everything you need to trade with confidence — from beginner to professional."
+            title="Best-in-class pro features for everyone"
+            lead="Trade crypto F&O 24/7 with efficient margining, Instant KYC, and INR deposit & withdrawal."
             cards={FEATURES_BENTO.map((f) => ({
               id: f.key,
               title: f.title,
@@ -569,473 +392,243 @@ export default function LandingPage() {
               badge: f.key === 'speed' ? 'Execution'
                 : f.key === 'security' ? 'Security'
                   : f.key === 'charts' ? 'Charts'
-                    : f.key === 'liquidity' ? 'Liquidity'
+                    : f.key === 'liquidity' ? '24/7'
                       : f.key === 'portfolio' ? 'Portfolio'
                         : f.key === 'kyc' ? 'KYC'
                           : 'INR',
-              ctaHref: '/markets',
-              ctaLabel: f.key === 'speed' ? 'Open terminal' : 'Explore markets',
+              ctaHref: f.key === 'speed' || f.key === 'charts' ? '/futures/BTCUSDT-PERP'
+                : f.key === 'inr' ? '/wallet/deposit/inr'
+                  : f.key === 'kyc' ? '/account/kyc'
+                    : f.key === 'portfolio' ? '/account/positions'
+                      : '/markets',
+              ctaLabel: f.key === 'speed' ? 'Trade futures'
+                : f.key === 'inr' ? 'Deposit INR'
+                  : f.key === 'kyc' ? 'Start KYC'
+                    : f.key === 'portfolio' ? 'View positions'
+                      : 'Explore markets',
             }))}
           />
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════════════════
-          COMPARISON
-          ══════════════════════════════════════════════════════════════════ */}
-      <section
-        className="relative border-y border-white/[0.06] overflow-hidden"
-        style={{
-          background:
-            'linear-gradient(180deg, var(--ibo-bg) 0%, var(--ibo-surface) 50%, var(--ibo-bg) 100%)',
-        }}
-      >
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              'radial-gradient(ellipse 60% 50% at 80% 25%, rgba(0, 168, 118,0.1) 0%, transparent 55%), radial-gradient(ellipse 50% 45% at 15% 70%, rgba(254, 108, 2,0.12) 0%, transparent 50%), radial-gradient(ellipse 40% 40% at 55% 90%, rgba(77,138,255,0.08) 0%, transparent 55%)',
-          }}
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 h-px"
-          style={{
-            background:
-              'linear-gradient(90deg, transparent, rgba(254, 108, 2,0.4), rgba(0, 168, 118,0.45), rgba(77,138,255,0.3), transparent)',
-          }}
-        />
-
-        <div className="ibo-landing-container relative ibo-section-y">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-10 md:mb-14 max-w-2xl mx-auto"
-          >
-            <p className="ibo-eyebrow mb-4">Why choose Delta</p>
-            <h2 className="ibo-title-lg mb-5">We stack up against anyone</h2>
-            <p className="ibo-lead-wide mx-auto" style={{ color: 'var(--ibo-ink-secondary)' }}>
-              Side-by-side with typical exchanges — clearer fees, deeper tools, and India-ready rails.
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="relative max-w-4xl mx-auto"
-          >
-            {/* Desktop / tablet comparison — soft cyan / lime / blue panel */}
-            <div
-              className="hidden sm:block relative overflow-hidden rounded-2xl border"
-              style={{
-                borderColor: 'rgba(254, 108, 2,0.28)',
-                background:
-                  'linear-gradient(155deg, rgba(254, 108, 2,0.14) 0%, color-mix(in srgb, var(--ibo-card) 92%, transparent) 38%, rgba(77,138,255,0.07) 68%, rgba(0, 168, 118,0.12) 100%)',
-                boxShadow: '0 16px 40px rgba(254, 108, 2,0.08), var(--ibo-shadow)',
-              }}
-            >
-              <div
-                aria-hidden
-                className="pointer-events-none absolute inset-x-0 top-0 h-px"
-                style={{
-                  background:
-                    'linear-gradient(90deg, transparent, rgba(254, 108, 2,0.5), rgba(0, 168, 118,0.45), transparent)',
-                }}
-              />
-              <div
-                aria-hidden
-                className="pointer-events-none absolute -right-10 -top-12 w-48 h-48 rounded-full blur-3xl opacity-50"
-                style={{
-                  background:
-                    'radial-gradient(circle, rgba(0, 168, 118,0.22) 0%, rgba(77,138,255,0.1) 45%, transparent 70%)',
-                }}
-              />
-              <div
-                aria-hidden
-                className="pointer-events-none absolute -left-12 bottom-0 w-40 h-40 rounded-full blur-3xl opacity-40"
-                style={{
-                  background: 'radial-gradient(circle, rgba(254, 108, 2,0.22) 0%, transparent 70%)',
-                }}
-              />
-
-              <div className="relative overflow-x-auto touch-manipulation [-webkit-overflow-scrolling:touch]">
-                <div className="min-w-[560px]">
-                  <div
-                    className="grid grid-cols-[1.2fr_1fr_1fr] border-b"
-                    style={{
-                      borderColor: 'rgba(254, 108, 2,0.16)',
-                      background:
-                        'linear-gradient(90deg, rgba(254, 108, 2,0.1) 0%, rgba(0, 168, 118,0.1) 45%, rgba(77,138,255,0.08) 100%)',
-                    }}
-                  >
-                    <div
-                      className="px-5 lg:px-6 py-4 text-[11px] font-bold uppercase tracking-[0.16em] flex items-center"
-                      style={{ color: 'var(--ibo-muted)' }}
-                    >
-                      Feature
-                    </div>
-                    <div
-                      className="px-4 py-4 flex items-center justify-center gap-2 border-x"
-                      style={{
-                        borderColor: 'rgba(254, 108, 2,0.16)',
-                        background:
-                          'linear-gradient(145deg, rgba(254, 108, 2,0.16) 0%, rgba(0, 168, 118,0.12) 100%)',
-                      }}
-                    >
-                      <img src={MARK} alt="" className="w-5 h-5 object-contain" />
-                      <span
-                        className="font-display text-sm font-bold tracking-tight"
-                        style={{ color: 'var(--ibo-ink)' }}
-                      >
-                        Delta
-                      </span>
-                    </div>
-                    <div className="px-4 py-4 flex items-center justify-center">
-                      <span className="text-sm font-semibold" style={{ color: 'var(--ibo-muted)' }}>
-                        Others
-                      </span>
-                    </div>
-                  </div>
-
-                  {VS_TABLE.map((row, i) => (
-                    <motion.div
-                      key={row.feature}
-                      initial={{ opacity: 0, y: 10 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: i * 0.03 }}
-                      className="grid grid-cols-[1.2fr_1fr_1fr] items-stretch group transition-colors"
-                      style={{
-                        borderBottom:
-                          i < VS_TABLE.length - 1 ? '1px solid rgba(254, 108, 2,0.1)' : 'none',
-                      }}
-                    >
-                      <div className="flex items-center px-5 lg:px-6 py-4">
-                        <p
-                          className="text-[13px] sm:text-[14px] font-semibold"
-                          style={{ color: 'var(--ibo-ink-secondary)' }}
-                        >
-                          {row.feature}
-                        </p>
-                      </div>
-
-                      <div
-                        className="flex items-center justify-center gap-2 px-3 py-4 border-x"
-                        style={{
-                          borderColor: 'rgba(254, 108, 2,0.12)',
-                          background:
-                            'linear-gradient(145deg, rgba(254, 108, 2,0.1) 0%, rgba(0, 168, 118,0.08) 100%)',
-                        }}
-                      >
-                        <CheckCircle size={15} className="text-[#a8c73a] flex-shrink-0" />
-                        <span
-                          className="text-[12px] sm:text-[13px] font-semibold text-center leading-snug"
-                          style={{ color: 'var(--ibo-ink)' }}
-                        >
-                          {row.ibo}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-center gap-2 px-3 py-4">
-                        <X size={14} className="flex-shrink-0" style={{ color: 'var(--ibo-muted)' }} />
-                        <span
-                          className="text-[12px] sm:text-[13px] text-center leading-snug"
-                          style={{ color: 'var(--ibo-muted)' }}
-                        >
-                          {row.other}
-                        </span>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Mobile stacked comparison */}
-            <div className="sm:hidden space-y-3">
-              {VS_TABLE.map((row, i) => (
-                <motion.div
-                  key={row.feature}
-                  initial={{ opacity: 0, y: 12 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.04 }}
-                  className="relative rounded-2xl border overflow-hidden"
-                  style={{
-                    borderColor: 'rgba(254, 108, 2,0.28)',
-                    background:
-                      'linear-gradient(155deg, rgba(254, 108, 2,0.14) 0%, color-mix(in srgb, var(--ibo-card) 92%, transparent) 42%, rgba(0, 168, 118,0.1) 100%)',
-                    boxShadow: '0 12px 28px rgba(254, 108, 2,0.08), var(--ibo-shadow)',
-                  }}
-                >
-                  <div
-                    aria-hidden
-                    className="pointer-events-none absolute inset-x-0 top-0 h-px"
-                    style={{
-                      background:
-                        'linear-gradient(90deg, transparent, rgba(254, 108, 2,0.45), rgba(0, 168, 118,0.4), transparent)',
-                    }}
-                  />
-                  <div
-                    className="px-4 py-3 border-b"
-                    style={{ borderColor: 'rgba(254, 108, 2,0.14)' }}
-                  >
-                    <p className="text-[13px] font-semibold" style={{ color: 'var(--ibo-ink)' }}>
-                      {row.feature}
-                    </p>
-                  </div>
-                  <div className="grid grid-cols-2">
-                    <div
-                      className="px-4 py-3 border-r"
-                      style={{
-                        borderColor: 'rgba(254, 108, 2,0.14)',
-                        background:
-                          'linear-gradient(145deg, rgba(254, 108, 2,0.12) 0%, rgba(0, 168, 118,0.1) 100%)',
-                      }}
-                    >
-                      <p
-                        className="text-[10px] font-bold uppercase tracking-wider mb-1.5"
-                        style={{ color: '#FE6C02' }}
-                      >
-                        Delta
-                      </p>
-                      <p
-                        className="text-[12px] font-semibold leading-snug flex items-start gap-1.5"
-                        style={{ color: 'var(--ibo-ink)' }}
-                      >
-                        <CheckCircle size={13} className="text-[#a8c73a] mt-0.5 flex-shrink-0" />
-                        {row.ibo}
-                      </p>
-                    </div>
-                    <div className="px-4 py-3">
-                      <p
-                        className="text-[10px] font-bold uppercase tracking-wider mb-1.5"
-                        style={{ color: 'var(--ibo-muted)' }}
-                      >
-                        Others
-                      </p>
-                      <p
-                        className="text-[12px] leading-snug flex items-start gap-1.5"
-                        style={{ color: 'var(--ibo-muted)' }}
-                      >
-                        <X size={13} className="mt-0.5 flex-shrink-0" style={{ color: 'var(--ibo-muted)' }} />
-                        {row.other}
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-            <div className="mt-10 md:mt-12 flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Link
-                to="/register"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-logo-gradient px-7 py-3.5 text-[14px] font-bold text-[#101013] shadow-[0_12px_28px_rgba(254, 108, 2,0.22)] hover:brightness-110 transition-[filter]"
-              >
-                Trade on Delta <ArrowRight size={16} />
-              </Link>
-              <Link
-                to="/markets"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/12 px-7 py-3.5 text-[14px] font-medium text-white/80 hover:bg-white/[0.04] transition-colors ibo-btn-outline"
-              >
-                Explore markets
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════════════════
-          TESTIMONIALS
-          ══════════════════════════════════════════════════════════════════ */}
-      <section
-        className="relative w-full overflow-hidden border-y border-white/[0.06]"
-        style={{ background: 'var(--ibo-surface)' }}
-      >
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              'radial-gradient(ellipse 50% 55% at 50% 0%, rgba(254, 108, 2,0.1) 0%, transparent 58%), radial-gradient(ellipse 35% 40% at 90% 80%, rgba(0, 168, 118,0.08) 0%, transparent 55%)',
-          }}
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 h-px"
-          style={{
-            background: 'linear-gradient(90deg, transparent, rgba(254, 108, 2,0.45), rgba(0, 168, 118,0.35), transparent)',
-          }}
-        />
-
-        <div className="relative ibo-landing-container ibo-section-y">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12 md:mb-14 max-w-2xl mx-auto"
-          >
-            <p className="ibo-eyebrow mb-4">Community</p>
-            <h2 className="ibo-title-lg mb-4">Loved by traders</h2>
-            <p className="ibo-lead-wide mx-auto" style={{ color: 'var(--ibo-ink-secondary)' }}>
-              Join thousands of traders who trust Delta for their daily trading.
-            </p>
-          </motion.div>
-
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 lg:gap-8">
-            {TESTIMONIALS.map((t, i) => (
-              <motion.div
-                key={t.name}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.12, type: 'tween', duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                whileHover={{ y: -4 }}
-                className="group relative overflow-hidden rounded-[1.35rem] p-7 sm:p-8 cursor-default"
-                style={{
-                  border: '1px solid rgba(254, 108, 2,0.28)',
-                  background:
-                    'linear-gradient(155deg, rgba(254, 108, 2,0.12) 0%, color-mix(in srgb, var(--ibo-card) 94%, transparent) 48%, rgba(0, 168, 118,0.1) 100%)',
-                  boxShadow: '0 14px 36px rgba(254, 108, 2,0.08), var(--ibo-shadow)',
-                }}
-              >
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute inset-x-0 top-0 h-px"
-                  style={{
-                    background:
-                      'linear-gradient(90deg, transparent, rgba(254, 108, 2,0.5), rgba(0, 168, 118,0.4), transparent)',
-                  }}
-                />
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute -right-10 -top-12 w-36 h-36 rounded-full blur-3xl opacity-50 transition-opacity duration-300 group-hover:opacity-80"
-                  style={{ background: 'radial-gradient(circle, rgba(254, 108, 2,0.28) 0%, transparent 70%)' }}
-                />
-
-                <div className="relative flex items-center justify-between gap-3 mb-5">
-                  <div className="flex gap-1.5">
-                    {[...Array(t.rating)].map((_, si) => (
-                      <motion.div
-                        key={si}
-                        initial={{ scale: 0 }}
-                        whileInView={{ scale: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: i * 0.1 + si * 0.06 }}
-                      >
-                        <Star
-                          size={20}
-                          strokeWidth={0}
-                          className="fill-[#00A876] text-[#00A876]"
-                          style={{ filter: 'drop-shadow(0 0 8px rgba(0, 168, 118,0.55))' }}
-                        />
-                      </motion.div>
-                    ))}
-                  </div>
-                  <Quote
-                    size={28}
-                    strokeWidth={1.75}
-                    className="shrink-0 opacity-30"
-                    style={{ color: 'var(--ibo-accent)' }}
-                    aria-hidden
-                  />
-                </div>
-
-                <p
-                  className="relative text-[15px] leading-[1.75] mb-7"
-                  style={{ color: 'var(--ibo-ink-secondary)' }}
-                >
-                  {t.text}
-                </p>
-
-                <div className="relative flex items-center gap-3 pt-5 border-t border-[rgba(254, 108, 2,0.15)]">
-                  <div
-                    className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-base text-[#101013] shadow-[0_8px_20px_rgba(254, 108, 2,0.25)]"
-                    style={{ background: 'linear-gradient(135deg, #FE6C02 0%, #00A876 100%)' }}
-                  >
-                    {t.avatar}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-[15px]" style={{ color: 'var(--ibo-ink)' }}>
-                      {t.name}
-                    </p>
-                    <p className="text-[13px] mt-0.5" style={{ color: 'var(--ibo-muted)' }}>
-                      {t.role}
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
         </div>
       </section>
 
       <LandingFaqSupport />
 
       {/* ══════════════════════════════════════════════════════════════════
-          CTA BANNER
+          CTA — split layout: pitch + start path
           ══════════════════════════════════════════════════════════════════ */}
-      <section
-        className="relative overflow-hidden border-t border-white/[0.06]"
-        style={{ background: 'var(--ibo-bg)' }}
-      >
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              'radial-gradient(ellipse 55% 70% at 50% -10%, rgba(254, 108, 2,0.22) 0%, transparent 58%), radial-gradient(ellipse 40% 50% at 85% 80%, rgba(0, 168, 118,0.1) 0%, transparent 55%), radial-gradient(ellipse 35% 45% at 10% 70%, rgba(77,138,255,0.08) 0%, transparent 50%)',
-          }}
-        />
+      <section className="ibo-landing-cta relative overflow-hidden border-t border-white/[0.06]">
+        <div aria-hidden className="ibo-landing-cta__glow" />
+        <div aria-hidden className="ibo-landing-cta__grid" />
         <div
           aria-hidden
           className="pointer-events-none absolute inset-x-0 top-0 h-px"
-          style={{ background: 'linear-gradient(90deg, transparent, rgba(254, 108, 2,0.45), rgba(0, 168, 118,0.35), transparent)' }}
+          style={{
+            background:
+              'linear-gradient(90deg, transparent, rgba(254, 108, 2,0.5), rgba(0, 168, 118,0.35), transparent)',
+          }}
         />
 
-        <div className="relative ibo-landing-container py-20 md:py-28 lg:py-32">
+        <div className="relative ibo-landing-container py-16 sm:py-20 md:py-24 lg:py-28">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10 xl:gap-14 items-stretch">
+            {/* Left — editorial pitch */}
+            <motion.div
+              initial={{ opacity: 0, x: -18 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+              className="lg:col-span-7 flex flex-col justify-center min-w-0"
+            >
+              <p className="ibo-eyebrow mb-4">Made for India</p>
+
+              <h2 className="ibo-title-lg mb-5 max-w-[16ch] sm:max-w-[18ch]">
+                Start trading crypto F&amp;O in{' '}
+                <span className="text-gradient">three steps</span>
+              </h2>
+
+              <p className="ibo-lead text-zinc-400 max-w-lg mb-8">
+                Instant KYC, deposit INR, then futures, options, and spot on one pro terminal —
+                margin &amp; P/L in rupees, withdraw to your bank when you&#39;re ready.
+              </p>
+
+              <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 mb-8">
+                <Link
+                  to="/register"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-logo-gradient px-7 py-3.5 text-[15px] font-bold text-[#101013] shadow-[0_14px_36px_rgba(254,108,2,0.22)] hover:brightness-110 transition-[filter]"
+                >
+                  Sign up free <ArrowRight size={18} />
+                </Link>
+                <Link
+                  to="/futures/BTCUSDT-PERP"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/12 bg-white/[0.02] px-7 py-3.5 text-[15px] font-medium text-white/85 hover:bg-white/[0.05] hover:border-white/20 transition-colors ibo-btn-outline"
+                >
+                  <BarChart2 size={17} /> Trade futures
+                </Link>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] text-zinc-500">
+                <Link to="/wallet/deposit/inr" className="hover:text-[#FE6C02] transition-colors">
+                  Deposit INR
+                </Link>
+                <span className="text-white/15 hidden sm:inline" aria-hidden>
+                  |
+                </span>
+                <Link to="/options/BTCUSDT" className="hover:text-[#FE6C02] transition-colors">
+                  Options chain
+                </Link>
+                <span className="text-white/15 hidden sm:inline" aria-hidden>
+                  |
+                </span>
+                <Link to="/account/kyc" className="hover:text-[#FE6C02] transition-colors">
+                  Instant KYC
+                </Link>
+              </div>
+            </motion.div>
+
+            {/* Right — numbered start path (no card grid) */}
+            <motion.div
+              initial={{ opacity: 0, x: 18 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ duration: 0.55, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+              className="lg:col-span-5 min-w-0"
+            >
+              <div className="ibo-landing-cta__path relative h-full">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500 mb-6">
+                  Your first session
+                </p>
+
+                <ol className="relative m-0 p-0 list-none space-y-0">
+                  {[
+                    {
+                      n: '01',
+                      icon: UserPlus,
+                      title: 'Sign up & Instant KYC',
+                      desc: 'Aadhaar, PAN, face match — go live in minutes.',
+                      to: '/register',
+                    },
+                    {
+                      n: '02',
+                      icon: IndianRupee,
+                      title: 'Deposit INR',
+                      desc: 'Link bank / UPI and fund margin in rupees.',
+                      to: '/wallet/deposit/inr',
+                    },
+                    {
+                      n: '03',
+                      icon: LineChart,
+                      title: 'Trade F&O or spot',
+                      desc: 'Open BTC & ETH markets 24/7 on the pro terminal.',
+                      to: '/futures/BTCUSDT-PERP',
+                    },
+                  ].map((step, i) => {
+                    const Icon = step.icon;
+                    return (
+                      <motion.li
+                        key={step.n}
+                        initial={{ opacity: 0, y: 12 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.12 + i * 0.08, duration: 0.45 }}
+                      >
+                        <Link to={step.to} className="ibo-landing-cta__step group">
+                          <span className="ibo-landing-cta__step-n" aria-hidden>
+                            {step.n}
+                          </span>
+                          <span className="ibo-landing-cta__step-icon" aria-hidden>
+                            <Icon size={18} strokeWidth={2.1} className="text-[#FE6C02]" />
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block font-display text-[1.05rem] sm:text-[1.12rem] font-bold text-white tracking-tight group-hover:text-[#FE6C02] transition-colors">
+                              {step.title}
+                            </span>
+                            <span className="mt-1 block text-[13px] sm:text-[14px] text-zinc-500 leading-relaxed">
+                              {step.desc}
+                            </span>
+                          </span>
+                          <ArrowRight
+                            size={16}
+                            className="shrink-0 text-zinc-600 opacity-0 -translate-x-1 transition-all duration-250 group-hover:opacity-100 group-hover:translate-x-0 group-hover:text-[#FE6C02] mt-1"
+                          />
+                        </Link>
+                      </motion.li>
+                    );
+                  })}
+                </ol>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* App download — magazine split + phone mock */}
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-            className="mx-auto max-w-3xl text-center"
+            transition={{ duration: 0.5, delay: 0.15 }}
+            className="mt-12 md:mt-16"
           >
-            <p className="ibo-eyebrow mb-5 inline-flex items-center gap-2 justify-center">
-              <Sparkles size={12} className="text-[#00A876]" />
-              Free demo balance
-            </p>
+            <div className="ibo-cta-app">
+              <div className="ibo-cta-app__bg" aria-hidden />
 
-            <h2 className="ibo-title-lg mb-5">
-              Ready to start{' '}
-              <span className="text-gradient">trading?</span>
-            </h2>
+              <div className="ibo-cta-app__grid">
+                {/* Editorial column */}
+                <div className="ibo-cta-app__editorial">
+                  <div className="ibo-cta-app__status">
+                    <span className="ibo-cta-app__pulse" aria-hidden />
+                    Android app · launching soon
+                  </div>
 
-            <p className="ibo-lead-wide mx-auto mb-10 text-zinc-400">
-              Create your account, deposit USDT or any supported BEP-20 token, and trade USDT or Delta pairs
-              with pro charts — or start with a free demo balance, no deposit required.
-            </p>
+                  <h3 className="ibo-cta-app__headline">
+                    Your exchange,
+                    <br />
+                    <span>in your hand</span>
+                  </h3>
 
-            <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 mb-10">
-              <Link
-                to="/register"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-logo-gradient px-8 py-3.5 text-[15px] font-bold text-[#101013] shadow-[0_16px_48px_rgba(0, 168, 118,0.2)] hover:brightness-110 transition-[filter]"
-              >
-                Create free account <ArrowRight size={18} />
-              </Link>
-              <Link
-                to="/markets"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/12 px-8 py-3.5 text-[15px] font-medium text-white/85 hover:bg-white/[0.04] hover:border-white/20 transition-colors ibo-btn-outline"
-              >
-                <BarChart2 size={17} /> Explore markets
-              </Link>
-            </div>
+                  <p className="ibo-cta-app__sub">
+                    Native Android is on the way. Trade futures, options, and spot on web now —
+                    same account when the app drops.
+                  </p>
 
-            <div className="mx-auto max-w-xl">
-              <MobileAppDownload variant="card" compact title="Trade on your phone" />
+                  <div className="ibo-cta-app__cta-row">
+                    <Link
+                      to="/futures/BTCUSDT-PERP"
+                      className="ibo-cta-app__btn-primary bg-logo-gradient text-[#101013]"
+                    >
+                      Trade on web
+                      <ArrowRight size={16} className="text-[#101013]" strokeWidth={2.2} />
+                    </Link>
+                    <MobileAppDownload variant="pill" className="ibo-cta-app__status-pill" />
+                  </div>
+                </div>
+
+                {/* Phone mock */}
+                <div className="ibo-cta-app__device" aria-hidden>
+                  <div className="ibo-cta-app__phone">
+                    <div className="ibo-cta-app__notch" />
+                    <div className="ibo-cta-app__screen">
+                      <div className="ibo-cta-app__screen-top">
+                        <Smartphone size={14} strokeWidth={2.2} />
+                        <span>Delta · Markets</span>
+                      </div>
+                      <div className="ibo-cta-app__screen-rows">
+                        {[
+                          { k: 'BTC-PERP', v: 'Futures', d: '+1.2%' },
+                          { k: 'ETH Options', v: 'Chain', d: 'Live' },
+                          { k: 'INR Wallet', v: 'Deposit', d: 'Bank' },
+                        ].map((row) => (
+                          <div key={row.k} className="ibo-cta-app__screen-row">
+                            <div>
+                              <span className="ibo-cta-app__row-k">{row.k}</span>
+                              <span className="ibo-cta-app__row-v">{row.v}</span>
+                            </div>
+                            <span className="ibo-cta-app__row-d">{row.d}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="ibo-cta-app__screen-bar">Open 24/7 · INR P/L</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </motion.div>
         </div>

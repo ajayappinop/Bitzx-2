@@ -21,133 +21,69 @@ const DEPOSIT_SHIELD = '/hero/deposit-shield.png?v=10';
 
 
 const IBO_POINTS = [
-
-  { n: '01', title: 'Native quote asset', desc: 'Trade altcoins against Delta on dedicated Delta Markets — not only USDT.' },
-
-  { n: '02', title: 'Platform utility', desc: 'Fees, ecosystem pairs, and featured listings revolve around the Delta token.' },
-
-  { n: '03', title: 'Live Delta/USDT', desc: 'Spot market with full 24h stats, depth, and TradingView charts like any major pair.' },
-
+  { n: '01', title: 'Trade without owning crypto', desc: 'Open futures and options on BTC & ETH without holding the underlying coins.' },
+  { n: '02', title: 'Margin & P/L in INR', desc: 'Deposit rupees, trade 24/7, and track positions with INR-ready settlement rails.' },
+  { n: '03', title: 'Spot, futures & options', desc: 'One pro interface for perpetual futures, options chain, and spot markets.' },
 ];
-
-
 
 const DEPOSIT_PATHS = [
-
   {
-
     icon: '/hero/deposit-wallet.png?v=10',
-
     accent: 'rgba(96,165,250,0.45)',
-
-    title: 'USDT & top assets',
-
-    desc: 'Deposit stablecoins and majors to your secure wallet. Balances credit after on-chain confirmation.',
-
-    link: '/wallet',
-
-    cta: 'Deposit USDT',
-
+    title: 'Deposit INR',
+    desc: 'Link your bank account and deposit INR conveniently. Use balances as capital for F&O and spot trading.',
+    link: '/wallet/deposit/inr',
+    cta: 'Deposit INR',
   },
-
   {
-
-    icon: '/hero/deposit-search.png?v=10',
-
+    icon: '/hero/deposit-shield.png?v=10',
     accent: 'rgba(254, 108, 2,0.45)',
-
-    title: 'Any BEP-20 token',
-
-    desc: 'Search by name or contract address — the same Web3 catalog as wallet deposit. Hundreds of BNB Chain tokens supported.',
-
-    link: '/wallet',
-
-    cta: 'Search tokens',
-
+    title: 'Verified bank rails',
+    desc: 'Complete Instant KYC and bank verification so deposits and withdrawals stay matched to your identity.',
+    link: '/account/kyc',
+    cta: 'Complete KYC',
   },
-
   {
-
     icon: '/hero/deposit-coin.png?v=10',
-
     accent: 'rgba(0, 168, 118,0.4)',
-
-    title: 'Listed project coins',
-
-    desc: 'After listing approval, your token gets deposit, withdraw, and spot markets (USDT or Delta quote).',
-
-    link: '/list-coin',
-
-    cta: 'Apply to list',
-
+    title: 'USDT & majors',
+    desc: 'Also deposit USDT and major assets via crypto wallet when you prefer on-chain funding alongside INR.',
+    link: '/wallet',
+    cta: 'Open wallet',
   },
-
 ];
 
-
-
 const JOURNEY_STEPS = [
-
   {
-
     n: '01',
-
-    title: 'Create & verify',
-
-    desc: 'Register in minutes. Complete KYC to unlock deposits, withdrawals, and full trading limits.',
-
+    title: 'Sign up & KYC',
+    desc: 'Create your account in seconds and finish Instant KYC to unlock INR deposits and full trading limits.',
     to: '/register',
-
-    cta: 'Create account',
-
+    cta: 'Sign up',
   },
-
   {
-
     n: '02',
-
-    title: 'Deposit funds',
-
-    desc: 'Open Wallet → Deposit. Add USDT or any supported BEP-20, then copy your address and send on the correct network.',
-
-    to: '/wallet',
-
-    cta: 'Go to wallet',
-
+    title: 'Link bank & deposit INR',
+    desc: 'Add your bank/UPI details and deposit INR. Funds credit after review so you can begin trading.',
+    to: '/wallet/deposit/inr',
+    cta: 'Deposit INR',
   },
-
   {
-
     n: '03',
-
-    title: 'Pick a market',
-
-    desc: 'USDT pairs for majors, or Delta Markets for Web3 tokens quoted in Delta. Browse live 24h stats before you trade.',
-
-    to: '/markets',
-
-    cta: 'Browse markets',
-
-    altTo: '/ibo-markets',
-
-    altCta: 'Delta Markets',
-
+    title: 'Trade F&O or spot',
+    desc: 'Launch futures, options, or spot markets on Bitcoin, Ether, and more — open 24/7 with efficient margining.',
+    to: '/futures/BTCUSDT-PERP',
+    cta: 'Trade futures',
+    altTo: '/options/BTCUSDT',
+    altCta: 'Options chain',
   },
-
   {
-
     n: '04',
-
-    title: 'Trade & track',
-
-    desc: 'Use limit or market orders, live order book, TradingView charts, and portfolio P&L — on web or mobile app.',
-
-    to: '/trade/IBOUSDT',
-
-    cta: 'Open terminal',
-
+    title: 'Track P/L & withdraw',
+    desc: 'Monitor positions and portfolio P/L in real time, then withdraw INR to your verified bank when ready.',
+    to: '/account/positions',
+    cta: 'View positions',
   },
-
 ];
 
 
@@ -380,37 +316,26 @@ export default function LandingPlatformFlow() {
 
             >
 
-              <p className="ibo-eyebrow mb-3">Platform token</p>
+              <p className="ibo-eyebrow mb-3">Made for India</p>
 
               <h2 className="ibo-title-lg mb-4 max-w-xl">
 
-                Meet{' '}
-
+                Best-in-class{' '}
                 <span
-
                   className="bg-clip-text text-transparent"
-
                   style={{
-
                     backgroundImage: 'linear-gradient(115deg, #4D8AFF 0%, #FE6C02 45%, #00A876 100%)',
-
                   }}
-
                 >
-
-                  Delta
-
+                  pro trading
                 </span>
-
-                {' '}— the heart of the exchange
+                {' '}for everyone
 
               </h2>
 
               <p className="ibo-lead text-zinc-400 max-w-lg mb-8">
 
-                Delta is our native token and quote currency for Web3 markets. Hold Delta to trade hundreds of
-
-                project tokens, access Delta/USDT spot, and participate in the ecosystem we are building on BNB Chain.
+                Elevate your crypto F&O trading with 24/7 open markets, efficient margining, and INR settlement. Futures, options, and spot in one terminal — built for Indian traders.
 
               </p>
 
@@ -420,25 +345,25 @@ export default function LandingPlatformFlow() {
 
                 <Link
 
-                  to="/trade/IBOUSDT"
+                  to="/futures/BTCUSDT-PERP"
 
                   className="inline-flex items-center justify-center gap-2 rounded-xl bg-logo-gradient px-6 py-3.5 text-[15px] font-semibold text-surface-dark shadow-[0_12px_40px_rgba(254, 108, 2,0.25)]"
 
                 >
 
-                  Trade Delta/USDT <TrendingUp size={18} />
+                  Trade futures <TrendingUp size={18} />
 
                 </Link>
 
                 <Link
 
-                  to="/ibo-markets"
+                  to="/options/BTCUSDT"
 
                   className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/12 bg-white/[0.03] px-6 py-3.5 text-[15px] font-medium text-white hover:bg-white/[0.07] backdrop-blur-sm ibo-btn-outline"
 
                 >
 
-                  Explore Delta Markets <ArrowRight size={18} className="text-[#FE6C02]" />
+                  Trade options <ArrowRight size={18} className="text-[#FE6C02]" />
 
                 </Link>
 
@@ -508,7 +433,7 @@ export default function LandingPlatformFlow() {
 
               transition={{ duration: 0.6 }}
 
-              className="relative order-1 lg:order-2 flex items-center justify-center min-h-[340px] sm:min-h-[420px] lg:min-h-[520px] xl:min-h-[560px]"
+              className="relative order-1 lg:order-2 flex items-center justify-center min-h-[260px] sm:min-h-[340px] lg:min-h-[420px] xl:min-h-[480px]"
 
             >
 
@@ -626,15 +551,13 @@ export default function LandingPlatformFlow() {
 
           >
 
-            <p className="ibo-eyebrow mb-3">Fund your account</p>
+            <p className="ibo-eyebrow mb-3">Get started</p>
 
-            <h2 className="ibo-title-lg mb-4">How deposits work</h2>
+            <h2 className="ibo-title-lg mb-4">How funding works</h2>
 
             <p className="ibo-lead text-zinc-400">
 
-              One wallet for stablecoins, majors, and the full BEP-20 catalog. Search a token, copy your deposit
-
-              address, and send on the correct network.
+              Link your bank, deposit INR, or fund with USDT — then trade futures, options, and spot with verified rails.
 
             </p>
 
@@ -766,9 +689,9 @@ export default function LandingPlatformFlow() {
 
               <span className="font-display font-semibold text-white">Security.</span>{' '}
 
-              Deposits use per-user addresses where configured. Always verify network (e.g. BEP-20 on BNB Chain)
+              Prefer bank rails for INR. For crypto deposits, always verify network and address before sending.
 
-              before sending. Unsupported or wrong-network transfers may be lost.
+              Unsupported or wrong-network transfers may be lost.
 
             </p>
 
@@ -830,11 +753,11 @@ export default function LandingPlatformFlow() {
 
             <p className="ibo-eyebrow mb-3">Your path</p>
 
-            <h2 className="ibo-title-lg mb-4">From signup to your first trade</h2>
+            <h2 className="ibo-title-lg mb-4">From signup to your first F&O trade</h2>
 
             <p className="ibo-lead-wide text-zinc-400 mx-auto">
 
-              A clear, guided flow on web and mobile — the same steps whether you trade USDT pairs or Delta-quoted Web3 tokens.
+              Sign up, deposit INR, open a futures or options position, and track P/L — the same path on web and mobile.
 
             </p>
 

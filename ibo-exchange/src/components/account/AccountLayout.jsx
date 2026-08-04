@@ -6,6 +6,8 @@ import {
   isAccountPath,
 } from '@/lib/accountNav';
 
+const ACCOUNT_NAV_IDS = new Set(ACCOUNT_NAV_ITEMS.map((item) => item.id));
+
 function sectionIdFromPath(pathname) {
   if (!isAccountPath(pathname)) return 'positions';
   const part = pathname.replace(/^\/account\/?/, '').split('/')[0];
@@ -17,28 +19,32 @@ export default function AccountLayout() {
   const { user } = useAuth();
   const section = sectionIdFromPath(pathname);
   const title = ACCOUNT_SECTION_TITLES[section] || 'Account';
+  // Only show left rail for sections listed in the sidebar tabs
+  const showSidebar = ACCOUNT_NAV_IDS.has(section);
 
   return (
-    <div className="delta-account">
-      <aside className="delta-account__rail" aria-label="Account navigation">
-        <nav className="delta-account__nav">
-          <ul className="delta-account__list">
-            {ACCOUNT_NAV_ITEMS.map((item) => (
-              <li key={item.id}>
-                <NavLink
-                  to={item.to}
-                  end
-                  className={({ isActive }) =>
-                    `delta-account__link${isActive || section === item.id ? ' is-active' : ''}`
-                  }
-                >
-                  {item.label}
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      </aside>
+    <div className={`delta-account${showSidebar ? '' : ' delta-account--no-rail'}`}>
+      {showSidebar ? (
+        <aside className="delta-account__rail" aria-label="Account navigation">
+          <nav className="delta-account__nav">
+            <ul className="delta-account__list">
+              {ACCOUNT_NAV_ITEMS.map((item) => (
+                <li key={item.id}>
+                  <NavLink
+                    to={item.to}
+                    end
+                    className={({ isActive }) =>
+                      `delta-account__link${isActive || section === item.id ? ' is-active' : ''}`
+                    }
+                  >
+                    {item.label}
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </aside>
+      ) : null}
 
       <section className="delta-account__main" aria-label={title}>
         <header className="delta-account__page-head">

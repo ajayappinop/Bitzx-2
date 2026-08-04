@@ -11,47 +11,30 @@ import { SITE_CONFIG, SUPPORT_MAILTO } from '@/lib/siteConfig';
 
 
 const FAQS = [
-
   {
-
     q: 'Is Delta Exchange available in India?',
-
-    a: 'Yes. Delta supports Indian users with Instant KYC (Aadhaar, PAN, face match) and INR deposit / payout flows alongside USDT and Delta trading pairs.',
-
+    a: 'Yes. Delta is built for India with Instant KYC (Aadhaar, PAN, face match), INR deposit and withdrawal flows, and full trading on futures, options, and spot.',
   },
-
   {
-
-    q: 'Do I need crypto to start trading?',
-
-    a: 'No. You can deposit INR via bank or UPI, buy crypto on Delta, or start with a free demo balance to practice without depositing real funds.',
-
+    q: 'Do I need to hold crypto to trade?',
+    a: 'No. You can deposit INR, use it as trading capital/margin, and trade futures and options without owning the underlying crypto. Withdraw profits back in INR to your bank or UPI.',
   },
-
   {
-
-    q: 'Which assets can I trade?',
-
-    a: 'Trade major USDT spot pairs, Delta-quoted markets, and deposit supported BEP-20 tokens. Full charts, depth, and portfolio P&L are available in one terminal.',
-
+    q: 'What can I trade on Delta?',
+    a: 'Trade Bitcoin and Ether futures & options, perpetual markets, and spot pairs — with deep books, pro charts, and portfolio P&L in one place. Markets stay open 24/7.',
   },
-
   {
-
+    q: 'How do INR deposits and withdrawals work?',
+    a: 'Link your bank or UPI, deposit INR via supported rails, complete Instant KYC if required, then trade. When you cash out, withdraw INR to your verified payout profile from Wallet.',
+  },
+  {
     q: 'How secure is my account?',
-
-    a: 'Delta uses bank-grade security practices including cold-wallet custody for the majority of assets, 2FA, withdrawal whitelisting, and real-time monitoring.',
-
+    a: 'Delta uses multi-factor security, cold-wallet custody practices for assets in custody, withdrawal controls, and continuous monitoring — plus FIU-aligned compliance for Indian users.',
   },
-
   {
-
     q: 'How do I contact support?',
-
-    a: `Email ${SITE_CONFIG.supportEmail} anytime, or raise a ticket from your dashboard. Our team helps with KYC, deposits, withdrawals, and trading questions.`,
-
+    a: `Email ${SITE_CONFIG.supportEmail} anytime, or raise a support ticket from your account. Our team helps with KYC, INR transfers, and trading questions.`,
   },
-
 ];
 
 
@@ -260,7 +243,7 @@ export default function LandingFaqSupport() {
 
             transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
 
-            className="relative overflow-hidden rounded-[1.5rem] border p-7 sm:p-8 lg:p-9 flex flex-col min-h-[340px]"
+            className="relative overflow-hidden rounded-[1.25rem] sm:rounded-[1.5rem] border p-5 sm:p-7 lg:p-9 flex flex-col min-h-0 sm:min-h-[300px] lg:min-h-[340px]"
 
             style={{
 

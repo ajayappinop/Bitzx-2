@@ -3249,6 +3249,7 @@ class UserOut(BaseModel):
     kyc_status: str = "unverified"  # unverified | pending | approved | rejected
     phone:      Optional[str] = None
     country:    Optional[str] = None
+    city:       Optional[str] = None
     bio:        Optional[str] = None
     avatar_url: Optional[str] = None  # e.g. /uploads/avatars/u_xxx.jpg
     is_active:              bool = True
@@ -3288,6 +3289,7 @@ def user_doc_to_out(user: dict) -> UserOut:
         kyc_status=user.get("kyc_status", "unverified"),
         phone=user.get("phone"),
         country=user.get("country"),
+        city=user.get("city"),
         bio=user.get("bio"),
         avatar_url=user.get("avatar_url"),
         is_active=bool(user.get("is_active", True)),
@@ -11324,7 +11326,8 @@ class ProfileUpdate(BaseModel):
         max_length=12,
         validation_alias=AliasChoices("phone_otp", "phoneOtp", "otp", "code"),
     )
-    country: Optional[str] = Field(None, max_length=80)
+    country: Optional[str] = Field(None, max_length=120)
+    city:    Optional[str] = Field(None, max_length=100)
     bio:     Optional[str] = Field(None, max_length=500)
 
 
@@ -11509,7 +11512,7 @@ async def profile_phone_send_otp(
 
 @api_router.put("/auth/profile", response_model=UserOut)
 async def update_profile(body: ProfileUpdate, current_user: dict = Depends(get_current_user)):
-    """Update profile fields (name, phone, country, bio). Phone changes require SMS OTP."""
+    """Update profile fields (name, phone, country, city, bio). Phone changes require SMS OTP."""
     if db is None:
         raise HTTPException(503, "Database unavailable")
     enforce_user_actions_allowed(current_user)
@@ -11569,6 +11572,8 @@ async def update_profile(body: ProfileUpdate, current_user: dict = Depends(get_c
 
     if body.country is not None:
         updates["country"] = body.country.strip() or None
+    if body.city is not None:
+        updates["city"] = body.city.strip() or None
     if body.bio is not None:
         updates["bio"] = body.bio.strip() or None
     if not updates:

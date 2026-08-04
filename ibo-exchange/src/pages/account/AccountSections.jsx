@@ -557,23 +557,43 @@ export function AccountInvoices() {
 /* ─── Wallet embeds ─────────────────────────────────────────────────────── */
 
 export function AccountBalances() {
-  return <WalletPage accountMode forcedTab="balances" />;
+  return (
+    <div className="delta-account-embed">
+      <WalletPage accountMode forcedTab="balances" />
+    </div>
+  );
 }
 
 export function AccountDeposits() {
-  return <WalletPage accountMode forcedTab="deposit" />;
+  return (
+    <div className="delta-account-embed">
+      <WalletPage accountMode forcedTab="deposit" />
+    </div>
+  );
 }
 
 export function AccountWithdrawals() {
-  return <WalletPage accountMode forcedTab="withdraw" />;
+  return (
+    <div className="delta-account-embed">
+      <WalletPage accountMode forcedTab="withdraw" />
+    </div>
+  );
 }
 
 export function AccountTransactionLogs() {
-  return <WalletPage accountMode forcedTab="ledger" />;
+  return (
+    <div className="delta-account-embed">
+      <WalletPage accountMode forcedTab="ledger" />
+    </div>
+  );
 }
 
 export function AccountTransfer() {
-  return <WalletPage accountMode forcedTab="swap" />;
+  return (
+    <div className="delta-account-embed">
+      <WalletPage accountMode forcedTab="swap" />
+    </div>
+  );
 }
 
 /* ─── Thin wrappers for existing full pages ─────────────────────────────── */
@@ -799,7 +819,7 @@ function BankDetailsPanel() {
               <input
                 value={bank[key]}
                 onChange={(e) => setBank((b) => ({ ...b, [key]: e.target.value }))}
-                className="mt-1.5 w-full rounded-lg border border-[color:var(--ibo-border-solid)] bg-transparent px-3 py-2.5 text-sm font-semibold text-[color:var(--ibo-ink)] outline-none focus:border-[#fe6c02]/60"
+                className="delta-account-input mt-1.5"
                 autoComplete="off"
               />
             </label>
@@ -814,7 +834,7 @@ function BankDetailsPanel() {
             <input
               value={upi.display_name}
               onChange={(e) => setUpi((u) => ({ ...u, display_name: e.target.value }))}
-              className="mt-1.5 w-full rounded-lg border border-[color:var(--ibo-border-solid)] bg-transparent px-3 py-2.5 text-sm font-semibold text-[color:var(--ibo-ink)] outline-none focus:border-[#fe6c02]/60"
+              className="delta-account-input mt-1.5"
             />
           </label>
           <label className="block">
@@ -825,7 +845,7 @@ function BankDetailsPanel() {
               value={upi.upi_id}
               onChange={(e) => setUpi((u) => ({ ...u, upi_id: e.target.value }))}
               placeholder="name@bank"
-              className="mt-1.5 w-full rounded-lg border border-[color:var(--ibo-border-solid)] bg-transparent px-3 py-2.5 text-sm font-semibold text-[color:var(--ibo-ink)] outline-none focus:border-[#fe6c02]/60"
+              className="delta-account-input mt-1.5"
             />
           </label>
         </div>

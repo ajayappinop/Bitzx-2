@@ -1,5 +1,6 @@
 /**
  * Country list via Intl (no static 250-line file). City pools: per-country + global fallback.
+ * Place suggestions: "City, Region, Country" for the profile location field.
  */
 
 const FALLBACK_COUNTRIES = [
@@ -107,6 +108,123 @@ const CITIES_BY_COUNTRY_RAW = {
   Austria: ['Vienna', 'Graz', 'Linz', 'Salzburg'],
 };
 
+/**
+ * Optional state / province / emirate for richer place labels
+ * ("Jaipur, Rajasthan, India").
+ */
+const CITY_REGION_BY_COUNTRY = {
+  India: {
+    Mumbai: 'Maharashtra',
+    Delhi: 'Delhi',
+    Bengaluru: 'Karnataka',
+    Hyderabad: 'Telangana',
+    Ahmedabad: 'Gujarat',
+    Chennai: 'Tamil Nadu',
+    Kolkata: 'West Bengal',
+    Pune: 'Maharashtra',
+    Jaipur: 'Rajasthan',
+    Surat: 'Gujarat',
+    Lucknow: 'Uttar Pradesh',
+    Kanpur: 'Uttar Pradesh',
+    Nagpur: 'Maharashtra',
+    Indore: 'Madhya Pradesh',
+    Thane: 'Maharashtra',
+    Bhopal: 'Madhya Pradesh',
+    Patna: 'Bihar',
+    Vadodara: 'Gujarat',
+    Ghaziabad: 'Uttar Pradesh',
+    Ludhiana: 'Punjab',
+    Coimbatore: 'Tamil Nadu',
+    Kochi: 'Kerala',
+    Visakhapatnam: 'Andhra Pradesh',
+    Nashik: 'Maharashtra',
+  },
+  'United States': {
+    'New York': 'New York',
+    'Los Angeles': 'California',
+    Chicago: 'Illinois',
+    Houston: 'Texas',
+    Phoenix: 'Arizona',
+    Philadelphia: 'Pennsylvania',
+    'San Antonio': 'Texas',
+    'San Diego': 'California',
+    Dallas: 'Texas',
+    'San Jose': 'California',
+    Austin: 'Texas',
+    Jacksonville: 'Florida',
+    'Fort Worth': 'Texas',
+    Columbus: 'Ohio',
+    Charlotte: 'North Carolina',
+    'San Francisco': 'California',
+    Indianapolis: 'Indiana',
+    Seattle: 'Washington',
+    Denver: 'Colorado',
+    Boston: 'Massachusetts',
+    Miami: 'Florida',
+    Atlanta: 'Georgia',
+    'Las Vegas': 'Nevada',
+    Portland: 'Oregon',
+    Detroit: 'Michigan',
+    Nashville: 'Tennessee',
+    Memphis: 'Tennessee',
+    Baltimore: 'Maryland',
+  },
+  Canada: {
+    Toronto: 'Ontario',
+    Montreal: 'Quebec',
+    Vancouver: 'British Columbia',
+    Calgary: 'Alberta',
+    Edmonton: 'Alberta',
+    Ottawa: 'Ontario',
+    Winnipeg: 'Manitoba',
+    'Quebec City': 'Quebec',
+    Hamilton: 'Ontario',
+    Victoria: 'British Columbia',
+    Halifax: 'Nova Scotia',
+    Saskatoon: 'Saskatchewan',
+    Regina: 'Saskatchewan',
+  },
+  Australia: {
+    Sydney: 'New South Wales',
+    Melbourne: 'Victoria',
+    Brisbane: 'Queensland',
+    Perth: 'Western Australia',
+    Adelaide: 'South Australia',
+    'Gold Coast': 'Queensland',
+    Canberra: 'Australian Capital Territory',
+    Newcastle: 'New South Wales',
+    Hobart: 'Tasmania',
+    Darwin: 'Northern Territory',
+    Wollongong: 'New South Wales',
+    Geelong: 'Victoria',
+  },
+  'United Arab Emirates': {
+    Dubai: 'Dubai',
+    'Abu Dhabi': 'Abu Dhabi',
+    Sharjah: 'Sharjah',
+    Ajman: 'Ajman',
+    'Ras Al Khaimah': 'Ras Al Khaimah',
+    Fujairah: 'Fujairah',
+    'Al Ain': 'Abu Dhabi',
+  },
+  'United Kingdom': {
+    London: 'England',
+    Birmingham: 'England',
+    Manchester: 'England',
+    Glasgow: 'Scotland',
+    Liverpool: 'England',
+    Leeds: 'England',
+    Sheffield: 'England',
+    Edinburgh: 'Scotland',
+    Bristol: 'England',
+    Cardiff: 'Wales',
+    Belfast: 'Northern Ireland',
+    Leicester: 'England',
+    Coventry: 'England',
+    Nottingham: 'England',
+  },
+};
+
 const COUNTRY_KEY_MAP = new Map(
   Object.keys(CITIES_BY_COUNTRY_RAW).map((k) => [norm(k), CITIES_BY_COUNTRY_RAW[k]]),
 );
@@ -114,6 +232,43 @@ const COUNTRY_KEY_MAP = new Map(
 const GLOBAL_MAJOR_CITIES = Array.from(
   new Set(Object.values(CITIES_BY_COUNTRY_RAW).flat()),
 ).sort((a, b) => a.localeCompare(b));
+
+/** @param {string} city @param {string} country @param {string} [region] */
+export function formatPlaceLabel(city, country, region) {
+  const c = String(city || '').trim();
+  const co = String(country || '').trim();
+  const r = String(region || '').trim();
+  if (!c) return co;
+  if (r) return `${c}, ${r}, ${co}`;
+  return `${c}, ${co}`;
+}
+
+/** @typedef {{ label: string, city: string, country: string, region: string, search: string }} PlaceEntry */
+
+let _placesCache = null;
+
+/** @returns {PlaceEntry[]} */
+function listPlaceEntries() {
+  if (_placesCache) return _placesCache;
+  /** @type {PlaceEntry[]} */
+  const out = [];
+  for (const [country, cities] of Object.entries(CITIES_BY_COUNTRY_RAW)) {
+    const regionMap = CITY_REGION_BY_COUNTRY[country] || {};
+    for (const city of cities) {
+      const region = regionMap[city] || '';
+      const label = formatPlaceLabel(city, country, region);
+      out.push({
+        label,
+        city,
+        country,
+        region,
+        search: norm([city, region, country].filter(Boolean).join(' ')),
+      });
+    }
+  }
+  _placesCache = out;
+  return out;
+}
 
 /** @param {string} countryName */
 export function cityPoolForCountry(countryName) {
@@ -142,6 +297,66 @@ export function suggestCountries(query, limit = 48) {
     else if (cn.includes(q)) rest.push(c);
   }
   return [...starts, ...rest].slice(0, limit);
+}
+
+/**
+ * Location typeahead: cities as "City, Region, Country" plus country/region names.
+ * Typing "jaipur" → "Jaipur, Rajasthan, India".
+ *
+ * @param {string} query
+ * @param {number} limit
+ * @returns {string[]}
+ */
+export function suggestPlaces(query, limit = 48) {
+  const q = norm(query);
+  const placeCityStarts = [];
+  const placeLabelStarts = [];
+  const placeRest = [];
+  const countryStarts = [];
+  const countryRest = [];
+
+  if (!q) {
+    const countries = listCountryNames().slice(0, Math.min(24, limit));
+    const places = listPlaceEntries()
+      .slice(0, Math.max(0, limit - countries.length))
+      .map((p) => p.label);
+    return [...countries, ...places].slice(0, limit);
+  }
+
+  for (const p of listPlaceEntries()) {
+    const cityN = norm(p.city);
+    const labelN = norm(p.label);
+    const regionN = norm(p.region);
+    if (cityN.startsWith(q) || regionN.startsWith(q)) {
+      placeCityStarts.push(p.label);
+    } else if (labelN.startsWith(q) || p.search.startsWith(q)) {
+      placeLabelStarts.push(p.label);
+    } else if (cityN.includes(q) || labelN.includes(q) || p.search.includes(q)) {
+      placeRest.push(p.label);
+    }
+  }
+
+  for (const c of listCountryNames()) {
+    const cn = norm(c);
+    if (cn.startsWith(q)) countryStarts.push(c);
+    else if (cn.includes(q)) countryRest.push(c);
+  }
+
+  const seen = new Set();
+  const out = [];
+  for (const item of [
+    ...placeCityStarts,
+    ...countryStarts,
+    ...placeLabelStarts,
+    ...placeRest,
+    ...countryRest,
+  ]) {
+    if (seen.has(item)) continue;
+    seen.add(item);
+    out.push(item);
+    if (out.length >= limit) break;
+  }
+  return out;
 }
 
 /**

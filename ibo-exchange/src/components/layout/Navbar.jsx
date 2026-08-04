@@ -77,7 +77,7 @@ const SEARCH_SHORTCUTS = [
   { label: 'Bank Details', to: '/account/bank-details', hint: 'INR payout' },
   { label: 'Profile', to: '/account/profile', hint: 'Account info' },
   { label: 'Security', to: '/account/security', hint: '2FA & password' },
-  { label: 'Add Funds', to: '/wallet/deposit/inr', hint: 'INR deposit' },
+  { label: 'Add Funds', to: '/account/deposits', hint: 'INR deposit' },
   { label: 'Quick Trade', to: '/quick-trade', hint: 'Convert' },
   { label: 'P2P', to: '/p2p', hint: 'Marketplace' },
   { label: 'Support', to: '/account/support', hint: 'Help centre' },
@@ -291,6 +291,30 @@ function pathActive(pathname, to) {
   // Exact first (avoids /trade activating /quick-trade and similar)
   if (pathname === to) return true;
   const base = to.split('?')[0];
+
+  // More menu: Account hub — only general account sections (not Wallet / Refer)
+  if (base === '/account/positions') {
+    if (pathname === '/account' || pathname === '/account/') return true;
+    if (!pathname.startsWith('/account/')) return false;
+    const seg = pathname.slice('/account/'.length).split('/')[0] || '';
+    const exclusive = new Set([
+      'balances', 'deposits', 'withdrawals', 'transfer', 'transaction-logs',
+      'bank-details', 'refer',
+    ]);
+    return Boolean(seg) && !exclusive.has(seg);
+  }
+  // More menu: Wallet-related account tabs
+  if (base === '/account/balances') {
+    const walletSegs = ['balances', 'deposits', 'withdrawals', 'transfer', 'transaction-logs', 'bank-details'];
+    return walletSegs.some(
+      (s) => pathname === `/account/${s}` || pathname.startsWith(`/account/${s}/`),
+    );
+  }
+  // More menu: Referrals only
+  if (base === '/account/refer') {
+    return pathname === '/account/refer' || pathname.startsWith('/account/refer/');
+  }
+
   if (base === '/markets') {
     return pathname === '/markets' || pathname.startsWith('/markets/');
   }
@@ -313,11 +337,19 @@ function pathActive(pathname, to) {
     return pathname === '/p2p' || pathname.startsWith('/p2p/');
   }
   if (base.startsWith('/wallet')) {
-    return pathname === '/wallet' || pathname.startsWith('/wallet/') || pathname.startsWith('/account/balances')
-      || pathname.startsWith('/account/deposits') || pathname.startsWith('/account/withdrawals')
-      || pathname.startsWith('/account/transfer') || pathname.startsWith('/account/transaction-logs');
+    return pathname === '/wallet' || pathname.startsWith('/wallet/')
+      || pathname.startsWith('/account/balances')
+      || pathname.startsWith('/account/deposits')
+      || pathname.startsWith('/account/withdrawals')
+      || pathname.startsWith('/account/transfer')
+      || pathname.startsWith('/account/transaction-logs');
   }
-  if (base.startsWith('/account')) {
+  // Legacy catch-all for other /account routes (profile, etc.) — prefix match only when
+  // the link target is a concrete path longer than '/account'
+  if (base.startsWith('/account/') && base !== '/account/') {
+    return pathname === base || pathname.startsWith(`${base}/`);
+  }
+  if (base === '/account') {
     return pathname === '/account' || pathname.startsWith('/account/');
   }
   return pathname === base || pathname.startsWith(`${base}/`);
@@ -708,7 +740,7 @@ export default function Navbar() {
                     <kbd className="delta-nav-search__kbd">/</kbd>
                   </div>
 
-                  <Link to="/wallet/deposit/inr" className="delta-nav-add-funds hidden sm:inline-flex">
+                  <Link to="/account/deposits" className="delta-nav-add-funds hidden sm:inline-flex">
                     Add Funds
                   </Link>
 
@@ -829,7 +861,7 @@ export default function Navbar() {
               style={{ top: menuPos.top, left: menuPos.left }}
             >
               {openMenu === 'more' ? (
-                <div className="py-1">
+                <div className="delta-dd__list py-1">
                   {NAV_MORE.map((item) => (
                     <DropdownItem
                       key={item.to + item.label}
@@ -970,7 +1002,7 @@ export default function Navbar() {
                   {user ? (
                     <div className="flex items-center gap-2">
                       <Link
-                        to="/wallet/deposit/inr"
+                        to="/account/deposits"
                         onClick={() => setMenuOpen(false)}
                         className="delta-nav-add-funds flex-1 !mr-0 justify-center"
                       >

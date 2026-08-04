@@ -9,9 +9,11 @@ const SUPPORT_EMAIL = SITE_CONFIG.supportEmail;
 
 const LINKS = {
   Exchange: [
+    { label: 'Futures', to: '/futures/BTCUSDT-PERP' },
+    { label: 'Options', to: '/options/BTCUSDT' },
+    { label: 'Spot', to: '/trade/IBOUSDT' },
     { label: 'Markets', to: '/markets' },
-    { label: 'Spot Trade', to: '/trade/IBOUSDT' },
-    { label: 'Dashboard', to: '/dashboard' },
+    { label: 'Deposit INR', to: '/wallet/deposit/inr' },
   ],
   Company: [
     { label: 'Whitepaper', href: 'https://ibo.io/whitepaper' },
@@ -81,7 +83,8 @@ export default function Footer() {
               />
             </Link>
             <p className="text-[14px] sm:text-[15px] text-zinc-400 leading-relaxed max-w-sm mb-6">
-              Next-generation centralized crypto exchange. Fast, secure, and built for everyone.
+              Made for India. Trade crypto futures &amp; options 24/7 with efficient margining, Instant KYC,
+              and INR deposit &amp; withdrawal — best-in-class pro features for everyone.
             </p>
 
             <div className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-400/90 mb-6">
@@ -167,7 +170,8 @@ export default function Footer() {
         </div>
 
         <p className="mt-4 text-[12px] text-zinc-600 max-w-3xl">
-          Trading involves risk. Demo balances are for practice only and do not represent real funds.
+          Trading cryptocurrencies and derivatives involves risk, including possible loss of capital.
+          Past performance is not indicative of future results.
         </p>
       </div>
     </footer>

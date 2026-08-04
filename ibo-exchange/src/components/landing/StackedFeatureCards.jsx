@@ -14,19 +14,37 @@ import { useTheme } from '@/context/ThemeContext';
 
 
 
-const PEEK_Y = 22;
-
+const PEEK_Y = 18;
 const SCALE_STEP = 0.015;
-
-const EXIT_LIFT = 110;
-
+const EXIT_LIFT = 90;
 const CARD_RADIUS = '1.55rem';
+const STICKY_TOP = 56; // 48px navbar + 8px
 
-const PANEL_H = 480;
+function useStackedLayout() {
+  const [layout, setLayout] = useState(() => ({
+    panelH: typeof window !== 'undefined' && window.innerWidth < 640 ? 420 : 480,
+    stepPx: typeof window !== 'undefined' && window.innerWidth < 640 ? 300 : 400,
+  }));
 
-const STEP_PX = 420;
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      if (w < 640) {
+        setLayout({ panelH: Math.min(420, Math.max(340, h * 0.52)), stepPx: 280 });
+      } else if (w < 1024) {
+        setLayout({ panelH: Math.min(460, Math.max(380, h * 0.5)), stepPx: 340 });
+      } else {
+        setLayout({ panelH: Math.min(500, Math.max(420, h * 0.48)), stepPx: 400 });
+      }
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
 
-const STICKY_TOP = 88;
+  return layout;
+}
 
 
 
@@ -379,6 +397,7 @@ export default function StackedFeatureCards({
 }) {
 
   const { isLight } = useTheme();
+  const { panelH, stepPx } = useStackedLayout();
 
   const safeCards = useMemo(() => cards.filter(Boolean), [cards]);
 
@@ -414,7 +433,7 @@ export default function StackedFeatureCards({
 
 
 
-  const scrollRange = Math.max(0, total - 1) * STEP_PX;
+  const scrollRange = Math.max(0, total - 1) * stepPx;
 
   const trackHeight = pinH + scrollRange;
 
@@ -632,7 +651,7 @@ export default function StackedFeatureCards({
 
           style={{
 
-            height: PANEL_H,
+            height: panelH,
 
             paddingTop: (depth - 1) * PEEK_Y + 10,
 

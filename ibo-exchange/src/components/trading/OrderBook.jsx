@@ -5,7 +5,7 @@ import {
   useMemo,
   memo,
 } from 'react';
-import { Columns2, TrendingUp, TrendingDown, ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { exchangeWsPath, displayBaseForApiSymbol, parsePairFromApiSymbol } from '@/services/marketApi';
 import {
   isSyntheticSpotSymbol,
@@ -16,8 +16,60 @@ import {
 
 const API_LIMIT = 100;
 const TICK_PRESETS = [
-  100, 10, 1, 0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001, 0.0000001, 0.00000001,
+  100, 10, 1, 0.5, 0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001, 0.0000001, 0.00000001,
 ];
+
+/** Binance-style depth layout icons (red asks / green bids). */
+function IconBookBoth({ active }) {
+  const mute = active ? 1 : 0.38;
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <rect x="1" y="1.5" width="4" height="3" rx="0.5" fill={`rgba(246,70,93,${mute + 0.35})`} />
+      <rect x="1" y="5.5" width="4" height="3" rx="0.5" fill={`rgba(246,70,93,${mute + 0.15})`} />
+      <rect x="1" y="9.5" width="4" height="3" rx="0.5" fill={`rgba(14,203,129,${mute + 0.15})`} />
+      <rect x="1" y="13.5" width="4" height="1.5" rx="0.4" fill={`rgba(14,203,129,${mute + 0.35})`} />
+      <rect x="6.5" y="2" width="8.5" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute})`} />
+      <rect x="6.5" y="5" width="7" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute * 0.85})`} />
+      <rect x="6.5" y="8" width="8" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute})`} />
+      <rect x="6.5" y="11" width="6.5" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute * 0.85})`} />
+      <rect x="6.5" y="14" width="7.5" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute})`} />
+    </svg>
+  );
+}
+
+function IconBookBids({ active }) {
+  const mute = active ? 1 : 0.38;
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <rect x="1" y="1.5" width="4" height="3" rx="0.5" fill={`rgba(14,203,129,${mute + 0.35})`} />
+      <rect x="1" y="5.5" width="4" height="3" rx="0.5" fill={`rgba(14,203,129,${mute + 0.2})`} />
+      <rect x="1" y="9.5" width="4" height="3" rx="0.5" fill={`rgba(14,203,129,${mute + 0.1})`} />
+      <rect x="1" y="13.5" width="4" height="1.5" rx="0.4" fill={`rgba(14,203,129,${mute})`} />
+      <rect x="6.5" y="2" width="8.5" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute})`} />
+      <rect x="6.5" y="5" width="7" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute * 0.85})`} />
+      <rect x="6.5" y="8" width="8" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute})`} />
+      <rect x="6.5" y="11" width="6.5" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute * 0.85})`} />
+      <rect x="6.5" y="14" width="7.5" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute})`} />
+    </svg>
+  );
+}
+
+function IconBookAsks({ active }) {
+  const mute = active ? 1 : 0.38;
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <rect x="1" y="1.5" width="4" height="3" rx="0.5" fill={`rgba(246,70,93,${mute + 0.35})`} />
+      <rect x="1" y="5.5" width="4" height="3" rx="0.5" fill={`rgba(246,70,93,${mute + 0.2})`} />
+      <rect x="1" y="9.5" width="4" height="3" rx="0.5" fill={`rgba(246,70,93,${mute + 0.1})`} />
+      <rect x="1" y="13.5" width="4" height="1.5" rx="0.4" fill={`rgba(246,70,93,${mute})`} />
+      <rect x="6.5" y="2" width="8.5" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute})`} />
+      <rect x="6.5" y="5" width="7" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute * 0.85})`} />
+      <rect x="6.5" y="8" width="8" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute})`} />
+      <rect x="6.5" y="11" width="6.5" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute * 0.85})`} />
+      <rect x="6.5" y="14" width="7.5" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute})`} />
+    </svg>
+  );
+}
 
 function toPair(row) {
   if (!row) return null;
@@ -69,12 +121,12 @@ function fmtPrice(n, tickSize) {
   return v.toFixed(d);
 }
 
-const fmtQ = n => {
+const fmtQ = (n) => {
   const v = parseFloat(n);
   if (!Number.isFinite(v)) return '—';
-  return v >= 1000000 ? (v / 1000000).toFixed(2) + 'M'
-       : v >= 1000    ? (v / 1000).toFixed(2) + 'K'
-                      : v.toFixed(4);
+  return v >= 1000000 ? `${(v / 1000000).toFixed(2)}M`
+    : v >= 1000 ? `${(v / 1000).toFixed(2)}K`
+      : v.toFixed(4);
 };
 
 function tickLabel(t) {
@@ -91,10 +143,12 @@ function pickDefaultTick(mid) {
   return 0.00000001;
 }
 
-const Row = memo(function Row({ price, qty, side, cumSize, maxCum, tickSize, onPriceClick }) {
+const Row = memo(function Row({
+  price, qty, side, cumSize, maxCum, maxQty, tickSize, onPriceClick,
+}) {
   const isBid = side === 'bid';
-  const depth = maxCum > 0 ? Math.min(100, (cumSize / maxCum) * 100) : 0;
-  const bar = isBid ? '14, 203, 129' : '246, 70, 93';
+  const cumPct = maxCum > 0 ? Math.min(100, (cumSize / maxCum) * 100) : 0;
+  const qtyPct = maxQty > 0 ? Math.min(100, (parseFloat(qty) / maxQty) * 100) : 0;
 
   return (
     <div
@@ -107,29 +161,21 @@ const Row = memo(function Row({ price, qty, side, cumSize, maxCum, tickSize, onP
         }
       }}
       onClick={() => onPriceClick?.(fmtPrice(price, tickSize))}
-      className="delta-ob-row group relative flex h-[22px] w-full items-center px-2.5 cursor-pointer select-none
-        outline-none hover:bg-white/[0.035]"
+      className={`ob-row ${isBid ? 'ob-row--bid' : 'ob-row--ask'}`}
     >
       <div
-        className="pointer-events-none absolute inset-y-[1px] right-0 z-0"
-        style={{
-          width: `${Math.max(depth * 0.65, depth > 0 ? 3 : 0)}%`,
-          background: `rgba(${bar}, 0.22)`,
-        }}
+        className="ob-row__depth"
+        style={{ width: `${Math.max(cumPct, cumPct > 0 ? 2 : 0)}%` }}
+        aria-hidden
       />
-      <span
-        className={`relative z-[1] w-[36%] min-w-0 font-mono text-[12px] tabular-nums font-semibold leading-none ${
-          isBid ? 'text-[#0ECB81]' : 'text-[#F6465D]'
-        }`}
-      >
-        {fmtPrice(price, tickSize)}
-      </span>
-      <span className="relative z-[1] w-[30%] min-w-0 text-right font-mono text-[11px] tabular-nums text-[color:var(--ibo-ink)] leading-none">
-        {fmtQ(qty)}
-      </span>
-      <span className="relative z-[1] w-[34%] min-w-0 text-right font-mono text-[11px] tabular-nums text-[color:var(--ibo-ink-secondary)] leading-none">
-        {fmtQ(cumSize)}
-      </span>
+      <div
+        className="ob-row__lvl"
+        style={{ width: `${Math.max(qtyPct * 0.55, qtyPct > 0 ? 1.5 : 0)}%` }}
+        aria-hidden
+      />
+      <span className="ob-row__px">{fmtPrice(price, tickSize)}</span>
+      <span className="ob-row__sz">{fmtQ(qty)}</span>
+      <span className="ob-row__tot">{fmtQ(cumSize)}</span>
     </div>
   );
 }, (a, b) =>
@@ -138,6 +184,7 @@ const Row = memo(function Row({ price, qty, side, cumSize, maxCum, tickSize, onP
   && a.side === b.side
   && a.cumSize === b.cumSize
   && a.maxCum === b.maxCum
+  && a.maxQty === b.maxQty
   && a.tickSize === b.tickSize,
 );
 
@@ -149,10 +196,10 @@ export default function OrderBook({ symbol, baseAsset, lastPrice, onPriceClick, 
   const [book, setBook] = useState({ asks: [], bids: [] });
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
-  const [rows, setRows] = useState(14);
+  const [rows] = useState(14);
   const [tickSize, setTickSize] = useState(0.0001);
   const [tickOpen, setTickOpen] = useState(false);
-  const [viewMode, setViewMode] = useState('all'); // 'all' | 'bids' | 'asks'
+  const [viewMode, setViewMode] = useState('all');
   const [wsKick, setWsKick] = useState(0);
 
   const tickRef = useRef(null);
@@ -207,11 +254,7 @@ export default function OrderBook({ symbol, baseAsset, lastPrice, onPriceClick, 
       closed = true;
       if (reconnectTimer) window.clearTimeout(reconnectTimer);
       if (ws) {
-        try {
-          ws.close();
-        } catch {
-          /* ignore */
-        }
+        try { ws.close(); } catch { /* ignore */ }
       }
     };
   }, [symbol, wsKick, synthetic, externalBook]);
@@ -251,7 +294,7 @@ export default function OrderBook({ symbol, baseAsset, lastPrice, onPriceClick, 
   }, [symbol, lastPrice]);
 
   useEffect(() => {
-    const el = e => {
+    const el = (e) => {
       if (tickRef.current && !tickRef.current.contains(e.target)) setTickOpen(false);
     };
     document.addEventListener('mousedown', el);
@@ -278,9 +321,7 @@ export default function OrderBook({ symbol, baseAsset, lastPrice, onPriceClick, 
   const lp = parseFloat(lastPrice);
   const mid = Number.isFinite(lp) && lp > 0 ? lp : midFromBook;
 
-  // Cumulative size in base (Delta "Total") from the best level outward
   const askCumSizes = useMemo(() => {
-    // asks: high → low; asks[last] is best ask
     const out = new Array(asks.length);
     let run = 0;
     for (let i = asks.length - 1; i >= 0; i -= 1) {
@@ -291,7 +332,6 @@ export default function OrderBook({ symbol, baseAsset, lastPrice, onPriceClick, 
   }, [asks]);
 
   const bidCumSizes = useMemo(() => {
-    // bids: best → worst; bids[0] is best bid
     let run = 0;
     return bids.map(([, q]) => {
       run += parseFloat(q) || 0;
@@ -305,96 +345,135 @@ export default function OrderBook({ symbol, baseAsset, lastPrice, onPriceClick, 
     1,
   );
 
+  const maxQty = useMemo(() => {
+    let m = 0;
+    for (const [, q] of asks) m = Math.max(m, parseFloat(q) || 0);
+    for (const [, q] of bids) m = Math.max(m, parseFloat(q) || 0);
+    return m || 1;
+  }, [asks, bids]);
+
+  const bidDepth = bidCumSizes[bidCumSizes.length - 1] || 0;
+  const askDepth = askCumSizes[0] || 0;
+  const pressureTotal = bidDepth + askDepth;
+  const bidPressure = pressureTotal > 0 ? (bidDepth / pressureTotal) * 100 : 50;
+
+  const spread = bestAsk > 0 && bestBid > 0 ? bestAsk - bestBid : 0;
+  const spreadPct = mid > 0 && spread > 0 ? (spread / mid) * 100 : 0;
+
   const lastDirUp = useMemo(() => {
-    const lp = parseFloat(lastPrice);
-    if (!Number.isFinite(lp) || lp <= 0) return null;
+    const p = parseFloat(lastPrice);
+    if (!Number.isFinite(p) || p <= 0) return null;
     if (bestBid > 0 && bestAsk > 0) {
-      // prefer mid book context when last sits nearer asks or bids
       const midBook = (bestBid + bestAsk) / 2;
-      return lp >= midBook;
+      return p >= midBook;
     }
     return true;
   }, [lastPrice, bestBid, bestAsk]);
 
   const markPx = midFromBook;
-
-  const asksFlex = viewMode === 'bids' ? 'hidden' : viewMode === 'asks' ? 'flex-1 min-h-0' : 'flex-1 min-h-0';
-  const bidsFlex = viewMode === 'asks' ? 'hidden' : viewMode === 'bids' ? 'flex-1 min-h-0' : 'flex-1 min-h-0';
-
+  const asksFlex = viewMode === 'bids' ? 'hidden' : 'flex-1 min-h-0';
+  const bidsFlex = viewMode === 'asks' ? 'hidden' : 'flex-1 min-h-0';
   const quoteLabel = quoteAsset === 'USDT' || quoteAsset === 'USD' ? 'USD' : quoteAsset;
-  const baseLabel = displayBase || '—';
+  const baseLabel = displayBase || baseAsset || '—';
 
   return (
-    <div className="delta-ob flex flex-col h-full min-h-0 overflow-hidden bg-transparent select-none font-mono">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-1.5 px-2.5 h-[32px] shrink-0 border-b border-[color:var(--ibo-border)]">
-        <span className="text-[12px] font-semibold text-[color:var(--ibo-ink)] tracking-tight font-sans">Order Book</span>
-        <div className="flex items-center gap-0.5">
-          <button type="button" title="Bids & asks" onClick={() => setViewMode('all')}
-            className={`inline-flex h-6 w-6 items-center justify-center rounded transition-colors ${
-              viewMode === 'all' ? 'text-[#FE6C02] bg-[#FE6C02]/12' : 'text-[color:var(--ibo-muted)] hover:text-[color:var(--ibo-ink)]'
-            }`}>
-            <Columns2 size={13} strokeWidth={2.2} />
-          </button>
-          <button type="button" title="Bids only" onClick={() => setViewMode('bids')}
-            className={`inline-flex h-6 w-6 items-center justify-center rounded transition-colors ${
-              viewMode === 'bids' ? 'text-[#FE6C02] bg-[#FE6C02]/12' : 'text-[color:var(--ibo-muted)] hover:text-[color:var(--ibo-ink)]'
-            }`}>
-            <TrendingUp size={13} className="text-[#0ECB81]" strokeWidth={2.2} />
-          </button>
-          <button type="button" title="Asks only" onClick={() => setViewMode('asks')}
-            className={`inline-flex h-6 w-6 items-center justify-center rounded transition-colors ${
-              viewMode === 'asks' ? 'text-[#FE6C02] bg-[#FE6C02]/12' : 'text-[color:var(--ibo-muted)] hover:text-[color:var(--ibo-ink)]'
-            }`}>
-            <TrendingDown size={13} className="text-[#F6465D]" strokeWidth={2.2} />
-          </button>
-          <div className="relative ml-0.5" ref={tickRef}>
-            <button type="button" onClick={() => setTickOpen((o) => !o)}
-              className="flex h-6 min-w-[3.4rem] items-center justify-between gap-1 rounded border border-[color:var(--ibo-border-solid)] bg-transparent px-1.5 text-[11px] tabular-nums text-[color:var(--ibo-ink)] hover:border-[#FE6C02]/45">
-              <span className="truncate">{tickLabel(tickSize)}</span>
-              <ChevronDown size={11} className="text-[color:var(--ibo-muted)] shrink-0" />
+    <div className="delta-ob ob-panel flex flex-col h-full min-h-0 overflow-hidden select-none">
+      {/* Header — title row + controls (reference layout) */}
+      <div className="ob-head">
+        <div className="ob-head__title-row">
+          <h3 className="ob-head__title">Order Book</h3>
+        </div>
+        <div className="ob-head__ctrl-row">
+          <div className="ob-view" role="group" aria-label="Book view">
+            <button
+              type="button"
+              title="Bids & asks"
+              onClick={() => setViewMode('all')}
+              className={`ob-view__btn${viewMode === 'all' ? ' is-on' : ''}`}
+            >
+              <IconBookBoth active={viewMode === 'all'} />
             </button>
-            {tickOpen && (
-              <div className="absolute right-0 top-full z-40 mt-0.5 max-h-44 overflow-y-auto rounded border border-[color:var(--ibo-border-solid)] bg-[color:var(--ibo-bg)] py-0.5 shadow-xl scrollbar-hide min-w-[96px]">
+            <button
+              type="button"
+              title="Bids only"
+              onClick={() => setViewMode('bids')}
+              className={`ob-view__btn${viewMode === 'bids' ? ' is-on' : ''}`}
+            >
+              <IconBookBids active={viewMode === 'bids'} />
+            </button>
+            <button
+              type="button"
+              title="Asks only"
+              onClick={() => setViewMode('asks')}
+              className={`ob-view__btn${viewMode === 'asks' ? ' is-on' : ''}`}
+            >
+              <IconBookAsks active={viewMode === 'asks'} />
+            </button>
+          </div>
+          <div className="ob-precision" ref={tickRef}>
+            <button
+              type="button"
+              onClick={() => setTickOpen((o) => !o)}
+              className="ob-precision__btn"
+              aria-expanded={tickOpen}
+              aria-haspopup="listbox"
+              title="Price grouping"
+            >
+              <span className="ob-precision__val">{tickLabel(tickSize)}</span>
+              <ChevronDown size={12} strokeWidth={2.25} className={`ob-precision__chev${tickOpen ? ' is-open' : ''}`} />
+            </button>
+            {tickOpen ? (
+              <ul className="ob-precision__menu" role="listbox">
                 {TICK_PRESETS.map((t) => (
-                  <button key={t} type="button"
-                    className={`flex w-full items-center px-2.5 py-1 text-left text-[11px] tabular-nums hover:bg-white/[0.04] ${
-                      t === tickSize ? 'text-[#FE6C02]' : 'text-[color:var(--ibo-ink)]'
-                    }`}
-                    onClick={() => { manualTickRef.current = true; setTickSize(t); setTickOpen(false); }}>
-                    {tickLabel(t)}
-                  </button>
+                  <li key={t} role="option" aria-selected={t === tickSize}>
+                    <button
+                      type="button"
+                      className={`ob-precision__opt${t === tickSize ? ' is-on' : ''}`}
+                      onClick={() => {
+                        manualTickRef.current = true;
+                        setTickSize(t);
+                        setTickOpen(false);
+                      }}
+                    >
+                      {tickLabel(t)}
+                    </button>
+                  </li>
                 ))}
-              </div>
-            )}
+              </ul>
+            ) : null}
           </div>
         </div>
       </div>
 
-      {/* Columns — Price (USD) · Size (BTC) · Total (BTC) */}
-      <div className="flex px-2.5 h-[24px] items-center text-[10px] text-[color:var(--ibo-muted)] shrink-0 border-b border-[color:var(--ibo-border)] font-sans">
-        <span className="w-[36%]">Price ({quoteLabel})</span>
-        <span className="w-[30%] text-right">Size ({baseLabel})</span>
-        <span className="w-[34%] text-right">Total ({baseLabel})</span>
+      {/* Column labels */}
+      <div className="ob-cols">
+        <span>Price ({quoteLabel})</span>
+        <span className="text-right">Size ({baseLabel})</span>
+        <span className="text-right">Total</span>
       </div>
 
       {loading ? (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="w-5 h-5 border-2 border-[#FE6C02]/60 border-t-transparent rounded-full animate-spin" />
+        <div className="ob-state">
+          <div className="ob-state__spin" />
         </div>
       ) : loadError ? (
-        <div className="flex-1 flex flex-col items-center justify-center px-2 py-4 gap-1.5 text-center font-sans">
-          <span className="text-[11px] text-[#F6465D]">{loadError}</span>
-          <button type="button" onClick={() => { setLoading(true); setLoadError(null); setWsKick((k) => k + 1); }}
-            className="text-[11px] font-semibold text-[#FE6C02] hover:underline">Retry</button>
+        <div className="ob-state">
+          <p className="ob-state__err">{loadError}</p>
+          <button
+            type="button"
+            onClick={() => { setLoading(true); setLoadError(null); setWsKick((k) => k + 1); }}
+            className="ob-state__retry"
+          >
+            Retry
+          </button>
         </div>
       ) : (
         <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
-          {/* Asks — scrollable, pinned near last price */}
+          {/* Asks */}
           <div className={`flex min-h-0 flex-col justify-end overflow-hidden ${asksFlex}`}>
-            <div className="order-book-scroll flex min-h-0 max-h-full w-full flex-col overflow-y-auto">
+            <div className="order-book-scroll ob-scroll flex min-h-0 max-h-full w-full flex-col overflow-y-auto">
               {asks.length === 0 ? (
-                <div className="px-2 py-3 text-center text-[10px] text-[color:var(--ibo-muted)] font-sans">No asks</div>
+                <div className="ob-empty">No asks</div>
               ) : (
                 asks.map(([p, q], i) => (
                   <Row
@@ -406,47 +485,52 @@ export default function OrderBook({ symbol, baseAsset, lastPrice, onPriceClick, 
                     onPriceClick={onPriceClick}
                     cumSize={askCumSizes[i] || 0}
                     maxCum={maxCum}
+                    maxQty={maxQty}
                   />
                 ))
               )}
             </div>
           </div>
 
-          {/* Last + Mark strip (Delta) */}
+          {/* Mid / last / spread */}
           <button
             type="button"
             onClick={() => mid > 0 && onPriceClick?.(fmtPrice(mid, tickSize))}
-            className="flex h-[30px] shrink-0 items-center justify-between gap-2 px-2.5
-              border-y border-[color:var(--ibo-border)] bg-transparent hover:bg-white/[0.03] transition-colors"
+            className="ob-mid"
           >
-            <span
-              className={`font-mono text-[15px] font-bold tabular-nums tracking-tight leading-none ${
-                lastDirUp == null
-                  ? 'text-[color:var(--ibo-ink)]'
-                  : lastDirUp
-                    ? 'text-[#0ECB81]'
-                    : 'text-[#F6465D]'
-              }`}
-            >
-              {mid > 0 ? fmtPrice(mid, tickSize) : '—'}
-            </span>
-            <span className="flex items-center gap-1.5 min-w-0">
-              <span className="font-mono text-[12px] tabular-nums text-[color:var(--ibo-ink-secondary)]">
+            <div className="ob-mid__main min-w-0">
+              <span
+                className={`ob-mid__last${
+                  lastDirUp == null ? '' : lastDirUp ? ' is-up' : ' is-down'
+                }`}
+              >
+                {mid > 0 ? fmtPrice(mid, tickSize) : '—'}
+              </span>
+              {spread > 0 ? (
+                <span className="ob-mid__spread">
+                  Spread {fmtPrice(spread, tickSize)}
+                  {spreadPct > 0 ? (
+                    <span className="ob-mid__spread-pct">
+                      ({spreadPct < 0.01 ? '<0.01' : spreadPct.toFixed(2)}%)
+                    </span>
+                  ) : null}
+                </span>
+              ) : null}
+            </div>
+            <div className="ob-mid__mark">
+              <span className="ob-mid__mark-px">
                 {markPx > 0 ? fmtPrice(markPx, tickSize) : '—'}
               </span>
-              <span
-                className="inline-flex h-4 min-w-[1rem] items-center justify-center rounded px-1 text-[9px] font-bold text-[color:var(--ibo-muted)] border border-[color:var(--ibo-border-solid)] font-sans"
-                title="Mark"
-              >
-                M
+              <span className="ob-mid__badge" title="Book mid">
+                Mid
               </span>
-            </span>
+            </div>
           </button>
 
           {/* Bids */}
-          <div className={`order-book-scroll min-h-0 overflow-y-auto ${bidsFlex}`}>
+          <div className={`order-book-scroll ob-scroll min-h-0 overflow-y-auto ${bidsFlex}`}>
             {bids.length === 0 ? (
-              <div className="px-2 py-3 text-center text-[10px] text-[color:var(--ibo-muted)] font-sans">No bids</div>
+              <div className="ob-empty">No bids</div>
             ) : (
               bids.map(([p, q], i) => (
                 <Row
@@ -458,13 +542,27 @@ export default function OrderBook({ symbol, baseAsset, lastPrice, onPriceClick, 
                   onPriceClick={onPriceClick}
                   cumSize={bidCumSizes[i] || 0}
                   maxCum={maxCum}
+                  maxQty={maxQty}
                 />
               ))
             )}
           </div>
+
+          {/* Liquidity pressure */}
+          {viewMode === 'all' && pressureTotal > 0 ? (
+            <div className="ob-pressure" title="Bid vs ask depth (visible levels)">
+              <div className="ob-pressure__bar">
+                <div className="ob-pressure__bid" style={{ width: `${bidPressure}%` }} />
+                <div className="ob-pressure__ask" style={{ width: `${100 - bidPressure}%` }} />
+              </div>
+              <div className="ob-pressure__labels">
+                <span className="is-bid">B {bidPressure.toFixed(0)}%</span>
+                <span className="is-ask">A {(100 - bidPressure).toFixed(0)}%</span>
+              </div>
+            </div>
+          ) : null}
         </div>
       )}
     </div>
   );
 }
-

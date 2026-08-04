@@ -68,26 +68,26 @@ function BannerSlide({ banner, active, onActivate }) {
         }}
       />
       {/* text */}
-      <div className="relative z-10 flex h-full flex-col justify-center px-6 sm:px-10 md:px-14 lg:px-20 max-w-3xl">
+      <div className="relative flex h-full flex-col justify-center px-4 sm:px-6 md:px-10 lg:px-14 max-w-3xl z-10">
         {banner.badge ? (
-          <span className="mb-3 inline-flex w-fit rounded-md border border-gold/40 bg-gold/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-gold-light">
+          <span className="mb-2 sm:mb-3 inline-flex w-fit rounded-md border border-gold/40 bg-gold/20 px-2.5 sm:px-3 py-1 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-gold-light">
             {banner.badge}
           </span>
         ) : null}
         {banner.title ? (
-          <h3 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white leading-tight drop-shadow-lg">
+          <h3 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-white leading-tight drop-shadow-lg line-clamp-2">
             {banner.title}
           </h3>
         ) : null}
         {banner.subtitle ? (
-          <p className="mt-2 text-sm sm:text-base text-white/80 line-clamp-2 max-w-lg">
+          <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm md:text-base text-white/80 line-clamp-2 max-w-lg">
             {banner.subtitle}
           </p>
         ) : null}
         {banner.cta_label ? (
-          <span className="mt-5 inline-flex w-fit items-center gap-2 rounded-xl bg-logo-gradient px-5 py-2.5 text-sm font-bold text-surface-dark shadow-lg shadow-gold/25 group-hover:opacity-90 transition-opacity">
+          <span className="mt-3 sm:mt-5 inline-flex w-fit items-center gap-2 rounded-xl bg-logo-gradient px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold text-surface-dark shadow-lg shadow-gold/25 group-hover:opacity-90 transition-opacity">
             {banner.cta_label}
-            <ArrowRight size={16} />
+            <ArrowRight size={14} className="sm:w-4 sm:h-4" />
           </span>
         ) : null}
       </div>
@@ -216,54 +216,55 @@ export function LandingHomeBanners() {
   if (!banners.length) return null;
 
   return (
-    <section className="relative z-[3] w-full">
-      {/* full-bleed banner, fixed 340px tall on landing */}
-      <div className="relative w-full overflow-hidden" style={{ height: '340px' }}>
-        {banners.map((b, i) => (
-          <BannerSlide
-            key={b.id}
-            banner={b}
-            active={i === index}
-            onActivate={(bn) => handleBannerCta(navigate, bn)}
-          />
-        ))}
+    <section className="relative z-[3] w-full py-4 sm:py-5 md:py-6">
+      <div className="ibo-landing-container">
+        <div className="ibo-landing-banner border border-gold/20 shadow-xl shadow-black/25">
+          {banners.map((b, i) => (
+            <BannerSlide
+              key={b.id}
+              banner={b}
+              active={i === index}
+              onActivate={(bn) => handleBannerCta(navigate, bn)}
+            />
+          ))}
 
-        {banners.length > 1 ? (
-          <>
-            <button
-              type="button"
-              aria-label="Previous"
-              onClick={() => goTo(index - 1)}
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 border border-white/15 text-white hover:bg-black/65 transition-colors"
-            >
-              <ChevronLeft size={20} />
-            </button>
-            <button
-              type="button"
-              aria-label="Next"
-              onClick={() => goTo(index + 1)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 border border-white/15 text-white hover:bg-black/65 transition-colors"
-            >
-              <ChevronRight size={20} />
-            </button>
-          </>
-        ) : null}
-
-        {banners.length > 1 ? (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5">
-            {banners.map((b, i) => (
+          {banners.length > 1 ? (
+            <>
               <button
-                key={b.id}
                 type="button"
-                aria-label={`Slide ${i + 1}`}
-                onClick={() => goTo(i)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === index ? 'w-7 bg-gold' : 'w-1.5 bg-white/40 hover:bg-white/70'
-                }`}
-              />
-            ))}
-          </div>
-        ) : null}
+                aria-label="Previous"
+                onClick={() => goTo(index - 1)}
+                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-black/40 border border-white/15 text-white hover:bg-black/65 transition-colors"
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <button
+                type="button"
+                aria-label="Next"
+                onClick={() => goTo(index + 1)}
+                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-black/40 border border-white/15 text-white hover:bg-black/65 transition-colors"
+              >
+                <ChevronRight size={18} />
+              </button>
+            </>
+          ) : null}
+
+          {banners.length > 1 ? (
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5">
+              {banners.map((b, i) => (
+                <button
+                  key={b.id}
+                  type="button"
+                  aria-label={`Slide ${i + 1}`}
+                  onClick={() => goTo(i)}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    i === index ? 'w-7 bg-gold' : 'w-1.5 bg-white/40 hover:bg-white/70'
+                  }`}
+                />
+              ))}
+            </div>
+          ) : null}
+        </div>
       </div>
     </section>
   );

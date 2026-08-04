@@ -1,28 +1,65 @@
 /**
- * FuturesOrderBook
- *
- * Feature-complete order book for the futures trade page — matches every
- * feature of the spot OrderBook component:
- *   • Tick-size aggregation (configurable dropdown)
- *   • Depth selector (10 / 14 / 20 rows)
- *   • View mode: all | asks only | bids only
- *   • Clickable rows → pre-fills the trade form price (via onPriceClick prop)
- *   • Dual depth bars per row (per-level + cumulative)
- *   • Clickable MID/spread bar
- *   • K/M quantity & total formatting
- *   • Loading / empty states
- *
- * Data is pulled from FuturesContext (live WS push, no own WebSocket).
+ * FuturesOrderBook — futures depth panel (same visual system as spot OrderBook).
+ * Data from FuturesContext WS; supports tick grouping, view modes, click-to-fill.
  */
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
-import { Columns2, TrendingUp, TrendingDown, ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { useFutures } from '@/context/FuturesContext';
 
 const TICK_PRESETS = [
-  10000, 1000, 100, 10, 1, 0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001,
+  10000, 1000, 100, 10, 1, 0.5, 0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001,
 ];
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+function IconBookBoth({ active }) {
+  const mute = active ? 1 : 0.38;
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <rect x="1" y="1.5" width="4" height="3" rx="0.5" fill={`rgba(246,70,93,${mute + 0.35})`} />
+      <rect x="1" y="5.5" width="4" height="3" rx="0.5" fill={`rgba(246,70,93,${mute + 0.15})`} />
+      <rect x="1" y="9.5" width="4" height="3" rx="0.5" fill={`rgba(14,203,129,${mute + 0.15})`} />
+      <rect x="1" y="13.5" width="4" height="1.5" rx="0.4" fill={`rgba(14,203,129,${mute + 0.35})`} />
+      <rect x="6.5" y="2" width="8.5" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute})`} />
+      <rect x="6.5" y="5" width="7" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute * 0.85})`} />
+      <rect x="6.5" y="8" width="8" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute})`} />
+      <rect x="6.5" y="11" width="6.5" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute * 0.85})`} />
+      <rect x="6.5" y="14" width="7.5" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute})`} />
+    </svg>
+  );
+}
+
+function IconBookBids({ active }) {
+  const mute = active ? 1 : 0.38;
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <rect x="1" y="1.5" width="4" height="3" rx="0.5" fill={`rgba(14,203,129,${mute + 0.35})`} />
+      <rect x="1" y="5.5" width="4" height="3" rx="0.5" fill={`rgba(14,203,129,${mute + 0.2})`} />
+      <rect x="1" y="9.5" width="4" height="3" rx="0.5" fill={`rgba(14,203,129,${mute + 0.1})`} />
+      <rect x="1" y="13.5" width="4" height="1.5" rx="0.4" fill={`rgba(14,203,129,${mute})`} />
+      <rect x="6.5" y="2" width="8.5" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute})`} />
+      <rect x="6.5" y="5" width="7" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute * 0.85})`} />
+      <rect x="6.5" y="8" width="8" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute})`} />
+      <rect x="6.5" y="11" width="6.5" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute * 0.85})`} />
+      <rect x="6.5" y="14" width="7.5" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute})`} />
+    </svg>
+  );
+}
+
+function IconBookAsks({ active }) {
+  const mute = active ? 1 : 0.38;
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <rect x="1" y="1.5" width="4" height="3" rx="0.5" fill={`rgba(246,70,93,${mute + 0.35})`} />
+      <rect x="1" y="5.5" width="4" height="3" rx="0.5" fill={`rgba(246,70,93,${mute + 0.2})`} />
+      <rect x="1" y="9.5" width="4" height="3" rx="0.5" fill={`rgba(246,70,93,${mute + 0.1})`} />
+      <rect x="1" y="13.5" width="4" height="1.5" rx="0.4" fill={`rgba(246,70,93,${mute})`} />
+      <rect x="6.5" y="2" width="8.5" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute})`} />
+      <rect x="6.5" y="5" width="7" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute * 0.85})`} />
+      <rect x="6.5" y="8" width="8" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute})`} />
+      <rect x="6.5" y="11" width="6.5" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute * 0.85})`} />
+      <rect x="6.5" y="14" width="7.5" height="1.2" rx="0.4" fill={`rgba(128,128,128,${mute})`} />
+    </svg>
+  );
+}
 
 function decimalsForTick(tick) {
   if (tick >= 1) return 2;
@@ -43,8 +80,8 @@ function fmtPrice(n, tick) {
 function fmtQty(n) {
   const v = parseFloat(n);
   if (!Number.isFinite(v)) return '—';
-  if (v >= 1e6) return (v / 1e6).toFixed(2) + 'M';
-  if (v >= 1e3) return (v / 1e3).toFixed(2) + 'K';
+  if (v >= 1e6) return `${(v / 1e6).toFixed(2)}M`;
+  if (v >= 1e3) return `${(v / 1e3).toFixed(2)}K`;
   return v.toFixed(4);
 }
 
@@ -57,31 +94,26 @@ function pickDefaultTick(mid) {
   if (!mid || mid <= 0) return 0.01;
   if (mid >= 50000) return 10;
   if (mid >= 10000) return 1;
-  if (mid >= 1000)  return 0.1;
-  if (mid >= 100)   return 0.01;
-  if (mid >= 1)     return 0.0001;
-  if (mid >= 0.01)  return 0.000001;
+  if (mid >= 1000) return 0.1;
+  if (mid >= 100) return 0.01;
+  if (mid >= 1) return 0.0001;
+  if (mid >= 0.01) return 0.000001;
   return 0.00000001;
 }
 
-/**
- * Aggregate [price, qty] levels to a coarser tick grid.
- * Returns sorted [[price, qty], ...] pairs.
- */
 function aggregateLevels(levels, tick) {
   const m = new Map();
   for (const [p, q] of levels) {
     const price = parseFloat(p);
-    const qty   = parseFloat(q);
+    const qty = parseFloat(q);
     if (!Number.isFinite(price) || !Number.isFinite(qty) || qty <= 0) continue;
     const grid = Math.round(price / tick) * tick;
-    const key  = Number(grid.toPrecision(14));
+    const key = Number(grid.toPrecision(14));
     m.set(key, (m.get(key) || 0) + qty);
   }
   return Array.from(m.entries()).sort((a, b) => a[0] - b[0]);
 }
 
-/** Normalize the context orderbook shape {bids:[{price,qty},...], asks:[...]} to [[price,qty],...] */
 function normFromContext(levels) {
   if (!Array.isArray(levels)) return [];
   return levels
@@ -95,12 +127,10 @@ function normFromContext(levels) {
     .sort((a, b) => a[0] - b[0]);
 }
 
-// ── Row ───────────────────────────────────────────────────────────────────
-
-const Row = memo(function Row({ price, qty, side, cumSize, maxCum, tick, onPriceClick }) {
+const Row = memo(function Row({ price, qty, side, cumSize, maxCum, maxQty, tick, onPriceClick }) {
   const isBid = side === 'bid';
-  const depth = maxCum > 0 ? Math.min(100, (cumSize / maxCum) * 100) : 0;
-  const bar = isBid ? '14, 203, 129' : '246, 70, 93';
+  const cumPct = maxCum > 0 ? Math.min(100, (cumSize / maxCum) * 100) : 0;
+  const qtyPct = maxQty > 0 ? Math.min(100, (parseFloat(qty) / maxQty) * 100) : 0;
   return (
     <div
       role="button"
@@ -112,27 +142,31 @@ const Row = memo(function Row({ price, qty, side, cumSize, maxCum, tick, onPrice
           onPriceClick?.(fmtPrice(price, tick));
         }
       }}
-      className="delta-ob-row relative flex h-[22px] w-full items-center px-2.5 cursor-pointer select-none outline-none hover:bg-white/[0.035]"
+      className={`ob-row ${isBid ? 'ob-row--bid' : 'ob-row--ask'}`}
     >
       <div
-        className="pointer-events-none absolute inset-y-[1px] right-0 z-0"
-        style={{
-          width: `${Math.max(depth * 0.65, depth > 0 ? 3 : 0)}%`,
-          background: `rgba(${bar}, 0.22)`,
-        }}
+        className="ob-row__depth"
+        style={{ width: `${Math.max(cumPct, cumPct > 0 ? 2 : 0)}%` }}
+        aria-hidden
       />
-      <span className={`relative z-[1] w-[36%] min-w-0 font-mono text-[12px] tabular-nums font-semibold leading-none ${
-        isBid ? 'text-[#0ECB81]' : 'text-[#F6465D]'
-      }`}>{fmtPrice(price, tick)}</span>
-      <span className="relative z-[1] w-[30%] min-w-0 text-right font-mono text-[11px] tabular-nums text-[color:var(--ibo-ink)] leading-none">{fmtQty(qty)}</span>
-      <span className="relative z-[1] w-[34%] min-w-0 text-right font-mono text-[11px] tabular-nums text-[color:var(--ibo-ink-secondary)] leading-none">{fmtQty(cumSize)}</span>
+      <div
+        className="ob-row__lvl"
+        style={{ width: `${Math.max(qtyPct * 0.55, qtyPct > 0 ? 1.5 : 0)}%` }}
+        aria-hidden
+      />
+      <span className="ob-row__px">{fmtPrice(price, tick)}</span>
+      <span className="ob-row__sz">{fmtQty(qty)}</span>
+      <span className="ob-row__tot">{fmtQty(cumSize)}</span>
     </div>
   );
 }, (a, b) =>
-  a.price === b.price && a.qty === b.qty && a.cumSize === b.cumSize && a.maxCum === b.maxCum && a.tick === b.tick,
+  a.price === b.price
+  && a.qty === b.qty
+  && a.cumSize === b.cumSize
+  && a.maxCum === b.maxCum
+  && a.maxQty === b.maxQty
+  && a.tick === b.tick,
 );
-
-// ── Main component ────────────────────────────────────────────────────────
 
 export default function FuturesOrderBook({ onPriceClick }) {
   const { orderbook, activeMark, symbols, activeSymbol } = useFutures();
@@ -141,23 +175,18 @@ export default function FuturesOrderBook({ onPriceClick }) {
     () => symbols.find((s) => s.symbol === activeSymbol) || {},
     [symbols, activeSymbol],
   );
-  const base     = meta.base || (activeSymbol || '').replace(/USDT.*/i, '') || 'BASE';
-  const markPx   = Number(activeMark?.mark_price || 0);
+  const base = meta.base || (activeSymbol || '').replace(/USDT.*/i, '') || 'BASE';
+  const markPx = Number(activeMark?.mark_price || 0);
 
   const rows = 14;
-  const [tickSize,  setTickSize] = useState(() => pickDefaultTick(markPx || 50000));
-  const [tickOpen,  setTickOpen] = useState(false);
-  const [viewMode,  setViewMode] = useState('all'); // 'all' | 'bids' | 'asks'
-
+  const [tickSize, setTickSize] = useState(() => pickDefaultTick(markPx || 50000));
+  const [tickOpen, setTickOpen] = useState(false);
+  const [viewMode, setViewMode] = useState('all');
   const tickRef = useRef(null);
 
-  // Auto-pick a sensible default tick when the symbol changes.
-  // We intentionally read markPx at call-time (not reactive on every tick)
-  // so we don't reset a user's custom tick choice on every WS update.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { setTickSize(pickDefaultTick(markPx || 50000)); }, [activeSymbol]);
 
-  // Close tick dropdown on outside click.
   useEffect(() => {
     const handler = (e) => {
       if (tickRef.current && !tickRef.current.contains(e.target)) setTickOpen(false);
@@ -166,25 +195,21 @@ export default function FuturesOrderBook({ onPriceClick }) {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // ── Normalize + aggregate ──────────────────────────────────────────────
   const asksAsc = useMemo(() => normFromContext(orderbook?.asks), [orderbook?.asks]);
   const bidsAsc = useMemo(() => normFromContext(orderbook?.bids), [orderbook?.bids]);
-
   const asksAgg = useMemo(() => aggregateLevels(asksAsc, tickSize), [asksAsc, tickSize]);
   const bidsAgg = useMemo(() => aggregateLevels(bidsAsc, tickSize), [bidsAsc, tickSize]);
 
-  // Asks: best (lowest) first → slice first N → reverse so highest is at top
   const asks = useMemo(() => asksAgg.slice(0, rows).reverse(), [asksAgg, rows]);
-  // Bids: highest first → take last N from sorted-asc, then reverse
   const bids = useMemo(() => bidsAgg.slice(-rows).reverse(), [bidsAgg, rows]);
 
-  // Mid-book as last-ish display; mark stays on the right of the strip
   const bestAsk = asksAgg.length ? asksAgg[0][0] : 0;
   const bestBid = bidsAgg.length ? bidsAgg[bidsAgg.length - 1][0] : 0;
   const bookMid = bestAsk > 0 && bestBid > 0 ? (bestAsk + bestBid) / 2 : bestAsk || bestBid;
   const lastPx = bookMid > 0 ? bookMid : markPx;
+  const spread = bestAsk > 0 && bestBid > 0 ? bestAsk - bestBid : 0;
+  const spreadPct = lastPx > 0 && spread > 0 ? (spread / lastPx) * 100 : 0;
 
-  // Cumulative base size (Delta Total)
   const askCumSizes = useMemo(() => {
     const out = new Array(asks.length);
     let run = 0;
@@ -204,104 +229,165 @@ export default function FuturesOrderBook({ onPriceClick }) {
   }, [bids]);
 
   const maxCum = Math.max(askCumSizes[0] || 0, bidCumSizes[bidCumSizes.length - 1] || 0, 1);
+  const maxQty = useMemo(() => {
+    let m = 0;
+    for (const [, q] of asks) m = Math.max(m, Number(q) || 0);
+    for (const [, q] of bids) m = Math.max(m, Number(q) || 0);
+    return m || 1;
+  }, [asks, bids]);
+
+  const bidDepth = bidCumSizes[bidCumSizes.length - 1] || 0;
+  const askDepth = askCumSizes[0] || 0;
+  const pressureTotal = bidDepth + askDepth;
+  const bidPressure = pressureTotal > 0 ? (bidDepth / pressureTotal) * 100 : 50;
 
   const isEmpty = asksAgg.length === 0 && bidsAgg.length === 0;
   const lastDirUp = markPx > 0 && lastPx > 0 ? lastPx >= markPx * 0.9995 : true;
 
   return (
-    <div className="delta-ob flex flex-col h-full min-h-0 overflow-hidden bg-transparent select-none font-mono">
-      <div className="flex items-center justify-between gap-1.5 px-2.5 h-[32px] shrink-0 border-b border-[color:var(--ibo-border)]">
-        <span className="text-[12px] font-semibold text-[color:var(--ibo-ink)] tracking-tight font-sans">Order Book</span>
-        <div className="flex items-center gap-0.5">
-          <button type="button" title="Bids & asks" onClick={() => setViewMode('all')}
-            className={`inline-flex h-6 w-6 items-center justify-center rounded ${viewMode === 'all' ? 'text-[#FE6C02] bg-[#FE6C02]/12' : 'text-[color:var(--ibo-muted)]'}`}>
-            <Columns2 size={13} strokeWidth={2.2} />
-          </button>
-          <button type="button" title="Bids only" onClick={() => setViewMode('bids')}
-            className={`inline-flex h-6 w-6 items-center justify-center rounded ${viewMode === 'bids' ? 'text-[#FE6C02] bg-[#FE6C02]/12' : 'text-[color:var(--ibo-muted)]'}`}>
-            <TrendingUp size={13} className="text-[#0ECB81]" strokeWidth={2.2} />
-          </button>
-          <button type="button" title="Asks only" onClick={() => setViewMode('asks')}
-            className={`inline-flex h-6 w-6 items-center justify-center rounded ${viewMode === 'asks' ? 'text-[#FE6C02] bg-[#FE6C02]/12' : 'text-[color:var(--ibo-muted)]'}`}>
-            <TrendingDown size={13} className="text-[#F6465D]" strokeWidth={2.2} />
-          </button>
-          <div className="relative ml-0.5" ref={tickRef}>
-            <button type="button" onClick={() => setTickOpen((o) => !o)}
-              className="flex h-6 min-w-[3.4rem] items-center justify-between gap-1 rounded border border-[color:var(--ibo-border-solid)] bg-transparent px-1.5 text-[11px] tabular-nums text-[color:var(--ibo-ink)]">
-              <span className="truncate">{tickLabel(tickSize)}</span>
-              <ChevronDown size={11} className="text-[color:var(--ibo-muted)] shrink-0" />
+    <div className="delta-ob ob-panel flex flex-col h-full min-h-0 overflow-hidden select-none">
+      <div className="ob-head">
+        <div className="ob-head__title-row">
+          <h3 className="ob-head__title">Order Book</h3>
+        </div>
+        <div className="ob-head__ctrl-row">
+          <div className="ob-view" role="group" aria-label="Book view">
+            <button type="button" title="Bids & asks" onClick={() => setViewMode('all')}
+              className={`ob-view__btn${viewMode === 'all' ? ' is-on' : ''}`}>
+              <IconBookBoth active={viewMode === 'all'} />
             </button>
-            {tickOpen && (
-              <div className="absolute right-0 top-full z-40 mt-0.5 max-h-44 overflow-y-auto rounded border border-[color:var(--ibo-border-solid)] bg-[color:var(--ibo-bg)] py-0.5 min-w-[96px] shadow-xl scrollbar-hide">
+            <button type="button" title="Bids only" onClick={() => setViewMode('bids')}
+              className={`ob-view__btn${viewMode === 'bids' ? ' is-on' : ''}`}>
+              <IconBookBids active={viewMode === 'bids'} />
+            </button>
+            <button type="button" title="Asks only" onClick={() => setViewMode('asks')}
+              className={`ob-view__btn${viewMode === 'asks' ? ' is-on' : ''}`}>
+              <IconBookAsks active={viewMode === 'asks'} />
+            </button>
+          </div>
+          <div className="ob-precision" ref={tickRef}>
+            <button type="button" onClick={() => setTickOpen((o) => !o)} className="ob-precision__btn"
+              aria-expanded={tickOpen} title="Price grouping">
+              <span className="ob-precision__val">{tickLabel(tickSize)}</span>
+              <ChevronDown size={12} strokeWidth={2.25} className={`ob-precision__chev${tickOpen ? ' is-open' : ''}`} />
+            </button>
+            {tickOpen ? (
+              <ul className="ob-precision__menu" role="listbox">
                 {TICK_PRESETS.map((t) => (
-                  <button key={t} type="button" onClick={() => { setTickSize(t); setTickOpen(false); }}
-                    className={`flex w-full px-2.5 py-1 text-left text-[11px] tabular-nums hover:bg-white/[0.04] ${t === tickSize ? 'text-[#FE6C02]' : 'text-[color:var(--ibo-ink)]'}`}>
-                    {tickLabel(t)}
-                  </button>
+                  <li key={t} role="option" aria-selected={t === tickSize}>
+                    <button type="button"
+                      className={`ob-precision__opt${t === tickSize ? ' is-on' : ''}`}
+                      onClick={() => { setTickSize(t); setTickOpen(false); }}>
+                      {tickLabel(t)}
+                    </button>
+                  </li>
                 ))}
-              </div>
-            )}
+              </ul>
+            ) : null}
           </div>
         </div>
       </div>
 
-      <div className="flex px-2.5 h-[24px] items-center text-[10px] text-[color:var(--ibo-muted)] shrink-0 border-b border-[color:var(--ibo-border)] font-sans">
-        <span className="w-[36%]">Price (USD)</span>
-        <span className="w-[30%] text-right">Size ({base})</span>
-        <span className="w-[34%] text-right">Total ({base})</span>
+      <div className="ob-cols">
+        <span>Price (USD)</span>
+        <span className="text-right">Size ({base})</span>
+        <span className="text-right">Total</span>
       </div>
 
       {isEmpty ? (
-        <div className="flex-1 flex items-center justify-center text-[11px] text-[color:var(--ibo-muted)] font-sans">Waiting for depth…</div>
+        <div className="ob-state">
+          <p className="ob-state__muted">Waiting for depth…</p>
+        </div>
       ) : (
         <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
-          {viewMode !== 'bids' && (
+          {viewMode !== 'bids' ? (
             <div className="flex min-h-0 flex-1 flex-col justify-end overflow-hidden">
-              <div className="flex flex-col min-h-0 max-h-full overflow-y-auto scrollbar-hide">
+              <div className="order-book-scroll ob-scroll flex flex-col min-h-0 max-h-full overflow-y-auto">
                 {asks.length === 0 ? (
-                  <div className="px-2 py-3 text-center text-[10px] text-[color:var(--ibo-muted)] font-sans">No asks</div>
+                  <div className="ob-empty">No asks</div>
                 ) : (
                   asks.map(([p, q], i) => (
-                    <Row key={`ask-${p}`} price={p} qty={q} side="ask" tick={tickSize} onPriceClick={onPriceClick}
-                      cumSize={askCumSizes[i] || 0} maxCum={maxCum} />
+                    <Row
+                      key={`ask-${p}`}
+                      price={p}
+                      qty={q}
+                      side="ask"
+                      tick={tickSize}
+                      onPriceClick={onPriceClick}
+                      cumSize={askCumSizes[i] || 0}
+                      maxCum={maxCum}
+                      maxQty={maxQty}
+                    />
                   ))
                 )}
               </div>
             </div>
-          )}
+          ) : null}
 
-          <button type="button" onClick={() => lastPx > 0 && onPriceClick?.(fmtPrice(lastPx, tickSize))}
-            className="flex h-[30px] shrink-0 items-center justify-between gap-2 px-2.5 border-y border-[color:var(--ibo-border)] hover:bg-white/[0.03]">
-            <span className={`font-mono text-[15px] font-bold tabular-nums ${
-              lastDirUp ? 'text-[#0ECB81]' : 'text-[#F6465D]'
-            }`}>
-              {lastPx > 0 ? fmtPrice(lastPx, tickSize) : '—'}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="font-mono text-[12px] tabular-nums text-[color:var(--ibo-ink-secondary)]">
+          <button
+            type="button"
+            onClick={() => lastPx > 0 && onPriceClick?.(fmtPrice(lastPx, tickSize))}
+            className="ob-mid"
+          >
+            <div className="ob-mid__main min-w-0">
+              <span className={`ob-mid__last${lastDirUp ? ' is-up' : ' is-down'}`}>
+                {lastPx > 0 ? fmtPrice(lastPx, tickSize) : '—'}
+              </span>
+              {spread > 0 ? (
+                <span className="ob-mid__spread">
+                  Spread {fmtPrice(spread, tickSize)}
+                  {spreadPct > 0 ? (
+                    <span className="ob-mid__spread-pct">
+                      ({spreadPct < 0.01 ? '<0.01' : spreadPct.toFixed(2)}%)
+                    </span>
+                  ) : null}
+                </span>
+              ) : null}
+            </div>
+            <div className="ob-mid__mark">
+              <span className="ob-mid__mark-px">
                 {markPx > 0 ? fmtPrice(markPx, tickSize) : '—'}
               </span>
-              <span className="inline-flex h-4 min-w-[1rem] items-center justify-center rounded px-1 text-[9px] font-bold text-[color:var(--ibo-muted)] border border-[color:var(--ibo-border-solid)] font-sans" title="Mark">
-                M
-              </span>
-            </span>
+              <span className="ob-mid__badge" title="Mark price">Mark</span>
+            </div>
           </button>
 
-          {viewMode !== 'asks' && (
-            <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide">
+          {viewMode !== 'asks' ? (
+            <div className="order-book-scroll ob-scroll flex-1 min-h-0 overflow-y-auto">
               {bids.length === 0 ? (
-                <div className="px-2 py-3 text-center text-[10px] text-[color:var(--ibo-muted)] font-sans">No bids</div>
+                <div className="ob-empty">No bids</div>
               ) : (
                 bids.map(([p, q], i) => (
-                  <Row key={`bid-${p}`} price={p} qty={q} side="bid" tick={tickSize} onPriceClick={onPriceClick}
-                    cumSize={bidCumSizes[i] || 0} maxCum={maxCum} />
+                  <Row
+                    key={`bid-${p}`}
+                    price={p}
+                    qty={q}
+                    side="bid"
+                    tick={tickSize}
+                    onPriceClick={onPriceClick}
+                    cumSize={bidCumSizes[i] || 0}
+                    maxCum={maxCum}
+                    maxQty={maxQty}
+                  />
                 ))
               )}
             </div>
-          )}
+          ) : null}
+
+          {viewMode === 'all' && pressureTotal > 0 ? (
+            <div className="ob-pressure" title="Bid vs ask depth (visible levels)">
+              <div className="ob-pressure__bar">
+                <div className="ob-pressure__bid" style={{ width: `${bidPressure}%` }} />
+                <div className="ob-pressure__ask" style={{ width: `${100 - bidPressure}%` }} />
+              </div>
+              <div className="ob-pressure__labels">
+                <span className="is-bid">B {bidPressure.toFixed(0)}%</span>
+                <span className="is-ask">A {(100 - bidPressure).toFixed(0)}%</span>
+              </div>
+            </div>
+          ) : null}
         </div>
       )}
     </div>
   );
 }
-

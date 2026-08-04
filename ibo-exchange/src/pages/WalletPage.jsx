@@ -13,7 +13,6 @@ import { exchangeApiOrigin } from '@/lib/apiBase';
 import { MIN_WALLET_NOTIONAL_USDT } from '@/lib/walletValidation';
 import {
   normalizeSupportedNetworks,
-  filterDepositNetworks,
   filterWithdrawNetworks,
   uniqueAssets,
   networksForAsset,
@@ -28,7 +27,6 @@ import NetworkSelectList from '@/components/wallet/NetworkSelectList';
 import DepositTokenSearch from '@/components/wallet/DepositTokenSearch';
 import DepositMonitorBanner from '@/components/wallet/DepositMonitorBanner';
 import { useDepositMonitor } from '@/hooks/useDepositMonitor';
-import { InrMinDepositChip, InrMinDepositNote } from '@/components/inr/InrMinDepositChip';
 import { useInrMinDeposit } from '@/hooks/useInrMinDeposit';
 import { useDepositCatalog } from '@/hooks/useDepositCatalog';
 import FuturesWalletTab from '@/components/futures/FuturesWalletTab';
@@ -334,13 +332,12 @@ function DepositTab({ kycBlocked, kyc }) {
   // ``asset`` / ``network`` are empty strings until the list lands so we
   // never fire a deposit-addresses call with a combo the server can't serve.
   const [depositMode, setDepositMode] = useState('bsc'); // bsc | all
-  const [depositOnlyFilter, setDepositOnlyFilter] = useState(false);
+  const [depositOnlyFilter] = useState(true);
   const {
     query: catalogQuery,
     setQuery: setCatalogQuery,
     items: bscCatalog,
     assets: bscAssets,
-    bep20Meta,
     loading: catalogLoading,
     loadingMore: catalogLoadingMore,
     error: catalogError,
@@ -357,7 +354,6 @@ function DepositTab({ kycBlocked, kyc }) {
   const [supportedAll, setSupportedAll] = useState([]);
   const [netsLoading, setNetsLoading]   = useState(true);
   const [netsError, setNetsError]       = useState(null);
-  const depositActive = filterDepositNetworks(supportedAll);
   const [asset,   setAsset]             = useState('');
   const [network, setNetwork]           = useState('');
   const [depositAddresses, setDepositAddresses] = useState([]);
@@ -402,9 +398,6 @@ function DepositTab({ kycBlocked, kyc }) {
   const networksActive = activeNetworksForAsset(supportedAll, asset);
   const networksPlanned = plannedNetworksForAsset(supportedAll, asset);
   const hasAnyChains = supportedAll.length > 0 || (depositMode === 'bsc' && bscCatalog.length > 0);
-  const hasDepositActive =
-    depositActive.length > 0
-    || (depositMode === 'bsc' && bscCatalog.some((it) => isCatalogDepositReady(it)));
 
   useEffect(() => {
     // Don't hit the deposit-addresses endpoint until we know which combo
@@ -492,9 +485,6 @@ function DepositTab({ kycBlocked, kyc }) {
   }, [depositMode, bscCatalog, asset]);
 
   const selectedCatalogItem = bscCatalog.find((it) => it.asset === asset) ?? null;
-  const showUniversalBanner = Boolean(
-    selectedCatalogItem?.universal_bep20 || bep20Meta?.enabled,
-  );
 
   const personalAddress = depositAddresses[0] || null;
   const hasSupported = hasAnyChains;
@@ -512,246 +502,179 @@ function DepositTab({ kycBlocked, kyc }) {
     || isCatalogDepositReady(selectedCatalogItem);
 
   return (
-    <div className="space-y-5">
-      <div className="wallet-surface px-5 sm:px-6 py-4 sm:py-5 flex flex-wrap items-center justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-[color:var(--ibo-ink)] font-bold flex flex-wrap items-center gap-2 text-sm sm:text-base">
-            <IndianRupee size={16} className="text-[#FE6C02] shrink-0" />
-            <span>Deposit via INR (Bank / UPI / QR)</span>
-            <InrMinDepositChip minDepositInr={minDepositInr} />
-          </p>
-          <p className="text-xs sm:text-sm text-[color:var(--ibo-muted)] mt-1 max-w-xl leading-relaxed">
-            Pay in Indian Rupees, upload transfer proof, receive tokens after admin approval.
-          </p>
-          <InrMinDepositNote minDepositInr={minDepositInr} className="mt-2 max-w-xl" />
+    <div className="space-y-4 max-w-3xl">
+      {/* Compact INR path */}
+      <div className="wallet-surface px-4 sm:px-5 py-3 flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0 flex items-center gap-2.5">
+          <IndianRupee size={16} className="text-[#FE6C02] shrink-0" />
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-[color:var(--ibo-ink)]">INR deposit</p>
+            <p className="text-[11px] text-[color:var(--ibo-muted)] truncate">
+              Bank / UPI{minDepositInr != null ? ` · min ₹${Number(minDepositInr).toLocaleString()}` : ''}
+            </p>
+          </div>
         </div>
-        <Link to="/wallet/deposit/inr" className="wallet-action-primary shrink-0">
+        <Link to="/wallet/deposit/inr" className="wallet-action-primary shrink-0 text-xs">
           Deposit INR
         </Link>
       </div>
 
-    <div className="grid md:grid-cols-2 gap-5 lg:gap-6">
-      {/* Address panel (left column — was the manual submit form) */}
-      <div className="wallet-surface p-5 sm:p-6">
-        <h3 className="text-base font-bold text-[color:var(--ibo-ink)] mb-1">Your deposit address</h3>
-        <p className="text-[color:var(--ibo-ink-secondary)] text-sm mb-5 leading-relaxed">
-          Send funds to your personal address below. Deposits are detected on-chain and credited
-          after confirmations. Track progress under <strong className="text-[color:var(--ibo-ink)]">History → Deposits</strong>.
-        </p>
-
-        {kycBlocked && (
-          <div className={`mb-4 rounded-xl border px-4 py-3 text-sm flex flex-wrap items-center gap-2 ${
-            kyc?.status === 'pending'
-              ? 'ibo-notice-info'
-              : 'ibo-notice-danger'
-          }`}>
-            <Shield size={16} className="flex-shrink-0" />
-            <span>
+      <div className="wallet-surface p-4 sm:p-5 space-y-4">
+        {kycBlocked ? (
+          <div
+            className={`rounded-xl border px-3.5 py-2.5 text-xs flex flex-wrap items-center gap-2 ${
+              kyc?.status === 'pending' ? 'ibo-notice-info' : 'ibo-notice-danger'
+            }`}
+          >
+            <Shield size={14} className="shrink-0" />
+            <span className="min-w-0 flex-1">
               {kyc?.status === 'pending'
-                ? 'Your KYC is pending admin review. You can view your deposit address, but deposits will only be credited after approval.'
+                ? 'KYC under review — deposits credit after approval.'
                 : kyc?.status === 'rejected'
-                  ? 'Your KYC was rejected. Resubmit documents to unlock deposits. Your deposit address still appears below.'
-                  : 'Identity verification (KYC) is required before deposits are credited. Your personal deposit address still appears below so you can prepare.'}{' '}
-              <Link to="/kyc" className="font-bold underline text-gold">Go to KYC →</Link>
+                  ? 'KYC rejected — resubmit to unlock deposits.'
+                  : 'Complete KYC to receive deposit credit.'}{' '}
+              <Link to="/account/kyc" className="font-bold text-[#FE6C02] hover:underline">
+                KYC →
+              </Link>
             </span>
+          </div>
+        ) : null}
+
+        {/* Source mode — compact */}
+        <div className="flex flex-wrap gap-1.5">
+          {[
+            { id: 'bsc', label: 'BNB Chain' },
+            { id: 'all', label: 'All networks' },
+          ].map((m) => (
+            <button
+              key={m.id}
+              type="button"
+              onClick={() => setDepositMode(m.id)}
+              className={`ibo-mode-chip !px-3 !py-1.5 ${depositMode === m.id ? 'ibo-mode-chip-active' : ''}`}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
+
+        {depositMode === 'bsc' && (
+          <DepositTokenSearch
+            items={bscCatalog}
+            assets={bscAssets}
+            value={asset}
+            onChange={handleBscToken}
+            query={catalogQuery}
+            onQueryChange={setCatalogQuery}
+            loading={catalogLoading}
+            loadingMore={catalogLoadingMore}
+            error={catalogError}
+            bep20Note={null}
+            disabled={catalogLoading && !bscCatalog.length}
+            label="Coin"
+            total={catalogTotal}
+            hasMore={catalogHasMore}
+            onLoadMore={loadMoreCatalog}
+            depositOnlyFilter={depositOnlyFilter}
+          />
+        )}
+
+        {depositMode === 'all' && netsLoading && (
+          <p className="text-xs text-[color:var(--ibo-muted)]">Loading networks…</p>
+        )}
+        {depositMode === 'all' && netsError && !netsLoading && (
+          <p className="text-xs text-[#FE6C02]">{netsError}</p>
+        )}
+        {depositMode === 'all' && !netsLoading && !netsError && !hasSupported && (
+          <p className="text-xs text-[color:var(--ibo-muted)]">No networks configured.</p>
+        )}
+        {depositMode === 'bsc' && catalogError && !catalogLoading && (
+          <p className="text-xs text-[#FE6C02]">{catalogError}</p>
+        )}
+
+        {depositMode === 'all' && hasSupported && (
+          <div className="grid sm:grid-cols-2 gap-3">
+            <AssetSelect value={asset} onChange={handleAsset} label="Asset" assets={availableAssets} />
+            <div>
+              <label className="ibo-field-label">Network</label>
+              <NetworkSelectList
+                networks={networksActive}
+                plannedNetworks={networksPlanned}
+                value={network}
+                onChange={setNetwork}
+                mode="deposit"
+              />
+            </div>
           </div>
         )}
 
-        <div className="space-y-4">
-          <div className="flex flex-wrap gap-2 mb-1">
-            {[
-              { id: 'bsc', label: 'BNB Chain (BEP-20)' },
-              { id: 'all', label: 'All networks' },
-            ].map((m) => (
-              <button
-                key={m.id}
-                type="button"
-                onClick={() => setDepositMode(m.id)}
-                className={`ibo-mode-chip ${depositMode === m.id ? 'ibo-mode-chip-active' : ''}`}
-              >
-                {m.label}
-              </button>
-            ))}
+        {/* One-line network context instead of full chain details table */}
+        {(asset || network) && (
+          <p className="text-xs text-[color:var(--ibo-muted)]">
+            Network:{' '}
+            <span className="text-[color:var(--ibo-ink-secondary)] font-semibold">
+              {selectedCatalogItem?.label || selectedNet?.label || network || '—'}
+            </span>
+            {asset ? (
+              <>
+                {' · '}
+                <span className="font-mono text-[color:var(--ibo-ink)]">{asset}</span>
+              </>
+            ) : null}
+            {depositReady ? (
+              <span className="text-[#0ECB81] font-semibold ml-1.5">· Live</span>
+            ) : selectedNet?.status === 'coming_soon' ? (
+              <span className="text-[#FE6C02] font-semibold ml-1.5">· Coming soon</span>
+            ) : null}
+          </p>
+        )}
+
+        {/* Address + QR — primary content */}
+        {hasSupported && depAddrLoading && (
+          <p className="text-xs text-[color:var(--ibo-muted)] flex items-center gap-2">
+            <RefreshCw size={13} className="animate-spin" /> Loading address…
+          </p>
+        )}
+        {hasSupported && depAddrError && !depAddrLoading && (
+          <p className="text-xs text-[#FE6C02]">{depAddrError}</p>
+        )}
+        {hasSupported && !depAddrLoading && !depAddrError && personalAddress && (
+          <div className="rounded-xl border border-[color:var(--ibo-border-solid)] p-4 flex flex-col sm:flex-row gap-4 items-center sm:items-start">
+            <div className="shrink-0">
+              <QrImagePreview
+                key={`${personalAddress.id}-${(personalAddress.qr_payload || personalAddress.address || '').slice(0, 96)}`}
+                value={personalAddress.qr_payload || personalAddress.address}
+                size={148}
+                modalSize={360}
+              />
+            </div>
+            <div className="min-w-0 flex-1 w-full">
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[color:var(--ibo-muted)] mb-1.5">
+                Deposit address
+              </p>
+              <p className="text-sm text-[color:var(--ibo-ink)] font-mono break-all leading-relaxed">
+                {personalAddress.address}
+              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <CopyBtn text={personalAddress.address} />
+                <span className="text-[11px] text-[color:var(--ibo-muted)]">
+                  Min {MIN_WALLET_NOTIONAL_USDT} USDT eq.
+                </span>
+              </div>
+              <p className="mt-2 text-[11px] text-[color:var(--ibo-muted)] leading-relaxed">
+                Send only <strong className="text-[color:var(--ibo-ink)] font-mono">{asset || 'this asset'}</strong> on{' '}
+                <strong className="text-[color:var(--ibo-ink)]">{network || 'the selected network'}</strong>. Wrong network = loss.
+              </p>
+            </div>
           </div>
-
-          <p className="ibo-field-label -mb-1">Step 1 — Asset &amp; network</p>
-
-          {depositMode === 'bsc' && (
-            <DepositTokenSearch
-              items={bscCatalog}
-              assets={bscAssets}
-              value={asset}
-              onChange={handleBscToken}
-              query={catalogQuery}
-              onQueryChange={setCatalogQuery}
-              loading={catalogLoading}
-              loadingMore={catalogLoadingMore}
-              error={catalogError}
-              bep20Note={bep20Meta}
-              disabled={catalogLoading && !bscCatalog.length}
-              label="Search BEP-20 coin"
-              total={catalogTotal}
-              counts={catalogCounts}
-              hasMore={catalogHasMore}
-              onLoadMore={loadMoreCatalog}
-              depositOnlyFilter={depositOnlyFilter}
-              onDepositOnlyFilterChange={setDepositOnlyFilter}
-            />
-          )}
-
-          {depositMode === 'bsc' && showUniversalBanner && personalAddress && (
-            <div className="rounded-xl border border-gold/25 bg-gold/10 px-3 py-2.5 text-xs text-ink-secondary">
-              This address accepts any supported <strong className="text-white">BEP-20</strong> token on BNB Chain.
-              Send only <strong className="text-gold font-mono">{asset}</strong> — wrong tokens may be lost.
-            </div>
-          )}
-
-          {depositMode === 'all' && netsLoading && (
-            <p className="text-xs text-white/45">Loading supported networks…</p>
-          )}
-          {depositMode === 'all' && netsError && !netsLoading && (
-            <div className="rounded-xl border border-gold/35 bg-gold/10 px-3 py-2.5 text-xs text-gold/90">
-              <span className="font-bold text-gold">Could not load networks: </span>{netsError}
-            </div>
-          )}
-          {depositMode === 'all' && !netsLoading && !netsError && !hasSupported && (
-            <div className="rounded-xl border border-surface-border bg-surface-card/50 px-3 py-2.5 text-xs text-white/65">
-              No blockchain endpoints are configured. Add QuickNode URLs in the server environment.
-            </div>
-          )}
-          {depositMode === 'bsc' && catalogError && !catalogLoading && (
-            <div className="rounded-xl border border-gold/35 bg-gold/10 px-3 py-2.5 text-xs text-gold/90">
-              <span className="font-bold text-gold">Catalog: </span>{catalogError}
-            </div>
-          )}
-          {depositMode === 'bsc' && selectedCatalogItem && (
-            <NetworkChainDetails
-              network={{
-                asset: selectedCatalogItem.asset,
-                network: selectedCatalogItem.network,
-                label: selectedCatalogItem.label,
-                chain_id: selectedCatalogItem.chain_id,
-                chain_display: selectedCatalogItem.chain_display || 'BNB Smart Chain',
-                deposit_enabled: isCatalogDepositReady(selectedCatalogItem),
-                status: selectedCatalogItem.status,
-                testnet: selectedCatalogItem.testnet,
-              }}
-              mode="deposit"
-            />
-          )}
-          {depositMode === 'all' && hasSupported && (
-            <>
-              <AssetSelect value={asset} onChange={handleAsset} label="Asset" assets={availableAssets} />
-
-              <div>
-                <label className="ibo-field-label">Network</label>
-                <NetworkSelectList
-                  networks={networksActive}
-                  plannedNetworks={networksPlanned}
-                  value={network}
-                  onChange={setNetwork}
-                  mode="deposit"
-                />
-              </div>
-              {selectedNet ? (
-                <NetworkChainDetails network={selectedNet} mode="deposit" />
-              ) : null}
-              {!depositReady && selectedNet?.status === 'coming_soon' && (
-                <div className="rounded-xl border border-gold/30 bg-gold/10 px-3 py-2.5 text-xs text-gold/90">
-                  RPC is configured for <strong>{selectedNet.endpoint_label || selectedNet.chain}</strong>.
-                  On-chain deposit scanning for this network is not live yet — choose an active network to deposit.
-                </div>
-              )}
-              {hasSupported && !hasDepositActive && (
-                <div className="rounded-xl border border-gold/30 bg-gold/10 px-3 py-2.5 text-xs text-gold/90">
-                  No deposit networks are active yet. Listed assets reflect your configured endpoints.
-                </div>
-              )}
-            </>
-          )}
-
-          <p className="text-[11px] text-white/55 uppercase font-bold tracking-wider pt-1">Step 2 — Scan or copy</p>
-
-          {hasSupported && depAddrLoading && (
-            <p className="text-xs text-white/45">Loading your deposit address…</p>
-          )}
-          {hasSupported && depAddrError && !depAddrLoading && (
-            <div className="rounded-xl border border-gold/35 bg-gold/10 px-3 py-2.5 text-xs text-gold/90">
-              <span className="font-bold text-gold">Could not load address: </span>
-              {depAddrError}
-            </div>
-          )}
-          {hasSupported && !depAddrLoading && !depAddrError && personalAddress && (
-            <div className="rounded-xl border border-gold/30 bg-gold/5 p-4 flex flex-col sm:flex-row gap-4 items-start">
-              <div className="shrink-0">
-                <QrImagePreview
-                  key={`${personalAddress.id}-${(personalAddress.qr_payload || personalAddress.address || '').slice(0, 96)}`}
-                  value={personalAddress.qr_payload || personalAddress.address}
-                  size={200}
-                  modalSize={400}
-                />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold text-gold mb-2">{personalAddress.label || 'Your deposit address'}</p>
-                <p className="text-[11px] text-white/45 uppercase mb-1">Address</p>
-                <p className="text-sm text-white font-mono break-all leading-relaxed">{personalAddress.address}</p>
-                <div className="mt-3 flex items-center gap-2">
-                  <span className="text-[10px] text-white/50">Copy</span>
-                  <CopyBtn text={personalAddress.address} />
-                </div>
-              </div>
-            </div>
-          )}
-          {hasSupported && !depAddrLoading && !depAddrError && !personalAddress && (
-            <div className="rounded-xl border border-surface-border bg-surface-card/50 px-3 py-2.5 text-xs text-white/65 space-y-1.5">
-              <p>
-                A deposit address for <strong className="text-gold font-mono">{asset}</strong>{' '}
-                on <strong className="text-white font-mono">{network}</strong> is not available yet.
-              </p>
-              <p className="text-white/50">
-                The blockchain provider may not support this asset / network combination yet, or
-                onboarding is still in progress. Try another network, or contact support if this
-                persists.
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Info panel */}
-      <div className="space-y-4">
-        <div className="wallet-surface p-5 sm:p-6">
-          <p className="text-[color:var(--ibo-ink)] font-bold mb-3 flex items-center gap-2 text-sm">
-            <Info size={15} className="text-[#FE6C02]" /> How it works
+        )}
+        {hasSupported && !depAddrLoading && !depAddrError && !personalAddress && (
+          <p className="text-xs text-[color:var(--ibo-muted)]">
+            No address for <span className="font-mono text-[color:var(--ibo-ink)]">{asset || '—'}</span>
+            {network ? <> on <span className="font-mono text-[color:var(--ibo-ink)]">{network}</span></> : null}.
+            Try another asset or network.
           </p>
-          <ol className="space-y-3 text-sm text-[color:var(--ibo-ink-secondary)]">
-            {[
-              'Pick the asset and network you want to deposit.',
-              'Scan the QR code or copy your personal deposit address.',
-              'Send the funds from your external wallet to that address.',
-              'The network confirms, we detect the transaction and credit your balance automatically.',
-            ].map((step, i) => (
-              <li key={i} className="flex items-start gap-3">
-                <span className="wallet-step-num">{i + 1}</span>
-                {step}
-              </li>
-            ))}
-          </ol>
-        </div>
-
-        <div className="wallet-surface p-5 border-[#FE6C02]/25">
-          <p className="text-[#FE6C02] font-semibold text-sm flex items-center gap-1.5 mb-2">
-            <AlertCircle size={14} /> Important
-          </p>
-          <ul className="text-xs text-[color:var(--ibo-ink-secondary)] space-y-1.5 list-disc list-inside">
-            <li>Always send on the correct network to avoid permanent loss.</li>
-            <li>Minimum deposit: {MIN_WALLET_NOTIONAL_USDT} USDT equivalent.</li>
-            <li>Your balance is credited automatically once the required confirmations are reached.</li>
-            <li>Incoming transactions appear in the History tab as soon as they are detected on-chain.</li>
-          </ul>
-        </div>
+        )}
       </div>
-    </div>
     </div>
   );
 }
@@ -987,106 +910,100 @@ function WithdrawTab({ walletAssets, kycBlocked, kyc, priceByAsset = { USDT: 1 }
   };
 
   return (
-    <div className="space-y-5">
-      <div className="wallet-surface px-5 sm:px-6 py-4 sm:py-5 flex flex-wrap items-center justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-[color:var(--ibo-ink)] font-bold flex items-center gap-2 text-sm sm:text-base">
-            <IndianRupee size={16} className="text-[#FE6C02]" />
-            Withdraw to INR (Bank / UPI)
-          </p>
-          <p className="text-xs sm:text-sm text-[color:var(--ibo-muted)] mt-1 max-w-xl leading-relaxed">
-            Sell Delta for rupees — cash out Delta to bank or UPI after admin approval.
-          </p>
+    <div className="space-y-4 max-w-3xl">
+      {/* Compact INR path */}
+      <div className="wallet-surface px-4 sm:px-5 py-3 flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0 flex items-center gap-2.5">
+          <IndianRupee size={16} className="text-[#FE6C02] shrink-0" />
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-[color:var(--ibo-ink)]">INR withdraw</p>
+            <p className="text-[11px] text-[color:var(--ibo-muted)] truncate">
+              Sell Delta → bank / UPI
+            </p>
+          </div>
         </div>
-        <Link to="/wallet/withdraw/inr" className="wallet-action-primary shrink-0">
+        <Link to="/wallet/withdraw/inr" className="wallet-action-primary shrink-0 text-xs">
           Withdraw INR
         </Link>
       </div>
 
-    <div className="grid md:grid-cols-2 gap-5 lg:gap-6">
-      <div className="wallet-surface p-5 sm:p-6">
-        <h3 className="text-base font-bold text-[color:var(--ibo-ink)] mb-1">On-chain withdraw</h3>
-        <p className="text-[color:var(--ibo-ink-secondary)] text-sm mb-5 leading-relaxed">
-          Withdrawals are broadcast on-chain automatically. Large amounts may require admin
-          approval. Track progress in the History tab.
-        </p>
-
-        {kycBlocked && (
-          <div className={`mb-4 rounded-xl border px-4 py-3 text-sm flex flex-wrap items-center gap-2 ${
-            kyc?.status === 'pending'
-              ? 'ibo-notice-info'
-              : 'ibo-notice-danger'
-          }`}>
-            <Shield size={16} className="flex-shrink-0" />
-            <span>
+      <div className="wallet-surface p-4 sm:p-5 space-y-4">
+        {kycBlocked ? (
+          <div
+            className={`rounded-xl border px-3.5 py-2.5 text-xs flex flex-wrap items-center gap-2 ${
+              kyc?.status === 'pending' ? 'ibo-notice-info' : 'ibo-notice-danger'
+            }`}
+          >
+            <Shield size={14} className="shrink-0" />
+            <span className="min-w-0 flex-1">
               {kyc?.status === 'pending'
-                ? 'Your KYC is pending review. Withdrawals unlock after approval.'
+                ? 'KYC under review — withdrawals unlock after approval.'
                 : kyc?.status === 'rejected'
-                  ? 'Your KYC was rejected. Resubmit documents to unlock withdrawals.'
-                  : 'Identity verification (KYC) is required before withdrawing.'}{' '}
-              <Link to="/kyc" className="font-bold underline text-gold">Go to KYC →</Link>
+                  ? 'KYC rejected — resubmit to unlock withdrawals.'
+                  : 'Complete KYC to withdraw.'}{' '}
+              <Link to="/account/kyc" className="font-bold text-[#FE6C02] hover:underline">
+                KYC →
+              </Link>
             </span>
           </div>
-        )}
+        ) : null}
 
         {netsLoading && (
-          <p className="text-xs text-white/45">Loading supported networks…</p>
+          <p className="text-xs text-[color:var(--ibo-muted)] flex items-center gap-2">
+            <RefreshCw size={13} className="animate-spin" /> Loading networks…
+          </p>
         )}
         {netsError && !netsLoading && (
-          <div className="rounded-xl border border-gold/35 bg-gold/10 px-3 py-2.5 text-xs text-gold/90">
-            <span className="font-bold text-gold">Could not load networks: </span>{netsError}
-          </div>
+          <p className="text-xs text-[#FE6C02]">{netsError}</p>
         )}
         {!netsLoading && !netsError && !hasSupported && (
-          <div className="rounded-xl border border-surface-border bg-surface-card/50 px-3 py-2.5 text-xs text-white/65">
-            No blockchain endpoints are configured.
-          </div>
+          <p className="text-xs text-[color:var(--ibo-muted)]">No networks configured.</p>
         )}
 
         {hasSupported && (
           <form onSubmit={onSubmit} className="space-y-4">
-            {isIboSelected && !withdrawReady && (
-              <div className="rounded-xl border border-gold/30 bg-gold/10 px-4 py-3 text-sm text-gold/90">
-                Delta on-chain withdrawal is not active on this network yet. Use{' '}
-                <Link to="/wallet/withdraw/inr" className="font-bold text-gold underline">
-                  Withdraw INR
-                </Link>{' '}
-                to receive rupees in your bank or UPI.
+            <div className="grid sm:grid-cols-2 gap-3">
+              <AssetSelect value={asset} onChange={handleAsset} label="Asset" assets={availableAssets} />
+              <div>
+                <label className="ibo-field-label">Network</label>
+                <NetworkSelectList
+                  networks={networksWithdrawActive}
+                  plannedNetworks={networksWithdrawPlanned}
+                  value={network}
+                  onChange={setNetwork}
+                  mode="withdraw"
+                />
               </div>
-            )}
-            {isIboSelected && withdrawReady && (
-              <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
-                Send Delta to any external BEP-20 wallet. For INR (bank/UPI), use{' '}
-                <Link to="/wallet/withdraw/inr" className="font-bold text-emerald-200 underline">
-                  Withdraw INR
-                </Link>.
-              </div>
-            )}
-            <AssetSelect value={asset} onChange={handleAsset} label="Asset" assets={availableAssets} />
-
-            <div>
-              <label className="ibo-field-label">Network</label>
-              <NetworkSelectList
-                networks={networksWithdrawActive}
-                plannedNetworks={networksWithdrawPlanned}
-                value={network}
-                onChange={setNetwork}
-                mode="withdraw"
-              />
             </div>
-            {selectedNet ? (
-              <NetworkChainDetails network={selectedNet} mode="withdraw" />
-            ) : null}
-            {!withdrawReady && selectedNet && (
-              <div className="rounded-xl border border-gold/30 bg-gold/10 px-3 py-2.5 text-xs text-gold/90">
-                Withdrawals for {selectedNet.label || selectedNet.network} are not enabled yet.
-                {hasWithdrawActive ? ' Choose an active network above.' : ''}
-              </div>
+
+            {(asset || network) && (
+              <p className="text-xs text-[color:var(--ibo-muted)]">
+                Network:{' '}
+                <span className="text-[color:var(--ibo-ink-secondary)] font-semibold">
+                  {selectedNet?.label || network || '—'}
+                </span>
+                {asset ? (
+                  <>
+                    {' · '}
+                    <span className="font-mono text-[color:var(--ibo-ink)]">{walletAssetLabel(asset)}</span>
+                  </>
+                ) : null}
+                {withdrawReady ? (
+                  <span className="text-[#0ECB81] font-semibold ml-1.5">· Live</span>
+                ) : (
+                  <span className="text-[#FE6C02] font-semibold ml-1.5">· Unavailable</span>
+                )}
+              </p>
             )}
-            {hasSupported && !hasWithdrawActive && (
-              <div className="rounded-xl border border-gold/30 bg-gold/10 px-3 py-2.5 text-xs text-gold/90">
-                No withdrawal networks are active. Assets listed match your configured RPC endpoints.
-              </div>
+
+            {!withdrawReady && selectedNet && (
+              <p className="text-xs text-[#FE6C02]">
+                Withdrawals for {selectedNet.label || selectedNet.network} are not enabled yet.
+                {hasWithdrawActive ? ' Choose a live network.' : ''}
+              </p>
+            )}
+            {!hasWithdrawActive && (
+              <p className="text-xs text-[#FE6C02]">No withdrawal networks are active.</p>
             )}
 
             <div>
@@ -1094,218 +1011,193 @@ function WithdrawTab({ walletAssets, kycBlocked, kyc, priceByAsset = { USDT: 1 }
               <input
                 type="text"
                 value={address}
-                onChange={e => {
+                onChange={(e) => {
                   setAddress(e.target.value);
-                  setFieldErrors(prev => ({ ...prev, address: '' }));
+                  setFieldErrors((prev) => ({ ...prev, address: '' }));
                 }}
                 onBlur={() => {
-                  setTouched(prev => ({ ...prev, address: true }));
-                  setFieldErrors(prev => ({ ...prev, address: address.trim() ? '' : 'Enter a destination address.' }));
+                  setTouched((prev) => ({ ...prev, address: true }));
+                  setFieldErrors((prev) => ({
+                    ...prev,
+                    address: address.trim() ? '' : 'Enter a destination address.',
+                  }));
                 }}
                 placeholder="0x… or bc1…"
                 autoComplete="off"
                 spellCheck={false}
-                className={`ibo-input font-mono ${
-                  (submitAttempted || touched.address) && fieldErrors.address ? 'border-red-500/50' : 'border-surface-border'
+                className={`wallet-field font-mono ${
+                  (submitAttempted || touched.address) && fieldErrors.address
+                    ? '!border-[#F6465D]/50'
+                    : ''
                 }`}
               />
-              {(submitAttempted || touched.address) && fieldErrors.address && (
-                <p className="text-xs text-red-400 mt-1.5 font-medium">{fieldErrors.address}</p>
-              )}
+              {(submitAttempted || touched.address) && fieldErrors.address ? (
+                <p className="text-xs text-[#F6465D] mt-1.5 font-medium">{fieldErrors.address}</p>
+              ) : null}
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="ibo-field-label !mb-0">Amount ({asset})</label>
-                <span className="text-[11px] text-white/60">
-                  Available: <span className="text-white font-mono">{availableBalance.toFixed(6)}</span>
-                  <button type="button"
+              <div className="flex items-center justify-between mb-1.5 gap-2">
+                <label className="ibo-field-label !mb-0">
+                  Amount ({walletAssetLabel(asset) || asset || '—'})
+                </label>
+                <span className="text-[11px] text-[color:var(--ibo-muted)] tabular-nums">
+                  Avail{' '}
+                  <span className="text-[color:var(--ibo-ink)] font-mono">
+                    {availableBalance.toFixed(6)}
+                  </span>
+                  <button
+                    type="button"
                     onClick={() => setAmount(availableBalance > 0 ? String(availableBalance) : '')}
-                    className="ml-2 text-gold hover:text-gold-light font-bold">Max</button>
+                    className="ml-2 text-[#FE6C02] hover:text-[#ff7a1a] font-bold"
+                  >
+                    Max
+                  </button>
                 </span>
               </div>
               <input
                 type="number"
                 value={amount}
-                onChange={e => {
+                onChange={(e) => {
                   setAmount(e.target.value);
-                  setFieldErrors(prev => ({ ...prev, amount: '' }));
+                  setFieldErrors((prev) => ({ ...prev, amount: '' }));
                 }}
                 onBlur={() => {
-                  setTouched(prev => ({ ...prev, amount: true }));
+                  setTouched((prev) => ({ ...prev, amount: true }));
                   const amt = Number(amount);
-                  setFieldErrors(prev => ({ ...prev, amount: Number.isFinite(amt) && amt > 0 ? '' : 'Enter a valid amount.' }));
+                  setFieldErrors((prev) => ({
+                    ...prev,
+                    amount: Number.isFinite(amt) && amt > 0 ? '' : 'Enter a valid amount.',
+                  }));
                 }}
                 step="any"
                 min="0"
                 placeholder="0.00"
-                className={`ibo-input font-mono ${
-                  (submitAttempted || touched.amount) && fieldErrors.amount ? 'border-red-500/50' : 'border-surface-border'
+                className={`wallet-field font-mono ${
+                  (submitAttempted || touched.amount) && fieldErrors.amount
+                    ? '!border-[#F6465D]/50'
+                    : ''
                 }`}
               />
-              {(submitAttempted || touched.amount) && fieldErrors.amount && (
-                <p className="text-xs text-red-400 mt-1.5 font-medium">{fieldErrors.amount}</p>
-              )}
+              {(submitAttempted || touched.amount) && fieldErrors.amount ? (
+                <p className="text-xs text-[#F6465D] mt-1.5 font-medium">{fieldErrors.amount}</p>
+              ) : null}
             </div>
 
-            {showFeePanel && (
-              <div className="rounded-xl border border-surface-border bg-[color:var(--ibo-elevated)] px-4 py-3 text-xs text-ink-secondary space-y-1.5">
-                <p className="ibo-field-label !mb-0">Fee summary</p>
+            {showFeePanel ? (
+              <div className="rounded-xl border border-[color:var(--ibo-border-solid)] px-3.5 py-3 text-xs text-[color:var(--ibo-ink-secondary)] space-y-1.5">
                 {withdrawConfig.withdraw_fee_rate > 0 && (
                   <div className="flex justify-between gap-3">
-                    <span>Platform fee ({(withdrawConfig.withdraw_fee_rate * 100).toFixed(2)}% notional)</span>
-                    <span className="font-mono text-ink">
+                    <span>Platform fee</span>
+                    <span className="font-mono text-[color:var(--ibo-ink)]">
                       {platformFeeIbo > 0
-                        ? `~${platformFeeIbo.toFixed(8)} Delta`
-                        : 'Delta (rate applies to USDT notional)'}
+                        ? `~${platformFeeIbo.toFixed(6)} Δ`
+                        : `${(withdrawConfig.withdraw_fee_rate * 100).toFixed(2)}%`}
                     </span>
                   </div>
                 )}
                 {iboGasFee > 0 && (
                   <div className="flex justify-between gap-3">
-                    <span>Network gas fee (Delta)</span>
-                    <span className="font-mono text-ink">{iboGasFee.toFixed(8)} Delta</span>
+                    <span>Gas (Delta)</span>
+                    <span className="font-mono text-[color:var(--ibo-ink)]">
+                      {iboGasFee.toFixed(6)}
+                    </span>
                   </div>
                 )}
-                <div className="flex justify-between gap-3 pt-1 border-t border-surface-border/60">
-                  <span className="font-semibold text-ink">{asset} sent on-chain</span>
-                  <span className="font-mono font-semibold text-gold">{totalAssetDebit.toFixed(8)} {asset}</span>
+                <div className="flex justify-between gap-3 pt-1 border-t border-[color:var(--ibo-border-solid)]">
+                  <span className="font-semibold text-[color:var(--ibo-ink)]">
+                    Send {walletAssetLabel(asset)}
+                  </span>
+                  <span className="font-mono font-semibold text-[#FE6C02]">
+                    {totalAssetDebit > 0 ? totalAssetDebit.toFixed(6) : '—'}
+                  </span>
                 </div>
-                {totalIboFees > 0 && (
-                  <div className="flex justify-between gap-3">
-                    <span className="font-semibold text-ink">Total Delta fees</span>
-                    <span className="font-mono font-semibold text-gold">~{totalIboFees.toFixed(8)} Delta</span>
-                  </div>
-                )}
-                {(totalIboFees > 0 || withdrawConfig.platform_fee_description) && (
-                  <p className="text-[11px] text-ink-muted leading-relaxed">
-                    {withdrawConfig.platform_fee_description
-                      || 'Platform and gas fees are charged in Delta from your spot wallet.'}
-                    {' '}
-                    {withdrawConfig.gas_fee_description || ''}
-                    {' '}Delta available: <span className="font-mono text-ink-secondary">{iboAvailable.toFixed(4)}</span>
-                  </p>
-                )}
               </div>
-            )}
+            ) : null}
 
-            <div>
-              <label className="ibo-field-label">Note <span className="normal-case tracking-normal font-medium text-ink-muted">(optional, for your records)</span></label>
-              <input
-                type="text"
-                value={note}
-                onChange={e => setNote(e.target.value)}
-                maxLength={200}
-                placeholder="e.g. personal wallet"
-                className="ibo-input"
-              />
-            </div>
-
-            {twofa.enabled && (
+            {twofa.enabled ? (
               <div>
-                <label className="ibo-field-label">
-                  2FA code <span className="text-white/40 normal-case">(authenticator or backup code)</span>
-                </label>
+                <label className="ibo-field-label">2FA code</label>
                 <input
                   type="text"
                   value={totp}
-                  onChange={e => {
+                  onChange={(e) => {
                     setTotp(e.target.value);
-                    setFieldErrors(prev => ({ ...prev, totp: '' }));
+                    setFieldErrors((prev) => ({ ...prev, totp: '' }));
                   }}
                   onBlur={() => {
-                    setTouched(prev => ({ ...prev, totp: true }));
-                    setFieldErrors(prev => ({
+                    setTouched((prev) => ({ ...prev, totp: true }));
+                    setFieldErrors((prev) => ({
                       ...prev,
-                      totp: twofa.enabled && !totp.trim()
-                        ? 'Enter the code from your authenticator app (or a backup code).'
-                        : '',
+                      totp:
+                        twofa.enabled && !totp.trim()
+                          ? 'Enter authenticator or backup code.'
+                          : '',
                     }));
                   }}
                   autoComplete="one-time-code"
                   inputMode="text"
-                  placeholder="123 456 or backup code"
-                  className={`ibo-input font-mono tracking-widest ${
-                    (submitAttempted || touched.totp) && fieldErrors.totp ? 'border-red-500/50' : 'border-surface-border'
+                  placeholder="123 456"
+                  className={`wallet-field font-mono tracking-widest ${
+                    (submitAttempted || touched.totp) && fieldErrors.totp
+                      ? '!border-[#F6465D]/50'
+                      : ''
                   }`}
                 />
-                {(submitAttempted || touched.totp) && fieldErrors.totp && (
-                  <p className="text-xs text-red-400 mt-1.5 font-medium">{fieldErrors.totp}</p>
-                )}
+                {(submitAttempted || touched.totp) && fieldErrors.totp ? (
+                  <p className="text-xs text-[#F6465D] mt-1.5 font-medium">{fieldErrors.totp}</p>
+                ) : null}
               </div>
-            )}
-            {!twofa.enabled && twofa.required_for_withdrawal && (
-              <div className="rounded-xl border border-gold/35 bg-gold/10 px-3 py-2.5 text-xs text-gold/90 flex items-start gap-2">
-                <AlertCircle size={14} className="flex-shrink-0 mt-0.5" />
-                <span>
-                  Two-factor authentication is required for withdrawals. Enable 2FA in your{' '}
-                  <Link to="/profile" className="font-bold underline">Profile → Security</Link> first.
-                </span>
-              </div>
-            )}
+            ) : null}
 
-            {submitError && (
-              <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2.5 text-xs text-red-100 flex items-start gap-2">
-                <AlertCircle size={14} className="flex-shrink-0 mt-0.5" />
+            {!twofa.enabled && twofa.required_for_withdrawal ? (
+              <p className="text-xs text-[#FE6C02]">
+                2FA required for withdrawals.{' '}
+                <Link to="/account/security" className="font-bold hover:underline">
+                  Enable in Security →
+                </Link>
+              </p>
+            ) : null}
+
+            {submitError ? (
+              <p className="text-xs text-[#F6465D] flex items-start gap-1.5">
+                <AlertCircle size={13} className="shrink-0 mt-0.5" />
                 <span>{submitError}</span>
-              </div>
-            )}
-            {submitOk && (
-              <div className="rounded-xl border border-green-500/30 bg-green-500/10 px-3 py-2.5 text-xs text-green-100 flex items-start gap-2">
-                <CheckCircle size={14} className="flex-shrink-0 mt-0.5" />
+              </p>
+            ) : null}
+            {submitOk ? (
+              <p className="text-xs text-[#0ECB81] flex items-start gap-1.5">
+                <CheckCircle size={13} className="shrink-0 mt-0.5" />
                 <span>
-                  Withdrawal <span className="font-mono">{submitOk.id}</span> submitted — status{' '}
-                  <span className="font-bold">{submitOk.status}</span>
-                  {submitOk.auto ? ' (auto-approved; broadcasting shortly)' : ' (awaiting admin approval)'}.
+                  Submitted <span className="font-mono">{submitOk.id}</span> —{' '}
+                  <span className="font-semibold">{submitOk.status}</span>
+                  {submitOk.auto ? ' (auto-approved)' : ' (awaiting approval)'}.
                 </span>
-              </div>
-            )}
+              </p>
+            ) : null}
+
+            <p className="text-[11px] text-[color:var(--ibo-muted)] leading-relaxed">
+              Double-check the destination address. Wrong network or address = permanent loss.
+            </p>
 
             <button
               type="submit"
-              disabled={submitting || kycBlocked}
-              className="ibo-btn-primary w-full py-3.5 disabled:opacity-40"
+              disabled={submitting || kycBlocked || !withdrawReady}
+              className="wallet-action-primary w-full !py-3 disabled:opacity-40"
             >
-              {submitting ? (<><RefreshCw size={16} className="animate-spin" /> Submitting…</>)
-                : (<><ArrowUpCircle size={16} /> Submit withdrawal</>)}
+              {submitting ? (
+                <>
+                  <RefreshCw size={15} className="animate-spin" /> Submitting…
+                </>
+              ) : (
+                <>
+                  <ArrowUpCircle size={15} /> Submit withdrawal
+                </>
+              )}
             </button>
           </form>
         )}
       </div>
-
-      <div className="space-y-4">
-        <div className="wallet-surface p-5 sm:p-6">
-          <p className="text-[color:var(--ibo-ink)] font-bold mb-3 flex items-center gap-2 text-sm">
-            <Info size={15} className="text-[#FE6C02]" /> How it works
-          </p>
-          <ol className="space-y-3 text-sm text-[color:var(--ibo-ink-secondary)]">
-            {[
-              'Pick the asset, network and paste your destination address.',
-              'We lock the amount (plus the platform fee) in your balance the moment you submit.',
-              'Small withdrawals auto-broadcast on-chain; larger ones wait for admin approval.',
-              'Once the network confirms the transaction, the lock is released from your balance.',
-            ].map((step, i) => (
-              <li key={i} className="flex items-start gap-3">
-                <span className="wallet-step-num">{i + 1}</span>
-                {step}
-              </li>
-            ))}
-          </ol>
-        </div>
-
-        <div className="wallet-surface p-5 border-[#FE6C02]/25">
-          <p className="text-[#FE6C02] font-semibold text-sm flex items-center gap-1.5 mb-2">
-            <AlertCircle size={14} /> Important
-          </p>
-          <ul className="text-xs text-[color:var(--ibo-ink-secondary)] space-y-1.5 list-disc list-inside">
-            <li>Double-check the destination address — on-chain sends are irreversible.</li>
-            <li>Withdrawals to the platform&apos;s own deposit addresses are blocked.</li>
-            <li>Network fees come out of the treasury; you are charged the platform fee rate on top of your amount.</li>
-            <li>Track progress and tx hashes in the History tab.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
     </div>
   );
 }
@@ -2396,10 +2288,10 @@ export default function WalletPage({ accountMode = false, forcedTab = null } = {
   if (accountMode) {
     return (
       <div className="wallet-hub font-ui min-w-0">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2 text-[color:var(--ibo-ink-secondary)]">
-            <TabIcon size={15} className="text-[#FE6C02] shrink-0" />
-            <h2 className="text-sm font-bold text-[color:var(--ibo-ink)]">{tabMeta.label}</h2>
+        <div className="delta-account-toolbar">
+          <div className="flex items-center gap-2 text-[color:var(--ibo-ink-secondary)] min-w-0">
+            <TabIcon size={16} className="text-[#FE6C02] shrink-0" />
+            <h2 className="!text-[15px] !font-semibold !m-0 text-[color:var(--ibo-ink)] truncate">{tabMeta.label}</h2>
           </div>
           <button
             type="button"
