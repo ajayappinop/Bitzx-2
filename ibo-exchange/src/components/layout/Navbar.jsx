@@ -7,8 +7,8 @@ import {
   ExternalLink, Shield, Zap, LineChart, HelpCircle, Settings,
   Download, Coins, Gift, Search, ArrowLeftRight, CircleHelp,
   LayoutGrid, Sun, Moon, CircleDollarSign,
-  BookOpen, BarChart3, Store, QrCode, Users,
-  Database, FileText, Banknote, ShieldCheck, Share2, Monitor,
+  BarChart3, Store, QrCode, Users,
+  FileText, Banknote, Share2, Monitor,
   StickyNote, Mail,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -50,12 +50,9 @@ const NAV_MORE = [
 
 const APPS_RESOURCES = [
   { label: 'Trading Fees', to: '/terms-of-service', icon: CircleDollarSign },
-  { label: 'API Docs', href: 'https://docs.delta.exchange/', icon: Database, external: true },
   { label: 'Contract Specifications', to: '/futures/BTCUSDT-PERP', icon: LayoutGrid },
   { label: 'Trade Data', to: '/markets', icon: LineChart },
-  { label: 'Blog', href: 'https://www.delta.exchange/blog', icon: FileText, external: true },
   { label: 'Settlement Prices', to: '/markets', icon: Banknote },
-  { label: 'Platform Status', href: 'https://status.delta.exchange/', icon: ShieldCheck, external: true },
   { label: 'Offers', to: '/account/refer', icon: Gift },
   { label: 'Refer and Earn', to: '/account/refer', icon: Share2 },
   { label: 'Demo Trading', to: '/register', icon: Monitor },
@@ -63,12 +60,10 @@ const APPS_RESOURCES = [
 
 const APPS_HELP = [
   { label: 'Raise a Support Ticket', to: '/account/support', icon: StickyNote },
-  { label: 'User Guide', href: 'https://guides.delta.exchange/', icon: BookOpen, external: true },
   { label: 'Support Center', href: `mailto:${SITE_CONFIG.supportEmail}`, icon: Mail, external: true },
   { label: 'Tax Info', to: '/terms-of-service', icon: FileText },
 ];
 
-const YOUTUBE_URL = 'https://www.youtube.com/@Delta_Exchange';
 const COMMUNITY_URL = 'https://t.me/iboofficial';
 
 const SEARCH_SHORTCUTS = [
@@ -87,14 +82,6 @@ const SEARCH_SHORTCUTS = [
   { label: 'P2P', to: '/p2p', hint: 'Marketplace' },
   { label: 'Support', to: '/account/support', hint: 'Help centre' },
 ];
-
-function YoutubeIcon({ size = 22 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31.5 31.5 0 0 0 0 12a31.5 31.5 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31.5 31.5 0 0 0 24 12a31.5 31.5 0 0 0-.5-5.8ZM9.75 15.5v-7l6.5 3.5-6.5 3.5Z" />
-    </svg>
-  );
-}
 
 function AppsPanelLink({ item, onClick }) {
   const Icon = item.icon;
@@ -247,22 +234,6 @@ function AppsSidePanel({
                   </a>
                 </div>
               </div>
-
-              {/* YouTube */}
-              <a
-                href={YOUTUBE_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="delta-apps-card delta-apps-promo"
-                onClick={onClose}
-              >
-                <span className="delta-apps-promo__icon delta-apps-promo__icon--yt">
-                  <YoutubeIcon size={22} />
-                </span>
-                <span className="delta-apps-promo__text">
-                  Subscribe to our channel for trade setups &amp; more
-                </span>
-              </a>
 
               {/* Community */}
               <a

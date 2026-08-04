@@ -1,6 +1,5 @@
 /**
- * Account left-nav — Delta Exchange account app
- * https://www.delta.exchange/app/account/positions
+ * Account left-nav — app account sidebar
  */
 
 export const ACCOUNT_NAV_ITEMS = [

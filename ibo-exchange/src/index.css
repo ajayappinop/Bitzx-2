@@ -718,8 +718,8 @@ button.font-ui,
     pointer-events: none;
   }
 
-  /* â”€â”€ Delta Exchange India marketing navbar â”€â”€
-   * Layout & metrics mirror www.delta.exchange header:
+  /* Marketing / product navbar
+   * 48px bar, logo + flat links left, Log In + solid Sign Up right.
    * 48px bar, logo + flat links left, Log In + solid Sign Up right.
    */
   .delta-navbar {

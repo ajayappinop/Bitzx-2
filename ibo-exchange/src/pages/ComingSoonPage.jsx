@@ -236,7 +236,7 @@ export default function ComingSoonPage({ message, launchDate }) {
         >
           <a href={TOKEN} target="_blank" rel="noopener noreferrer"
             className="ibo-btn-primary px-6 py-3 shadow-[0_16px_40px_rgba(0, 168, 118,0.2)]">
-            <Globe size={16} /> Visit Delta.io
+            <Globe size={16} /> Visit ibo.io
           </a>
           <a href="https://twitter.com/iboofficial" target="_blank" rel="noopener noreferrer"
             className="ibo-btn-secondary">

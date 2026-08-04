@@ -761,8 +761,7 @@ function BankDetailsPanel() {
   return (
     <div className="delta-account-panel max-w-xl space-y-5">
       <p className="text-sm text-[color:var(--ibo-muted)]">
-        Manage the bank / UPI details used for INR deposits and withdrawals
-        (same payout profile as Delta India Add Funds).
+        Manage the bank / UPI details used for INR deposits and withdrawals.
       </p>
 
       <div className="delta-account-tabs">
