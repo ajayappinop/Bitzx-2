@@ -16,6 +16,9 @@ import { useTheme } from '@/context/ThemeContext';
 import { exchangeWsPath, normalizeMarketsList } from '@/services/marketApi';
 import { exchangeApiOrigin } from '@/lib/apiBase';
 import BrandLogo from '@/components/ui/BrandLogo';
+import NavWalletDropdown from '@/components/layout/NavWalletDropdown';
+import NavNotifications from '@/components/layout/NavNotifications';
+import NavSettings from '@/components/layout/NavSettings';
 import { useMobileAppRelease } from '@/hooks/useMobileAppRelease';
 import { SITE_CONFIG } from '@/lib/siteConfig';
 
@@ -60,11 +63,9 @@ const APPS_RESOURCES = [
 
 const APPS_HELP = [
   { label: 'Raise a Support Ticket', to: '/account/support', icon: StickyNote },
-  { label: 'Support Center', href: `mailto:${SITE_CONFIG.supportEmail}`, icon: Mail, external: true },
+  { label: 'Support Center', to: '/support', icon: Mail },
   { label: 'Tax Info', to: '/terms-of-service', icon: FileText },
 ];
-
-const COMMUNITY_URL = 'https://t.me/iboofficial';
 
 const SEARCH_SHORTCUTS = [
   { label: 'Markets', to: '/markets', hint: 'Browse all pairs' },
@@ -80,7 +81,7 @@ const SEARCH_SHORTCUTS = [
   { label: 'Add Funds', to: '/account/deposits', hint: 'INR deposit' },
   { label: 'Quick Trade', to: '/quick-trade', hint: 'Convert' },
   { label: 'P2P', to: '/p2p', hint: 'Marketplace' },
-  { label: 'Support', to: '/account/support', hint: 'Help centre' },
+  { label: 'Support', to: '/support', hint: 'Help centre' },
 ];
 
 function AppsPanelLink({ item, onClick }) {
@@ -193,7 +194,7 @@ function AppsSidePanel({
                 </div>
                 <div className="delta-apps-store-btns">
                   {appAvailable && appStoreHref && appLinkProps ? (
-                    <a {...appLinkProps} className="delta-apps-store-btn" onClick={onClose}>
+                    <div className="delta-apps-store-btn" role="text">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                         <path d="M3.6 1.8 13.5 12 3.6 22.2c-.5-.3-.9-.9-.9-1.6V3.4c0-.7.4-1.3.9-1.6Zm12.1 7.4 2.8 1.6c.9.5.9 1.9 0 2.4l-2.8 1.6L12 12l3.7-2.8ZM5.1 1.1l9.7 5.6-3.3 2.5L5.1 1.1Zm6.4 13.7 3.3 2.5-9.7 5.6 6.4-8.1Z" />
                       </svg>
@@ -201,14 +202,9 @@ function AppsSidePanel({
                         <small>{appIsGooglePlay ? 'GET IT ON' : 'DOWNLOAD'}</small>
                         <strong>{appIsGooglePlay ? 'Google Play' : `App${appRelease?.version ? ` v${appRelease.version}` : ''}`}</strong>
                       </span>
-                    </a>
+                    </div>
                   ) : (
-                    <a
-                      href="https://play.google.com/store"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="delta-apps-store-btn"
-                    >
+                    <div className="delta-apps-store-btn" role="text">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                         <path d="M3.6 1.8 13.5 12 3.6 22.2c-.5-.3-.9-.9-.9-1.6V3.4c0-.7.4-1.3.9-1.6Zm12.1 7.4 2.8 1.6c.9.5.9 1.9 0 2.4l-2.8 1.6L12 12l3.7-2.8ZM5.1 1.1l9.7 5.6-3.3 2.5L5.1 1.1Zm6.4 13.7 3.3 2.5-9.7 5.6 6.4-8.1Z" />
                       </svg>
@@ -216,14 +212,9 @@ function AppsSidePanel({
                         <small>GET IT ON</small>
                         <strong>Google Play</strong>
                       </span>
-                    </a>
+                    </div>
                   )}
-                  <a
-                    href="https://apps.apple.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="delta-apps-store-btn"
-                  >
+                  <div className="delta-apps-store-btn" role="text">
                     <svg width="16" height="18" viewBox="0 0 16 20" fill="currentColor" aria-hidden>
                       <path d="M13.2 10.6c0-2.1 1.7-3.1 1.8-3.2-1-1.4-2.5-1.6-3-1.6-1.3-.1-2.5.8-3.1.8-.7 0-1.7-.7-2.8-.7-1.4 0-2.8.9-3.5 2.2-1.5 2.6-.4 6.5 1.1 8.6.7 1 1.6 2.2 2.7 2.2 1.1 0 1.5-.7 2.9-.7s1.7.7 2.9.7 1.9-1 2.6-2c.8-1.2 1.1-2.3 1.1-2.4 0 0-2.2-.9-2.2-3.4ZM11.2 4.4c.6-.7 1-1.7.9-2.7-1 .1-2.1.6-2.7 1.4-.6.7-1.1 1.7-1 2.7 1 .1 2.1-.5 2.8-1.4Z" />
                     </svg>
@@ -231,25 +222,19 @@ function AppsSidePanel({
                       <small>Download on the</small>
                       <strong>App Store</strong>
                     </span>
-                  </a>
+                  </div>
                 </div>
               </div>
 
               {/* Community */}
-              <a
-                href={COMMUNITY_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="delta-apps-card delta-apps-promo"
-                onClick={onClose}
-              >
+              <div className="delta-apps-card delta-apps-promo" role="text">
                 <span className="delta-apps-promo__icon delta-apps-promo__icon--community">
                   <Users size={20} strokeWidth={1.6} />
                 </span>
                 <span className="delta-apps-promo__text">
                   Join India&apos;s Leading Crypto Trading Community
                 </span>
-              </a>
+              </div>
 
               {/* Resources */}
               <div className="delta-apps-card">
@@ -353,12 +338,6 @@ function pathActive(pathname, to) {
     return pathname === '/account' || pathname.startsWith('/account/');
   }
   return pathname === base || pathname.startsWith(`${base}/`);
-}
-
-function formatInrBalance(balance) {
-  const n = Number(balance?.INR ?? balance?.USDT ?? 0);
-  if (!Number.isFinite(n)) return '0.00';
-  return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function LiveTicker() {
@@ -481,7 +460,7 @@ function DropdownItem({ to, label, desc, icon: Icon, active, onClick }) {
 }
 
 export default function Navbar() {
-  const { user, logout, balance, fetchWallet } = useAuth();
+  const { user, logout, fetchWallet } = useAuth();
   const { isLight, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -665,7 +644,6 @@ export default function Navbar() {
   };
 
   const navAvatarSrc = user ? userAvatarSrc(user) : null;
-  const inrBal = formatInrBalance(balance);
 
   return (
     <>
@@ -744,10 +722,7 @@ export default function Navbar() {
                     Add Funds
                   </Link>
 
-                  <Link to="/account/balances" className="delta-nav-balance hidden sm:inline-flex" title="Wallet balance">
-                    <span className="delta-nav-balance__rupee" aria-hidden>₹</span>
-                    <span className="delta-nav-balance__amt tabular-nums">{inrBal}</span>
-                  </Link>
+                  <NavWalletDropdown className="hidden sm:inline-flex" />
 
                   <Link
                     to="/account/transfer"
@@ -766,6 +741,16 @@ export default function Navbar() {
                   >
                     <CircleHelp size={18} strokeWidth={1.6} />
                   </Link>
+
+                  <NavNotifications
+                    className="hidden sm:inline-flex"
+                    onOpenChange={(v) => { if (v) { setUserOpen(false); setOpenMenu(null); } }}
+                  />
+
+                  <NavSettings
+                    className="hidden sm:inline-flex"
+                    onOpenChange={(v) => { if (v) { setUserOpen(false); setOpenMenu(null); } }}
+                  />
 
                   <div className="relative" ref={userTriggerRef}>
                     <button
@@ -1008,14 +993,9 @@ export default function Navbar() {
                       >
                         Add Funds
                       </Link>
-                      <Link
-                        to="/account/balances"
-                        onClick={() => setMenuOpen(false)}
-                        className="delta-nav-balance !mr-0"
-                      >
-                        <span className="delta-nav-balance__rupee">₹</span>
-                        <span className="delta-nav-balance__amt">{inrBal}</span>
-                      </Link>
+                      <NavWalletDropdown className="!mr-0" />
+                      <NavNotifications className="!mr-0" />
+                      <NavSettings className="!mr-0" />
                     </div>
                   ) : null}
 
@@ -1167,14 +1147,14 @@ export default function Navbar() {
                   <button
                     type="button"
                     onClick={() => setLogoutModalOpen(false)}
-                    className="px-4 py-2 rounded text-sm font-medium text-[color:var(--ibo-ink-secondary)] border border-[color:var(--ibo-border-solid)] hover:bg-black/[0.04]"
+                    className="ibo-logout-modal__cancel"
                   >
                     Cancel
                   </button>
                   <button
                     type="button"
                     onClick={confirmLogout}
-                    className="px-4 py-2 rounded text-sm font-medium text-white bg-red-500 hover:bg-red-600"
+                    className="ibo-logout-modal__confirm"
                   >
                     Sign out
                   </button>

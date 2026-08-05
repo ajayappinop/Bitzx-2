@@ -8,6 +8,8 @@ import { useAuth } from '@/context/AuthContext';
 import { COIN_ICONS, exchangeWsPath, normalizeMarketsList } from '@/services/marketApi';
 import ClosePositionModal from '@/components/trading/ClosePositionModal';
 import WalletPage from '@/pages/WalletPage';
+import WalletBalancesHub from '@/pages/account/WalletBalancesHub';
+import IboSwapPanel from '@/components/wallet/IboSwapPanel';
 import ProfilePage from '@/pages/ProfilePage';
 import KYCPage from '@/pages/KYCPage';
 import SettingsPage from '@/pages/SettingsPage';
@@ -559,7 +561,7 @@ export function AccountInvoices() {
 export function AccountBalances() {
   return (
     <div className="delta-account-embed">
-      <WalletPage accountMode forcedTab="balances" />
+      <WalletBalancesHub />
     </div>
   );
 }
@@ -591,7 +593,7 @@ export function AccountTransactionLogs() {
 export function AccountTransfer() {
   return (
     <div className="delta-account-embed">
-      <WalletPage accountMode forcedTab="swap" />
+      <IboSwapPanel />
     </div>
   );
 }

@@ -55,6 +55,7 @@ import IBOMarket             from '@/pages/IBOMarket';
 import ListCoinPage          from '@/pages/ListCoinPage';
 import PrivacyPolicyPage     from '@/pages/PrivacyPolicyPage';
 import TermsPage             from '@/pages/TermsPage';
+import SupportCenterPage     from '@/pages/SupportCenterPage';
 import ReferAndEarnPage      from '@/pages/ReferAndEarnPage';
 import { captureReferralCodeFromUrl } from '@/lib/referral';
 
@@ -111,7 +112,7 @@ function WalletLegacyRedirect() {
     swap: 'transfer',
     ledger: 'transaction-logs',
     history: 'transaction-logs',
-    futures: 'balances',
+    futures: 'balances?wallet=fno',
   };
   const dest = map[tab] || 'balances';
   return <Navigate to={`/account/${dest}`} replace />;
@@ -245,6 +246,8 @@ export default function App() {
 
       <Route element={<Layout />}>
         <Route path="/"              element={<LandingPage />} />
+        <Route path="/support"       element={<SupportCenterPage />} />
+        <Route path="/help"          element={<Navigate to="/support" replace />} />
         <Route path="/markets"       element={<MarketsPage />} />
         <Route path="/list-coin"     element={<ListCoinPage />} />
         <Route path="/quick-trade"   element={<QuickTradePage />} />

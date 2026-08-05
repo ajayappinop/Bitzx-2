@@ -5,7 +5,8 @@ import {
   Shield, ShieldCheck, ShieldAlert, Smartphone, Activity,
   Trash2, Eye, EyeOff, Lock, X, CheckCircle2, AlertTriangle,
   Clock, Globe, LogOut, ChevronRight,
-  ToggleLeft, ToggleRight, Fish, ArrowLeft,
+  Fish, ArrowLeft,
+  Copy, KeyRound, RefreshCw, QrCode,
 } from 'lucide-react';
 import { useAuth, authFetch } from '@/context/AuthContext';
 import { exchangeApiOrigin } from '@/lib/apiBase';
@@ -15,7 +16,7 @@ const API = exchangeApiOrigin(import.meta.env.VITE_BACKEND_URL);
 
 // ── Shared UI primitives ──────────────────────────────────────────────────────
 
-function Drawer({ open, onClose, title, children }) {
+function Drawer({ open, onClose, title, subtitle, children }) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
@@ -36,13 +37,18 @@ function Drawer({ open, onClose, title, children }) {
             initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
             transition={{ type: 'spring', stiffness: 320, damping: 32 }}
             className="fixed right-0 top-0 bottom-0 z-[80] w-full max-w-lg
-              bg-[color:var(--ibo-elevated,var(--ibo-card))] border-l border-[color:var(--ibo-border-solid)]
+              bg-[color:var(--ibo-bg)] border-l border-[color:var(--ibo-border-solid)]
               shadow-2xl overflow-y-auto"
           >
-            <div className="flex items-center justify-between px-5 py-4 border-b border-[color:var(--ibo-border-solid)] sticky top-0 bg-[color:var(--ibo-elevated,var(--ibo-card))] z-10">
-              <h2 className="text-[15px] font-bold text-[color:var(--ibo-ink)]">{title}</h2>
-              <button type="button" onClick={onClose}
-                className="p-1.5 rounded-lg text-[color:var(--ibo-muted)] hover:text-[color:var(--ibo-ink)] hover:bg-white/5 transition-colors">
+            <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-[color:var(--ibo-border-solid)] sticky top-0 bg-[color:var(--ibo-bg)] z-10">
+              <div className="min-w-0">
+                <h2 className="text-[15px] font-bold text-[color:var(--ibo-ink)] leading-snug">{title}</h2>
+                {subtitle ? (
+                  <p className="text-[12px] text-[color:var(--ibo-muted)] mt-0.5 leading-snug">{subtitle}</p>
+                ) : null}
+              </div>
+              <button type="button" onClick={onClose} aria-label="Close"
+                className="p-1.5 rounded-lg text-[color:var(--ibo-muted)] hover:text-[color:var(--ibo-ink)] hover:bg-white/5 transition-colors shrink-0 mt-0.5">
                 <X size={18} />
               </button>
             </div>
@@ -124,22 +130,25 @@ function FieldRow({ label, children }) {
   );
 }
 
-function TextInput({ value, onChange, type = 'text', placeholder, disabled, error, rightAddon }) {
+function TextInput({ value, onChange, type = 'text', placeholder, disabled, error, rightAddon, inputMode, autoComplete, mono }) {
   return (
     <div>
-      <div
-        className={`flex items-center rounded-xl border px-3.5 py-2.5 transition-colors bg-[color:var(--ibo-bg)]
-        ${error ? 'border-[#F6465D]/50' : 'border-[color:var(--ibo-border-solid)] focus-within:border-[#FE6C02]/45'}`}
-      >
+      <div className="relative">
         <input
           type={type}
           value={value}
           onChange={onChange}
           placeholder={placeholder}
           disabled={disabled}
-          className="flex-1 bg-transparent text-sm text-[color:var(--ibo-ink)] outline-none placeholder:text-[color:var(--ibo-muted)] disabled:opacity-50"
+          inputMode={inputMode}
+          autoComplete={autoComplete}
+          className={`wallet-field${rightAddon ? ' !pr-11' : ''}${mono ? ' font-mono tracking-[0.35em] text-center text-base' : ''}${error ? ' !border-[#F6465D]/50' : ''}`}
         />
-        {rightAddon}
+        {rightAddon ? (
+          <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center">
+            {rightAddon}
+          </div>
+        ) : null}
       </div>
       {error ? <p className="text-xs text-[#F6465D] mt-1 font-semibold">{error}</p> : null}
     </div>
@@ -249,68 +258,101 @@ function SecurityScore({ user, twoFaEnabled, compact = false }) {
 }
 
 // ── 2FA Panel ─────────────────────────────────────────────────────────────────
-// Phases: idle → setup → verify → backups | idle → disable | idle → regen
+// Phases: idle → setup → backups | idle → disable | idle → regen
+
+const TFA_BENEFITS = [
+  { icon: Lock, text: 'Blocks sign-ins without your authenticator code' },
+  { icon: ShieldCheck, text: 'Adds an extra layer for withdrawals' },
+  { icon: Smartphone, text: 'Works offline with any TOTP authenticator app' },
+];
 
 function TwoFactorPanel({ open, onClose, user, onUserUpdate }) {
-  // phase: idle | setup | verify | backups | disable | regen
   const [phase, setPhase] = useState('idle');
   const [setupData, setSetupData] = useState(null);
-
-  // shared code input (TOTP or backup)
-  const [code, setCode]       = useState('');
-  // password only needed for disable
+  const [code, setCode] = useState('');
   const [disablePw, setDisablePw] = useState('');
   const [showDisablePw, setShowDisablePw] = useState(false);
-  // regen needs a TOTP code
   const [regenCode, setRegenCode] = useState('');
-
   const [backupCodes, setBackupCodes] = useState([]);
-  const [loading, setLoading]     = useState(false);
-  const [error, setError]         = useState('');
-  const [success, setSuccess]     = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [copied, setCopied] = useState('');
   const enabled = Boolean(user?.two_factor_enabled);
 
   const reset = () => {
-    setPhase('idle'); setCode(''); setDisablePw(''); setRegenCode('');
-    setError(''); setSuccess(''); setSetupData(null);
+    setPhase('idle');
+    setCode('');
+    setDisablePw('');
+    setRegenCode('');
+    setError('');
+    setSuccess('');
+    setSetupData(null);
+    setCopied('');
   };
 
-  // ── Start setup ─────────────────────────────────────────────────────────────
-  const startSetup = async () => {
-    setLoading(true); setError('');
+  const copyText = async (text, key) => {
     try {
-      const res  = await authFetch(`${API}/api/auth/2fa/setup`, { method: 'POST' });
+      await navigator.clipboard.writeText(text);
+      setCopied(key);
+      setTimeout(() => setCopied((c) => (c === key ? '' : c)), 2000);
+    } catch {
+      setError('Could not copy — select and copy manually.');
+    }
+  };
+
+  const startSetup = async () => {
+    setLoading(true);
+    setError('');
+    setSuccess('');
+    try {
+      const res = await authFetch(`${API}/api/auth/2fa/setup`, { method: 'POST' });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || 'Setup failed');
-      setSetupData(data);   // data.secret_b32, data.otpauth_url, data.issuer
+      setSetupData(data);
       setCode('');
       setPhase('setup');
-    } catch (e) { setError(e.message); }
-    finally { setLoading(false); }
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // ── Verify TOTP code after scanning QR ─────────────────────────────────────
   const verifySetup = async () => {
-    if (code.length < 6) { setError('Enter the 6-digit code from your authenticator app.'); return; }
-    setLoading(true); setError('');
+    if (code.length < 6) {
+      setError('Enter the 6-digit code from your authenticator app.');
+      return;
+    }
+    setLoading(true);
+    setError('');
     try {
-      const res  = await authFetch(`${API}/api/auth/2fa/verify`, { method: 'POST', body: { code } });
+      const res = await authFetch(`${API}/api/auth/2fa/verify`, { method: 'POST', body: { code } });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || 'Verification failed');
       setBackupCodes(data.backup_codes || []);
       onUserUpdate({ two_factor_enabled: true });
       setPhase('backups');
-    } catch (e) { setError(e.message); }
-    finally { setLoading(false); }
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // ── Disable 2FA — backend requires password + TOTP code ────────────────────
   const disable2fa = async () => {
-    if (!disablePw) { setError('Enter your account password.'); return; }
-    if (code.length < 6) { setError('Enter your current 6-digit TOTP code.'); return; }
-    setLoading(true); setError('');
+    if (!disablePw) {
+      setError('Enter your account password.');
+      return;
+    }
+    if (code.length < 6) {
+      setError('Enter your current 6-digit TOTP code.');
+      return;
+    }
+    setLoading(true);
+    setError('');
     try {
-      const res  = await authFetch(`${API}/api/auth/2fa/disable`, {
+      const res = await authFetch(`${API}/api/auth/2fa/disable`, {
         method: 'POST',
         body: { password: disablePw, code },
       });
@@ -319,16 +361,24 @@ function TwoFactorPanel({ open, onClose, user, onUserUpdate }) {
       onUserUpdate({ two_factor_enabled: false });
       setSuccess('2FA has been disabled.');
       setPhase('idle');
-    } catch (e) { setError(e.message); }
-    finally { setLoading(false); }
+      setCode('');
+      setDisablePw('');
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // ── Regenerate backup codes — backend requires TOTP code ───────────────────
   const regenBackups = async () => {
-    if (regenCode.length < 6) { setError('Enter your current 6-digit TOTP code to regenerate backup codes.'); return; }
-    setLoading(true); setError('');
+    if (regenCode.length < 6) {
+      setError('Enter your current 6-digit TOTP code to regenerate backup codes.');
+      return;
+    }
+    setLoading(true);
+    setError('');
     try {
-      const res  = await authFetch(`${API}/api/auth/2fa/backup-codes/regenerate`, {
+      const res = await authFetch(`${API}/api/auth/2fa/backup-codes/regenerate`, {
         method: 'POST',
         body: { code: regenCode },
       });
@@ -336,126 +386,282 @@ function TwoFactorPanel({ open, onClose, user, onUserUpdate }) {
       if (!res.ok) throw new Error(data.detail || 'Regeneration failed');
       setBackupCodes(data.backup_codes || []);
       setPhase('backups');
-    } catch (e) { setError(e.message); }
-    finally { setLoading(false); }
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const titles = {
+    idle: 'Two-factor authentication',
+    setup: 'Set up authenticator',
+    backups: 'Save backup codes',
+    disable: 'Disable 2FA',
+    regen: 'Regenerate backup codes',
+  };
+  const subtitles = {
+    idle: 'Protect sign-in with a time-based code',
+    setup: 'Scan the QR, then confirm with a code',
+    backups: 'Store these codes somewhere safe offline',
+    disable: 'Requires password and authenticator code',
+    regen: 'Invalidates all previous backup codes',
   };
 
   return (
-    <Drawer open={open} onClose={() => { reset(); onClose(); }} title="Two-Factor Authentication">
+    <Drawer
+      open={open}
+      onClose={() => {
+        reset();
+        onClose();
+      }}
+      title={titles[phase] || titles.idle}
+      subtitle={subtitles[phase] || subtitles.idle}
+    >
       <ErrorBox msg={error} />
       <SuccessBox msg={success} />
 
-      {/* ── Idle state ── */}
+      {/* ── Idle ── */}
       {phase === 'idle' && (
-        <>
-          <div className={`flex items-center gap-3 mb-6 p-4 rounded-xl border
-            ${enabled ? 'border-green-500/25 bg-green-500/[.06]' : 'border-gold/25 bg-gold/[.06]'}`}>
-            {enabled
-              ? <ShieldCheck size={22} className="text-green-400 flex-shrink-0" />
-              : <ShieldAlert size={22} className="text-gold flex-shrink-0" />}
-            <div>
-              <p className="text-sm font-bold text-white">{enabled ? '2FA is enabled' : '2FA is disabled'}</p>
-              <p className="text-xs text-white/50 mt-0.5">
-                {enabled ? 'Your account is protected with TOTP authenticator' : 'Enable for extra account protection'}
+        <div className="tfa-panel">
+          <div className={`tfa-status ${enabled ? 'tfa-status--on' : 'tfa-status--off'}`}>
+            <div className="tfa-status__icon">
+              {enabled ? <ShieldCheck size={22} /> : <ShieldAlert size={22} />}
+            </div>
+            <div className="tfa-status__body">
+              <div className="tfa-status__row">
+                <p className="tfa-status__title">{enabled ? '2FA is on' : '2FA is off'}</p>
+                <span className={`pref-badge ${enabled ? 'pref-badge--on' : 'pref-badge--warn'}`}>
+                  {enabled ? 'Protected' : 'At risk'}
+                </span>
+              </div>
+              <p className="tfa-status__desc">
+                {enabled
+                  ? 'A one-time code from your authenticator is required in addition to your password.'
+                  : 'Your account only has a password. Enable 2FA so stolen passwords alone cannot sign you in.'}
               </p>
             </div>
           </div>
-          {enabled ? (
-            <div className="space-y-3">
-              <Btn onClick={() => { setCode(''); setDisablePw(''); setError(''); setPhase('disable'); }} variant="danger">
-                Disable 2FA
+
+          {!enabled ? (
+            <>
+              <div className="tfa-benefits">
+                <p className="tfa-section-label">What you get</p>
+                <ul className="tfa-benefits__list">
+                  {TFA_BENEFITS.map(({ icon: Icon, text }) => (
+                    <li key={text} className="tfa-benefits__item">
+                      <span className="tfa-benefits__icon"><Icon size={14} /></span>
+                      <span>{text}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <p className="tfa-hint">
+                Use Google Authenticator, Authy, 1Password, or any other TOTP app.
+              </p>
+
+              <Btn onClick={startSetup} loading={loading}>
+                <Shield size={15} /> Enable 2FA
               </Btn>
-              <Btn onClick={() => { setRegenCode(''); setError(''); setPhase('regen'); }} variant="ghost">
-                Regenerate Backup Codes
-              </Btn>
-            </div>
+            </>
           ) : (
-            <Btn onClick={startSetup} loading={loading}>Enable 2FA</Btn>
+            <div className="tfa-actions">
+              <button
+                type="button"
+                className="tfa-action"
+                onClick={() => {
+                  setRegenCode('');
+                  setError('');
+                  setSuccess('');
+                  setPhase('regen');
+                }}
+              >
+                <span className="tfa-action__icon tfa-action__icon--amber">
+                  <RefreshCw size={16} />
+                </span>
+                <span className="tfa-action__text">
+                  <span className="tfa-action__title">Regenerate backup codes</span>
+                  <span className="tfa-action__desc">Replace lost or used recovery codes</span>
+                </span>
+                <ChevronRight size={15} className="tfa-action__chevron" />
+              </button>
+              <button
+                type="button"
+                className="tfa-action tfa-action--danger"
+                onClick={() => {
+                  setCode('');
+                  setDisablePw('');
+                  setError('');
+                  setSuccess('');
+                  setPhase('disable');
+                }}
+              >
+                <span className="tfa-action__icon tfa-action__icon--red">
+                  <ShieldAlert size={16} />
+                </span>
+                <span className="tfa-action__text">
+                  <span className="tfa-action__title">Disable 2FA</span>
+                  <span className="tfa-action__desc">Remove the authenticator requirement</span>
+                </span>
+                <ChevronRight size={15} className="tfa-action__chevron" />
+              </button>
+            </div>
           )}
-        </>
+        </div>
       )}
 
-      {/* ── QR scan + manual key ── */}
+      {/* ── Setup: QR + verify ── */}
       {phase === 'setup' && setupData && (
-        <>
-          <p className="text-sm text-white/70 mb-4 leading-relaxed">
-            Scan the QR code with your authenticator app (Google Authenticator, Authy, 1Password, etc.)
-          </p>
-          <div className="flex justify-center mb-4">
-            <div className="bg-white p-3 rounded-xl inline-block">
+        <div className="tfa-panel">
+          <ol className="tfa-steps" aria-label="Setup steps">
+            <li className="tfa-steps__item is-active">
+              <span className="tfa-steps__num">1</span>
+              <span>Scan QR</span>
+            </li>
+            <li className="tfa-steps__line" aria-hidden />
+            <li className="tfa-steps__item is-active">
+              <span className="tfa-steps__num">2</span>
+              <span>Confirm code</span>
+            </li>
+          </ol>
+
+          <div className="tfa-qr">
+            <div className="tfa-qr__frame">
               <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(setupData.otpauth_url || '')}`}
-                alt="2FA QR Code" width={180} height={180}
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(setupData.otpauth_url || '')}`}
+                alt="2FA QR code"
+                width={200}
+                height={200}
               />
             </div>
-          </div>
-          {/* Manual key — backend returns secret_b32 */}
-          {setupData.secret_b32 && (
-            <div className="mb-4 p-3 rounded-xl bg-surface-card border border-surface-border">
-              <p className="text-xs text-white/50 mb-1">Can't scan? Enter this key manually:</p>
-              <p className="font-mono text-sm text-gold-light break-all select-all">{setupData.secret_b32}</p>
-            </div>
-          )}
-          <FieldRow label="Enter 6-digit code from your app">
-            <TextInput
-              value={code}
-              onChange={e => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-              placeholder="000000"
-            />
-          </FieldRow>
-          <div className="space-y-2">
-            <Btn onClick={verifySetup} loading={loading} disabled={code.length < 6}>Verify & Enable</Btn>
-            <Btn onClick={reset} variant="ghost">Cancel</Btn>
-          </div>
-        </>
-      )}
-
-      {/* ── Backup codes display ── */}
-      {phase === 'backups' && (
-        <>
-          <div className="mb-4 p-4 rounded-xl bg-gold/10 border border-gold/25">
-            <p className="text-sm font-bold text-gold mb-1">Save your backup codes</p>
-            <p className="text-xs text-gold/80 leading-relaxed">
-              Each code can be used once if you lose access to your authenticator app. Store them somewhere safe.
+            <p className="tfa-qr__caption">
+              <QrCode size={13} /> Open your authenticator and scan this code
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-2 mb-5">
-            {backupCodes.map((c, i) => (
-              <div key={i}
-                className="font-mono text-xs bg-surface-card border border-surface-border rounded-lg px-3 py-2.5 text-white/80 select-all text-center">
-                {c}
+
+          {setupData.secret_b32 ? (
+            <div className="tfa-secret">
+              <div className="tfa-secret__head">
+                <KeyRound size={14} />
+                <span>Can&apos;t scan? Enter this key</span>
               </div>
-            ))}
+              <div className="tfa-secret__row">
+                <code className="tfa-secret__code">{setupData.secret_b32}</code>
+                <button
+                  type="button"
+                  className="tfa-copy-btn"
+                  onClick={() => copyText(setupData.secret_b32, 'secret')}
+                >
+                  <Copy size={14} />
+                  {copied === 'secret' ? 'Copied' : 'Copy'}
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          <FieldRow label="6-digit code from your app">
+            <TextInput
+              value={code}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              placeholder="000000"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              mono
+            />
+          </FieldRow>
+
+          <div className="space-y-2">
+            <Btn onClick={verifySetup} loading={loading} disabled={code.length < 6}>
+              Verify &amp; enable
+            </Btn>
+            <Btn onClick={reset} variant="ghost">
+              Cancel
+            </Btn>
           </div>
-          <Btn onClick={() => { reset(); setSuccess('2FA configured. Keep backup codes safe!'); }}>Done</Btn>
-        </>
+        </div>
       )}
 
-      {/* ── Disable 2FA — requires password + TOTP code ── */}
-      {phase === 'disable' && (
-        <>
-          <div className="mb-5 p-4 rounded-xl bg-red-500/10 border border-red-500/25">
-            <p className="text-sm font-bold text-red-400 mb-1">Disable Two-Factor Authentication</p>
-            <p className="text-xs text-red-400/80">For security, disabling 2FA requires both your password and your current authenticator code.</p>
+      {/* ── Backup codes ── */}
+      {phase === 'backups' && (
+        <div className="tfa-panel">
+          <div className="tfa-warn">
+            <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+            <div>
+              <p className="tfa-warn__title">Save these codes now</p>
+              <p className="tfa-warn__desc">
+                Each code works once if you lose your authenticator. You won&apos;t see them again after you close this panel.
+              </p>
+            </div>
           </div>
+
+          <div className="tfa-codes">
+            {backupCodes.map((c) => (
+              <code key={c} className="tfa-codes__item">
+                {c}
+              </code>
+            ))}
+          </div>
+
+          <div className="space-y-2">
+            <Btn
+              variant="ghost"
+              onClick={() => copyText(backupCodes.join('\n'), 'codes')}
+            >
+              <Copy size={14} />
+              {copied === 'codes' ? 'Copied all codes' : 'Copy all codes'}
+            </Btn>
+            <Btn
+              onClick={() => {
+                reset();
+                setSuccess('2FA is ready. Keep your backup codes in a safe place.');
+              }}
+            >
+              I&apos;ve saved my codes
+            </Btn>
+          </div>
+        </div>
+      )}
+
+      {/* ── Disable ── */}
+      {phase === 'disable' && (
+        <div className="tfa-panel">
+          <div className="tfa-danger">
+            <ShieldAlert size={18} className="shrink-0" />
+            <div>
+              <p className="tfa-danger__title">This weakens your account</p>
+              <p className="tfa-danger__desc">
+                After disabling, only your password will protect sign-in and withdrawals. You&apos;ll need both your password and a current authenticator code to confirm.
+              </p>
+            </div>
+          </div>
+
           <FieldRow label="Account password">
             <TextInput
               type={showDisablePw ? 'text' : 'password'}
               value={disablePw}
-              onChange={e => setDisablePw(e.target.value)}
+              onChange={(e) => setDisablePw(e.target.value)}
               placeholder="Your account password"
               rightAddon={
-                <button type="button" onClick={() => setShowDisablePw(v => !v)} className="text-white/50 hover:text-white ml-2">
+                <button
+                  type="button"
+                  onClick={() => setShowDisablePw((v) => !v)}
+                  className="text-[color:var(--ibo-muted)] hover:text-[color:var(--ibo-ink)] ml-2"
+                  aria-label={showDisablePw ? 'Hide password' : 'Show password'}
+                >
                   {showDisablePw ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               }
             />
           </FieldRow>
-          <FieldRow label="Current 6-digit authenticator code">
+          <FieldRow label="Current authenticator code">
             <TextInput
               value={code}
-              onChange={e => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
               placeholder="000000"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              mono
             />
           </FieldRow>
           <div className="space-y-2">
@@ -465,37 +671,43 @@ function TwoFactorPanel({ open, onClose, user, onUserUpdate }) {
               disabled={!disablePw || code.length < 6}
               variant="danger"
             >
-              Confirm Disable 2FA
+              Confirm disable
             </Btn>
-            <Btn onClick={reset} variant="ghost">Cancel</Btn>
+            <Btn onClick={reset} variant="ghost">
+              Keep 2FA enabled
+            </Btn>
           </div>
-        </>
+        </div>
       )}
 
-      {/* ── Regenerate backup codes — requires TOTP code ── */}
+      {/* ── Regenerate ── */}
       {phase === 'regen' && (
-        <>
-          <div className="mb-5 p-4 rounded-xl bg-surface-card border border-surface-border">
-            <p className="text-sm font-bold text-white mb-1">Regenerate Backup Codes</p>
-            <p className="text-xs text-white/55 leading-relaxed">
-              All previous backup codes will be invalidated. You'll receive 10 fresh codes.
-              Enter your current authenticator code to confirm.
+        <div className="tfa-panel">
+          <div className="tfa-info">
+            <RefreshCw size={16} className="shrink-0 mt-0.5" />
+            <p>
+              All previous backup codes stop working immediately. Enter a current authenticator code to mint a new set of recovery codes.
             </p>
           </div>
-          <FieldRow label="Current 6-digit authenticator code">
+          <FieldRow label="Current authenticator code">
             <TextInput
               value={regenCode}
-              onChange={e => setRegenCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              onChange={(e) => setRegenCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
               placeholder="000000"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              mono
             />
           </FieldRow>
           <div className="space-y-2">
             <Btn onClick={regenBackups} loading={loading} disabled={regenCode.length < 6}>
-              Generate New Codes
+              Generate new codes
             </Btn>
-            <Btn onClick={reset} variant="ghost">Cancel</Btn>
+            <Btn onClick={reset} variant="ghost">
+              Cancel
+            </Btn>
           </div>
-        </>
+        </div>
       )}
     </Drawer>
   );
@@ -1077,14 +1289,14 @@ export default function SettingsPage({ accountMode = false } = {}) {
                 type="button"
                 onClick={toggleSafeSession}
                 disabled={safeSessionLoading}
-                className="shrink-0 disabled:opacity-50"
+                className={`pref-switch${safeSession ? ' is-on' : ''}`}
+                role="switch"
+                aria-checked={safeSession}
                 aria-label="Toggle safe session"
               >
-                {safeSession ? (
-                  <ToggleRight size={34} className="text-[#0ECB81]" />
-                ) : (
-                  <ToggleLeft size={34} className="text-[color:var(--ibo-muted)]" />
-                )}
+                <span className="pref-switch__track" aria-hidden>
+                  <span className="pref-switch__thumb" />
+                </span>
               </button>
             </div>
           </div>

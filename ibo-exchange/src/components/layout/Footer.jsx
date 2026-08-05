@@ -21,9 +21,9 @@ const LINKS = {
   ],
   Support: [
     { label: SUPPORT_EMAIL, href: `mailto:${SUPPORT_EMAIL}`, isMailto: true },
-    { label: 'Help Center', href: '#' },
+    { label: 'Help Center', to: '/support' },
+    { label: 'Raise a Ticket', to: '/account/support' },
     { label: 'API Docs', href: '#' },
-    { label: 'Status', href: '#' },
   ],
   Legal: [
     { label: 'Privacy Policy', to: SITE_CONFIG.privacyPolicyPath },

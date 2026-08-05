@@ -367,7 +367,7 @@ export default function LandingFaqSupport() {
 
                     <Link
 
-                      to="/dashboard"
+                      to="/support"
 
                       className="font-semibold hover:underline underline-offset-2"
 
@@ -375,7 +375,7 @@ export default function LandingFaqSupport() {
 
                     >
 
-                      Open your dashboard
+                      Open the Help Center
 
                     </Link>{' '}
 

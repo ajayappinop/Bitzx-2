@@ -4,6 +4,7 @@ export const SITE_CONFIG = {
   supportEmail: 'support@ibo.io',
   privacyPolicyPath: '/privacy-policy',
   termsPath: '/terms-of-service',
+  supportPath: '/support',
 };
 
 export const SUPPORT_MAILTO = `mailto:${SITE_CONFIG.supportEmail}`;

@@ -1,11 +1,20 @@
 /**
- * Delta ↔ USDT instant swap + recent swap history (wallet tab).
+ * Transfer hub — Delta ↔ USDT convert + Spot ↔ Futures USDT wallet transfers.
+ * Used at /account/transfer and the wallet Swap tab.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ArrowDownUp, ArrowRight, ChevronDown, ChevronUp,
-  RefreshCw, Wallet, History, Info,
+  ArrowDownUp,
+  ArrowLeftRight,
+  ArrowRight,
+  History,
+  Info,
+  RefreshCw,
+  Sparkles,
+  Wallet,
+  CheckCircle2,
+  AlertTriangle,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { COIN_ICONS, walletAssetLabel } from '@/services/marketApi';
@@ -16,6 +25,8 @@ import {
   fetchSwapOrderHistory,
 } from '@/services/walletSwapApi';
 import { buildLocalSwapQuote } from '@/lib/swapEstimate';
+import { futuresApi } from '@/services/futuresApi';
+import { friendlyError } from '@/context/ToastContext';
 
 const PCT = [0.25, 0.5, 0.75, 1];
 const QUOTE_DEBOUNCE_MS = 160;
@@ -30,52 +41,29 @@ function fmt(v, dp = 4) {
   return v.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: dp });
 }
 
-function AssetChip({ asset, large }) {
+function AssetMark({ asset, size = 28 }) {
   const icon = COIN_ICONS[asset];
   const label = walletAssetLabel(asset);
+  const dim = size;
+  if (icon) {
+    return (
+      <img
+        src={icon}
+        alt=""
+        width={dim}
+        height={dim}
+        className="rounded-full object-contain shrink-0"
+        style={{ width: dim, height: dim }}
+      />
+    );
+  }
   return (
-    <span className={`inline-flex items-center gap-2 rounded-xl border border-[#FE6C02]/30 bg-[#FE6C02]/10 shrink-0 ${large ? 'px-4 py-2' : 'px-3 py-1.5'}`}>
-      {icon ? (
-        <img src={icon} alt="" className={large ? 'h-8 w-8' : 'h-6 w-6'} />
-      ) : (
-        <span className={`flex items-center justify-center rounded-full bg-[#FE6C02]/25 font-bold text-[#FE6C02] ${large ? 'h-8 w-8 text-xs' : 'h-6 w-6 text-[10px]'}`}>
-          {label.slice(0, 2)}
-        </span>
-      )}
-      <span className={`font-bold text-[#FE6C02] ${large ? 'text-base' : 'text-sm'}`}>{label}</span>
+    <span
+      className="flex items-center justify-center rounded-full bg-[rgba(254,108,2,0.15)] font-bold text-[#FE6C02] shrink-0"
+      style={{ width: dim, height: dim, fontSize: dim * 0.32 }}
+    >
+      {label.slice(0, 2)}
     </span>
-  );
-}
-
-function DetailRow({ label, value, accent }) {
-  return (
-    <div className="flex justify-between gap-3 py-2 border-b border-[color:var(--ibo-border-solid)] last:border-0">
-      <span className="text-xs text-[color:var(--ibo-muted)]">{label}</span>
-      <span className={`text-xs font-mono text-right ${accent || 'text-[color:var(--ibo-ink)]'}`}>{value}</span>
-    </div>
-  );
-}
-
-function BalanceTile({ asset, available, usdHint }) {
-  const icon = COIN_ICONS[asset];
-  const label = walletAssetLabel(asset);
-  return (
-    <div className="rounded-xl border border-[color:var(--ibo-border-solid)] px-4 py-3 flex items-center gap-3">
-      {icon ? (
-        <img src={icon} alt="" className="h-9 w-9 rounded-full object-contain" />
-      ) : (
-        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FE6C02]/15 text-sm font-bold text-[#FE6C02]">
-          {label.slice(0, 2)}
-        </span>
-      )}
-      <div className="min-w-0 flex-1">
-        <p className="text-[10px] uppercase tracking-wider text-[color:var(--ibo-muted)]">{label} available</p>
-        <p className="text-lg font-bold text-[color:var(--ibo-ink)] font-mono tabular-nums truncate">
-          {fmt(available, asset === 'USDT' ? 2 : 4)}
-        </p>
-        {usdHint ? <p className="text-[10px] text-[color:var(--ibo-muted)] mt-0.5">{usdHint}</p> : null}
-      </div>
-    </div>
   );
 }
 
@@ -84,7 +72,120 @@ function swapRouteLabel(order) {
   return side === 'sell' ? 'Delta → USDT' : 'USDT → Delta';
 }
 
-export default function IboSwapPanel() {
+function ModeTabs({ mode, onChange }) {
+  const tabs = [
+    {
+      id: 'convert',
+      tone: 'orange',
+      label: 'Convert assets',
+      desc: 'Swap Delta and USDT at market rate',
+      icon: ArrowDownUp,
+      chips: ['Delta', 'USDT'],
+    },
+    {
+      id: 'wallets',
+      tone: 'teal',
+      label: 'Move wallets',
+      desc: 'Shift USDT between Spot and Futures',
+      icon: ArrowLeftRight,
+      chips: ['Spot', 'Futures'],
+    },
+  ];
+
+  return (
+    <div className="xfer-pick" role="tablist" aria-label="Transfer type">
+      {tabs.map((t) => {
+        const Icon = t.icon;
+        const active = mode === t.id;
+        return (
+          <button
+            key={t.id}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            onClick={() => onChange(t.id)}
+            className={`xfer-pick__card xfer-pick__card--${t.tone}${active ? ' is-active' : ''}`}
+          >
+            <span className="xfer-pick__glow" aria-hidden />
+            <span className="xfer-pick__top">
+              <span className="xfer-pick__icon" aria-hidden>
+                <Icon size={18} strokeWidth={2.25} />
+              </span>
+              {active ? (
+                <span className="xfer-pick__badge">Selected</span>
+              ) : (
+                <span className="xfer-pick__badge is-idle">Select</span>
+              )}
+            </span>
+            <span className="xfer-pick__title">{t.label}</span>
+            <span className="xfer-pick__desc">{t.desc}</span>
+            <span className="xfer-pick__chips" aria-hidden>
+              <span className="xfer-pick__chip">{t.chips[0]}</span>
+              <span className="xfer-pick__swap">⇄</span>
+              <span className="xfer-pick__chip">{t.chips[1]}</span>
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function WalletLane({ label, asset, amountDp, available, onMax, children, muted }) {
+  return (
+    <div className={`xfer-field${muted ? ' xfer-field--muted' : ''}`}>
+      <div className="xfer-field__head">
+        <span className="xfer-field__label">{label}</span>
+        {onMax ? (
+          <button type="button" className="xfer-field__avail" onClick={onMax}>
+            Avail <span className="tabular-nums font-mono">{fmt(available, amountDp)}</span>{' '}
+            {walletAssetLabel(asset)}
+          </button>
+        ) : (
+          <span className="xfer-field__avail is-static">
+            Avail <span className="tabular-nums font-mono">{fmt(available, amountDp)}</span>{' '}
+            {walletAssetLabel(asset)}
+          </span>
+        )}
+      </div>
+      <div className="xfer-field__row">
+        {children}
+        <div className="xfer-field__asset">
+          <AssetMark asset={asset} size={22} />
+          <span>{walletAssetLabel(asset)}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DetailRow({ label, value, accent }) {
+  return (
+    <div className="xfer-detail">
+      <span>{label}</span>
+      <span className={`font-mono tabular-nums text-right ${accent || ''}`}>{value}</span>
+    </div>
+  );
+}
+
+function BalanceCard({ asset, available, hint }) {
+  return (
+    <div className="xfer-bal">
+      <AssetMark asset={asset} size={32} />
+      <div className="min-w-0 flex-1">
+        <p className="xfer-bal__label">{walletAssetLabel(asset)}</p>
+        <p className="xfer-bal__value tabular-nums font-mono">
+          {fmt(available, asset === 'USDT' ? 2 : 4)}
+        </p>
+        {hint ? <p className="xfer-bal__hint">{hint}</p> : null}
+      </div>
+    </div>
+  );
+}
+
+// ── Convert: Delta ↔ USDT ───────────────────────────────────────────────────
+
+function ConvertPanel() {
   const { walletAssets, walletLoading, fetchWallet } = useAuth();
 
   const [direction, setDirection] = useState('ibo_to_usdt');
@@ -215,7 +316,7 @@ export default function IboSwapPanel() {
       return;
     }
     if (n > available + 1e-9) {
-      setError(`Insufficient ${fromAsset}.`);
+      setError(`Insufficient ${walletAssetLabel(fromAsset)}.`);
       return;
     }
     if (!feeOk) {
@@ -227,7 +328,7 @@ export default function IboSwapPanel() {
     setSuccess('');
     try {
       await executeSwap(direction, n);
-      setSuccess(`Swapped ${fmt(n, fromAsset === 'USDT' ? 2 : 4)} ${fromAsset}.`);
+      setSuccess(`Swapped ${fmt(n, fromAsset === 'USDT' ? 2 : 4)} ${walletAssetLabel(fromAsset)}.`);
       setAmount('');
       setQuote(null);
       await Promise.all([fetchWallet(), loadHistory()]);
@@ -242,7 +343,7 @@ export default function IboSwapPanel() {
     ? direction === 'ibo_to_usdt'
       ? `1 Delta = $${fmt(quote.price_usdt, 4)} USDT`
       : `1 Delta = $${fmt(quote.price_usdt, 4)} · 1 USDT ≈ ${fmt(1 / quote.price_usdt, 4)} Delta`
-    : 'Enter an amount to load live rate';
+    : 'Enter an amount for a live rate';
 
   const receiveVal = quote
     ? fmt(quote.to_amount_estimated, toAsset === 'USDT' ? 2 : 4)
@@ -264,214 +365,432 @@ export default function IboSwapPanel() {
     : null;
 
   return (
-    <div className="w-full">
-      <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-xs text-[color:var(--ibo-muted)] leading-relaxed max-w-xl">
-            Convert Delta ↔ USDT at the live IBOUSDT market price. Fees charged in Delta.
-          </p>
+    <div className="xfer-layout">
+      <div className="xfer-main space-y-4">
+        <div className="xfer-card">
+          <div className="xfer-card__body space-y-1">
+            <WalletLane
+              label="You pay"
+              asset={fromAsset}
+              amountDp={fromAsset === 'USDT' ? 2 : 4}
+              available={payBalance}
+              onMax={() => setPct(1)}
+            >
+              <input
+                className="xfer-amount"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                inputMode="decimal"
+                placeholder="0.0"
+                aria-label="Amount to pay"
+              />
+            </WalletLane>
+
+            <div className="xfer-flip">
+              <button
+                type="button"
+                onClick={flip}
+                aria-label={`Flip direction to ${toAsset} → ${fromAsset}`}
+                className="xfer-flip__btn"
+              >
+                <ArrowDownUp size={18} strokeWidth={2.4} />
+              </button>
+            </div>
+
+            <WalletLane
+              label={quoteSyncing ? 'You receive · updating…' : 'You receive'}
+              asset={toAsset}
+              amountDp={toAsset === 'USDT' ? 2 : 4}
+              available={toAsset === 'USDT' ? usdtBal : iboBal}
+              onMax={undefined}
+            >
+              <span className="xfer-amount xfer-amount--out tabular-nums">{receiveVal}</span>
+            </WalletLane>
+
+            <div className="xfer-pct">
+              {PCT.map((p) => (
+                <button key={p} type="button" onClick={() => setPct(p)} className="xfer-pct__btn">
+                  {p === 1 ? 'MAX' : `${p * 100}%`}
+                </button>
+              ))}
+            </div>
+
+            <p className="xfer-rate font-mono">{rateLine}</p>
+          </div>
+
+          {error ? (
+            <div className="xfer-alert xfer-alert--err">
+              <AlertTriangle size={14} className="shrink-0 mt-0.5" />
+              <span>{error}</span>
+            </div>
+          ) : null}
+          {success ? (
+            <div className="xfer-alert xfer-alert--ok">
+              <CheckCircle2 size={14} className="shrink-0 mt-0.5" />
+              <span>{success}</span>
+            </div>
+          ) : null}
+
+          <div className="xfer-card__foot">
+            <button
+              type="button"
+              disabled={swapping || !amount || !quote || !feeOk}
+              onClick={onSwap}
+              className="xfer-submit"
+            >
+              {swapping
+                ? 'Converting…'
+                : `Convert ${walletAssetLabel(fromAsset)} → ${walletAssetLabel(toAsset)}`}
+            </button>
+          </div>
         </div>
-        <button
-          type="button"
-          onClick={() => fetchWallet()}
-          disabled={walletLoading}
-          className="wallet-action-ghost disabled:opacity-40"
-        >
-          <RefreshCw size={14} className={walletLoading ? 'animate-spin' : ''} />
-          Refresh balances
-        </button>
+
+        <p className="xfer-note">
+          <Info size={13} className="shrink-0 mt-0.5 opacity-70" />
+          Converts execute as market orders on IBOUSDT. Final fill may differ slightly from the quote.
+          Fees are charged in Delta.
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6">
-        <div className="lg:col-span-7 space-y-4">
-          <div className="wallet-surface overflow-hidden">
-            <div className="p-5 sm:p-6 space-y-1">
-              <div className="rounded-xl border border-[color:var(--ibo-border-solid)] p-4 sm:p-5">
-                <div className="flex justify-between text-[10px] uppercase tracking-wider text-[color:var(--ibo-muted)] mb-3">
-                  <span>You pay</span>
-                  <span className="font-mono text-[#FE6C02] normal-case tracking-normal">
-                    {fmt(payBalance, fromAsset === 'USDT' ? 2 : 4)} {fromAsset}
-                  </span>
-                </div>
-                <div className="flex items-center gap-4 min-w-0">
-                  <input
-                    className="min-w-0 flex-1 bg-transparent font-mono text-3xl sm:text-4xl text-[color:var(--ibo-ink)] outline-none placeholder:text-[color:var(--ibo-muted)]/40"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    inputMode="decimal"
-                    placeholder="0.0"
-                  />
-                  <AssetChip asset={fromAsset} large />
-                </div>
-                <div className="grid grid-cols-4 gap-2 mt-4">
-                  {PCT.map((p) => (
-                    <button
-                      key={p}
-                      type="button"
-                      onClick={() => setPct(p)}
-                      className="rounded-lg border border-[color:var(--ibo-border-solid)] py-2.5 text-[11px] font-bold text-[color:var(--ibo-ink-secondary)] hover:border-[#FE6C02]/40 hover:text-[#FE6C02] transition-colors"
-                    >
-                      {p === 1 ? 'MAX' : `${p * 100}%`}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex justify-center py-2 relative z-10">
-                <button
-                  type="button"
-                  onClick={flip}
-                  aria-label={`Swap direction: ${fromAsset} to ${toAsset}`}
-                  className="flex h-12 w-12 items-center justify-center rounded-full border border-[color:var(--ibo-border-solid)] bg-[color:var(--ibo-bg)] text-[#FE6C02] hover:border-[#FE6C02]/50 transition-colors"
-                >
-                  <ArrowDownUp size={20} strokeWidth={2.5} />
-                </button>
-              </div>
-
-              <div className="rounded-xl border border-[#FE6C02]/20 bg-[#FE6C02]/5 p-4 sm:p-5">
-                <div className="flex justify-between text-[10px] uppercase tracking-wider text-[color:var(--ibo-muted)] mb-3">
-                  <span>You receive</span>
-                  {quoteSyncing ? (
-                    <span className="text-[#FE6C02] animate-pulse font-semibold normal-case">Updating…</span>
-                  ) : null}
-                </div>
-                <div className="flex items-center gap-4 min-w-0">
-                  <span className="min-w-0 flex-1 font-mono text-3xl sm:text-4xl text-[#FE6C02] tabular-nums">{receiveVal}</span>
-                  <AssetChip asset={toAsset} large />
-                </div>
-                <p className="mt-3 font-mono text-xs text-[color:var(--ibo-muted)]">{rateLine}</p>
-              </div>
-            </div>
-
-            {error ? (
-              <p className="mx-5 sm:mx-6 mb-2 text-sm text-[#F6465D] bg-[#F6465D]/10 border border-[#F6465D]/25 rounded-lg px-3 py-2">{error}</p>
-            ) : null}
-            {success ? (
-              <p className="mx-5 sm:mx-6 mb-2 text-sm text-[#0ECB81] bg-[#0ECB81]/10 border border-[#0ECB81]/25 rounded-lg px-3 py-2">{success}</p>
-            ) : null}
-
-            <div className="px-5 sm:px-6 pb-5 sm:pb-6">
-              <button
-                type="button"
-                disabled={swapping || !amount || !quote || !feeOk}
-                onClick={onSwap}
-                className="w-full rounded-xl bg-[#FE6C02] hover:bg-[#ff7a1a] py-3.5 text-base font-bold text-white disabled:opacity-50 transition-colors"
-              >
-                {swapping ? 'Swapping…' : direction === 'ibo_to_usdt' ? 'Swap Delta for USDT' : 'Swap USDT for Delta'}
-              </button>
-            </div>
-          </div>
-
-          <p className="text-[11px] text-[color:var(--ibo-muted)] flex items-start gap-2 px-1">
-            <Info size={14} className="shrink-0 mt-0.5 opacity-60" />
-            Swaps execute as market orders on IBOUSDT. Final fill may differ slightly from the quote.
-          </p>
-        </div>
-
-        <div className="lg:col-span-5 space-y-4 lg:sticky lg:top-20 lg:self-start">
-          <div className="wallet-surface p-4 sm:p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <Wallet size={15} className="text-[#FE6C02]" />
-              <h3 className="text-sm font-bold text-[color:var(--ibo-ink)]">Balances</h3>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2.5">
-              <BalanceTile asset="IBO" available={iboBal} usdHint={iboUsd} />
-              <BalanceTile asset="USDT" available={usdtBal} usdHint="Stablecoin" />
-            </div>
-          </div>
-
-          <div className="wallet-surface p-4 sm:p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <Info size={15} className="text-[#FE6C02]" />
-              <h3 className="text-sm font-bold text-[color:var(--ibo-ink)]">Swap details</h3>
-            </div>
-            <DetailRow label="Route" value={`${fromAsset} → ${toAsset}`} />
-            <DetailRow label="Market" value="IBOUSDT" />
-            <DetailRow label="Price impact" value="~0% (market)" accent="text-[#0ECB81]" />
-            <DetailRow label="Execution" value="Market order" />
-            <DetailRow
-              label="Minimum received"
-              value={quote ? `${receiveVal} ${toAsset}` : '—'}
-            />
-            <DetailRow
-              label="Swap platform fee"
-              value={quote ? `≈ ${fmt(quote.fee_ibo_estimated, 4)} Delta` : (
-                swapConfig
-                  ? `${(num(swapConfig.swap_fee_rate) * 100).toFixed(2)}% + ${fmt(swapConfig.swap_fee_ibo_fixed, 4)} Delta`
-                  : 'Set in admin'
-              )}
-            />
-            {quote?.trading_fee_ibo_estimated > 0 ? (
-              <DetailRow
-                label="Market order fee"
-                value={`≈ ${fmt(quote.trading_fee_ibo_estimated, 4)} Delta`}
-              />
-            ) : null}
-            {quote && feeTotal > 0 ? (
-              <DetailRow label="Total Delta required" value={`≈ ${fmt(feeTotal, 4)} Delta`} accent="text-[#FE6C02]" />
-            ) : null}
-            {quote?.min_from_amount != null ? (
-              <DetailRow
-                label="Minimum pay"
-                value={`${fmt(quote.min_from_amount, fromAsset === 'USDT' ? 2 : 4)} ${fromAsset}`}
-              />
-            ) : null}
-            {!feeOk && quote ? (
-              <p className="text-xs text-[#FE6C02] mt-3 rounded-lg bg-[#FE6C02]/10 border border-[#FE6C02]/20 px-3 py-2">
-                Add Delta for fees — need ~{fmt(feeTotal, 4)}, have {fmt(iboBal, 4)}.
-              </p>
-            ) : null}
-          </div>
-
-          <div className="wallet-surface p-4 sm:p-5">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <History size={15} className="text-[#FE6C02]" />
-                <h3 className="text-sm font-bold text-[color:var(--ibo-ink)]">Recent swaps</h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => loadHistory()}
-                className="text-[color:var(--ibo-muted)] hover:text-[#FE6C02]"
-                aria-label="Refresh swap history"
-              >
-                <RefreshCw size={14} className={historyLoading ? 'animate-spin' : ''} />
-              </button>
-            </div>
-
-            {historyLoading ? (
-              <p className="text-xs text-[color:var(--ibo-muted)] py-6 text-center">Loading history…</p>
-            ) : history.length === 0 ? (
-              <p className="text-xs text-[color:var(--ibo-muted)] py-4 text-center rounded-xl border border-dashed border-[color:var(--ibo-border-solid)]">
-                No Delta/USDT swaps yet.
-              </p>
-            ) : (
-              <ul className="space-y-2 max-h-[280px] overflow-y-auto scrollbar-hide pr-1">
-                {history.map((o) => (
-                  <li
-                    key={o.id}
-                    className="flex items-center justify-between rounded-xl border border-[color:var(--ibo-border-solid)] px-3 py-2.5"
-                  >
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-[color:var(--ibo-ink)]">{swapRouteLabel(o)}</p>
-                      <p className="text-[11px] font-mono text-[color:var(--ibo-muted)] mt-0.5 truncate">
-                        {fmt(o.filled ?? o.amount, 4)} · {String(o.status || '').replace('_', ' ')}
-                      </p>
-                    </div>
-                    <span className="text-[10px] text-[color:var(--ibo-muted)] shrink-0 ml-2">{fmtDate(o.created_at)}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <Link
-              to="/dashboard"
-              className="mt-4 flex items-center justify-center gap-1 text-xs font-semibold text-[#FE6C02] hover:underline"
+      <aside className="xfer-side space-y-4">
+        <div className="xfer-card">
+          <div className="xfer-side__head">
+            <Wallet size={15} className="text-[#FE6C02]" />
+            <h3>Spot balances</h3>
+            <button
+              type="button"
+              onClick={() => fetchWallet()}
+              disabled={walletLoading}
+              className="ml-auto text-[color:var(--ibo-muted)] hover:text-[#FE6C02] disabled:opacity-40"
+              aria-label="Refresh balances"
             >
-              View all orders on Dashboard
-              <ArrowRight size={14} />
-            </Link>
+              <RefreshCw size={14} className={walletLoading ? 'animate-spin' : ''} />
+            </button>
+          </div>
+          <div className="space-y-2.5">
+            <BalanceCard asset="IBO" available={iboBal} hint={iboUsd} />
+            <BalanceCard asset="USDT" available={usdtBal} hint="Stablecoin" />
           </div>
         </div>
+
+        <div className="xfer-card">
+          <div className="xfer-side__head">
+            <Sparkles size={15} className="text-[#FE6C02]" />
+            <h3>Quote details</h3>
+          </div>
+          <DetailRow label="Route" value={`${walletAssetLabel(fromAsset)} → ${walletAssetLabel(toAsset)}`} />
+          <DetailRow label="Market" value="IBOUSDT" />
+          <DetailRow label="Price impact" value="~0% (market)" accent="text-[#0ECB81]" />
+          <DetailRow
+            label="You receive"
+            value={quote ? `${receiveVal} ${walletAssetLabel(toAsset)}` : '—'}
+          />
+          <DetailRow
+            label="Platform fee"
+            value={quote ? `≈ ${fmt(quote.fee_ibo_estimated, 4)} Delta` : (
+              swapConfig
+                ? `${(num(swapConfig.swap_fee_rate) * 100).toFixed(2)}% + ${fmt(swapConfig.swap_fee_ibo_fixed, 4)} Delta`
+                : '—'
+            )}
+          />
+          {quote?.trading_fee_ibo_estimated > 0 ? (
+            <DetailRow
+              label="Order fee"
+              value={`≈ ${fmt(quote.trading_fee_ibo_estimated, 4)} Delta`}
+            />
+          ) : null}
+          {quote && feeTotal > 0 ? (
+            <DetailRow label="Total Delta for fees" value={`≈ ${fmt(feeTotal, 4)}`} accent="text-[#FE6C02]" />
+          ) : null}
+          {!feeOk && quote ? (
+            <p className="mt-3 text-xs text-[#FE6C02] rounded-lg bg-[rgba(254,108,2,0.1)] border border-[rgba(254,108,2,0.22)] px-3 py-2">
+              Add Delta for fees — need ~{fmt(feeTotal, 4)}, have {fmt(iboBal, 4)}.
+            </p>
+          ) : null}
+        </div>
+
+        <div className="xfer-card">
+          <div className="xfer-side__head">
+            <History size={15} className="text-[#FE6C02]" />
+            <h3>Recent converts</h3>
+            <button
+              type="button"
+              onClick={() => loadHistory()}
+              className="ml-auto text-[color:var(--ibo-muted)] hover:text-[#FE6C02]"
+              aria-label="Refresh convert history"
+            >
+              <RefreshCw size={14} className={historyLoading ? 'animate-spin' : ''} />
+            </button>
+          </div>
+
+          {historyLoading ? (
+            <p className="text-xs text-[color:var(--ibo-muted)] py-8 text-center">Loading…</p>
+          ) : history.length === 0 ? (
+            <div className="xfer-empty">No converts yet. Swap Delta for USDT to get started.</div>
+          ) : (
+            <ul className="space-y-2 max-h-[260px] overflow-y-auto scrollbar-hide">
+              {history.map((o) => (
+                <li key={o.id} className="xfer-hist">
+                  <div className="min-w-0">
+                    <p className="text-[13px] font-semibold text-[color:var(--ibo-ink)]">{swapRouteLabel(o)}</p>
+                    <p className="text-[11px] font-mono text-[color:var(--ibo-muted)] mt-0.5 truncate">
+                      {fmt(o.filled ?? o.amount, 4)} · {String(o.status || '').replace('_', ' ')}
+                    </p>
+                  </div>
+                  <span className="text-[10px] text-[color:var(--ibo-muted)] shrink-0 ml-2">{fmtDate(o.created_at)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <Link to="/account/order-history" className="xfer-link">
+            View order history <ArrowRight size={13} />
+          </Link>
+        </div>
+      </aside>
+    </div>
+  );
+}
+
+// ── Between wallets: Spot ↔ Futures ─────────────────────────────────────────
+
+function WalletTransferPanel() {
+  const { balance, fetchWallet, walletLoading } = useAuth();
+  const [direction, setDirection] = useState('spot_to_futures');
+  const [amount, setAmount] = useState('');
+  const [futAvail, setFutAvail] = useState(0);
+  const [futLoading, setFutLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const [ok, setOk] = useState('');
+
+  const spotAvail = num(balance?.USDT);
+
+  const loadFutures = useCallback(async () => {
+    setFutLoading(true);
+    try {
+      const w = await futuresApi.wallet();
+      setFutAvail(num(w?.available ?? w?.wallet_balance));
+    } catch {
+      setFutAvail(0);
+    } finally {
+      setFutLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadFutures();
+  }, [loadFutures]);
+
+  const isToFutures = direction === 'spot_to_futures';
+  const max = isToFutures ? spotAvail : futAvail;
+  const fromLabel = isToFutures ? 'Spot' : 'Futures';
+  const toLabel = isToFutures ? 'Futures' : 'Spot';
+
+  const setPct = (p) => {
+    if (max <= 0) return;
+    setAmount(fmt(max * p, 2).replace(/,/g, ''));
+  };
+
+  const flip = () => {
+    setDirection((d) => (d === 'spot_to_futures' ? 'futures_to_spot' : 'spot_to_futures'));
+    setErr('');
+    setOk('');
+  };
+
+  const refreshAll = async () => {
+    await Promise.all([fetchWallet(), loadFutures()]);
+  };
+
+  const submit = async () => {
+    const n = Number(amount);
+    if (!Number.isFinite(n) || n <= 0) {
+      setErr('Enter a positive USDT amount.');
+      return;
+    }
+    if (n > max + 1e-9) {
+      setErr(`Insufficient USDT in ${fromLabel}.`);
+      return;
+    }
+    setBusy(true);
+    setErr('');
+    setOk('');
+    try {
+      await futuresApi.transfer({ direction, asset: 'USDT', amount: n });
+      setOk(`${fmt(n, 2)} USDT moved ${fromLabel} → ${toLabel}.`);
+      setAmount('');
+      await refreshAll();
+    } catch (e) {
+      setErr(friendlyError(e?.detail || e?.message) || 'Transfer failed');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="xfer-layout">
+      <div className="xfer-main space-y-4">
+        <div className="xfer-card">
+          <div className="xfer-card__body space-y-1">
+            <div className="xfer-wallet-toggle">
+              <button
+                type="button"
+                onClick={() => setDirection('spot_to_futures')}
+                className={`xfer-wallet-toggle__btn${isToFutures ? ' is-active' : ''}`}
+              >
+                Spot → Futures
+              </button>
+              <button
+                type="button"
+                onClick={() => setDirection('futures_to_spot')}
+                className={`xfer-wallet-toggle__btn${!isToFutures ? ' is-active' : ''}`}
+              >
+                Futures → Spot
+              </button>
+            </div>
+
+            <WalletLane
+              label={`From ${fromLabel}`}
+              asset="USDT"
+              amountDp={2}
+              available={max}
+              onMax={() => setPct(1)}
+            >
+              <input
+                className="xfer-amount"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                inputMode="decimal"
+                placeholder="0.00"
+                aria-label="Transfer amount"
+              />
+            </WalletLane>
+
+            <div className="xfer-flip">
+              <button type="button" onClick={flip} className="xfer-flip__btn" aria-label="Flip wallets">
+                <ArrowDownUp size={18} strokeWidth={2.4} />
+              </button>
+            </div>
+
+            <WalletLane
+              label={`To ${toLabel}`}
+              asset="USDT"
+              amountDp={2}
+              available={isToFutures ? futAvail : spotAvail}
+              muted
+            >
+              <span className="xfer-amount xfer-amount--out tabular-nums">
+                {amount && Number(amount) > 0 ? fmt(Number(amount), 2) : '0.00'}
+              </span>
+            </WalletLane>
+
+            <div className="xfer-pct">
+              {PCT.map((p) => (
+                <button key={p} type="button" onClick={() => setPct(p)} className="xfer-pct__btn">
+                  {p === 1 ? 'MAX' : `${p * 100}%`}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {err ? (
+            <div className="xfer-alert xfer-alert--err">
+              <AlertTriangle size={14} className="shrink-0 mt-0.5" />
+              <span>{err}</span>
+            </div>
+          ) : null}
+          {ok ? (
+            <div className="xfer-alert xfer-alert--ok">
+              <CheckCircle2 size={14} className="shrink-0 mt-0.5" />
+              <span>{ok}</span>
+            </div>
+          ) : null}
+
+          <div className="xfer-card__foot">
+            <button
+              type="button"
+              disabled={busy || !amount || Number(amount) <= 0 || Number(amount) > max}
+              onClick={submit}
+              className="xfer-submit"
+            >
+              {busy ? 'Transferring…' : `Transfer to ${toLabel}`}
+            </button>
+          </div>
+        </div>
+
+        <p className="xfer-note">
+          <Info size={13} className="shrink-0 mt-0.5 opacity-70" />
+          Internal USDT moves between Spot and Futures are free and instant. Funds in Futures can only
+          be used as margin for perpetual trading.
+        </p>
+      </div>
+
+      <aside className="xfer-side space-y-4">
+        <div className="xfer-card">
+          <div className="xfer-side__head">
+            <Wallet size={15} className="text-[#FE6C02]" />
+            <h3>Wallet balances</h3>
+            <button
+              type="button"
+              onClick={() => refreshAll()}
+              disabled={walletLoading || futLoading}
+              className="ml-auto text-[color:var(--ibo-muted)] hover:text-[#FE6C02] disabled:opacity-40"
+              aria-label="Refresh wallets"
+            >
+              <RefreshCw size={14} className={walletLoading || futLoading ? 'animate-spin' : ''} />
+            </button>
+          </div>
+          <div className="space-y-2.5">
+            <div className={`xfer-wallet-card${isToFutures ? ' is-source' : ' is-dest'}`}>
+              <span className="xfer-wallet-card__tag">Spot</span>
+              <p className="xfer-wallet-card__value font-mono tabular-nums">{fmt(spotAvail, 2)} <span>USDT</span></p>
+              <p className="xfer-wallet-card__hint">Trading &amp; convert balance</p>
+            </div>
+            <div className={`xfer-wallet-card${!isToFutures ? ' is-source' : ' is-dest'}`}>
+              <span className="xfer-wallet-card__tag">Futures</span>
+              <p className="xfer-wallet-card__value font-mono tabular-nums">
+                {futLoading ? '…' : fmt(futAvail, 2)} <span>USDT</span>
+              </p>
+              <p className="xfer-wallet-card__hint">Available margin</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="xfer-card">
+          <div className="xfer-side__head">
+            <Info size={15} className="text-[#FE6C02]" />
+            <h3>How it works</h3>
+          </div>
+          <ul className="xfer-steps">
+            <li>Choose Spot → Futures to fund perpetual margin.</li>
+            <li>Choose Futures → Spot to unlock USDT for convert or withdraw.</li>
+            <li>Only available (unlocked) USDT can be transferred.</li>
+          </ul>
+          <Link to="/futures/BTCUSDT-PERP" className="xfer-link">
+            Open futures trade <ArrowRight size={13} />
+          </Link>
+        </div>
+      </aside>
+    </div>
+  );
+}
+
+// ── Hub shell ───────────────────────────────────────────────────────────────
+
+export default function IboSwapPanel() {
+  const [mode, setMode] = useState('convert');
+
+  return (
+    <div className="xfer-hub font-ui w-full">
+      <div className="xfer-hub__intro">
+        <p className="xfer-hub__lead">
+          Move value instantly — convert Delta to USDT, or shift USDT between Spot and Futures.
+        </p>
+      </div>
+
+      <ModeTabs mode={mode} onChange={setMode} />
+
+      <div className="mt-5 sm:mt-6">
+        {mode === 'convert' ? <ConvertPanel /> : <WalletTransferPanel />}
       </div>
     </div>
   );

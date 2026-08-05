@@ -263,15 +263,11 @@ function FieldGroup({ label, children, hint, required, error }) {
 }
 
 function fieldShell(hasError) {
-  return `flex items-center rounded-xl border px-3.5 py-3 transition-colors bg-[color:var(--ibo-bg)] group ${
-    hasError
-      ? 'border-[#F6465D]/50'
-      : 'border-[color:var(--ibo-border-solid)] focus-within:border-[#FE6C02]/45'
-  }`;
+  return `prof-pw-wrap${hasError ? ' is-error' : ''}`;
 }
 
-function fieldInputClass() {
-  return 'flex-1 min-w-0 bg-transparent text-sm sm:text-[15px] text-[color:var(--ibo-ink)] outline-none placeholder:text-[color:var(--ibo-muted)]';
+function fieldInputClass(hasError) {
+  return `wallet-field w-full prof-pw-input${hasError ? ' is-error' : ''}`;
 }
 
 function ProfileTab({ user, updateUser }) {
@@ -924,7 +920,9 @@ function SecurityTab() {
         {pwFields.map(({ key, label, placeholder, showKey, onBlur }) => (
           <FieldGroup key={key} label={label} error={showFieldError(key) ? fieldErrors[key] : ''}>
             <div className={fieldShell(showFieldError(key))}>
-              <Lock size={16} className="text-[color:var(--ibo-muted)] mr-2.5 group-focus-within:text-[#FE6C02] transition-colors shrink-0" />
+              <span className="prof-pw-icon prof-pw-icon--left" aria-hidden>
+                <Lock size={15} strokeWidth={2} />
+              </span>
               <input
                 type={showPw[showKey] ? 'text' : 'password'}
                 value={form[key]}
@@ -933,14 +931,15 @@ function SecurityTab() {
                 placeholder={placeholder}
                 autoComplete={key === 'current_password' ? 'current-password' : 'new-password'}
                 aria-invalid={Boolean(fieldErrors[key])}
-                className={fieldInputClass()}
+                className={fieldInputClass(showFieldError(key))}
               />
               <button
                 type="button"
                 onClick={() => togglePw(showKey)}
-                className="text-[color:var(--ibo-muted)] hover:text-[color:var(--ibo-ink)] transition-colors ml-2 shrink-0"
+                className="prof-pw-icon prof-pw-icon--right"
+                aria-label={showPw[showKey] ? 'Hide password' : 'Show password'}
               >
-                {showPw[showKey] ? <EyeOff size={17} /> : <Eye size={17} />}
+                {showPw[showKey] ? <EyeOff size={16} strokeWidth={2} /> : <Eye size={16} strokeWidth={2} />}
               </button>
             </div>
           </FieldGroup>
@@ -951,7 +950,7 @@ function SecurityTab() {
         type="button"
         onClick={handleChange}
         disabled={saving}
-        className="wallet-action-primary !px-6 !py-2.5 disabled:opacity-40"
+        className="wallet-action-primary prof-pw-submit disabled:opacity-40"
       >
         {saving
           ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -1284,7 +1283,7 @@ function SessionsCard() {
         <button
           type="button"
           onClick={() => setConfirming(true)}
-          className="wallet-action-ghost !text-[#F6465D] hover:!border-[#F6465D]/40"
+          className="prof-danger-btn"
         >
           Log out of all devices
         </button>
@@ -1294,7 +1293,7 @@ function SessionsCard() {
             type="button"
             onClick={onRevoke}
             disabled={busy}
-            className="inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-semibold text-white bg-[#F6465D] hover:bg-[#e03d52] disabled:opacity-50"
+            className="prof-danger-btn disabled:opacity-50"
           >
             {busy ? 'Revoking…' : 'Yes, log out everywhere'}
           </button>
@@ -1302,7 +1301,7 @@ function SessionsCard() {
             type="button"
             onClick={() => setConfirming(false)}
             disabled={busy}
-            className="wallet-action-ghost"
+            className="wallet-action-ghost shrink-0"
           >
             Cancel
           </button>

@@ -2161,7 +2161,7 @@ function tabFromSearchParams(params) {
   return TABS.some(x => x.id === t) ? t : 'balances';
 }
 
-export default function WalletPage({ accountMode = false, forcedTab = null } = {}) {
+export default function WalletPage({ accountMode = false, forcedTab = null, hideChrome = false } = {}) {
   const { user, walletAssets, walletLoading, fetchWallet, kyc, fetchKyc } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -2288,21 +2288,23 @@ export default function WalletPage({ accountMode = false, forcedTab = null } = {
   if (accountMode) {
     return (
       <div className="wallet-hub font-ui min-w-0">
-        <div className="delta-account-toolbar">
-          <div className="flex items-center gap-2 text-[color:var(--ibo-ink-secondary)] min-w-0">
-            <TabIcon size={16} className="text-[#FE6C02] shrink-0" />
-            <h2 className="!text-[15px] !font-semibold !m-0 text-[color:var(--ibo-ink)] truncate">{tabMeta.label}</h2>
+        {!hideChrome ? (
+          <div className="delta-account-toolbar">
+            <div className="flex items-center gap-2 text-[color:var(--ibo-ink-secondary)] min-w-0">
+              <TabIcon size={16} className="text-[#FE6C02] shrink-0" />
+              <h2 className="!text-[15px] !font-semibold !m-0 text-[color:var(--ibo-ink)] truncate">{tabMeta.label}</h2>
+            </div>
+            <button
+              type="button"
+              onClick={() => fetchWallet()}
+              disabled={walletLoading}
+              className="wallet-action-ghost disabled:opacity-40"
+            >
+              <RefreshCw size={14} className={walletLoading ? 'animate-spin' : ''} />
+              Refresh
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => fetchWallet()}
-            disabled={walletLoading}
-            className="wallet-action-ghost disabled:opacity-40"
-          >
-            <RefreshCw size={14} className={walletLoading ? 'animate-spin' : ''} />
-            Refresh
-          </button>
-        </div>
+        ) : null}
         {(tab === 'deposit' || tab === 'withdraw') && (
           <div className="mb-4">
             <WalletChainsBanner />
