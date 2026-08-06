@@ -114,6 +114,24 @@ def usdt_symbols_for_snapshot(core_symbols: List[str]) -> List[str]:
     return out
 
 
+def fetch_all_binance_usdt_tickers() -> Dict[str, Dict[str, Any]]:
+    """
+    Full Binance spot USDT 24h ticker map (one cached request).
+    Used by the markets table so the UI lists every tradable USDT pair, not only majors.
+    """
+    full = _fetch_binance_24hr_all_cached()
+    skip = _non_binance_usdt()
+    out: Dict[str, Dict[str, Any]] = {}
+    for sym, t in full.items():
+        if not isinstance(t, dict):
+            continue
+        s = (sym or "").upper()
+        if not s.endswith("USDT") or s in skip:
+            continue
+        out[s] = t
+    return out
+
+
 def _fetch_binance_24hr_single(symbol: str) -> Optional[Dict[str, Any]]:
     sym = (symbol or "").upper()
     if not sym or sym in _non_binance_usdt():

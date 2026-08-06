@@ -82,7 +82,7 @@ const NAV_MORE = [
   { label: 'P2P', to: '/p2p', icon: Store },
   { label: 'Refer & Earn', to: '/account/refer', icon: Gift },
   { label: 'List Your Coin', to: '/list-coin', icon: Coins },
-  { label: 'IBO Markets', to: '/ibo-markets', icon: BarChart3 },
+  { label: 'Delta Markets', to: '/ibo-markets', icon: BarChart3 },
   { label: 'Quick Trade', to: '/quick-trade', icon: Zap },
 ];
 
@@ -633,7 +633,9 @@ export default function Navbar() {
         : 260;
     let left = openMenu === 'search' ? r.right - width : r.left;
     left = Math.max(DROPDOWN_EDGE_GAP, Math.min(left, window.innerWidth - width - DROPDOWN_EDGE_GAP));
-    setMenuPos({ top: r.bottom + DROPDOWN_EDGE_GAP, left, width });
+    /* More panel sits closer under the trigger (slightly above previous offset) */
+    const topGap = openMenu === 'more' ? 2 : DROPDOWN_EDGE_GAP;
+    setMenuPos({ top: r.bottom + topGap, left, width });
   }, [openMenu]);
 
   useLayoutEffect(() => {

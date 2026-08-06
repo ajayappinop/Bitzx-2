@@ -184,9 +184,9 @@ const fmtFunding8h = (rate) => {
 
 const VERIFY_DISMISSED_KEY = 'maxbyteex_get_verified_dismissed';
 
-/** Highlighted Trade CTA — brand accent pill */
+/** Quiet Trade CTA — outline pill; fills on row hover */
 const TRADE_BTN_CLASS =
-  'inline-flex items-center justify-center rounded-md bg-[color:var(--ibo-accent)] px-3 py-1.5 text-[12px] font-bold text-[#101013] transition-[filter] hover:brightness-110';
+  'delta-market-trade-btn inline-flex items-center justify-center rounded-md border border-[color:var(--ibo-border-solid)] bg-transparent px-3.5 py-1.5 text-[12px] font-bold text-[color:var(--ibo-ink)] transition-colors';
 
 export default function MarketsPage() {
   const navigate = useNavigate();
@@ -929,19 +929,18 @@ export default function MarketsPage() {
                           return (
                               <tr
                               key={row.symbol}
-                                className="border-b transition-colors cursor-pointer"
-                                style={{ borderColor: 'var(--ibo-border-solid)' }}
+                                className="delta-market-row border-b transition-colors cursor-pointer"
                                 onClick={() => navigate(`/futures/${encodeURIComponent(row.symbol)}`)}
                               >
-                                <td className="py-2.5 pl-3 pr-2 sm:pl-4 md:pl-6 lg:pl-8 xl:pl-10" onClick={(e) => e.stopPropagation()}>
+                                <td className="delta-market-row__fav py-3.5 pl-3 pr-2 sm:pl-4 md:pl-6 lg:pl-8 xl:pl-10" onClick={(e) => e.stopPropagation()}>
                                 <button
                                   type="button"
                                   onClick={() => toggleFuturesFav(row.symbol)}
-                                  className="p-1"
+                                  className="delta-market-row__star p-1.5 rounded-md"
                                   aria-label={fav ? 'Remove from perp watchlist' : 'Add to perp watchlist'}
                                 >
                                     <Star
-                                      size={13}
+                                      size={14}
                                       className={
                                         fav
                                           ? 'fill-[color:var(--ibo-accent)] text-[color:var(--ibo-accent)]'
@@ -950,40 +949,39 @@ export default function MarketsPage() {
                                     />
                                 </button>
                               </td>
-                                <td className="px-3 py-2.5">
-                                  <div className="flex min-w-0 items-center gap-2.5">
+                                <td className="px-3 py-3.5">
+                                  <div className="flex min-w-0 items-center gap-3">
                                   {icon ? (
-                                      <img src={icon} alt="" className="h-6 w-6 flex-shrink-0 rounded-full" />
+                                      <img src={icon} alt="" className="delta-market-row__icon h-8 w-8 flex-shrink-0 rounded-full object-cover" />
                                   ) : (
                                       <div
-                                        className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-[9px] font-bold"
-                                        style={{ background: 'rgba(254, 108, 2,0.15)', color: 'var(--ibo-accent)' }}
+                                        className="delta-market-row__icon-fallback flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-bold"
                                       >
                                       {base?.slice(0, 2)}
                                     </div>
                                   )}
                                     <div className="min-w-0 leading-tight">
-                                      <div className="truncate text-[13px] font-semibold" style={{ color: 'var(--ibo-ink)' }}>
+                                      <div className="truncate text-[13px] font-semibold tracking-tight" style={{ color: 'var(--ibo-ink)' }}>
                                         {base}
-                                        <span className="ml-1 font-normal" style={{ color: 'var(--ibo-muted)' }}>
+                                        <span className="ml-1 font-medium" style={{ color: 'var(--ibo-muted)' }}>
                                           USDT
                                         </span>
                                       </div>
-                                      <div className="text-[10px]" style={{ color: 'var(--ibo-muted)' }}>
+                                      <div className="mt-0.5 text-[10px] font-medium uppercase tracking-wide" style={{ color: 'var(--ibo-muted)' }}>
                                         Perpetual
                                       </div>
                                   </div>
                                 </div>
                               </td>
-                                <td className="px-3 py-2.5 text-right font-mono text-[13px] tabular-nums whitespace-nowrap" style={{ color: 'var(--ibo-ink)' }}>
+                                <td className="px-3 py-3.5 text-right font-mono text-[13px] font-semibold tabular-nums whitespace-nowrap" style={{ color: 'var(--ibo-ink)' }}>
                                 {spot ? `$${fmtP(spot.price, base)}` : '—'}
                               </td>
-                                <td className="px-3 py-2.5 text-right font-mono text-[13px] tabular-nums whitespace-nowrap" style={{ color: 'var(--ibo-ink-secondary)' }}>
+                                <td className="px-3 py-3.5 text-right font-mono text-[13px] tabular-nums whitespace-nowrap" style={{ color: 'var(--ibo-ink-secondary)' }}>
                                 {mp != null && mp > 0 ? `$${fmtP(String(mp), base)}` : '—'}
                               </td>
-                                <td className="px-3 py-2.5 text-right">
+                                <td className="px-3 py-3.5 text-right">
                                 {spot ? (
-                                    <span className={`font-semibold tabular-nums ${isUp ? 'text-green-500' : 'text-red-500'}`}>
+                                    <span className={`delta-market-chg ${isUp ? 'is-up' : 'is-down'}`}>
                                       {isUp ? '+' : ''}
                                       {pct.toFixed(2)}%
                                     </span>
@@ -991,27 +989,27 @@ export default function MarketsPage() {
                                     <span style={{ color: 'var(--ibo-muted)' }}>—</span>
                                 )}
                               </td>
-                                <td className="hidden px-3 py-2.5 text-right font-mono text-[12px] tabular-nums whitespace-nowrap lg:table-cell" style={{ color: 'var(--ibo-ink-secondary)' }}>
+                                <td className="hidden px-3 py-3.5 text-right font-mono text-[12px] tabular-nums whitespace-nowrap lg:table-cell" style={{ color: 'var(--ibo-ink-secondary)' }}>
                                 {spot ? `$${fmtP(spot.highPrice, base)}` : '—'}
                               </td>
-                                <td className="hidden px-3 py-2.5 text-right font-mono text-[12px] tabular-nums whitespace-nowrap lg:table-cell" style={{ color: 'var(--ibo-ink-secondary)' }}>
+                                <td className="hidden px-3 py-3.5 text-right font-mono text-[12px] tabular-nums whitespace-nowrap lg:table-cell" style={{ color: 'var(--ibo-ink-secondary)' }}>
                                 {spot ? `$${fmtP(spot.lowPrice, base)}` : '—'}
                               </td>
-                                <td className="px-3 py-2.5 text-right font-mono text-[12px] tabular-nums whitespace-nowrap" style={{ color: 'var(--ibo-ink-secondary)' }}>
+                                <td className="px-3 py-3.5 text-right font-mono text-[12px] tabular-nums whitespace-nowrap" style={{ color: 'var(--ibo-ink-secondary)' }}>
                                 {spot ? `$${fmtVol(spot.quoteVolume)}` : '—'}
                               </td>
                                 <td
-                                  className={`px-3 py-2.5 text-right font-mono text-[12px] tabular-nums whitespace-nowrap ${
+                                  className={`px-3 py-3.5 text-right font-mono text-[12px] tabular-nums whitespace-nowrap ${
                                     fundUp == null ? '' : fundUp ? 'text-green-500' : 'text-red-500'
                                   }`}
                                   style={fundUp == null ? { color: 'var(--ibo-ink-secondary)' } : undefined}
                                 >
                                   {fmtFunding8h(row.fundingRate)}
                               </td>
-                                <td className="hidden px-3 py-2.5 text-right font-mono text-[12px] tabular-nums xl:table-cell" style={{ color: 'var(--ibo-ink-secondary)' }}>
+                                <td className="hidden px-3 py-3.5 text-right font-mono text-[12px] tabular-nums xl:table-cell" style={{ color: 'var(--ibo-ink-secondary)' }}>
                                 {row.max_leverage != null ? `${row.max_leverage}×` : '—'}
                               </td>
-                                <td className="py-2.5 pl-3 pr-3 text-right sm:pr-4 md:pr-6 lg:pr-8 xl:pr-10" onClick={(e) => e.stopPropagation()}>
+                                <td className="py-3.5 pl-3 pr-3 text-right sm:pr-4 md:pr-6 lg:pr-8 xl:pr-10" onClick={(e) => e.stopPropagation()}>
                                 <Link
                                   to={`/futures/${encodeURIComponent(row.symbol)}`}
                                     className={TRADE_BTN_CLASS}
@@ -1267,39 +1265,38 @@ export default function MarketsPage() {
                       return (
                           <tr
                           key={m.symbol}
-                            className="border-b transition-colors cursor-pointer"
-                            style={{ borderColor: 'var(--ibo-border-solid)' }}
+                            className="delta-market-row border-b transition-colors cursor-pointer"
                             onClick={() => navigate(`/trade/${m.symbol}`)}
                           >
-                            <td className="py-2.5 pl-3 pr-1.5 sm:pl-4 md:pl-6 lg:pl-8 xl:pl-10" onClick={(e) => e.stopPropagation()}>
-                              <button type="button" onClick={() => toggleFav(m.symbol)} className="p-0.5" aria-label={isFav ? 'Remove from watchlist' : 'Add to watchlist'}>
-                                <Star size={13} className={isFav ? 'fill-[color:var(--ibo-accent)] text-[color:var(--ibo-accent)]' : 'text-[color:var(--ibo-muted)]'} />
+                            <td className="delta-market-row__fav py-3.5 pl-3 pr-1.5 sm:pl-4 md:pl-6 lg:pl-8 xl:pl-10" onClick={(e) => e.stopPropagation()}>
+                              <button type="button" onClick={() => toggleFav(m.symbol)} className="delta-market-row__star p-1.5 rounded-md" aria-label={isFav ? 'Remove from watchlist' : 'Add to watchlist'}>
+                                <Star size={14} className={isFav ? 'fill-[color:var(--ibo-accent)] text-[color:var(--ibo-accent)]' : 'text-[color:var(--ibo-muted)]'} />
                             </button>
                           </td>
-                            <td className="px-2 py-2.5 min-w-[140px]">
-                              <MarketCoinCell market={m} size={28} />
+                            <td className="px-2 py-3.5 min-w-[140px]">
+                              <MarketCoinCell market={m} size={32} />
                           </td>
-                            <td className="px-2 py-2.5 font-mono text-[13px] font-semibold tabular-nums whitespace-nowrap" style={{ color: 'var(--ibo-ink)' }}>
+                            <td className="px-2 py-3.5 font-mono text-[13px] font-semibold tabular-nums whitespace-nowrap" style={{ color: 'var(--ibo-ink)' }}>
                               ${fmtP(m.price, base)}
                             </td>
-                            <td className="px-2 py-2.5">
-                              <span className={`font-semibold tabular-nums text-[12px] ${isUp ? 'text-green-500' : 'text-red-500'}`}>
+                            <td className="px-2 py-3.5">
+                              <span className={`delta-market-chg ${isUp ? 'is-up' : 'is-down'}`}>
                                 {isUp ? '+' : ''}{pct.toFixed(2)}%
                               </span>
                           </td>
-                            <td className="hidden px-2 py-2.5 font-mono text-[12px] tabular-nums whitespace-nowrap md:table-cell" style={{ color: 'var(--ibo-ink-secondary)' }}>
+                            <td className="hidden px-2 py-3.5 font-mono text-[12px] tabular-nums whitespace-nowrap md:table-cell" style={{ color: 'var(--ibo-ink-secondary)' }}>
                               ${fmtP(m.highPrice, base)}
                           </td>
-                            <td className="hidden px-2 py-2.5 font-mono text-[12px] tabular-nums whitespace-nowrap md:table-cell" style={{ color: 'var(--ibo-ink-secondary)' }}>
+                            <td className="hidden px-2 py-3.5 font-mono text-[12px] tabular-nums whitespace-nowrap md:table-cell" style={{ color: 'var(--ibo-ink-secondary)' }}>
                               ${fmtP(m.lowPrice, base)}
                           </td>
-                            <td className="px-2 py-2.5 font-mono text-[12px] tabular-nums whitespace-nowrap" style={{ color: 'var(--ibo-ink-secondary)' }}>
+                            <td className="px-2 py-3.5 font-mono text-[12px] tabular-nums whitespace-nowrap" style={{ color: 'var(--ibo-ink-secondary)' }}>
                               {fmtVol(m.volume)}
                             </td>
-                            <td className="hidden px-2 py-2.5 font-mono text-[12px] tabular-nums whitespace-nowrap md:table-cell" style={{ color: 'var(--ibo-ink-secondary)' }}>
+                            <td className="hidden px-2 py-3.5 font-mono text-[12px] tabular-nums whitespace-nowrap md:table-cell" style={{ color: 'var(--ibo-ink-secondary)' }}>
                               ${fmtVol(m.quoteVolume)}
                             </td>
-                            <td className="py-2.5 pl-2 pr-3 text-right sm:pr-4 md:pr-6 lg:pr-8 xl:pr-10" onClick={(e) => e.stopPropagation()}>
+                            <td className="py-3.5 pl-2 pr-3 text-right sm:pr-4 md:pr-6 lg:pr-8 xl:pr-10" onClick={(e) => e.stopPropagation()}>
                             <Link
                               to={`/trade/${m.symbol}`}
                                 className={TRADE_BTN_CLASS}

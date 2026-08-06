@@ -5242,7 +5242,7 @@ html[data-theme='light'] .delta-pair-panel .delta-pair-search {
   border-color: rgba(18, 20, 24, 0.12) !important;
 }
 
-/* Delta markets table ? flat product canvas (no mid-grey card wash) */
+/* Delta markets table — flat product canvas + redesigned data rows */
 .delta-markets-panel {
   background: var(--ibo-bg) !important;
   border-color: rgba(255, 255, 255, 0.06) !important;
@@ -5257,15 +5257,67 @@ html[data-theme='light'] .delta-pair-panel .delta-pair-search {
   background: transparent;
 }
 .delta-markets-panel table thead tr {
-  background: transparent !important;
+  background: rgba(255, 255, 255, 0.02) !important;
   border-color: rgba(255, 255, 255, 0.06) !important;
 }
-.delta-markets-panel table tbody tr {
-  border-color: rgba(255, 255, 255, 0.05) !important;
-  background: transparent !important;
+.delta-markets-panel table thead th {
+  letter-spacing: 0.06em;
+  font-weight: 600;
 }
-.delta-markets-panel table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.03) !important;
+.delta-markets-panel table tbody tr.delta-market-row {
+  border-color: rgba(255, 255, 255, 0.045) !important;
+  background: transparent !important;
+  transition: background 0.14s ease, box-shadow 0.14s ease;
+}
+.delta-markets-panel table tbody tr.delta-market-row:nth-child(even) {
+  background: rgba(255, 255, 255, 0.015) !important;
+}
+.delta-markets-panel table tbody tr.delta-market-row:hover {
+  background: rgba(254, 108, 2, 0.07) !important;
+  box-shadow: inset 3px 0 0 0 #fe6c02;
+}
+.delta-markets-panel table tbody tr.delta-market-row:hover .delta-market-trade-btn {
+  background: #fe6c02 !important;
+  border-color: #fe6c02 !important;
+  color: #101013 !important;
+}
+.delta-markets-panel .delta-market-row__icon {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+.delta-markets-panel .delta-market-row__icon-fallback {
+  background: rgba(254, 108, 2, 0.14);
+  color: #fe6c02;
+  box-shadow: 0 0 0 1px rgba(254, 108, 2, 0.2);
+}
+.delta-markets-panel .delta-market-row__star {
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.delta-markets-panel .delta-market-row__star:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+.delta-markets-panel .delta-market-chg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.25rem;
+  padding: 0.28rem 0.55rem;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.delta-markets-panel .delta-market-chg.is-up {
+  color: #00a876;
+  background: rgba(0, 168, 118, 0.12);
+}
+.delta-markets-panel .delta-market-chg.is-down {
+  color: #eb5454;
+  background: rgba(235, 84, 84, 0.12);
+}
+.delta-markets-panel .delta-market-trade-btn:hover {
+  border-color: #fe6c02;
+  color: #fe6c02;
 }
 .delta-markets-panel .delta-markets-search,
 .delta-markets-panel .delta-markets-icon-btn {
@@ -5276,7 +5328,7 @@ html[data-theme='light'] .delta-pair-panel .delta-pair-search {
   background: rgba(255, 255, 255, 0.04) !important;
 }
 
-/* Movers strips (volume / gainers / losers) ? flat, not grey elevated cards */
+/* Movers strips (volume / gainers / losers) — flat, not grey elevated cards */
 .delta-movers-card {
   background: transparent !important;
   border-color: rgba(255, 255, 255, 0.08) !important;
@@ -5317,15 +5369,37 @@ html[data-theme='light'] .delta-markets-panel .border-y {
   background: transparent;
 }
 html[data-theme='light'] .delta-markets-panel table thead tr {
-  background: #ffffff !important;
+  background: #f6f7f9 !important;
   border-color: rgba(18, 20, 24, 0.08) !important;
 }
-html[data-theme='light'] .delta-markets-panel table tbody tr {
-  border-color: rgba(18, 20, 24, 0.06) !important;
-  background: transparent !important;
+html[data-theme='light'] .delta-markets-panel table tbody tr.delta-market-row {
+  border-color: rgba(18, 20, 24, 0.055) !important;
+  background: #ffffff !important;
 }
-html[data-theme='light'] .delta-markets-panel table tbody tr:hover {
-  background: rgba(254, 108, 2, 0.04) !important;
+html[data-theme='light'] .delta-markets-panel table tbody tr.delta-market-row:nth-child(even) {
+  background: #fafbfc !important;
+}
+html[data-theme='light'] .delta-markets-panel table tbody tr.delta-market-row:hover {
+  background: rgba(254, 108, 2, 0.06) !important;
+  box-shadow: inset 3px 0 0 0 #fe6c02;
+}
+html[data-theme='light'] .delta-markets-panel .delta-market-row__icon {
+  box-shadow: 0 0 0 1px rgba(18, 20, 24, 0.08);
+}
+html[data-theme='light'] .delta-markets-panel .delta-market-row__star:hover {
+  background: rgba(18, 20, 24, 0.05);
+}
+html[data-theme='light'] .delta-markets-panel .delta-market-chg.is-up {
+  color: #008f64;
+  background: rgba(0, 168, 118, 0.1);
+}
+html[data-theme='light'] .delta-markets-panel .delta-market-chg.is-down {
+  color: #d93b3b;
+  background: rgba(235, 84, 84, 0.1);
+}
+html[data-theme='light'] .delta-markets-panel .delta-market-trade-btn {
+  border-color: rgba(18, 20, 24, 0.12);
+  color: var(--ibo-ink);
 }
 html[data-theme='light'] .delta-markets-panel .delta-markets-search,
 html[data-theme='light'] .delta-markets-panel .delta-markets-icon-btn {

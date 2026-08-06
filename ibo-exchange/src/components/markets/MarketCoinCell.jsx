@@ -28,7 +28,7 @@ export default function MarketCoinCell({ market, size = 40, showQuote = true, li
           alt={base}
           width={size}
           height={size}
-          className="rounded-full shrink-0 ring-1 ring-[color:var(--ibo-border-solid)] object-contain bg-transparent"
+          className="delta-market-row__icon rounded-full shrink-0 object-contain bg-transparent"
           loading="lazy"
           onError={(e) => {
             const fb = coinIconUrl(base, null);
@@ -38,7 +38,7 @@ export default function MarketCoinCell({ market, size = 40, showQuote = true, li
         />
       ) : (
         <div
-          className="rounded-full bg-gold/20 flex items-center justify-center text-gold-light font-bold shrink-0"
+          className="delta-market-row__icon-fallback rounded-full flex items-center justify-center font-bold shrink-0"
           style={{ width: size, height: size, fontSize: Math.max(10, size * 0.32) }}
         >
           {baseLabel?.slice(0, 2)}
@@ -46,29 +46,29 @@ export default function MarketCoinCell({ market, size = 40, showQuote = true, li
       )}
       <div className="min-w-0">
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-white font-semibold text-sm sm:text-base">{baseLabel}</span>
+          <span className="font-semibold text-sm sm:text-[13px] tracking-tight" style={{ color: 'var(--ibo-ink)' }}>{baseLabel}</span>
           {showQuote ? (
-            <span className="text-zinc-500 text-xs font-normal">/ {quoteLabel}</span>
+            <span className="text-[11px] font-medium" style={{ color: 'var(--ibo-muted)' }}>/ {quoteLabel}</span>
           ) : null}
           {isIbo ? (
-            <span className="text-[9px] bg-gold/15 text-gold-light px-1.5 py-0.5 rounded font-bold border border-gold/25">
+            <span className="text-[9px] bg-[rgba(254,108,2,0.12)] text-[#FE6C02] px-1.5 py-0.5 rounded font-bold border border-[rgba(254,108,2,0.22)]">
               Delta
             </span>
           ) : null}
           {isListed && !isIbo ? (
-            <span className="text-[9px] bg-sky-500/15 text-sky-200 px-1.5 py-0.5 rounded font-bold border border-sky-500/25">
+            <span className="text-[9px] bg-sky-500/12 text-sky-600 dark:text-sky-200 px-1.5 py-0.5 rounded font-bold border border-sky-500/25">
               Listed
             </span>
           ) : null}
           {showCategory ? (
-            <span className="text-[9px] uppercase tracking-wider text-zinc-500 font-bold">{category}</span>
+            <span className="text-[9px] uppercase tracking-wider font-bold" style={{ color: 'var(--ibo-muted)' }}>{category}</span>
           ) : null}
         </div>
         {displayName ? (
-          <p className="text-[11px] text-zinc-400 truncate max-w-[min(100%,12rem)] sm:max-w-[280px]">{displayName}</p>
+          <p className="text-[11px] truncate max-w-[min(100%,12rem)] sm:max-w-[280px]" style={{ color: 'var(--ibo-ink-secondary)' }}>{displayName}</p>
         ) : null}
         {tagline ? (
-          <p className="text-[10px] text-zinc-500 truncate max-w-[min(100%,14rem)] hidden sm:block">{tagline}</p>
+          <p className="text-[10px] truncate max-w-[min(100%,14rem)] hidden sm:block" style={{ color: 'var(--ibo-muted)' }}>{tagline}</p>
         ) : null}
       </div>
     </div>

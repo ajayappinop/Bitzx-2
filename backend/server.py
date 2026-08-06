@@ -24,7 +24,7 @@ import bcrypt
 from jose import JWTError, jwt
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict, EmailStr, field_validator, ValidationError, AliasChoices
-from typing import List, Optional, Dict, Any, Tuple, Literal, Sequence
+from typing import List, Optional, Dict, Any, Tuple, Literal, Sequence, Set
 from collections import defaultdict
 import uuid
 import hashlib
@@ -4058,9 +4058,9 @@ def _normalize_binance_24h(t: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _market_row_from_binance_ticker(t: Dict[str, Any]) -> Dict[str, Any]:
-    sym = t["symbol"]
-    base = sym.replace("USDT", "")
-    n = _normalize_binance_24h(t)
+    sym = str(t.get("symbol") or "").upper()
+    base = sym[:-4] if sym.endswith("USDT") else sym.replace("USDT", "")
+    n = _normalize_binance_24h({**t, "symbol": sym})
     return {
         "symbol":             sym,
         "base":               base,
@@ -19377,18 +19377,22 @@ def generate_ibo_trades(limit: int = 50) -> List[Dict]:
 
 async def _trading_markets_snapshot() -> List[Dict[str, Any]]:
     """
-    Single-call market snapshot: live Binance 24h for USDT pairs + listed symbols,
+    Single-call market snapshot: all Binance USDT spot pairs (24h stats) + listed symbols,
     platform IBOUSDT (never Binance — unrelated token), IBO-quoted pairs from USDT tickers.
     """
     from ibo.pricing import platform_ibo_usdt_price
     from listings.market_data import (
         append_listed_rows_from_binance,
+        fetch_all_binance_usdt_tickers,
         fetch_binance_24hr_map,
         usdt_symbols_for_snapshot,
     )
 
-    symbols = usdt_symbols_for_snapshot(BINANCE_USDT_PAIRS)
-    by_sym = fetch_binance_24hr_map(symbols)
+    # Full USDT universe for Markets UI; fall back to targeted batch if full fetch is empty.
+    by_sym = fetch_all_binance_usdt_tickers()
+    if not by_sym:
+        symbols = usdt_symbols_for_snapshot(BINANCE_USDT_PAIRS)
+        by_sym = fetch_binance_24hr_map(symbols)
 
     controls = await get_platform_controls()
     ibo_usdt_px = platform_ibo_usdt_price(controls)
@@ -19449,38 +19453,62 @@ async def _trading_markets_snapshot() -> List[Dict[str, Any]]:
         }
 
     rows: List[Dict[str, Any]] = [ibo_row]
+    seen: Set[str] = {"IBOUSDT"}
 
-    for s in BINANCE_USDT_PAIRS:
+    def _append_usdt_row(s: str) -> None:
+        if s in seen:
+            return
+        seen.add(s)
         if s in by_sym:
             rows.append(_market_row_from_binance_ticker(by_sym[s]))
-        else:
-            fb = FALLBACK_PRICES.get(s, 1.0)
-            rows.append({
-                "symbol": s,
-                "base": s.replace("USDT", ""),
-                "baseAsset": s.replace("USDT", ""),
-                "quoteAsset": "USDT",
-                "source": "binance",
-                "stats_source": "fallback",
-                "price": str(fb),
-                "priceChange": "0",
-                "priceChangePercent": "0",
-                "openPrice": str(fb),
-                "highPrice": str(fb),
-                "lowPrice": str(fb),
-                "volume": "0",
-                "quoteVolume": "0",
-                "weightedAvgPrice": str(fb),
-                "bidPrice": str(fb * 0.9999),
-                "askPrice": str(fb * 1.0001),
-                "prevClosePrice": None,
-                "count": "0",
-            })
+            return
+        if s not in BINANCE_USDT_PAIRS:
+            return
+        fb = FALLBACK_PRICES.get(s, 1.0)
+        base = s[:-4] if s.endswith("USDT") else s.replace("USDT", "")
+        rows.append({
+            "symbol": s,
+            "base": base,
+            "baseAsset": base,
+            "quoteAsset": "USDT",
+            "source": "binance",
+            "stats_source": "fallback",
+            "price": str(fb),
+            "priceChange": "0",
+            "priceChangePercent": "0",
+            "openPrice": str(fb),
+            "highPrice": str(fb),
+            "lowPrice": str(fb),
+            "volume": "0",
+            "quoteVolume": "0",
+            "weightedAvgPrice": str(fb),
+            "bidPrice": str(fb * 0.9999),
+            "askPrice": str(fb * 1.0001),
+            "prevClosePrice": None,
+            "count": "0",
+        })
+
+    # Majors first (stable order), then every other Binance USDT pair by 24h quote volume.
+    for s in BINANCE_USDT_PAIRS:
+        _append_usdt_row(s)
+
+    rest = [s for s in by_sym if s not in seen]
+    rest.sort(
+        key=lambda s: float(by_sym[s].get("quoteVolume") or 0),
+        reverse=True,
+    )
+    for s in rest:
+        _append_usdt_row(s)
 
     from listings.ibo_markets import broadcast_ibo_rows, get_cached_ibo_rows
 
     all_ibo = get_cached_ibo_rows(ibo_usdt_px)
-    rows.extend(broadcast_ibo_rows(all_ibo))
+    for ib in broadcast_ibo_rows(all_ibo):
+        sym = (ib.get("symbol") or "").upper()
+        if not sym or sym in seen:
+            continue
+        seen.add(sym)
+        rows.append(ib)
 
     rows = append_listed_rows_from_binance(
         rows,
