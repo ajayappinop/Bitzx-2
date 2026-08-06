@@ -100,7 +100,7 @@ function RecentFillsRail() {
           })}
         </div>
       )}
-      <Link to="/account/order-history" className="qt2-rail__link">
+      <Link to="/account/positions?tab=order-history" className="qt2-rail__link">
         Full history <ArrowRight size={12} />
       </Link>
     </section>

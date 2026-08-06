@@ -11,6 +11,14 @@ const ACCOUNT_NAV_IDS = new Set(ACCOUNT_NAV_ITEMS.map((item) => item.id));
 function sectionIdFromPath(pathname) {
   if (!isAccountPath(pathname)) return 'positions';
   const part = pathname.replace(/^\/account\/?/, '').split('/')[0];
+  // Legacy trading routes now live under Positions tabs
+  if (part === 'open-orders' || part === 'order-history' || part === 'trade-history') {
+    return 'positions';
+  }
+  // Transfer / invoices live under Activity (transaction-logs) tabs
+  if (part === 'transfer' || part === 'invoices') {
+    return 'transaction-logs';
+  }
   return part || 'positions';
 }
 

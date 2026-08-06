@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate, useSearchParams } from 'react-router-dom';
 import {
   RefreshCw, TrendingUp, Clock, CheckCircle, XCircle,
   ArrowUpRight, Wallet, LayoutDashboard,
@@ -67,9 +67,23 @@ function SummaryStrip({ items }) {
   );
 }
 
-/* ─── Positions ─────────────────────────────────────────────────────────── */
+/* ─── Trading hub: Positions · Open Orders · Order History · Trade History ─ */
 
-export function AccountPositions() {
+const TRADING_TABS = [
+  { id: 'positions', label: 'Positions' },
+  { id: 'open-orders', label: 'Open Orders' },
+  { id: 'order-history', label: 'Order History' },
+  { id: 'trade-history', label: 'Trade History' },
+];
+
+const TRADING_TAB_IDS = new Set(TRADING_TABS.map((t) => t.id));
+
+function normalizeTradingTab(raw) {
+  const id = String(raw || '').trim().toLowerCase();
+  return TRADING_TAB_IDS.has(id) ? id : 'positions';
+}
+
+function PositionsPanel() {
   const {
     user,
     liveSpotPositions,
@@ -95,7 +109,7 @@ export function AccountPositions() {
   const usdt = Number(balance?.USDT ?? 0);
 
   return (
-    <div className="delta-account-panel">
+    <>
       <SummaryStrip
         items={[
           { label: 'USDT balance', value: `$${usdt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` },
@@ -221,13 +235,65 @@ export function AccountPositions() {
           }}
         />
       ) : null}
+    </>
+  );
+}
+
+export function AccountPositions() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { openOrders, orderHistory, userTrades } = useAuth();
+  const tab = normalizeTradingTab(searchParams.get('tab'));
+
+  const setTab = useCallback((id) => {
+    const next = normalizeTradingTab(id);
+    setSearchParams((prev) => {
+      const p = new URLSearchParams(prev);
+      if (next === 'positions') p.delete('tab');
+      else p.set('tab', next);
+      return p;
+    }, { replace: true });
+  }, [setSearchParams]);
+
+  const counts = {
+    positions: null,
+    'open-orders': openOrders?.length ?? 0,
+    'order-history': orderHistory?.length ?? 0,
+    'trade-history': userTrades?.length ?? 0,
+  };
+
+  return (
+    <div className="delta-account-panel">
+      <div className="delta-account-tabs" role="tablist" aria-label="Trading activity">
+        {TRADING_TABS.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            role="tab"
+            aria-selected={tab === t.id}
+            onClick={() => setTab(t.id)}
+            className={`delta-account-tabs__btn${tab === t.id ? ' is-active' : ''}`}
+          >
+            {t.label}
+            {counts[t.id] != null ? (
+              <span className="ml-1.5 tabular-nums opacity-70">{counts[t.id]}</span>
+            ) : null}
+          </button>
+        ))}
+      </div>
+
+      <div role="tabpanel" className="mt-1">
+        {tab === 'positions' ? <PositionsPanel /> : null}
+        {tab === 'open-orders' ? <AccountOrders mode="open" embedded /> : null}
+        {tab === 'order-history' ? <AccountOrders mode="history" embedded /> : null}
+        {tab === 'trade-history' ? <AccountTradeHistory embedded /> : null}
+      </div>
     </div>
   );
 }
 
 /* ─── Orders tables ─────────────────────────────────────────────────────── */
 
-export function AccountOrders({ mode = 'open' }) {
+export function AccountOrders({ mode = 'open', embedded = false }) {
   const { openOrders, orderHistory, fetchOrders } = useAuth();
   const orders = mode === 'open' ? openOrders : orderHistory;
 
@@ -235,8 +301,8 @@ export function AccountOrders({ mode = 'open' }) {
     fetchOrders?.();
   }, [fetchOrders]);
 
-  return (
-    <div className="delta-account-panel">
+  const body = (
+    <>
       <div className="delta-account-toolbar">
         <p className="text-sm text-[color:var(--ibo-muted)]">
           {orders.length} {mode === 'open' ? 'active' : 'total'} order{orders.length === 1 ? '' : 's'}
@@ -297,21 +363,24 @@ export function AccountOrders({ mode = 'open' }) {
           </table>
         </div>
       )}
-    </div>
+    </>
   );
+
+  if (embedded) return body;
+  return <div className="delta-account-panel">{body}</div>;
 }
 
 /* ─── Trade history ─────────────────────────────────────────────────────── */
 
-export function AccountTradeHistory() {
+export function AccountTradeHistory({ embedded = false }) {
   const { userTrades, fetchUserTrades } = useAuth();
 
   useEffect(() => {
     fetchUserTrades?.();
   }, [fetchUserTrades]);
 
-  return (
-    <div className="delta-account-panel">
+  const body = (
+    <>
       <div className="delta-account-toolbar">
         <p className="text-sm text-[color:var(--ibo-muted)]">{userTrades.length} fill(s)</p>
         <button type="button" className="delta-account-tabs__refresh" onClick={() => fetchUserTrades?.()}>
@@ -360,8 +429,11 @@ export function AccountTradeHistory() {
           </table>
         </div>
       )}
-    </div>
+    </>
   );
+
+  if (embedded) return body;
+  return <div className="delta-account-panel">{body}</div>;
 }
 
 /* ─── Overview ──────────────────────────────────────────────────────────── */
@@ -444,10 +516,10 @@ export function AccountOverview() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           { to: '/account/positions', label: 'Positions', value: positions.length, icon: TrendingUp },
-          { to: '/account/open-orders', label: 'Open orders', value: openOrders.length, icon: Clock },
+          { to: '/account/positions?tab=open-orders', label: 'Open orders', value: openOrders.length, icon: Clock },
           { to: '/account/balances', label: 'Wallet', value: walletAssets.length, icon: Wallet },
           {
-            to: '/account/order-history',
+            to: '/account/positions?tab=order-history',
             label: 'Filled orders',
             value: orderHistory.filter((o) => o.status === 'filled').length,
             icon: CheckCircle,
@@ -517,9 +589,9 @@ export function AccountApiKeys() {
 
 /* ─── Invoices (Delta Transaction Log / tax invoices) ───────────────────── */
 
-export function AccountInvoices() {
+function InvoicesPanel() {
   return (
-    <div className="delta-account-panel space-y-4">
+    <div className="space-y-4">
       <p className="text-sm text-[color:var(--ibo-muted)] max-w-2xl">
         Download daily, monthly, and yearly account statements — matching Delta&apos;s Invoices
         section under the account dashboard.
@@ -556,6 +628,15 @@ export function AccountInvoices() {
   );
 }
 
+export function AccountInvoices({ embedded = false } = {}) {
+  if (embedded) return <InvoicesPanel />;
+  return (
+    <div className="delta-account-panel space-y-4">
+      <InvoicesPanel />
+    </div>
+  );
+}
+
 /* ─── Wallet embeds ─────────────────────────────────────────────────────── */
 
 export function AccountBalances() {
@@ -582,10 +663,65 @@ export function AccountWithdrawals() {
   );
 }
 
+const ACTIVITY_TABS = [
+  { id: 'logs', label: 'Transaction Logs' },
+  { id: 'transfer', label: 'Transfer' },
+  { id: 'invoices', label: 'Invoices' },
+];
+
+const ACTIVITY_TAB_IDS = new Set(ACTIVITY_TABS.map((t) => t.id));
+
+function normalizeActivityTab(raw) {
+  const id = String(raw || '').trim().toLowerCase();
+  if (id === 'transaction-logs' || id === 'ledger') return 'logs';
+  return ACTIVITY_TAB_IDS.has(id) ? id : 'logs';
+}
+
+/** Activity hub — Transaction Logs · Transfer · Invoices */
 export function AccountTransactionLogs() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = normalizeActivityTab(searchParams.get('tab'));
+
+  const setTab = useCallback((id) => {
+    const next = normalizeActivityTab(id);
+    setSearchParams((prev) => {
+      const p = new URLSearchParams(prev);
+      if (next === 'logs') p.delete('tab');
+      else p.set('tab', next);
+      return p;
+    }, { replace: true });
+  }, [setSearchParams]);
+
   return (
-    <div className="delta-account-embed">
-      <WalletPage accountMode forcedTab="ledger" />
+    <div className="delta-account-panel">
+      <div className="delta-account-tabs" role="tablist" aria-label="Account activity">
+        {ACTIVITY_TABS.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            role="tab"
+            aria-selected={tab === t.id}
+            onClick={() => setTab(t.id)}
+            className={`delta-account-tabs__btn${tab === t.id ? ' is-active' : ''}`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      <div role="tabpanel" className="mt-1">
+        {tab === 'logs' ? (
+          <div className="delta-account-embed !p-0 !m-0">
+            <WalletPage accountMode forcedTab="ledger" />
+          </div>
+        ) : null}
+        {tab === 'transfer' ? (
+          <div className="delta-account-embed !p-0 !m-0">
+            <IboSwapPanel />
+          </div>
+        ) : null}
+        {tab === 'invoices' ? <AccountInvoices embedded /> : null}
+      </div>
     </div>
   );
 }

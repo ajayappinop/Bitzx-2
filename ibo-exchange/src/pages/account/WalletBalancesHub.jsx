@@ -173,7 +173,7 @@ export default function WalletBalancesHub() {
               <Link to="/account/withdrawals" className="wallet-action-ghost">
                 Withdraw
               </Link>
-              <Link to="/account/transfer" className="wallet-action-ghost">
+              <Link to="/account/transaction-logs?tab=transfer" className="wallet-action-ghost">
                 <ArrowLeftRight size={14} />
                 Transfer
               </Link>
@@ -277,7 +277,7 @@ export default function WalletBalancesHub() {
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
               <Link
-                to="/account/transfer"
+                to="/account/transaction-logs?tab=transfer"
                 className="wallet-action-primary !py-1.5 !text-xs"
                 onClick={(e) => e.stopPropagation()}
               >

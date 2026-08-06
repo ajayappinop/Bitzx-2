@@ -1,13 +1,8 @@
 /**
-
  * TradePage — Delta-style terminal (same shell as FuturesTradePage).
-
  *
-
- * Single viewport calc(100dvh - navbar):
-
- *   header → chart | order book | trade form → compact bottom dock (orders / trades)
-
+ * Header → chart | order book | trade form → bottom orders table.
+ * Page scrolls so the bottom table is fully reachable.
  */
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -32,7 +27,7 @@ import {
 
   exchangeWsPath,
 
-  INTERNAL_SPOT_SYMBOL,
+  DEFAULT_SPOT_TRADE_SYMBOL,
 
   isIboMockMarketSymbol,
 
@@ -1202,7 +1197,7 @@ function BottomPanel({ symbol, isIboMock = false, iboTrades = [], iboLoading = f
 
   return (
 
-    <div className="flex flex-col min-h-[300px] bg-transparent">
+    <div className="flex flex-col min-h-[420px] bg-transparent">
 
 
 
@@ -1320,7 +1315,7 @@ function BottomPanel({ symbol, isIboMock = false, iboTrades = [], iboLoading = f
 
 
 
-      <div className="min-h-[260px] flex flex-col">
+      <div className="min-h-[360px] flex flex-col">
 
       {tab === 'positions' && (
 
@@ -1374,7 +1369,7 @@ function BottomPanel({ symbol, isIboMock = false, iboTrades = [], iboLoading = f
 
       {tab === 'trades' && (
 
-        <div className="flex-1 min-h-[min(360px,50vh)] overflow-hidden">
+        <div className="flex-1 min-h-[360px]">
 
           {isIboMock
 
@@ -1948,7 +1943,7 @@ export default function TradePage() {
 
   const symbol = useMemo(
 
-    () => tradeSymbolFromRouteParam(routeParam) ?? INTERNAL_SPOT_SYMBOL,
+    () => tradeSymbolFromRouteParam(routeParam) ?? DEFAULT_SPOT_TRADE_SYMBOL,
 
     [routeParam],
 
@@ -2172,7 +2167,7 @@ export default function TradePage() {
 
     if (!routeParam || !resolved) {
 
-      navigate(`/trade/${INTERNAL_SPOT_SYMBOL}`, { replace: true });
+      navigate(`/trade/${DEFAULT_SPOT_TRADE_SYMBOL}`, { replace: true });
 
       return;
 
@@ -2387,7 +2382,7 @@ export default function TradePage() {
             : (
 
               <div className="h-[520px] min-h-0 overflow-hidden flex flex-col">
-                <div className="flex-[1.15] min-h-0 overflow-hidden">
+                <div className="flex-[2.2] min-h-0 overflow-hidden">
                   <OrderBook
                     symbol={symbol}
                     baseAsset={apiBase}
@@ -2396,7 +2391,7 @@ export default function TradePage() {
                     bookOverride={isIboMock ? iboOrderbook : null}
                   />
                 </div>
-                <div className="h-[40%] min-h-[160px] border-t border-[color:var(--ibo-border)] overflow-hidden">
+                <div className="flex-[0.65] min-h-[140px] max-h-[200px] border-t border-[color:var(--ibo-border)] overflow-hidden">
                   {isIboMock ? (
                     <IBOTrades trades={iboTrades} loading={iboLoading} />
                   ) : (
@@ -2411,7 +2406,7 @@ export default function TradePage() {
 
 
 
-        <div className="min-h-[20vh] border-t border-[color:var(--ibo-border)]">
+        <div className="min-h-[360px] border-t border-[color:var(--ibo-border)]">
 
           <BottomPanel
 
@@ -2507,7 +2502,7 @@ export default function TradePage() {
 
 
 
-        <div className="flex min-h-[480px] h-[min(62vh,720px)] shrink-0">
+        <div className="flex min-h-[calc(100dvh-11rem)] h-[calc(100dvh-11rem)] max-h-[960px] shrink-0">
 
           <div className="flex-1 min-w-0 min-h-0 relative overflow-hidden border-r border-[color:var(--ibo-border)]"
 
@@ -2537,9 +2532,9 @@ export default function TradePage() {
 
 
 
-          {/* Order book (top) + market trades (bottom) — Delta center column */}
+          {/* Order book (~62%) + recent trades (~38%) — match screenshot split */}
           <div className="delta-trade-col delta-trade-book flex flex-col shrink-0 border-r border-[color:var(--ibo-border)] min-h-0 bg-transparent">
-            <div className="flex-[1.2] min-h-0 overflow-hidden">
+            <div className="flex-[2.2] min-h-0 overflow-hidden">
               <OrderBook
                 symbol={symbol}
                 baseAsset={apiBase}
@@ -2548,7 +2543,7 @@ export default function TradePage() {
                 bookOverride={isIboMock ? iboOrderbook : null}
               />
             </div>
-            <div className="flex-[0.85] min-h-[160px] max-h-[280px] border-t border-[color:var(--ibo-border)] overflow-hidden">
+            <div className="flex-[0.65] min-h-[160px] max-h-[260px] border-t border-[color:var(--ibo-border)] overflow-hidden">
               {isIboMock ? (
                 <IBOTrades trades={iboTrades} loading={iboLoading} />
               ) : (
@@ -2559,7 +2554,7 @@ export default function TradePage() {
 
           {/* Order ticket */}
           <div className="delta-trade-col delta-trade-ticket flex flex-col shrink-0 overflow-hidden bg-transparent">
-            <div className="flex-1 overflow-y-auto scrollbar-hide">
+            <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide">
               <TradeForm symbol={symbol} lastPrice={livePrice} limitPriceSeed={formPrice} initialSide={formInitialSide} />
             </div>
           </div>
@@ -2568,7 +2563,7 @@ export default function TradePage() {
 
 
 
-        <div className="min-h-[300px] border-t border-[color:var(--ibo-border)]">
+        <div className="min-h-[420px] border-t border-[color:var(--ibo-border)]">
 
           <BottomPanel
 

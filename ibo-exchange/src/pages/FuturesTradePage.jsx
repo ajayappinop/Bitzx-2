@@ -198,7 +198,7 @@ function BottomPanel() {
   ];
 
   return (
-    <div className="flex flex-col min-h-[300px] bg-transparent border-t border-[color:var(--ibo-border)]">
+    <div className="flex flex-col min-h-[420px] bg-transparent border-t border-[color:var(--ibo-border)]">
       <div className="flex items-center shrink-0 overflow-x-auto scrollbar-hide border-b border-[color:var(--ibo-border)] px-1 h-[40px] sticky top-0 z-10 bg-[color:var(--ibo-bg)]">
         {TABS.map((t) => {
           const on = tab === t.id;
@@ -233,7 +233,7 @@ function BottomPanel() {
           Connected
         </div>
       </div>
-      <div className="min-h-[260px]">
+      <div className="min-h-[360px]">
         {tab === 'positions' && <FuturesPositions />}
         {tab === 'open' && <FuturesOpenOrders />}
         {tab === 'history' && <FuturesOrderHistory />}
@@ -439,25 +439,25 @@ function FuturesTradePageInner() {
       >
         <MarketHeader funding={funding} />
 
-        <div className="flex min-h-[480px] h-[min(62vh,720px)] shrink-0">
+        <div className="flex min-h-[calc(100dvh-11rem)] h-[calc(100dvh-11rem)] max-h-[960px] shrink-0">
           {/* Chart */}
           <div className="flex-1 min-w-0 min-h-0 relative overflow-hidden border-r border-[color:var(--ibo-border)]">
             <FuturesChart symbol={activeSymbol} funding={funding} />
           </div>
 
-          {/* Order book (top) + recent trades (bottom) — Delta center column */}
+          {/* Order book (~62%) + recent trades (~38%) — match screenshot split */}
           <div className="delta-trade-col delta-trade-book flex flex-col shrink-0 border-r border-[color:var(--ibo-border)] min-h-0 bg-transparent">
-            <div className="flex-[1.2] min-h-0 overflow-hidden">
+            <div className="flex-[2.2] min-h-0 overflow-hidden">
               <FuturesOrderBook onPriceClick={onOrderBookPrice} />
             </div>
-            <div className="flex-[0.85] min-h-[160px] max-h-[280px] border-t border-[color:var(--ibo-border)] overflow-hidden">
+            <div className="flex-[0.65] min-h-[160px] max-h-[260px] border-t border-[color:var(--ibo-border)] overflow-hidden">
               <FuturesRecentTrades />
             </div>
           </div>
 
           {/* Order ticket */}
           <div className="delta-trade-col delta-trade-ticket flex flex-col shrink-0 overflow-hidden bg-transparent">
-            <div className="flex-1 overflow-y-auto scrollbar-hide">
+            <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide">
               <FuturesTradeForm {...formProps} />
               {!user ? (
                 <p className="text-[11px] text-white/45 text-center py-3 px-3">
@@ -472,7 +472,7 @@ function FuturesTradePageInner() {
         </div>
 
         {/* Bottom orders / positions table — page scrolls so rows are fully visible */}
-        <div className="min-h-[300px] border-t border-[color:var(--ibo-border)]">
+        <div className="min-h-[420px] border-t border-[color:var(--ibo-border)]">
           <BottomPanel />
         </div>
       </div>

@@ -25,15 +25,11 @@ import AccountLayout from '@/components/account/AccountLayout';
 import {
   AccountIndexRedirect,
   AccountPositions,
-  AccountOrders,
-  AccountTradeHistory,
   AccountBalances,
   AccountDeposits,
   AccountWithdrawals,
   AccountTransactionLogs,
-  AccountTransfer,
   AccountPnL,
-  AccountInvoices,
   AccountProfile,
   AccountSecurity,
   AccountBankDetails,
@@ -124,6 +120,8 @@ function Layout() {
   const isTrade  = pathname.startsWith('/trade') || pathname.startsWith('/futures') || pathname.startsWith('/options');
   const isHome   = pathname === '/';
   const isAccount = pathname === '/account' || pathname.startsWith('/account/');
+  /* Account keeps a docked shell; trade/options pages scroll so bottom tables are reachable. */
+  const dockMain = isAccount;
 
   return (
     <div className="relative h-[100dvh] max-h-[100dvh] flex flex-col overflow-hidden">
@@ -133,12 +131,12 @@ function Layout() {
         </div>
       )}
 
-      {/* Single scroll root so sticky navbar works on every page.
-          Trade + Account fill the remaining viewport and scroll internally (Delta shell). */}
+      {/* Scroll root: sticky navbar. Trade/options scroll the full page so the
+          bottom orders table is reachable; Account keeps an internal shell. */}
       <div
         data-ibo-scroll-root
         className={`relative flex flex-col flex-1 min-h-0 overflow-x-hidden ${
-          isTrade || isAccount ? 'overflow-y-hidden' : 'overflow-y-auto'
+          dockMain ? 'overflow-y-hidden' : 'overflow-y-auto'
         }`}
         style={{ zIndex: 3 }}
       >
@@ -148,7 +146,7 @@ function Layout() {
         <SignupBonusKycPrompt />
         <main
           className={`flex w-full min-w-0 flex-col ${
-            isTrade || isAccount ? 'flex-1 min-h-0 overflow-hidden' : 'shrink-0 flex-1'
+            dockMain ? 'flex-1 min-h-0 overflow-hidden' : 'shrink-0 flex-1'
           }`}
         >
           <Outlet />
@@ -251,7 +249,7 @@ export default function App() {
         <Route path="/markets"       element={<MarketsPage />} />
         <Route path="/list-coin"     element={<ListCoinPage />} />
         <Route path="/quick-trade"   element={<QuickTradePage />} />
-        <Route path="/trade"         element={<TradePage />} />
+        <Route path="/trade"         element={<Navigate to="/trade/BTCUSDT" replace />} />
         <Route path="/trade/:symbol" element={<TradePage />} />
         <Route path="/futures/:symbol?" element={<FuturesTradePage />} />
         <Route path="/options"           element={<Navigate to="/options/BTCUSDT" replace />} />
@@ -303,9 +301,9 @@ export default function App() {
         }>
           <Route index element={<AccountIndexRedirect />} />
           <Route path="positions" element={<AccountPositions />} />
-          <Route path="open-orders" element={<AccountOrders mode="open" />} />
-          <Route path="order-history" element={<AccountOrders mode="history" />} />
-          <Route path="trade-history" element={<AccountTradeHistory />} />
+          <Route path="open-orders" element={<Navigate to="/account/positions?tab=open-orders" replace />} />
+          <Route path="order-history" element={<Navigate to="/account/positions?tab=order-history" replace />} />
+          <Route path="trade-history" element={<Navigate to="/account/positions?tab=trade-history" replace />} />
           <Route path="pnl" element={<AccountPnL />} />
           <Route path="portfolio" element={<Navigate to="/account/pnl" replace />} />
           <Route path="balances" element={<AccountBalances />} />
@@ -313,8 +311,8 @@ export default function App() {
           <Route path="withdrawals" element={<AccountWithdrawals />} />
           <Route path="bank-details" element={<AccountBankDetails />} />
           <Route path="transaction-logs" element={<AccountTransactionLogs />} />
-          <Route path="transfer" element={<AccountTransfer />} />
-          <Route path="invoices" element={<AccountInvoices />} />
+          <Route path="transfer" element={<Navigate to="/account/transaction-logs?tab=transfer" replace />} />
+          <Route path="invoices" element={<Navigate to="/account/transaction-logs?tab=invoices" replace />} />
           <Route path="profile" element={<AccountProfile />} />
           <Route path="security" element={<AccountSecurity />} />
           <Route path="api-keys" element={<AccountApiKeys />} />

@@ -8,7 +8,6 @@ import DeltaOptionsChain from '@/components/markets/DeltaOptionsChain';
 import { COIN_ICONS, marketApi } from '@/services/marketApi';
 import MarketCoinCell from '@/components/markets/MarketCoinCell';
 import MarketsSpotMobileCard from '@/components/markets/MarketsSpotMobileCard';
-import MarketsPagination from '@/components/markets/MarketsPagination';
 import { useLiveMarkets } from '@/hooks/useLiveMarkets';
 import {
   computeMarketBreadth,
@@ -42,37 +41,6 @@ const num = v => {
   const n = parseFloat(v);
   return Number.isFinite(n) ? n : 0;
 };
-
-
-function RangeBar({ low, high, price }) {
-  const l = num(low);
-  const h = num(high);
-  const p = num(price);
-  if (h <= l) {
-    return <div className="h-1 w-16 rounded-full" style={{ background: 'var(--ibo-border)' }} />;
-  }
-  const x = Math.min(100, Math.max(0, ((p - l) / (h - l)) * 100));
-  return (
-    <div
-      className="h-1.5 w-14 sm:w-20 rounded-full overflow-hidden relative"
-      style={{ background: 'var(--ibo-border)' }}
-      title="Price position in 24h range"
-    >
-      <div
-        className="absolute top-0 bottom-0 left-0 rounded-full bg-gradient-to-r from-red-500/70 via-gold/80 to-green-500/70"
-        style={{ width: '100%' }}
-      />
-      <div
-        className="absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full shadow border"
-        style={{
-          left: `calc(${x}% - 3px)`,
-          background: 'var(--ibo-ink)',
-          borderColor: 'var(--ibo-card)',
-        }}
-      />
-    </div>
-  );
-}
 
 /** Large-cap USDT pairs (for “Major” tab) */
 const MAJOR_BASES = new Set(['BTC', 'ETH', 'BNB', 'SOL', 'XRP']);
@@ -226,7 +194,6 @@ export default function MarketsPage() {
   const { user } = useAuth();
   const [showVerify, setShowVerify] = useState(false);
   const { markets, loading } = useLiveMarkets();
-  const [spotDisplayLimit, setSpotDisplayLimit] = useState(60);
   const [search, setSearch] = useState('');
   const [marketMode, setMarketMode] = useState('spot');
   const [category, setCategory] = useState('all');
@@ -686,15 +653,6 @@ export default function MarketsPage() {
     }
     return list;
   }, [markets, marketMode, category, favorites, search, sortKey, sortDir]);
-
-  const visibleSpot = useMemo(
-    () => filtered.slice(0, spotDisplayLimit),
-    [filtered, spotDisplayLimit],
-  );
-
-  useEffect(() => {
-    setSpotDisplayLimit(60);
-  }, [category, search, sortKey, sortDir, marketMode]);
 
   const SortTh = ({ label, field, className = '' }) => (
     <th
@@ -1249,7 +1207,7 @@ export default function MarketsPage() {
             </div>
               <button
                 type="button"
-                onClick={() => setSpotDisplayLimit(60)}
+                onClick={() => window.location.reload()}
                 className="delta-markets-icon-btn flex h-8 w-8 flex-shrink-0 items-center justify-center rounded border transition-colors"
                 style={{ color: 'var(--ibo-ink-secondary)' }}
                 aria-label="Refresh list"
@@ -1273,9 +1231,6 @@ export default function MarketsPage() {
                     </th>
                       <SortTh label="Price" field="price" />
                       <SortTh label="24h Change" field="priceChangePercent" />
-                      <th className="hidden px-1.5 py-2.5 text-[10px] font-medium uppercase tracking-wider md:table-cell" style={{ color: 'var(--ibo-muted)' }}>
-                        Range
-                      </th>
                     <SortTh label="High" field="highPrice" className="hidden md:table-cell" />
                     <SortTh label="Low" field="lowPrice" className="hidden md:table-cell" />
                       <SortTh label="Volume" field="volume" />
@@ -1291,20 +1246,20 @@ export default function MarketsPage() {
                 <tbody>
                   {loading ? (
                     <tr>
-                        <td colSpan={10} className="py-20 text-center">
+                        <td colSpan={9} className="py-20 text-center">
                           <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-[color:var(--ibo-accent)] border-t-transparent" />
                       </td>
                     </tr>
                   ) : filtered.length === 0 ? (
                     <tr>
-                        <td colSpan={10} className="py-16 text-center text-[13px]" style={{ color: 'var(--ibo-muted)' }}>
+                        <td colSpan={9} className="py-16 text-center text-[13px]" style={{ color: 'var(--ibo-muted)' }}>
                           {category === 'favorites'
                             ? 'No pairs in your watchlist yet. Tap the star on any row to add one.'
                             : 'No pairs match your filters.'}
                         </td>
                     </tr>
                   ) : (
-                      visibleSpot.map((m) => {
+                      filtered.map((m) => {
                       const pct = num(m.priceChangePercent);
                       const isUp = pct >= 0;
                       const base = m.base || m.symbol?.replace('USDT', '');
@@ -1331,9 +1286,6 @@ export default function MarketsPage() {
                               <span className={`font-semibold tabular-nums text-[12px] ${isUp ? 'text-green-500' : 'text-red-500'}`}>
                                 {isUp ? '+' : ''}{pct.toFixed(2)}%
                               </span>
-                          </td>
-                            <td className="hidden px-1.5 py-2.5 md:table-cell">
-                            <RangeBar low={m.lowPrice} high={m.highPrice} price={m.price} />
                           </td>
                             <td className="hidden px-2 py-2.5 font-mono text-[12px] tabular-nums whitespace-nowrap md:table-cell" style={{ color: 'var(--ibo-ink-secondary)' }}>
                               ${fmtP(m.highPrice, base)}
@@ -1362,15 +1314,6 @@ export default function MarketsPage() {
                 </tbody>
               </table>
             </div>
-            {filtered.length > 0 ? (
-              <MarketsPagination
-                shown={visibleSpot.length}
-                total={filtered.length}
-                pageSize={60}
-                onLoadMore={() => setSpotDisplayLimit((n) => n + 60)}
-                  className="border-t border-[color:var(--ibo-border-solid)] px-3 sm:px-4 md:px-6 lg:px-8 xl:px-10"
-              />
-            ) : null}
           </div>
 
             <div className="divide-y md:hidden" style={{ borderColor: 'var(--ibo-border-solid)' }}>
@@ -1385,8 +1328,7 @@ export default function MarketsPage() {
                     : 'No pairs match your filters.'}
                 </p>
               ) : (
-                <>
-                  {visibleSpot.map((m) => (
+                  filtered.map((m) => (
                     <div key={m.symbol} className="px-3 py-3 sm:px-4 md:px-6">
                 <MarketsSpotMobileCard
                   market={m}
@@ -1394,16 +1336,7 @@ export default function MarketsPage() {
                   onToggleFavorite={toggleFav}
                 />
                     </div>
-                  ))}
-                  <div className="px-3 py-3 sm:px-4 md:px-6">
-            <MarketsPagination
-              shown={visibleSpot.length}
-              total={filtered.length}
-              pageSize={60}
-              onLoadMore={() => setSpotDisplayLimit((n) => n + 60)}
-            />
-          </div>
-                </>
+                  ))
         )}
             </div>
         </div>

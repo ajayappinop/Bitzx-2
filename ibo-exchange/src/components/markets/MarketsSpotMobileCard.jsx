@@ -3,31 +3,6 @@ import { Star, TrendingUp, TrendingDown, ArrowRight } from 'lucide-react';
 import MarketCoinCell from '@/components/markets/MarketCoinCell';
 import { fmtMarketPrice, fmtMarketVol, num } from '@/lib/marketFormat';
 
-function RangeBar({ low, high, price }) {
-  const l = num(low);
-  const h = num(high);
-  const p = num(price);
-  if (h <= l) return <div className="h-1 w-full rounded-full" style={{ background: 'var(--ibo-border)' }} />;
-  const x = Math.min(100, Math.max(0, ((p - l) / (h - l)) * 100));
-  return (
-    <div
-      className="h-1.5 w-full rounded-full overflow-hidden relative"
-      style={{ background: 'var(--ibo-border)' }}
-      title="24h range"
-    >
-      <div className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-red-500/60 via-gold/70 to-green-500/60 w-full" />
-      <div
-        className="absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full shadow border"
-        style={{
-          left: `calc(${x}% - 3px)`,
-          background: 'var(--ibo-ink)',
-          borderColor: 'var(--ibo-card)',
-        }}
-      />
-    </div>
-  );
-}
-
 export default function MarketsSpotMobileCard({ market, isFavorite, onToggleFavorite }) {
   const pct = num(market.priceChangePercent);
   const isUp = pct >= 0;
@@ -75,8 +50,6 @@ export default function MarketsSpotMobileCard({ market, isFavorite, onToggleFavo
           <p className="text-white/90 font-mono tabular-nums">${fmtMarketPrice(market.lowPrice, base)}</p>
         </div>
       </div>
-
-      <RangeBar low={market.lowPrice} high={market.highPrice} price={market.price} />
 
       <Link
         to={`/trade/${market.symbol}`}

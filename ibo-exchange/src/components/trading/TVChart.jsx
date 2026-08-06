@@ -65,20 +65,21 @@ function tvOptionsForTheme(isLight) {
     hotlist: false,
     show_popup_button: false,
     overrides: {
-      'mainSeriesProperties.candleStyle.upColor': '#00a876',
-      'mainSeriesProperties.candleStyle.downColor': '#eb5454',
-      'mainSeriesProperties.candleStyle.borderUpColor': '#00a876',
-      'mainSeriesProperties.candleStyle.borderDownColor': '#eb5454',
-      'mainSeriesProperties.candleStyle.wickUpColor': '#00a876',
-      'mainSeriesProperties.candleStyle.wickDownColor': '#eb5454',
+      'mainSeriesProperties.candleStyle.upColor': '#26a69a',
+      'mainSeriesProperties.candleStyle.downColor': '#ef5350',
+      'mainSeriesProperties.candleStyle.borderUpColor': '#26a69a',
+      'mainSeriesProperties.candleStyle.borderDownColor': '#ef5350',
+      'mainSeriesProperties.candleStyle.wickUpColor': '#26a69a',
+      'mainSeriesProperties.candleStyle.wickDownColor': '#ef5350',
     },
     support_host: 'https://www.tradingview.com',
   };
 }
 
-export default function TVChart({ symbol }) {
+export default function TVChart({ symbol, forceLight = false }) {
   const containerRef = useRef(null);
-  const { isLight } = useTheme();
+  const { isLight: themeLight } = useTheme();
+  const isLight = forceLight || themeLight;
 
   useEffect(() => {
     const el = containerRef.current;

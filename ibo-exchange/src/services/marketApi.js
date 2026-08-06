@@ -82,6 +82,9 @@ export const COIN_ICONS = {
 /** Backend wire symbol for the internal Delta pair. */
 export const INTERNAL_SPOT_SYMBOL = 'IBOUSDT';
 
+/** Default pair when opening Trade / Spot from the navbar. */
+export const DEFAULT_SPOT_TRADE_SYMBOL = 'BTCUSDT';
+
 /** Core pairs pre-seeded by the mock engine at startup (matches backend bootstrap). */
 export const IBO_MOCK_MARKET_SYMBOLS = new Set([
   'IBOUSDT',

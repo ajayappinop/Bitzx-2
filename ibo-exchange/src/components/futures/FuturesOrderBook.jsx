@@ -82,18 +82,19 @@ function fmtQty(n) {
   if (!Number.isFinite(v)) return '—';
   if (v >= 1e6) return `${(v / 1e6).toFixed(2)}M`;
   if (v >= 1e3) return `${(v / 1e3).toFixed(2)}K`;
+  if (v >= 0.001) return v.toFixed(3);
   return v.toFixed(4);
 }
 
 function tickLabel(t) {
   if (t >= 1) return String(t);
+  if (t === 0.5) return '0.5';
   return t.toFixed(8).replace(/\.?0+$/, '') || String(t);
 }
 
 function pickDefaultTick(mid) {
-  if (!mid || mid <= 0) return 0.01;
-  if (mid >= 50000) return 10;
-  if (mid >= 10000) return 1;
+  if (!mid || mid <= 0) return 0.5;
+  if (mid >= 10000) return 0.5;
   if (mid >= 1000) return 0.1;
   if (mid >= 100) return 0.01;
   if (mid >= 1) return 0.0001;
@@ -127,10 +128,9 @@ function normFromContext(levels) {
     .sort((a, b) => a[0] - b[0]);
 }
 
-const Row = memo(function Row({ price, qty, side, cumSize, maxCum, maxQty, tick, onPriceClick }) {
+const Row = memo(function Row({ price, qty, side, cumSize, maxCum, tick, onPriceClick }) {
   const isBid = side === 'bid';
   const cumPct = maxCum > 0 ? Math.min(100, (cumSize / maxCum) * 100) : 0;
-  const qtyPct = maxQty > 0 ? Math.min(100, (parseFloat(qty) / maxQty) * 100) : 0;
   return (
     <div
       role="button"
@@ -144,14 +144,9 @@ const Row = memo(function Row({ price, qty, side, cumSize, maxCum, maxQty, tick,
       }}
       className={`ob-row ${isBid ? 'ob-row--bid' : 'ob-row--ask'}`}
     >
-      <div
+      <span
         className="ob-row__depth"
-        style={{ width: `${Math.max(cumPct, cumPct > 0 ? 2 : 0)}%` }}
-        aria-hidden
-      />
-      <div
-        className="ob-row__lvl"
-        style={{ width: `${Math.max(qtyPct * 0.55, qtyPct > 0 ? 1.5 : 0)}%` }}
+        style={{ width: `${Math.max(cumPct * 0.68, cumPct > 0 ? 6 : 0)}%` }}
         aria-hidden
       />
       <span className="ob-row__px">{fmtPrice(price, tick)}</span>
@@ -164,7 +159,6 @@ const Row = memo(function Row({ price, qty, side, cumSize, maxCum, maxQty, tick,
   && a.qty === b.qty
   && a.cumSize === b.cumSize
   && a.maxCum === b.maxCum
-  && a.maxQty === b.maxQty
   && a.tick === b.tick,
 );
 
@@ -178,7 +172,7 @@ export default function FuturesOrderBook({ onPriceClick }) {
   const base = meta.base || (activeSymbol || '').replace(/USDT.*/i, '') || 'BASE';
   const markPx = Number(activeMark?.mark_price || 0);
 
-  const rows = 14;
+  const rows = 12;
   const [tickSize, setTickSize] = useState(() => pickDefaultTick(markPx || 50000));
   const [tickOpen, setTickOpen] = useState(false);
   const [viewMode, setViewMode] = useState('all');
@@ -207,8 +201,6 @@ export default function FuturesOrderBook({ onPriceClick }) {
   const bestBid = bidsAgg.length ? bidsAgg[bidsAgg.length - 1][0] : 0;
   const bookMid = bestAsk > 0 && bestBid > 0 ? (bestAsk + bestBid) / 2 : bestAsk || bestBid;
   const lastPx = bookMid > 0 ? bookMid : markPx;
-  const spread = bestAsk > 0 && bestBid > 0 ? bestAsk - bestBid : 0;
-  const spreadPct = lastPx > 0 && spread > 0 ? (spread / lastPx) * 100 : 0;
 
   const askCumSizes = useMemo(() => {
     const out = new Array(asks.length);
@@ -229,17 +221,6 @@ export default function FuturesOrderBook({ onPriceClick }) {
   }, [bids]);
 
   const maxCum = Math.max(askCumSizes[0] || 0, bidCumSizes[bidCumSizes.length - 1] || 0, 1);
-  const maxQty = useMemo(() => {
-    let m = 0;
-    for (const [, q] of asks) m = Math.max(m, Number(q) || 0);
-    for (const [, q] of bids) m = Math.max(m, Number(q) || 0);
-    return m || 1;
-  }, [asks, bids]);
-
-  const bidDepth = bidCumSizes[bidCumSizes.length - 1] || 0;
-  const askDepth = askCumSizes[0] || 0;
-  const pressureTotal = bidDepth + askDepth;
-  const bidPressure = pressureTotal > 0 ? (bidDepth / pressureTotal) * 100 : 50;
 
   const isEmpty = asksAgg.length === 0 && bidsAgg.length === 0;
   const lastDirUp = markPx > 0 && lastPx > 0 ? lastPx >= markPx * 0.9995 : true;
@@ -291,12 +272,12 @@ export default function FuturesOrderBook({ onPriceClick }) {
       <div className="ob-cols">
         <span>Price (USD)</span>
         <span className="text-right">Size ({base})</span>
-        <span className="text-right">Total</span>
+        <span className="text-right">Total ({base})</span>
       </div>
 
       {isEmpty ? (
         <div className="ob-state">
-          <p className="ob-state__muted">Waiting for depth…</p>
+          <p className="ob-state__err">Waiting for depth…</p>
         </div>
       ) : (
         <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
@@ -316,7 +297,6 @@ export default function FuturesOrderBook({ onPriceClick }) {
                       onPriceClick={onPriceClick}
                       cumSize={askCumSizes[i] || 0}
                       maxCum={maxCum}
-                      maxQty={maxQty}
                     />
                   ))
                 )}
@@ -329,27 +309,15 @@ export default function FuturesOrderBook({ onPriceClick }) {
             onClick={() => lastPx > 0 && onPriceClick?.(fmtPrice(lastPx, tickSize))}
             className="ob-mid"
           >
-            <div className="ob-mid__main min-w-0">
-              <span className={`ob-mid__last${lastDirUp ? ' is-up' : ' is-down'}`}>
-                {lastPx > 0 ? fmtPrice(lastPx, tickSize) : '—'}
-              </span>
-              {spread > 0 ? (
-                <span className="ob-mid__spread">
-                  Spread {fmtPrice(spread, tickSize)}
-                  {spreadPct > 0 ? (
-                    <span className="ob-mid__spread-pct">
-                      ({spreadPct < 0.01 ? '<0.01' : spreadPct.toFixed(2)}%)
-                    </span>
-                  ) : null}
-                </span>
-              ) : null}
-            </div>
-            <div className="ob-mid__mark">
+            <span className={`ob-mid__last${lastDirUp ? ' is-up' : ' is-down'}`}>
+              {lastPx > 0 ? `$${fmtPrice(lastPx, tickSize)}` : '—'}
+            </span>
+            <span className="ob-mid__mark" title="Mark price">
+              <span className="ob-mid__badge" aria-hidden>M</span>
               <span className="ob-mid__mark-px">
                 {markPx > 0 ? fmtPrice(markPx, tickSize) : '—'}
               </span>
-              <span className="ob-mid__badge" title="Mark price">Mark</span>
-            </div>
+            </span>
           </button>
 
           {viewMode !== 'asks' ? (
@@ -367,23 +335,9 @@ export default function FuturesOrderBook({ onPriceClick }) {
                     onPriceClick={onPriceClick}
                     cumSize={bidCumSizes[i] || 0}
                     maxCum={maxCum}
-                    maxQty={maxQty}
                   />
                 ))
               )}
-            </div>
-          ) : null}
-
-          {viewMode === 'all' && pressureTotal > 0 ? (
-            <div className="ob-pressure" title="Bid vs ask depth (visible levels)">
-              <div className="ob-pressure__bar">
-                <div className="ob-pressure__bid" style={{ width: `${bidPressure}%` }} />
-                <div className="ob-pressure__ask" style={{ width: `${100 - bidPressure}%` }} />
-              </div>
-              <div className="ob-pressure__labels">
-                <span className="is-bid">B {bidPressure.toFixed(0)}%</span>
-                <span className="is-ask">A {(100 - bidPressure).toFixed(0)}%</span>
-              </div>
             </div>
           ) : null}
         </div>

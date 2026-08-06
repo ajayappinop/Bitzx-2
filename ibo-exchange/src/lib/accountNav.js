@@ -4,17 +4,12 @@
 
 export const ACCOUNT_NAV_ITEMS = [
   { id: 'positions', label: 'Positions', to: '/account/positions' },
-  { id: 'open-orders', label: 'Open Orders', to: '/account/open-orders' },
-  { id: 'order-history', label: 'Order History', to: '/account/order-history' },
-  { id: 'trade-history', label: 'Trade History', to: '/account/trade-history' },
   { id: 'pnl', label: 'P&L Analytics', to: '/account/pnl' },
   { id: 'balances', label: 'Balances', to: '/account/balances' },
   { id: 'deposits', label: 'Deposits', to: '/account/deposits' },
   { id: 'withdrawals', label: 'Withdrawals', to: '/account/withdrawals' },
   { id: 'bank-details', label: 'Bank Details', to: '/account/bank-details' },
-  { id: 'transaction-logs', label: 'Transaction Logs', to: '/account/transaction-logs' },
-  { id: 'transfer', label: 'Transfer', to: '/account/transfer' },
-  { id: 'invoices', label: 'Invoices', to: '/account/invoices' },
+  { id: 'transaction-logs', label: 'Activity', to: '/account/transaction-logs' },
   { id: 'profile', label: 'Profile', to: '/account/profile' },
   { id: 'security', label: 'Security', to: '/account/security' },
   { id: 'api-keys', label: 'API Keys', to: '/account/api-keys' },
@@ -29,6 +24,13 @@ export const ACCOUNT_NAV = [
 
 export const ACCOUNT_SECTION_TITLES = {
   ...Object.fromEntries(ACCOUNT_NAV_ITEMS.map((i) => [i.id, i.label])),
+  positions: 'Positions',
+  'open-orders': 'Positions',
+  'order-history': 'Positions',
+  'trade-history': 'Positions',
+  'transaction-logs': 'Activity',
+  transfer: 'Activity',
+  invoices: 'Activity',
   portfolio: 'P&L Analytics',
   kyc: 'KYC',
   support: 'Support',

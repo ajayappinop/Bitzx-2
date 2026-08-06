@@ -85,6 +85,9 @@ def _quote_from_binance(mark: Dict[str, Any], tick: Dict[str, Any]) -> Dict[str,
         "mid": mid,
         "mark_price": mark_px or mid,
         "last_price": _f(tick.get("lastPrice")),
+        "open_24h": _f(tick.get("openPrice") or tick.get("open")),
+        "high_24h": _f(tick.get("highPrice") or tick.get("high")),
+        "low_24h": _f(tick.get("lowPrice") or tick.get("low")),
         "open_interest": _f(mark.get("openInterest") or tick.get("openInterest")),
         "iv": mark_iv,
         "delta": _f(mark.get("delta")),
@@ -121,15 +124,26 @@ def _synthetic_quote(contract: dict, index_px: float, now_dt: datetime) -> Dict[
         volume_24h = round(vol_base * (0.55 + (seed % 90) / 100.0), 2)
         change_24h_pct = round((((seed % 61) - 30) / 10.0) * (0.4 + moneyness), 4)
         last = round(mid * (1.0 + change_24h_pct / 200.0), 8)
+        open_px = round(mid * (1.0 - change_24h_pct / 400.0), 8)
+        high_px = round(max(mid, last, open_px) * (1.0 + abs(change_24h_pct) / 500.0), 8)
+        low_px = round(min(mid, last, open_px) * (1.0 - abs(change_24h_pct) / 500.0), 8)
+        oi = round(volume_24h * (0.4 + (seed % 40) / 100.0), 2)
+        oi_change_6h = round(oi * ((((seed % 41) - 20) / 100.0)), 2)
         return {
             "best_bid": round(max(0.0, mid - spread / 2), 8),
             "best_ask": round(mid + spread / 2, 8),
+            "bid_qty": round(0.01 + (seed % 50) / 1000.0, 4),
+            "ask_qty": round(0.01 + ((seed * 3) % 50) / 1000.0, 4),
             "mid": round(mid, 8),
             "mark_price": round(mid, 8),
             "last_price": last,
+            "open_24h": open_px,
+            "high_24h": high_px,
+            "low_24h": low_px,
             "volume_24h": volume_24h,
             "change_24h_pct": change_24h_pct,
-            "open_interest": round(volume_24h * (0.4 + (seed % 40) / 100.0), 2),
+            "open_interest": oi,
+            "oi_change_6h": oi_change_6h,
             "iv": g.get("iv") or _DEFAULT_IV,
             "reference_source": "synthetic_bs",
             **g,

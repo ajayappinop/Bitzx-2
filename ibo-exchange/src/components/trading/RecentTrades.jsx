@@ -1,30 +1,29 @@
 import { useEffect, useState, useRef } from 'react';
-import { ArrowUp, ArrowDown } from 'lucide-react';
 import { exchangeWsPath, displayBaseForApiSymbol, parsePairFromApiSymbol } from '@/services/marketApi';
 import { useAuth } from '@/context/AuthContext';
 
 const fmtP = (n) => {
   const v = parseFloat(n);
   if (!Number.isFinite(v)) return '—';
-  return v >= 10000
-    ? v.toLocaleString(undefined, { maximumFractionDigits: 1 })
-    : v >= 1
-      ? v.toFixed(v >= 100 ? 1 : 4)
-      : v.toFixed(6);
+  if (v >= 1000) return v.toFixed(1);
+  if (v >= 1) return v.toFixed(v >= 100 ? 1 : 4);
+  return v.toFixed(6);
 };
 const fmtQ = (n) => {
   const v = parseFloat(n);
   if (!Number.isFinite(v)) return '—';
-  return v >= 1e6 ? `${(v / 1e6).toFixed(2)}M`
-    : v >= 1e3 ? `${(v / 1e3).toFixed(2)}K`
-    : v.toFixed(4);
+  if (v >= 1e6) return `${(v / 1e6).toFixed(2)}M`;
+  if (v >= 1e3) return `${(v / 1e3).toFixed(2)}K`;
+  // Reference: 0.025, 0.007, 1.463
+  if (v >= 0.001) return v.toFixed(3);
+  return v.toFixed(4);
 };
 const ts = (ms) => new Date(ms).toLocaleTimeString('en-US', {
   hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit',
 });
 
 /**
- * Delta-style recent trades: Price (arrow) · Size · Time /B|/S
+ * Recent trades — Price (arrow) · Size · Time /B|/S  (screenshot layout)
  */
 export default function RecentTrades({ symbol, hideHeader = false }) {
   const { orderHistory } = useAuth();
@@ -93,17 +92,17 @@ export default function RecentTrades({ symbol, hideHeader = false }) {
   );
 
   return (
-    <div className="flex flex-col h-full min-h-0 bg-transparent select-none">
+    <div className="rt-panel flex flex-col h-full min-h-0 bg-transparent select-none">
       {!hideHeader ? (
-        <div className="flex h-8 items-center px-2.5 border-b border-[color:var(--ibo-border)] text-[12px] font-semibold text-[color:var(--ibo-ink)] shrink-0">
-          Recent Trades
+        <div className="rt-head">
+          <h3 className="rt-head__title">Recent Trades</h3>
         </div>
       ) : null}
 
-      <div className="flex px-2.5 h-[24px] items-center text-[10px] text-[color:var(--ibo-muted)] shrink-0 border-b border-[color:var(--ibo-border)]">
-        <span className="w-[38%]">Price ({quoteLabel})</span>
-        <span className="w-[28%] text-right">Size ({base})</span>
-        <span className="w-[34%] text-right">Time/Taker</span>
+      <div className="rt-cols">
+        <span>Price ({quoteLabel})</span>
+        <span className="text-right">Size ({base})</span>
+        <span className="text-right">Time/Taker</span>
       </div>
 
       {loading ? (
@@ -111,7 +110,7 @@ export default function RecentTrades({ symbol, hideHeader = false }) {
           <div className="w-5 h-5 border-2 border-[color:var(--ibo-accent)] border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
-        <div className="flex-1 overflow-y-auto scrollbar-hide">
+        <div className="rt-scroll flex-1 overflow-y-auto">
           {trades.map((t, i) => {
             const isBuy = !t.isBuyerMaker;
             const priceStr = fmtP(t.price);
@@ -123,27 +122,19 @@ export default function RecentTrades({ symbol, hideHeader = false }) {
             return (
               <div
                 key={id}
-                className={`flex px-2.5 h-[22px] items-center text-[11px] font-mono tabular-nums ${
-                  isNewest
-                    ? isBuy ? 'bg-[#0ECB81]/12' : 'bg-[#F6465D]/12'
-                    : isMyFill
-                      ? 'bg-[color:var(--ibo-accent-soft)]'
-                      : 'hover:bg-white/[0.03]'
-                }`}
+                className={`rt-row${isNewest ? (isBuy ? ' is-flash-buy' : ' is-flash-sell') : ''}${isMyFill ? ' is-mine' : ''}`}
               >
-                <span className={`w-[38%] flex items-center gap-0.5 font-semibold ${
-                  isBuy ? 'text-[#0ECB81]' : 'text-[#F6465D]'
-                }`}>
+                <span className={`rt-row__px ${isBuy ? 'is-buy' : 'is-sell'}`}>
                   {priceStr}
-                  {isBuy
-                    ? <ArrowUp size={10} className="shrink-0 opacity-90" strokeWidth={2.5} />
-                    : <ArrowDown size={10} className="shrink-0 opacity-90" strokeWidth={2.5} />}
+                  <span className="rt-row__arrow" aria-hidden>
+                    {isBuy ? '↗' : '↘'}
+                  </span>
                 </span>
-                <span className="w-[28%] text-right text-[color:var(--ibo-ink)]">{fmtQ(qty)}</span>
-                <span className="w-[34%] text-right text-[color:var(--ibo-muted)]">
+                <span className="rt-row__sz">{fmtQ(qty)}</span>
+                <span className="rt-row__time">
                   {ts(t.time)}
-                  <span className={isBuy ? 'text-[#0ECB81]' : 'text-[#F6465D]'}>
-                    {isBuy ? '/B' : '/S'}
+                  <span className={isBuy ? 'is-buy' : 'is-sell'}>
+                    {' '}/{isBuy ? 'B' : 'S'}
                   </span>
                 </span>
               </div>

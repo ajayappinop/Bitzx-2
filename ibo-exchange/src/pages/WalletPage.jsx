@@ -2257,12 +2257,12 @@ export default function WalletPage({ accountMode = false, forcedTab = null, hide
             walletLoading={walletLoading}
             fetchWallet={fetchWallet}
             priceByAsset={priceByAsset}
-            onOpenSwap={() => (accountMode ? navigate('/account/transfer') : selectTab('swap'))}
+            onOpenSwap={() => (accountMode ? navigate('/account/transaction-logs?tab=transfer') : selectTab('swap'))}
             onTab={accountMode
               ? (id) => {
                 if (id === 'deposit') navigate('/account/deposits');
                 else if (id === 'withdraw') navigate('/account/withdrawals');
-                else if (id === 'swap') navigate('/account/transfer');
+                else if (id === 'swap') navigate('/account/transaction-logs?tab=transfer');
                 else selectTab(id);
               }
               : selectTab}

@@ -313,7 +313,7 @@ export default function InrDepositPage() {
         ) : null}
 
         {!gatewayOnlyPending && methods.length === 0 && (
-          <div className="rounded-2xl border border-surface-border bg-surface-card p-8 text-white/65 text-center">
+          <div className="rounded-2xl border border-surface-border bg-surface-card p-8 text-center text-[15px] text-[color:var(--ibo-ink-secondary)]">
             INR deposits are not available right now. Please use on-chain deposit from your wallet.
           </div>
         )}

@@ -46,6 +46,12 @@ dump.rdb
 .DS_Store
 *.pem
 
+# Windows reserved device names (accidental redirects create these)
+NUL
+nul
+**/NUL
+**/nul
+
 # Python
 __pycache__/
 *pyc*

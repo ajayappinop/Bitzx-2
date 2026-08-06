@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
-import { exchangeWsPath, normalizeMarketsList } from '@/services/marketApi';
+import { exchangeWsPath, normalizeMarketsList, PAIRS, COIN_ICONS } from '@/services/marketApi';
 import { exchangeApiOrigin } from '@/lib/apiBase';
 import BrandLogo from '@/components/ui/BrandLogo';
 import NavWalletDropdown from '@/components/layout/NavWalletDropdown';
@@ -31,13 +31,25 @@ const DROPDOWN_EDGE_GAP = 8;
 const MORE_MENU_WIDTH_PX = 280;
 const SEARCH_PANEL_WIDTH_PX = 360;
 
+/** Navbar coin search — pairs only (no page shortcuts). */
+const COIN_SEARCH_INDEX = PAIRS.map((p) => ({
+  symbol: p.symbol,
+  base: p.base,
+  quote: p.quote,
+  to: `/trade/${p.symbol}`,
+  label: `${p.base} / ${p.quote}`,
+  hint: p.symbol,
+}));
+
+const POPULAR_COINS = COIN_SEARCH_INDEX.filter((p) => p.quote === 'USDT').slice(0, 8);
+
 /** Primary — Trade · Markets · Futures · Options · Spot (flat, no nested menus) */
 const NAV_PRIMARY = [
-  { label: 'Trade', to: '/trade/IBOUSDT' },
+  { label: 'Trade', to: '/trade/BTCUSDT' },
   { label: 'Markets', to: '/markets' },
   { label: 'Futures', to: '/futures/BTCUSDT-PERP' },
   { label: 'Options', to: '/options/BTCUSDT' },
-  { label: 'Spot', to: '/trade/IBOUSDT' },
+  { label: 'Spot', to: '/trade/BTCUSDT' },
 ];
 
 /** More — other products only; none of the primary labels/routes */
@@ -65,23 +77,6 @@ const APPS_HELP = [
   { label: 'Raise a Support Ticket', to: '/account/support', icon: StickyNote },
   { label: 'Support Center', to: '/support', icon: Mail },
   { label: 'Tax Info', to: '/terms-of-service', icon: FileText },
-];
-
-const SEARCH_SHORTCUTS = [
-  { label: 'Markets', to: '/markets', hint: 'Browse all pairs' },
-  { label: 'BTC Futures', to: '/futures/BTCUSDT-PERP', hint: 'BTCUSDT-PERP' },
-  { label: 'BTC Options', to: '/options/BTCUSDT', hint: 'Options chain' },
-  { label: 'Spot Trade', to: '/trade/IBOUSDT', hint: 'IBO / USDT' },
-  { label: 'Positions', to: '/account/positions', hint: 'Open positions' },
-  { label: 'P&L Analytics', to: '/account/pnl', hint: 'Profit & loss' },
-  { label: 'Wallet', to: '/account/balances', hint: 'Balances' },
-  { label: 'Bank Details', to: '/account/bank-details', hint: 'INR payout' },
-  { label: 'Profile', to: '/account/profile', hint: 'Account info' },
-  { label: 'Security', to: '/account/security', hint: '2FA & password' },
-  { label: 'Add Funds', to: '/account/deposits', hint: 'INR deposit' },
-  { label: 'Quick Trade', to: '/quick-trade', hint: 'Convert' },
-  { label: 'P2P', to: '/p2p', hint: 'Marketplace' },
-  { label: 'Support', to: '/support', hint: 'Help centre' },
 ];
 
 function AppsPanelLink({ item, onClick }) {
@@ -284,13 +279,13 @@ function pathActive(pathname, to) {
     const seg = pathname.slice('/account/'.length).split('/')[0] || '';
     const exclusive = new Set([
       'balances', 'deposits', 'withdrawals', 'transfer', 'transaction-logs',
-      'bank-details', 'refer',
+      'bank-details', 'invoices', 'refer',
     ]);
     return Boolean(seg) && !exclusive.has(seg);
   }
   // More menu: Wallet-related account tabs
   if (base === '/account/balances') {
-    const walletSegs = ['balances', 'deposits', 'withdrawals', 'transfer', 'transaction-logs', 'bank-details'];
+    const walletSegs = ['balances', 'deposits', 'withdrawals', 'transfer', 'transaction-logs', 'bank-details', 'invoices'];
     return walletSegs.some(
       (s) => pathname === `/account/${s}` || pathname.startsWith(`/account/${s}/`),
     );
@@ -327,7 +322,8 @@ function pathActive(pathname, to) {
       || pathname.startsWith('/account/deposits')
       || pathname.startsWith('/account/withdrawals')
       || pathname.startsWith('/account/transfer')
-      || pathname.startsWith('/account/transaction-logs');
+      || pathname.startsWith('/account/transaction-logs')
+      || pathname.startsWith('/account/invoices');
   }
   // Legacy catch-all for other /account routes (profile, etc.) — prefix match only when
   // the link target is a concrete path longer than '/account'
@@ -496,11 +492,19 @@ export default function Navbar() {
   const moreActive = NAV_MORE.some((l) => pathActive(location.pathname, l.to));
 
   const searchResults = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return SEARCH_SHORTCUTS;
-    return SEARCH_SHORTCUTS.filter(
-      (s) => s.label.toLowerCase().includes(q) || s.hint.toLowerCase().includes(q) || s.to.toLowerCase().includes(q),
-    );
+    const q = searchQuery.trim().toLowerCase().replace(/[\s/-]+/g, '');
+    if (!q) return POPULAR_COINS;
+    return COIN_SEARCH_INDEX.filter((c) => {
+      const base = c.base.toLowerCase();
+      const quote = c.quote.toLowerCase();
+      const symbol = c.symbol.toLowerCase();
+      return (
+        base.includes(q)
+        || quote.includes(q)
+        || symbol.includes(q)
+        || `${base}${quote}`.includes(q)
+      );
+    }).slice(0, 12);
   }, [searchQuery]);
 
   useEffect(() => {
@@ -711,9 +715,11 @@ export default function Navbar() {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       onFocus={() => { setUserOpen(false); setOpenMenu('search'); }}
-                      placeholder="Search"
+                      placeholder="Search coins"
                       className="delta-nav-search__input"
-                      aria-label="Search"
+                      aria-label="Search coins"
+                      autoComplete="off"
+                      enterKeyHint="search"
                     />
                     <kbd className="delta-nav-search__kbd">/</kbd>
                   </div>
@@ -725,7 +731,7 @@ export default function Navbar() {
                   <NavWalletDropdown className="hidden sm:inline-flex" />
 
                   <Link
-                    to="/account/transfer"
+                    to="/account/transaction-logs?tab=transfer"
                     className="delta-nav-tool-btn hidden lg:inline-flex"
                     title="Transfer / swap"
                     aria-label="Transfer"
@@ -803,9 +809,11 @@ export default function Navbar() {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       onFocus={() => setOpenMenu('search')}
-                      placeholder="Search"
+                      placeholder="Search coins"
                       className="delta-nav-search__input"
-                      aria-label="Search"
+                      aria-label="Search coins"
+                      autoComplete="off"
+                      enterKeyHint="search"
                     />
                     <kbd className="delta-nav-search__kbd">/</kbd>
                   </div>
@@ -863,25 +871,41 @@ export default function Navbar() {
               {openMenu === 'search' ? (
                 <div className="py-1 max-h-[320px] overflow-y-auto">
                   <p className="delta-dd__section-title px-3 pt-2">
-                    {searchQuery ? 'Results' : 'Quick jump'}
+                    {searchQuery.trim() ? 'Coins' : 'Popular coins'}
                   </p>
                   {searchResults.length === 0 ? (
-                    <p className="px-4 py-3 text-sm text-[color:var(--ibo-muted)]">No matches</p>
+                    <p className="px-4 py-3 text-sm text-[color:var(--ibo-muted)]">No coins found</p>
                   ) : (
-                    searchResults.map((s) => (
-                      <Link
-                        key={s.to + s.label}
-                        to={s.to}
-                        onClick={closeAll}
-                        className="delta-dd__item"
-                      >
-                        <span className="delta-dd__icon"><Search size={15} /></span>
-                        <span className="min-w-0">
-                          <span className="delta-dd__label">{s.label}</span>
-                          <span className="delta-dd__desc">{s.hint}</span>
-                        </span>
-                      </Link>
-                    ))
+                    searchResults.map((c) => {
+                      const icon = COIN_ICONS[c.base];
+                      return (
+                        <Link
+                          key={c.symbol}
+                          to={c.to}
+                          onClick={closeAll}
+                          className="delta-dd__item"
+                        >
+                          <span className="delta-dd__icon !bg-transparent !border-0">
+                            {icon ? (
+                              <img
+                                src={icon}
+                                alt=""
+                                className="h-5 w-5 rounded-full object-cover"
+                                draggable={false}
+                              />
+                            ) : (
+                              <span className="grid h-5 w-5 place-items-center rounded-full bg-white/10 text-[10px] font-bold text-[color:var(--ibo-ink)]">
+                                {c.base[0]}
+                              </span>
+                            )}
+                          </span>
+                          <span className="min-w-0">
+                            <span className="delta-dd__label">{c.label}</span>
+                            <span className="delta-dd__desc">{c.hint}</span>
+                          </span>
+                        </Link>
+                      );
+                    })
                   )}
                 </div>
               ) : null}

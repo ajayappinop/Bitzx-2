@@ -207,21 +207,45 @@ async def demo_chain_payload(underlying_symbol: str) -> Dict[str, Any]:
         "contracts": contracts,
     }
     try:
-        from . import binance_reference as binance_ref
+        from .services import binance_reference as binance_ref
         from datetime import datetime, timezone
 
         try:
             await binance_ref.enrich_chain_rows(contracts, underlying_symbol=usym, index_px=spot)
         except Exception as exc:  # noqa: BLE001
-            logger.debug("demo chain binance enrich failed: %s", exc)
+            logger.warning("demo chain binance enrich failed: %s", exc)
         # Always ensure mark/last/volume so markets UI matches Delta-style contract rows.
         now_dt = datetime.now(timezone.utc)
         for row in contracts:
             syn = binance_ref._synthetic_quote(row, float(spot), now_dt)
             if syn:
                 binance_ref._apply_market_to_row(row, syn, index_px=spot, now_dt=now_dt)
+        if contracts and not contracts[0].get("market"):
+            logger.warning("demo chain enrich produced no market quotes for %s", usym)
     except Exception as exc:  # noqa: BLE001
-        logger.debug("demo chain synthetic enrich failed: %s", exc)
+        logger.warning("demo chain synthetic enrich failed: %s", exc, exc_info=True)
+        # Last-resort inline quotes so the UI is never blank when demo chain loads.
+        for row in contracts:
+            if row.get("market"):
+                continue
+            k = float(row.get("strike") or 0)
+            ot = str(row.get("option_type") or "call").lower()
+            intrinsic = max(0.0, (spot - k) if ot == "call" else (k - spot))
+            mid = max(spot * 0.002, intrinsic + spot * 0.008)
+            row["market"] = {
+                "best_bid": round(mid * 0.98, 4),
+                "best_ask": round(mid * 1.02, 4),
+                "mid": round(mid, 4),
+                "mark_price": round(mid, 4),
+                "last_price": round(mid, 4),
+                "bid_qty": 10.0,
+                "ask_qty": 10.0,
+                "volume_24h": 100.0,
+                "open_interest": 50.0,
+                "iv": 0.55,
+                "delta": 0.5 if ot == "call" else -0.5,
+                "reference_source": "demo_fallback",
+            }
     return payload
 
 

@@ -542,7 +542,7 @@ function ConvertPanel() {
               ))}
             </ul>
           )}
-          <Link to="/account/order-history" className="xfer-link">
+          <Link to="/account/positions?tab=order-history" className="xfer-link">
             View order history <ArrowRight size={13} />
           </Link>
         </div>

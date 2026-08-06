@@ -11,7 +11,7 @@ const LINKS = {
   Exchange: [
     { label: 'Futures', to: '/futures/BTCUSDT-PERP' },
     { label: 'Options', to: '/options/BTCUSDT' },
-    { label: 'Spot', to: '/trade/IBOUSDT' },
+    { label: 'Spot', to: '/trade/BTCUSDT' },
     { label: 'Markets', to: '/markets' },
     { label: 'Deposit INR', to: '/wallet/deposit/inr' },
   ],

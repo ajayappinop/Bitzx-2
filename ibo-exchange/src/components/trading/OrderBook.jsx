@@ -104,39 +104,50 @@ function aggregateLevels(levels, tickSize) {
 }
 
 function decimalsForTick(tick) {
-  if (tick >= 1) return 2;
-  const match = /^(\d\.?\d*)e([-+]\d+)$/.exec(Number(tick).toExponential());
-  if (!match) return 8;
-  const exp = parseInt(match[2], 10);
-  if (exp >= 0) return Math.min(8, exp + 2);
-  return Math.min(8, -exp + 1);
+  if (tick >= 1) return 0;
+  if (tick >= 0.5) return 1;
+  if (tick >= 0.1) return 1;
+  if (tick >= 0.01) return 2;
+  const s = String(tick);
+  if (s.includes('e') || s.includes('E')) {
+    const match = /^(\d\.?\d*)e([-+]\d+)$/i.exec(Number(tick).toExponential());
+    if (!match) return 8;
+    const exp = parseInt(match[2], 10);
+    if (exp >= 0) return Math.min(8, exp + 2);
+    return Math.min(8, -exp);
+  }
+  const frac = s.split('.')[1];
+  return frac ? Math.min(8, frac.replace(/0+$/, '').length || frac.length) : 0;
 }
 
 function fmtPrice(n, tickSize) {
   const v = parseFloat(n);
   const d = decimalsForTick(tickSize);
   if (!Number.isFinite(v)) return '—';
-  if (v >= 10000) return v.toLocaleString(undefined, { maximumFractionDigits: 2 });
-  if (v >= 1000) return v.toLocaleString(undefined, { maximumFractionDigits: 2 });
+  // Screenshot style: plain digits, no grouping commas (e.g. 64835.0)
   return v.toFixed(d);
 }
 
 const fmtQ = (n) => {
   const v = parseFloat(n);
   if (!Number.isFinite(v)) return '—';
-  return v >= 1000000 ? `${(v / 1000000).toFixed(2)}M`
-    : v >= 1000 ? `${(v / 1000).toFixed(2)}K`
-      : v.toFixed(4);
+  if (v >= 1000000) return `${(v / 1000000).toFixed(2)}M`;
+  if (v >= 1000) return `${(v / 1000).toFixed(2)}K`;
+  // Reference tape/book sizes: 0.025, 1.463, 4.756
+  if (v >= 0.001) return v.toFixed(3);
+  return v.toFixed(4);
 };
 
 function tickLabel(t) {
   if (t >= 1) return String(t);
+  if (t === 0.5) return '0.5';
   return t.toFixed(8).replace(/\.?0+$/, '') || String(t);
 }
 
 function pickDefaultTick(mid) {
-  if (!mid || mid <= 0) return 0.0001;
-  if (mid >= 10000) return 1;
+  if (!mid || mid <= 0) return 0.5;
+  if (mid >= 10000) return 0.5;
+  if (mid >= 1000) return 0.1;
   if (mid >= 100) return 0.01;
   if (mid >= 1) return 0.0001;
   if (mid >= 0.01) return 0.000001;
@@ -144,11 +155,10 @@ function pickDefaultTick(mid) {
 }
 
 const Row = memo(function Row({
-  price, qty, side, cumSize, maxCum, maxQty, tickSize, onPriceClick,
+  price, qty, side, cumSize, maxCum, tickSize, onPriceClick,
 }) {
   const isBid = side === 'bid';
   const cumPct = maxCum > 0 ? Math.min(100, (cumSize / maxCum) * 100) : 0;
-  const qtyPct = maxQty > 0 ? Math.min(100, (parseFloat(qty) / maxQty) * 100) : 0;
 
   return (
     <div
@@ -163,14 +173,10 @@ const Row = memo(function Row({
       onClick={() => onPriceClick?.(fmtPrice(price, tickSize))}
       className={`ob-row ${isBid ? 'ob-row--bid' : 'ob-row--ask'}`}
     >
-      <div
+      {/* Depth spans Size+Total from the right (reference) */}
+      <span
         className="ob-row__depth"
-        style={{ width: `${Math.max(cumPct, cumPct > 0 ? 2 : 0)}%` }}
-        aria-hidden
-      />
-      <div
-        className="ob-row__lvl"
-        style={{ width: `${Math.max(qtyPct * 0.55, qtyPct > 0 ? 1.5 : 0)}%` }}
+        style={{ width: `${Math.max(cumPct * 0.68, cumPct > 0 ? 6 : 0)}%` }}
         aria-hidden
       />
       <span className="ob-row__px">{fmtPrice(price, tickSize)}</span>
@@ -184,7 +190,6 @@ const Row = memo(function Row({
   && a.side === b.side
   && a.cumSize === b.cumSize
   && a.maxCum === b.maxCum
-  && a.maxQty === b.maxQty
   && a.tickSize === b.tickSize,
 );
 
@@ -196,8 +201,8 @@ export default function OrderBook({ symbol, baseAsset, lastPrice, onPriceClick, 
   const [book, setBook] = useState({ asks: [], bids: [] });
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
-  const [rows] = useState(14);
-  const [tickSize, setTickSize] = useState(0.0001);
+  const [rows] = useState(12);
+  const [tickSize, setTickSize] = useState(0.5);
   const [tickOpen, setTickOpen] = useState(false);
   const [viewMode, setViewMode] = useState('all');
   const [wsKick, setWsKick] = useState(0);
@@ -288,12 +293,6 @@ export default function OrderBook({ symbol, baseAsset, lastPrice, onPriceClick, 
   }, [symbol]);
 
   useEffect(() => {
-    if (manualTickRef.current) return;
-    const p = parseFloat(lastPrice);
-    if (Number.isFinite(p) && p > 0) setTickSize(pickDefaultTick(p));
-  }, [symbol, lastPrice]);
-
-  useEffect(() => {
     const el = (e) => {
       if (tickRef.current && !tickRef.current.contains(e.target)) setTickOpen(false);
     };
@@ -321,6 +320,14 @@ export default function OrderBook({ symbol, baseAsset, lastPrice, onPriceClick, 
   const lp = parseFloat(lastPrice);
   const mid = Number.isFinite(lp) && lp > 0 ? lp : midFromBook;
 
+  // Auto tick after agg/mid exist — BTC ~65k → 0.5 (matches reference grouping)
+  useEffect(() => {
+    if (manualTickRef.current) return;
+    const p = parseFloat(lastPrice);
+    const ref = Number.isFinite(p) && p > 0 ? p : midFromBook;
+    if (ref > 0) setTickSize(pickDefaultTick(ref));
+  }, [symbol, lastPrice, midFromBook]);
+
   const askCumSizes = useMemo(() => {
     const out = new Array(asks.length);
     let run = 0;
@@ -345,21 +352,6 @@ export default function OrderBook({ symbol, baseAsset, lastPrice, onPriceClick, 
     1,
   );
 
-  const maxQty = useMemo(() => {
-    let m = 0;
-    for (const [, q] of asks) m = Math.max(m, parseFloat(q) || 0);
-    for (const [, q] of bids) m = Math.max(m, parseFloat(q) || 0);
-    return m || 1;
-  }, [asks, bids]);
-
-  const bidDepth = bidCumSizes[bidCumSizes.length - 1] || 0;
-  const askDepth = askCumSizes[0] || 0;
-  const pressureTotal = bidDepth + askDepth;
-  const bidPressure = pressureTotal > 0 ? (bidDepth / pressureTotal) * 100 : 50;
-
-  const spread = bestAsk > 0 && bestBid > 0 ? bestAsk - bestBid : 0;
-  const spreadPct = mid > 0 && spread > 0 ? (spread / mid) * 100 : 0;
-
   const lastDirUp = useMemo(() => {
     const p = parseFloat(lastPrice);
     if (!Number.isFinite(p) || p <= 0) return null;
@@ -370,7 +362,7 @@ export default function OrderBook({ symbol, baseAsset, lastPrice, onPriceClick, 
     return true;
   }, [lastPrice, bestBid, bestAsk]);
 
-  const markPx = midFromBook;
+  const markPx = midFromBook > 0 ? midFromBook : mid;
   const asksFlex = viewMode === 'bids' ? 'hidden' : 'flex-1 min-h-0';
   const bidsFlex = viewMode === 'asks' ? 'hidden' : 'flex-1 min-h-0';
   const quoteLabel = quoteAsset === 'USDT' || quoteAsset === 'USD' ? 'USD' : quoteAsset;
@@ -378,7 +370,7 @@ export default function OrderBook({ symbol, baseAsset, lastPrice, onPriceClick, 
 
   return (
     <div className="delta-ob ob-panel flex flex-col h-full min-h-0 overflow-hidden select-none">
-      {/* Header — title row + controls (reference layout) */}
+      {/* Header — title, then layout icons + tick (screenshot) */}
       <div className="ob-head">
         <div className="ob-head__title-row">
           <h3 className="ob-head__title">Order Book</h3>
@@ -445,11 +437,11 @@ export default function OrderBook({ symbol, baseAsset, lastPrice, onPriceClick, 
         </div>
       </div>
 
-      {/* Column labels */}
+      {/* Column labels — Price · Size · Total (base) */}
       <div className="ob-cols">
         <span>Price ({quoteLabel})</span>
         <span className="text-right">Size ({baseLabel})</span>
-        <span className="text-right">Total</span>
+        <span className="text-right">Total ({baseLabel})</span>
       </div>
 
       {loading ? (
@@ -485,46 +477,31 @@ export default function OrderBook({ symbol, baseAsset, lastPrice, onPriceClick, 
                     onPriceClick={onPriceClick}
                     cumSize={askCumSizes[i] || 0}
                     maxCum={maxCum}
-                    maxQty={maxQty}
                   />
                 ))
               )}
             </div>
           </div>
 
-          {/* Mid / last / spread */}
+          {/* Last + Mark — screenshot: $LAST …… [M] mark */}
           <button
             type="button"
             onClick={() => mid > 0 && onPriceClick?.(fmtPrice(mid, tickSize))}
             className="ob-mid"
           >
-            <div className="ob-mid__main min-w-0">
-              <span
-                className={`ob-mid__last${
-                  lastDirUp == null ? '' : lastDirUp ? ' is-up' : ' is-down'
-                }`}
-              >
-                {mid > 0 ? fmtPrice(mid, tickSize) : '—'}
-              </span>
-              {spread > 0 ? (
-                <span className="ob-mid__spread">
-                  Spread {fmtPrice(spread, tickSize)}
-                  {spreadPct > 0 ? (
-                    <span className="ob-mid__spread-pct">
-                      ({spreadPct < 0.01 ? '<0.01' : spreadPct.toFixed(2)}%)
-                    </span>
-                  ) : null}
-                </span>
-              ) : null}
-            </div>
-            <div className="ob-mid__mark">
+            <span
+              className={`ob-mid__last${
+                lastDirUp == null ? '' : lastDirUp ? ' is-up' : ' is-down'
+              }`}
+            >
+              {mid > 0 ? `$${fmtPrice(mid, tickSize)}` : '—'}
+            </span>
+            <span className="ob-mid__mark" title="Mark / book mid">
+              <span className="ob-mid__badge" aria-hidden>M</span>
               <span className="ob-mid__mark-px">
                 {markPx > 0 ? fmtPrice(markPx, tickSize) : '—'}
               </span>
-              <span className="ob-mid__badge" title="Book mid">
-                Mid
-              </span>
-            </div>
+            </span>
           </button>
 
           {/* Bids */}
@@ -542,25 +519,10 @@ export default function OrderBook({ symbol, baseAsset, lastPrice, onPriceClick, 
                   onPriceClick={onPriceClick}
                   cumSize={bidCumSizes[i] || 0}
                   maxCum={maxCum}
-                  maxQty={maxQty}
                 />
               ))
             )}
           </div>
-
-          {/* Liquidity pressure */}
-          {viewMode === 'all' && pressureTotal > 0 ? (
-            <div className="ob-pressure" title="Bid vs ask depth (visible levels)">
-              <div className="ob-pressure__bar">
-                <div className="ob-pressure__bid" style={{ width: `${bidPressure}%` }} />
-                <div className="ob-pressure__ask" style={{ width: `${100 - bidPressure}%` }} />
-              </div>
-              <div className="ob-pressure__labels">
-                <span className="is-bid">B {bidPressure.toFixed(0)}%</span>
-                <span className="is-ask">A {(100 - bidPressure).toFixed(0)}%</span>
-              </div>
-            </div>
-          ) : null}
         </div>
       )}
     </div>
