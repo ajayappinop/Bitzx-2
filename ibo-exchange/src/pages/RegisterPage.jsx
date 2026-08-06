@@ -1,6 +1,6 @@
 /**
- * Active registration UI ? email + password only (OTP skipped for now).
- * Classic multi-step OTP flow parked in RegisterPage.classic.jsx ? do not delete.
+ * Active registration UI — email + password, plus Google / Apple.
+ * Classic multi-step OTP flow parked in RegisterPage.classic.jsx — do not delete.
  */
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
@@ -42,13 +42,13 @@ function displayNameFromEmail(email) {
 }
 
 export default function RegisterPage() {
-  const { register } = useAuth();
+  const { register, loginOAuth } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const [email, setEmail] = useState('demo@example.com');
-  const [password, setPassword] = useState('password');
-  const [confirm, setConfirm] = useState('password');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -70,6 +70,27 @@ export default function RegisterPage() {
   }, []);
 
   const showFieldError = (key) => Boolean(fieldErrors[key]) && (submitAttempted || touched[key]);
+
+  const afterAuth = (isNew = true) => {
+    navigate(isNew ? '/kyc' : '/dashboard', {
+      replace: true,
+      state: isNew ? { justRegistered: true } : undefined,
+    });
+  };
+
+  const handleSocial = async (provider, tokens) => {
+    setError('');
+    setLoading(true);
+    try {
+      setStoredReferralCode(referralCode);
+      await loginOAuth(provider, tokens);
+      afterAuth(true);
+    } catch (err) {
+      setError(err.message || 'Social sign-up failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -96,7 +117,7 @@ export default function RegisterPage() {
     try {
       setStoredReferralCode(referralCode);
       await register(displayNameFromEmail(em), em, password, referralCode || undefined);
-      navigate('/kyc', { replace: true, state: { justRegistered: true } });
+      afterAuth(true);
     } catch (err) {
       if (isAuthRequestError(err) && err.fieldErrors) {
         setFieldErrors({
@@ -125,7 +146,7 @@ export default function RegisterPage() {
             },
             {
               title: 'INR deposit & payout',
-              desc: 'Fund via bank or UPI and withdraw INR after selling ? built for India.',
+              desc: 'Fund via bank or UPI and withdraw INR after selling — built for India.',
             },
             {
               title: 'Bank-grade security',
@@ -139,10 +160,15 @@ export default function RegisterPage() {
         Sign Up
       </h1>
       <p className="text-[14px] text-zinc-400 mb-7">
-        Create your Delta Exchange account
+        Create your account with email or continue with Google / Apple
       </p>
 
-      <AuthSocialRow />
+      <AuthSocialRow
+        disabled={loading}
+        onError={setError}
+        onGoogle={(tokens) => handleSocial('google', tokens)}
+        onApple={(tokens) => handleSocial('apple', tokens)}
+      />
 
       {error ? (
         <div className="flex items-start gap-2.5 rounded-xl border border-red-500/25 bg-red-500/10 px-3.5 py-3 mb-5 text-sm text-red-300">
@@ -174,7 +200,7 @@ export default function RegisterPage() {
           label="Password"
           type={showPw ? 'text' : 'password'}
           value={password}
-          placeholder="Any password"
+          placeholder="Create a strong password"
           autoComplete="new-password"
           error={showFieldError('password') ? fieldErrors.password : ''}
           onChange={(e) => {
@@ -214,7 +240,7 @@ export default function RegisterPage() {
           }}
         />
 
-        <AuthPrimaryButton loading={loading}>Continue</AuthPrimaryButton>
+        <AuthPrimaryButton loading={loading}>Create account</AuthPrimaryButton>
       </form>
 
       <p className="text-center text-[14px] text-zinc-400 mt-6">
@@ -225,7 +251,7 @@ export default function RegisterPage() {
       </p>
 
       <AuthComplianceNote>
-        Trading involves risk. Demo balances are for practice only and do not represent real funds.
+        By signing up you agree to our Terms of Service. Trading involves risk of loss.
       </AuthComplianceNote>
       <AuthAppDownload />
     </AuthShell>

@@ -3,9 +3,11 @@
  * Used by LoginPage / RegisterPage / ForgotPassword / ResetPassword.
  * Classic Delta login/register layouts are parked as *.classic.jsx — do not delete.
  */
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import BrandLogo from '@/components/ui/BrandLogo';
 import { SITE_CONFIG } from '@/lib/siteConfig';
+import { signInWithApplePopup, signInWithGooglePopup } from '@/lib/oauthSocial';
 
 /**
  * Delta-inspired auth chrome — dark canvas, centered form, optional side panel.
@@ -22,26 +24,65 @@ export function AuthBrandMark({ className = '' }) {
   );
 }
 
-export function AuthSocialRow() {
+/**
+ * Google / Apple sign-in buttons.
+ * Parents pass `onGoogle` / `onApple` that receive provider tokens and complete backend login.
+ */
+export function AuthSocialRow({ onGoogle, onApple, disabled = false, onError }) {
+  const [busy, setBusy] = useState(null);
+  const locked = disabled || Boolean(busy);
+
+  const run = async (provider) => {
+    if (locked) return;
+    setBusy(provider);
+    try {
+      if (provider === 'google') {
+        const tokens = await signInWithGooglePopup();
+        await onGoogle?.(tokens);
+      } else {
+        const tokens = await signInWithApplePopup();
+        await onApple?.(tokens);
+      }
+    } catch (err) {
+      const msg = err?.message || 'Social sign-in failed';
+      onError?.(msg);
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const btnClass =
+    'flex items-center justify-center gap-2 h-11 rounded-xl border border-white/[0.1] bg-white/[0.03] text-sm font-semibold text-white hover:bg-white/[0.07] transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
+
   return (
     <div>
       <p className="text-center text-[12px] text-zinc-500 mb-3">Continue with</p>
       <div className="grid grid-cols-2 gap-3">
         <button
           type="button"
-          disabled
-          title="Coming soon"
-          className="flex items-center justify-center gap-2 h-11 rounded-xl border border-white/[0.1] bg-white/[0.03] text-sm font-semibold text-zinc-400 cursor-not-allowed opacity-70"
+          disabled={locked}
+          onClick={() => run('google')}
+          className={btnClass}
         >
-          <GoogleGlyph /> Google
+          {busy === 'google' ? (
+            <span className="inline-block w-4 h-4 border-2 border-white/40 border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <GoogleGlyph />
+          )}
+          Google
         </button>
         <button
           type="button"
-          disabled
-          title="Coming soon"
-          className="flex items-center justify-center gap-2 h-11 rounded-xl border border-white/[0.1] bg-white/[0.03] text-sm font-semibold text-zinc-400 cursor-not-allowed opacity-70"
+          disabled={locked}
+          onClick={() => run('apple')}
+          className={btnClass}
         >
-          <AppleGlyph /> Apple
+          {busy === 'apple' ? (
+            <span className="inline-block w-4 h-4 border-2 border-white/40 border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <AppleGlyph />
+          )}
+          Apple
         </button>
       </div>
       <div className="flex items-center gap-3 my-5">

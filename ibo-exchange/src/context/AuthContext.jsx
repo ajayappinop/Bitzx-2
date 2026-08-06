@@ -434,6 +434,29 @@ export function AuthProvider({ children }) {
     return data.user;
   }, [fetchWallet, fetchOrders, fetchUserTrades, fetchLiveSpotPositions, fetchKyc, refreshSession]);
 
+  /** Google / Apple — `provider` is "google" | "apple". */
+  const loginOAuth = useCallback(async (provider, payload = {}) => {
+    const path = provider === 'apple' ? 'apple' : 'google';
+    const body = {
+      id_token: payload.id_token || undefined,
+      access_token: payload.access_token || undefined,
+      name: payload.name || undefined,
+    };
+    const ref = getStoredReferralCode();
+    if (ref) body.referral_code = ref;
+    const res = await authFetch(`${API}/api/auth/oauth/${path}`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json; charset=utf-8',
+      },
+      body: JSON.stringify(body),
+    });
+    const data = await readJsonSafe(res);
+    if (!res.ok) throwAuthFailure(res, data, 'Social sign-in failed');
+    return applyTokenResponse(data);
+  }, [applyTokenResponse]);
+
   const register = useCallback(async (name, email, password, referralCode) => {
     const payload = {
       name: String(name ?? '').trim(),
@@ -647,7 +670,7 @@ export function AuthProvider({ children }) {
       // KYC
       kyc, fetchKyc,
       // Auth
-      login, register, registerRequest, registerMobileSendOtp, registerVerifyEmail,
+      login, loginOAuth, register, registerRequest, registerMobileSendOtp, registerVerifyEmail,
       registerVerifyMobile, registerComplete, registerVerify, registerResend, logout,
       revokeAllSessions,
       impersonationActive, impersonatorAdminId, refreshSession,

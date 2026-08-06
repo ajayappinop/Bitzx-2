@@ -1186,7 +1186,7 @@ export default function FuturesTradeForm({ symbol, limitPriceSeed = null }) {
 
                 ? 'bg-emerald-500/15 text-emerald-400 border-b-2 border-emerald-400'
 
-                : 'bg-transparent text-[color:var(--ibo-muted)] hover:text-white'
+                : 'bg-transparent text-[color:var(--ibo-muted)] hover:text-[color:var(--ibo-ink)]'
 
             }`}
 
@@ -1208,7 +1208,7 @@ export default function FuturesTradeForm({ symbol, limitPriceSeed = null }) {
 
                 ? 'bg-rose-500/15 text-rose-400 border-b-2 border-rose-400'
 
-                : 'bg-transparent text-[color:var(--ibo-muted)] hover:text-white'
+                : 'bg-transparent text-[color:var(--ibo-muted)] hover:text-[color:var(--ibo-ink)]'
 
             }`}
 

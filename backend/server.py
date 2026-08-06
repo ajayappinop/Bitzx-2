@@ -62,6 +62,7 @@ from services import email_service
 from services import email_templates
 from services import authkey_sms
 from services import sms_otp_service
+from services import oauth_service as oauth_svc
 from workers import deposit_poller, deposit_crediter, withdrawal_executor
 from workers import hedger_worker
 from workers import liquidity_retry_worker
@@ -350,9 +351,9 @@ def _signup_uses_sms(creds: "SignupCredentials", controls: Optional[Dict[str, An
 def validate_strong_user_password_value(password: str) -> str:
     """Return password if policy passes (signup / password change). Raises ValueError for Pydantic."""
     pw = password or ""
-    # Temporary: AUTH_RELAXED=1 (default) accepts any non-empty password for demo/dev.
-    # Set AUTH_RELAXED=0 to enforce the full strength policy again.
-    relaxed = os.environ.get("AUTH_RELAXED", "1").strip().lower() not in ("0", "false", "no", "off")
+    # Temporary: AUTH_RELAXED=1 accepts any non-empty password (dev only).
+    # Default is strict strength policy for production-like signups.
+    relaxed = os.environ.get("AUTH_RELAXED", "0").strip().lower() in ("1", "true", "yes", "on")
     if relaxed:
         if not pw:
             raise ValueError("Password is required")
@@ -6043,7 +6044,27 @@ async def login(body: UserLogin, request: Request):
                 detail="Database temporarily unavailable — try again in a moment",
             ) from exc
         raise
-    if not user or not verify_password(body.password, user["password_hash"]):
+    if not user:
+        await _log_security_event(
+            event_type="auth.login_failed",
+            severity="warn",
+            source="auth",
+            message="Invalid end-user credentials.",
+            meta={"email": email_key, "ip": client_ip},
+        )
+        await _record_login_audit(email_key, client_ip, success=False,
+                                  reason="bad_credentials")
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    ph = user.get("password_hash") or ""
+    if not ph:
+        await _record_login_audit(email_key, client_ip, success=False,
+                                  reason="oauth_only", uid=user.get("uid"))
+        raise HTTPException(
+            status_code=401,
+            detail="This account uses Google or Apple sign-in. Continue with Google or Apple.",
+        )
+    if not verify_password(body.password, ph):
         await _log_security_event(
             event_type="auth.login_failed",
             severity="warn",
@@ -6083,6 +6104,181 @@ async def login(body: UserLogin, request: Request):
     await _record_login_audit(email_key, client_ip, success=True, uid=user["uid"])
     logger.info("User logged in: %s", user["email"])
     return TokenResponse(access_token=access, refresh_token=refresh, user=user_out)
+
+
+class OAuthLoginBody(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True, extra="ignore")
+    id_token: Optional[str] = Field(None, max_length=12000)
+    access_token: Optional[str] = Field(None, max_length=8000)
+    name: Optional[str] = Field(None, max_length=80)
+    referral_code: Optional[str] = Field(None, max_length=32)
+
+
+async def _oauth_login_or_register(
+    *,
+    provider: str,
+    profile: dict,
+    request: Request,
+    body: OAuthLoginBody,
+) -> TokenResponse:
+    """Link existing user by provider subject / email, or create a new account."""
+    if db is None:
+        raise HTTPException(status_code=503, detail="Database unavailable — cannot log in")
+    await enforce_feature("login_enabled", "Login is currently paused by admin")
+
+    controls = await get_platform_controls()
+    client_ip = rate_limit_service.client_ip_from_request(request)
+    blocked = await _is_request_security_blocked(request)
+    if blocked:
+        raise HTTPException(status_code=403, detail="Access is restricted from your network.")
+    await _rate_limit(
+        controls, "auth.oauth", f"ip:{client_ip}",
+        limit_key="rate_limit_login_per_ip_per_min", window_sec=60,
+    )
+
+    sub = (profile.get("sub") or "").strip()
+    email = (profile.get("email") or "").strip().lower()
+    display_name = (body.name or profile.get("name") or "").strip()
+    if not display_name and email:
+        display_name = email.split("@")[0]
+    if not display_name:
+        display_name = "User"
+    display_name = display_name[:50]
+
+    user = None
+    if sub:
+        user = await db.users.find_one({f"oauth.{provider}": sub})
+    if user is None and email:
+        user = await db.users.find_one({"email": email})
+
+    now = datetime.now(timezone.utc).isoformat()
+    created = False
+
+    if user is None:
+        if not email:
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "Apple did not return an email. Sign in once more, or use the same Apple ID "
+                    "that previously created this account."
+                ),
+            )
+        await enforce_feature("signup_enabled", "Signup is currently paused by admin")
+        uid = f"u_{uuid.uuid4().hex[:16]}"
+        user_doc = {
+            "uid": uid,
+            "email": email,
+            "name": display_name,
+            "password_hash": None,
+            "auth_providers": [provider],
+            "oauth": {provider: sub} if sub else {},
+            "email_verified": bool(profile.get("email_verified", True)),
+            "avatar_url": profile.get("picture"),
+            "created_at": now,
+            "is_active": True,
+            "kyc_status": "unverified",
+            "referral_code": await referral_svc.generate_referral_code(db),
+            "last_login_at": now,
+            "last_login_ip": client_ip,
+        }
+        try:
+            await db.users.insert_one(user_doc)
+        except DuplicateKeyError:
+            user = await db.users.find_one({"email": email})
+            if not user:
+                raise HTTPException(status_code=409, detail="Account already exists") from None
+        else:
+            await seed_wallet(uid)
+            try:
+                await referral_svc.apply_referral_signup(
+                    db, uid, body.referral_code, controls,
+                    get_or_create_address=_get_or_create_user_deposit_address,
+                )
+            except Exception:  # noqa: BLE001
+                logger.exception("oauth register: referral link failed uid=%s", uid)
+            user = user_doc
+            created = True
+            logger.info("New user via %s OAuth: %s (%s)", provider, email, uid)
+
+    if not user.get("is_active", True):
+        raise HTTPException(status_code=403, detail="Account is disabled")
+
+    updates: Dict[str, Any] = {
+        "last_login_at": now,
+        "last_login_ip": client_ip,
+    }
+    if sub:
+        updates[f"oauth.{provider}"] = sub
+    providers = list(user.get("auth_providers") or [])
+    if provider not in providers:
+        providers.append(provider)
+        updates["auth_providers"] = providers
+    if profile.get("picture") and not user.get("avatar_url"):
+        updates["avatar_url"] = profile.get("picture")
+    if email and not user.get("email"):
+        updates["email"] = email
+
+    await db.users.update_one({"uid": user["uid"]}, {"$set": updates})
+    user = await db.users.find_one({"uid": user["uid"]}) or {**user, **updates}
+
+    user["two_factor_enabled"] = await _has_confirmed_2fa(user["uid"])
+    user_out = user_doc_to_out(user)
+    access, refresh = await _issue_token_pair(user)
+    await _record_login_audit(
+        user.get("email") or email or "",
+        client_ip,
+        success=True,
+        uid=user["uid"],
+        reason=f"oauth_{provider}" + ("_signup" if created else ""),
+    )
+    logger.info("User logged in via %s: %s", provider, user.get("email"))
+    return TokenResponse(access_token=access, refresh_token=refresh, user=user_out)
+
+
+@api_router.get("/auth/oauth/config")
+async def oauth_config():
+    """Public: which social providers are configured (client IDs for GIS / AppleJS)."""
+    return oauth_svc.oauth_public_config()
+
+
+@api_router.post("/auth/oauth/google", response_model=TokenResponse)
+async def oauth_google(body: OAuthLoginBody, request: Request):
+    try:
+        if body.id_token:
+            profile = await oauth_svc.verify_google_id_token(body.id_token)
+        elif body.access_token:
+            profile = await oauth_svc.verify_google_access_token(body.access_token)
+        else:
+            raise HTTPException(status_code=422, detail="Provide id_token or access_token")
+    except ValueError as exc:
+        raise HTTPException(status_code=401, detail=str(exc)) from exc
+    except Exception as exc:
+        # Network / cert fetch failures from oauth_service (httpx)
+        if type(exc).__module__.startswith("httpx"):
+            logger.exception("Google OAuth verification network error")
+            raise HTTPException(status_code=502, detail="Could not verify Google token") from exc
+        raise
+    return await _oauth_login_or_register(
+        provider="google", profile=profile, request=request, body=body,
+    )
+
+
+@api_router.post("/auth/oauth/apple", response_model=TokenResponse)
+async def oauth_apple(body: OAuthLoginBody, request: Request):
+    try:
+        if not body.id_token:
+            raise HTTPException(status_code=422, detail="Provide Apple id_token")
+        profile = await oauth_svc.verify_apple_id_token(body.id_token)
+    except ValueError as exc:
+        raise HTTPException(status_code=401, detail=str(exc)) from exc
+    except Exception as exc:
+        if type(exc).__module__.startswith("httpx"):
+            logger.exception("Apple OAuth verification network error")
+            raise HTTPException(status_code=502, detail="Could not verify Apple token") from exc
+        raise
+    return await _oauth_login_or_register(
+        provider="apple", profile=profile, request=request, body=body,
+    )
 
 
 @api_router.get("/auth/me", response_model=UserOut)
