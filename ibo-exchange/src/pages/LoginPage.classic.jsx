@@ -38,7 +38,7 @@ const LOGO = BRAND_LOGO;
 
 const PERKS = [
 
-  { icon: TrendingUp, title: 'Deep liquidity', desc: 'Spot USDT pairs and Delta markets in one terminal' },
+  { icon: TrendingUp, title: 'Deep liquidity', desc: 'Futures and options in one terminal' },
 
   { icon: Zap, title: 'Fast onboarding', desc: 'Demo funds to practice — then go live when ready' },
 

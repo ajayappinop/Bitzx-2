@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Routes, Route, Navigate, useLocation, Outlet, useSearchParams } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, Outlet, useSearchParams, useParams } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { exchangeApiOrigin } from '@/lib/apiBase';
 import ComingSoonPage from '@/pages/ComingSoonPage';
@@ -10,7 +10,6 @@ import SignupBonusKycPrompt from '@/components/wallet/SignupBonusKycPrompt';
 import Footer        from '@/components/layout/Footer';
 import LandingPage   from '@/pages/LandingPage';
 import MarketsPage   from '@/pages/MarketsPage';
-import TradePage     from '@/pages/TradePage';
 import LoginPage     from '@/pages/LoginPage';
 import RegisterPage  from '@/pages/RegisterPage';
 import EmailVerificationPage from '@/pages/EmailVerificationPage';
@@ -18,9 +17,12 @@ import ForgotPasswordPage        from '@/pages/ForgotPasswordPage';
 import ResetPasswordPage          from '@/pages/ResetPasswordPage';
 import InrDepositPage from '@/pages/InrDepositPage';
 import InrWithdrawPage from '@/pages/InrWithdrawPage';
-import QuickTradePage   from '@/pages/QuickTradePage';
 import FuturesTradePage from '@/pages/FuturesTradePage';
+import RwaFuturesTradePage from '@/pages/RwaFuturesTradePage';
 import OptionsTradePage from '@/pages/OptionsTradePage';
+import MoveOptionsTradePage from '@/pages/MoveOptionsTradePage';
+import OptionsAnalyticsPage from '@/pages/OptionsAnalyticsPage';
+import OptionsStrategyBuilderPage from '@/pages/OptionsStrategyBuilderPage';
 import AccountLayout from '@/components/account/AccountLayout';
 import {
   AccountIndexRedirect,
@@ -46,8 +48,6 @@ import P2POrdersPage         from '@/pages/p2p/P2POrdersPage';
 import P2PMyAdsPage          from '@/pages/p2p/P2PMyAdsPage';
 import P2PPaymentMethodsPage from '@/pages/p2p/P2PPaymentMethodsPage';
 import P2PMerchantPage       from '@/pages/p2p/P2PMerchantPage';
-import IBOMarketsPage        from '@/pages/IBOMarketsPage';
-import IBOMarket             from '@/pages/IBOMarket';
 import ListCoinPage          from '@/pages/ListCoinPage';
 import PrivacyPolicyPage     from '@/pages/PrivacyPolicyPage';
 import TermsPage             from '@/pages/TermsPage';
@@ -114,10 +114,22 @@ function WalletLegacyRedirect() {
   return <Navigate to={`/account/${dest}`} replace />;
 }
 
+/** Old /options/move/... URLs → dedicated /move product path. */
+function MoveLegacyRedirect() {
+  const { underlying, contractId } = useParams();
+  const base = underlying || 'BTC';
+  const to = contractId
+    ? `/move/${base}/${encodeURIComponent(contractId)}`
+    : `/move/${base}`;
+  return <Navigate to={to} replace />;
+}
+
 // ── Main layout (Navbar + optional Footer) ───────────────────────────────────
 function Layout() {
   const { pathname } = useLocation();
-  const isTrade  = pathname.startsWith('/trade') || pathname.startsWith('/futures') || pathname.startsWith('/options');
+  const isTrade  = pathname.startsWith('/futures')
+    || pathname.startsWith('/options')
+    || pathname.startsWith('/move');
   const isHome   = pathname === '/';
   const isAccount = pathname === '/account' || pathname.startsWith('/account/');
   /* Account keeps a docked shell; trade/options pages scroll so bottom tables are reachable. */
@@ -248,11 +260,43 @@ export default function App() {
         <Route path="/help"          element={<Navigate to="/support" replace />} />
         <Route path="/markets"       element={<MarketsPage />} />
         <Route path="/list-coin"     element={<ListCoinPage />} />
-        <Route path="/quick-trade"   element={<QuickTradePage />} />
-        <Route path="/trade"         element={<Navigate to="/trade/BTCUSDT" replace />} />
-        <Route path="/trade/:symbol" element={<TradePage />} />
+        {/* Spot trading removed from the public site — send legacy URLs to futures. */}
+        <Route path="/quick-trade"   element={<Navigate to="/futures/BTCUSDT-PERP" replace />} />
+        <Route path="/trade"         element={<Navigate to="/futures/BTCUSDT-PERP" replace />} />
+        <Route path="/trade/:symbol" element={<Navigate to="/futures/BTCUSDT-PERP" replace />} />
         <Route path="/futures/:symbol?" element={<FuturesTradePage />} />
+        {/* RWA perpetuals (e.g. XAUT) — isolated catalog from crypto futures. */}
+        <Route path="/rwa" element={<Navigate to="/rwa/XAUTUSDT-PERP" replace />} />
+        <Route path="/rwa/:symbol?" element={<RwaFuturesTradePage />} />
         <Route path="/options"           element={<Navigate to="/options/BTCUSDT" replace />} />
+        <Route
+          path="/options/analytics/:underlying?"
+          element={
+            <OptionsRouteErrorBoundary>
+              <OptionsAnalyticsPage />
+            </OptionsRouteErrorBoundary>
+          }
+        />
+        <Route
+          path="/options/strategy/:underlying?"
+          element={
+            <OptionsRouteErrorBoundary>
+              <OptionsStrategyBuilderPage />
+            </OptionsRouteErrorBoundary>
+          }
+        />
+        {/* MOVE / straddle is a separate product from vanilla Options (Delta-style). */}
+        <Route
+          path="/move/:underlying/:contractId?"
+          element={
+            <OptionsRouteErrorBoundary>
+              <MoveOptionsTradePage />
+            </OptionsRouteErrorBoundary>
+          }
+        />
+        {/* Legacy URLs that nested MOVE under /options — keep redirects so they never hit OptionsTradePage. */}
+        <Route path="/options/move" element={<Navigate to="/move/BTC" replace />} />
+        <Route path="/options/move/:underlying/:contractId?" element={<MoveLegacyRedirect />} />
         <Route
           path="/options/:underlying"
           element={
@@ -323,9 +367,9 @@ export default function App() {
           <Route path="support" element={<AccountSupport />} />
         </Route>
 
-        {/* ── Delta Markets ──────────────────────────────────────────────── */}
-        <Route path="/ibo-markets" element={<IBOMarketsPage />} />
-        <Route path="/ibo-market" element={<IBOMarket />} />
+        {/* Delta / spot-engine markets removed from public site */}
+        <Route path="/ibo-markets" element={<Navigate to="/futures/BTCUSDT-PERP" replace />} />
+        <Route path="/ibo-market" element={<Navigate to="/futures/BTCUSDT-PERP" replace />} />
 
         {/* ── P2P Trading ──────────────────────────────────────────────── */}
         <Route path="/p2p"                  element={<P2PMarketplacePage />} />

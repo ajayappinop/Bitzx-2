@@ -21,7 +21,8 @@ def _contract_id(underlying: str, expiry_iso: str, strike: float, opt: str) -> s
     base = underlying.replace("USDT", "")
     day = expiry_iso[:10].replace("-", "")
     strike_s = str(int(strike)) if float(strike).is_integer() else str(strike).replace(".", "p")
-    return f"optc_{base}_{day}_{strike_s}_{opt[0].upper()}"
+    letter = "MV" if opt.lower() == "move" else opt[0].upper()
+    return f"optc_{base}_{day}_{strike_s}_{letter}"
 
 
 async def create(body: Dict[str, Any]) -> Dict[str, Any]:
@@ -31,7 +32,7 @@ async def create(body: Dict[str, Any]) -> Dict[str, Any]:
         raise ValueError(f"underlying {usym} not found — create it first")
     opt = body["option_type"].lower()
     if opt not in OPTION_TYPES:
-        raise ValueError("option_type must be call or put")
+        raise ValueError("option_type must be call, put, or move")
     expiry = body["expiry"].strip()
     strike = float(body["strike"])
     cid = _contract_id(usym, expiry, strike, opt)
@@ -44,6 +45,7 @@ async def create(body: Dict[str, Any]) -> Dict[str, Any]:
         "expiry": expiry,
         "strike": strike,
         "option_type": opt,
+        "product": "move" if opt == "move" else "vanilla",
         "tick_size": float(body.get("tick_size") or 0.01),
         "lot_size": float(body.get("lot_size") or 1.0),
         "min_qty": float(body.get("min_qty") or 1.0),
@@ -76,11 +78,18 @@ async def list_contracts(
     *,
     underlying_symbol: Optional[str] = None,
     listed_only: bool = True,
+    option_type: Optional[str] = None,
     limit: int = 200,
 ) -> List[Dict[str, Any]]:
     q: Dict[str, Any] = {}
     if underlying_symbol:
         q["underlying_symbol"] = und_svc._norm_symbol(underlying_symbol)
+    if option_type:
+        ot = option_type.lower().strip()
+        if ot in OPTION_TYPES:
+            q["option_type"] = ot
+        elif ot == "vanilla":
+            q["option_type"] = {"$in": ["call", "put"]}
     if listed_only:
         q["listed"] = True
         q["trading_enabled"] = True

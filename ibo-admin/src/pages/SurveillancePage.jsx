@@ -102,8 +102,8 @@ export default function SurveillancePage() {
 
 function Stat({ title, value, tone = 'blue' }) {
   const tones = {
-    blue: 'bg-gradient-to-br from-[#3B82F6]/18 to-transparent border-[#3B82F6]/28',
-    yellow: 'bg-gradient-to-br from-[#0EA4AB]/18 to-transparent border-[#0EA4AB]/28',
+    blue: 'bg-gradient-to-br from-[#FE6C02]/18 to-transparent border-[#FE6C02]/28',
+    yellow: 'bg-gradient-to-br from-[#FE9D55]/18 to-transparent border-[#FE6C02]/28',
     rose: 'bg-gradient-to-br from-[#F6465D]/18 to-transparent border-[#F6465D]/28',
   };
   return (

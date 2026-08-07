@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import IBOChart from '@/components/IBOChart/IBOChart';
 import OrderBook from '@/components/trading/OrderBook';
 import IBOTicker from '@/components/IBOTicker/IBOTicker';
@@ -15,9 +16,12 @@ function baseFromSymbol(symbol) {
 }
 
 export default function IBOMarket({ initialSymbol = 'IBOUSDT', embedded = false }) {
-  const [symbol, setSymbol] = useState(
-    SYMBOLS.includes(String(initialSymbol).toUpperCase()) ? String(initialSymbol).toUpperCase() : 'IBOUSDT',
-  );
+  const [searchParams] = useSearchParams();
+  const fromQuery = String(searchParams.get('symbol') || '').toUpperCase();
+  const seed = SYMBOLS.includes(fromQuery)
+    ? fromQuery
+    : (SYMBOLS.includes(String(initialSymbol).toUpperCase()) ? String(initialSymbol).toUpperCase() : 'IBOUSDT');
+  const [symbol, setSymbol] = useState(seed);
   const [interval, setInterval] = useState('1m');
   const { candles, orderbook, trades, ticker, connected, loading, error } = useIBOMarket({ symbol, interval });
   const base = useMemo(() => baseFromSymbol(symbol), [symbol]);

@@ -4,7 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronDown, LogOut, User, LayoutDashboard, Menu, X, Wallet,
-  ExternalLink, Shield, Zap, LineChart, HelpCircle, Settings,
+  ExternalLink, LineChart, HelpCircle, Settings,
   Download, Coins, Gift, Search, ArrowLeftRight, CircleHelp,
   LayoutGrid, Sun, Moon, CircleDollarSign,
   BarChart3, Store, QrCode, Users,
@@ -31,59 +31,37 @@ const DROPDOWN_EDGE_GAP = 8;
 const MORE_MENU_WIDTH_PX = 280;
 const SEARCH_PANEL_WIDTH_PX = 360;
 
-/** Navbar coin search — pairs only (no page shortcuts). */
-const COIN_SEARCH_INDEX = PAIRS.map((p) => ({
+/** Navbar coin search — futures underlyings (spot trading removed from the site). */
+const COIN_SEARCH_INDEX = PAIRS.filter((p) => p.quote === 'USDT').map((p) => ({
   symbol: p.symbol,
   base: p.base,
   quote: p.quote,
-  to: `/trade/${p.symbol}`,
-  label: `${p.base} / ${p.quote}`,
-  hint: p.symbol,
+  to: `/futures/${p.base}USDT-PERP`,
+  label: `${p.base} perpetual`,
+  hint: `${p.base}USDT-PERP`,
 }));
 
-const POPULAR_COINS = COIN_SEARCH_INDEX.filter((p) => p.quote === 'USDT').slice(0, 8);
+const POPULAR_COINS = COIN_SEARCH_INDEX.slice(0, 8);
 
-/** Primary — Trade · Markets · Futures · Options · Spot (flat; no nested menus) */
+/** Primary — Trade · Markets · Futures · Options · More (More is separate). */
 const NAV_PRIMARY = [
-  { label: 'Trade', to: '/trade/BTCUSDT', match: 'trade' },
+  { label: 'Trade', to: '/futures/BTCUSDT-PERP', match: 'trade' },
   { label: 'Markets', to: '/markets', match: 'markets' },
   { label: 'Futures', to: '/futures/BTCUSDT-PERP', match: 'futures' },
   { label: 'Options', to: '/options/BTCUSDT', match: 'options' },
-  { label: 'Spot', to: '/trade/BTCUSDT', match: 'spot' },
 ];
-
-/** Trade & Spot share /trade/* — remember which nav label the user chose. */
-const SPOT_NAV_ENTRY_KEY = 'ibo_nav_spot_entry';
-
-function getSpotNavEntry() {
-  try {
-    const v = sessionStorage.getItem(SPOT_NAV_ENTRY_KEY);
-    if (v === 'trade' || v === 'spot') return v;
-  } catch {
-    /* ignore */
-  }
-  return 'trade';
-}
-
-function setSpotNavEntry(which) {
-  try {
-    if (which === 'trade' || which === 'spot') {
-      sessionStorage.setItem(SPOT_NAV_ENTRY_KEY, which);
-    }
-  } catch {
-    /* ignore */
-  }
-}
 
 /** More — other products only; none of the primary labels/routes */
 const NAV_MORE = [
+  { label: 'RWA', to: '/rwa/XAUTUSDT-PERP', match: 'rwa', icon: Coins },
+  { label: 'Options Analytics', to: '/options/analytics/BTC', match: 'options-analytics', icon: LineChart },
+  { label: 'Strategy Builder', to: '/options/strategy/BTC', match: 'options-strategy', icon: LayoutGrid },
+  { label: 'MOVE Options', to: '/move/BTC', match: 'move', icon: BarChart3 },
   { label: 'Account', to: '/account/positions', icon: LayoutDashboard },
   { label: 'Wallet', to: '/account/balances', icon: Wallet },
   { label: 'P2P', to: '/p2p', icon: Store },
   { label: 'Refer & Earn', to: '/account/refer', icon: Gift },
   { label: 'List Your Coin', to: '/list-coin', icon: Coins },
-  { label: 'Delta Markets', to: '/ibo-markets', icon: BarChart3 },
-  { label: 'Quick Trade', to: '/quick-trade', icon: Zap },
 ];
 
 const APPS_RESOURCES = [
@@ -289,27 +267,56 @@ function userAvatarSrc(user) {
   return `${base}${u.startsWith('/') ? u : `/${u}`}`;
 }
 
-function pathActive(pathname, to, match, spotNavEntry = 'trade') {
+function isOptionsAnalyticsPath(pathname) {
+  return pathname === '/options/analytics' || pathname.startsWith('/options/analytics/');
+}
+
+function isOptionsStrategyPath(pathname) {
+  return pathname === '/options/strategy' || pathname.startsWith('/options/strategy/');
+}
+
+function isOptionsMovePath(pathname) {
+  return pathname.startsWith('/options/move');
+}
+
+/** Vanilla options trade terminal — not analytics, strategy, or MOVE. */
+function isOptionsTradePath(pathname) {
+  return (
+    pathname.startsWith('/options')
+    && !isOptionsAnalyticsPath(pathname)
+    && !isOptionsStrategyPath(pathname)
+    && !isOptionsMovePath(pathname)
+  );
+}
+
+function pathActive(pathname, to, match) {
   if (!to && !match) return false;
   const base = (to || '').split('?')[0];
-  const isSpotPath = pathname === '/trade' || pathname.startsWith('/trade/');
-  const entry = spotNavEntry === 'spot' ? 'spot' : 'trade';
 
-  // Trade + Spot share /trade/* — only the nav label the user last clicked is active
-  if (match === 'trade') {
-    return isSpotPath && entry === 'trade';
-  }
-  if (match === 'spot') {
-    return isSpotPath && entry === 'spot';
-  }
   if (match === 'markets') {
     return pathname === '/markets' || pathname.startsWith('/markets/');
+  }
+  // Trade & Futures both open perpetuals; only Futures owns the active state on /futures.
+  if (match === 'trade') {
+    return false;
   }
   if (match === 'futures') {
     return pathname.startsWith('/futures');
   }
+  if (match === 'rwa') {
+    return pathname === '/rwa' || pathname.startsWith('/rwa/');
+  }
   if (match === 'options') {
-    return pathname.startsWith('/options');
+    return isOptionsTradePath(pathname);
+  }
+  if (match === 'options-analytics') {
+    return isOptionsAnalyticsPath(pathname);
+  }
+  if (match === 'options-strategy') {
+    return isOptionsStrategyPath(pathname);
+  }
+  if (match === 'move') {
+    return pathname.startsWith('/move') || isOptionsMovePath(pathname);
   }
 
   // Exact first for links without exclusive match
@@ -318,20 +325,33 @@ function pathActive(pathname, to, match, spotNavEntry = 'trade') {
   if (base === '/markets') {
     return pathname === '/markets' || pathname.startsWith('/markets/');
   }
-  if (base.startsWith('/trade/') || base === '/trade') {
-    return isSpotPath;
-  }
   if (base.startsWith('/futures')) {
     return pathname.startsWith('/futures');
   }
-  if (base.startsWith('/options')) {
-    return pathname.startsWith('/options');
+  if (base.startsWith('/rwa')) {
+    return pathname === '/rwa' || pathname.startsWith('/rwa/');
   }
-  if (base.startsWith('/quick-trade')) {
-    return pathname.startsWith('/quick-trade');
+  // Narrowest /options* prefixes first — never let analytics activate Options trade (or vice versa).
+  if (base.startsWith('/options/analytics')) {
+    return isOptionsAnalyticsPath(pathname);
+  }
+  if (base.startsWith('/options/strategy')) {
+    return isOptionsStrategyPath(pathname);
+  }
+  if (base.startsWith('/options/move')) {
+    return isOptionsMovePath(pathname) || pathname.startsWith('/move');
+  }
+  if (base.startsWith('/options')) {
+    return isOptionsTradePath(pathname);
+  }
+  if (base.startsWith('/move')) {
+    return pathname.startsWith('/move') || isOptionsMovePath(pathname);
   }
   if (base.startsWith('/ibo-markets')) {
     return pathname.startsWith('/ibo-markets') || pathname.startsWith('/ibo-market');
+  }
+  if (base.startsWith('/ibo-market')) {
+    return pathname.startsWith('/ibo-market');
   }
   if (base.startsWith('/p2p')) {
     return pathname === '/p2p' || pathname.startsWith('/p2p/');
@@ -376,6 +396,10 @@ function pathActive(pathname, to, match, spotNavEntry = 'trade') {
   if (base === '/account') {
     return pathname === '/account' || pathname.startsWith('/account/');
   }
+  if (base.startsWith('/list-coin')) {
+    return pathname.startsWith('/list-coin');
+  }
+  // Prefer exact / segment-prefix only — never activate a short path for a longer unrelated one.
   return pathname === base || pathname.startsWith(`${base}/`);
 }
 
@@ -439,7 +463,7 @@ function LiveTicker() {
             return (
               <Link
                 key={i}
-                to={`/trade/${t.symbol}`}
+                to={`/futures/${base}USDT-PERP`}
                 className="ibo-ticker-link flex items-center gap-2 text-xs sm:text-sm opacity-90 hover:opacity-100"
               >
                 <span className="text-white font-semibold">{base}/USDT</span>
@@ -511,7 +535,6 @@ export default function Navbar() {
   const [userMenuPos, setUserMenuPos] = useState(null);
   const [menuPos, setMenuPos] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [spotNavEntry, setSpotNavEntryState] = useState(() => getSpotNavEntry());
   const userTriggerRef = useRef(null);
   const userMenuPanelRef = useRef(null);
   const menuTriggerRefs = useRef({});
@@ -520,19 +543,14 @@ export default function Navbar() {
   const searchInputRef = useRef(null);
   const searchWrapRef = useRef(null);
 
-  const markSpotNavEntry = (match) => {
-    if (match === 'trade' || match === 'spot') {
-      setSpotNavEntry(match);
-      setSpotNavEntryState(match);
-    }
-  };
-
-  const navActive = (to, match) => pathActive(location.pathname, to, match, spotNavEntry);
+  const navActive = (to, match) => pathActive(location.pathname, to, match);
 
   const isTrade =
-    location.pathname.startsWith('/trade')
-    || location.pathname.startsWith('/futures')
-    || location.pathname.startsWith('/options');
+    location.pathname.startsWith('/futures')
+    || location.pathname.startsWith('/rwa')
+    || location.pathname.startsWith('/options')
+    || location.pathname.startsWith('/move')
+    || location.pathname.startsWith('/ibo-market');
   const isHome = location.pathname === '/';
   const {
     available: appAvailable,
@@ -542,7 +560,7 @@ export default function Navbar() {
     linkProps: appLinkProps,
   } = useMobileAppRelease();
 
-  const moreActive = NAV_MORE.some((l) => pathActive(location.pathname, l.to));
+  const moreActive = NAV_MORE.some((l) => pathActive(location.pathname, l.to, l.match));
 
   const searchResults = useMemo(() => {
     const q = searchQuery.trim().toLowerCase().replace(/[\s/-]+/g, '');
@@ -735,7 +753,6 @@ export default function Navbar() {
                   <Link
                     key={l.match || l.to}
                     to={l.to}
-                    onClick={() => markSpotNavEntry(l.match)}
                     className={`delta-nav-link${navActive(l.to, l.match) ? ' is-active' : ''}`}
                     aria-current={navActive(l.to, l.match) ? 'page' : undefined}
                   >
@@ -917,7 +934,7 @@ export default function Navbar() {
                       to={item.to}
                       label={item.label}
                       icon={item.icon}
-                      active={pathActive(location.pathname, item.to)}
+                      active={pathActive(location.pathname, item.to, item.match)}
                       onClick={closeAll}
                     />
                   ))}
@@ -1082,17 +1099,14 @@ export default function Navbar() {
                   <div className="space-y-3">
                     <div>
                       <p className="px-2 mb-1 text-[10px] font-semibold text-[color:var(--ibo-muted)] uppercase tracking-widest">
-                        Trade
+                        Products
                       </p>
                       <div className="space-y-0.5">
                         {NAV_PRIMARY.map((l) => (
                           <Link
                             key={l.match || l.to}
                             to={l.to}
-                            onClick={() => {
-                              markSpotNavEntry(l.match);
-                              setMenuOpen(false);
-                            }}
+                            onClick={() => setMenuOpen(false)}
                             className={`flex items-center gap-2.5 px-3 py-2.5 rounded text-[14px] touch-manipulation ${
                               navActive(l.to, l.match)
                                 ? 'text-[#fe8935]'
@@ -1117,7 +1131,7 @@ export default function Navbar() {
                               to={l.to}
                               onClick={() => setMenuOpen(false)}
                               className={`flex items-center gap-2.5 px-3 py-2.5 rounded text-[14px] touch-manipulation ${
-                                pathActive(location.pathname, l.to)
+                                pathActive(location.pathname, l.to, l.match)
                                   ? 'text-[#fe8935]'
                                   : 'text-[color:var(--ibo-ink)] hover:bg-black/[0.04]'
                               }`}

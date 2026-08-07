@@ -44,7 +44,7 @@ export default function LandingPage() {
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             className="text-center mb-12 md:mb-16 max-w-3xl mx-auto">
             <p className="ibo-eyebrow mb-4">Pro platform</p>
-            <h2 className="ibo-title-lg mb-5">Futures · Options · Spot in one place</h2>
+            <h2 className="ibo-title-lg mb-5">Futures · Options in one place</h2>
             <p className="ibo-lead-wide mx-auto text-zinc-400">
               Best-in-class pro features: open a market, read 24h stats, trade with depth, and track margin &amp; P/L — without switching tools.
             </p>
@@ -74,14 +74,14 @@ export default function LandingPage() {
                     stat: 'Pro latency',
                     accent: '#00A876',
                     icon: Cpu,
-                    blurb: 'Fast order matching built for liquid F&O and spot flows.',
+                    blurb: 'Fast order matching built for liquid F&O flows.',
                   },
                   {
                     title: 'TradingView Charts',
                     stat: '100+ indicators',
                     accent: '#60a5fa',
                     icon: BarChart2,
-                    blurb: 'Pro charting for futures, options underlyings, and spot pairs.',
+                    blurb: 'Pro charting for futures, and options underlyings.',
                   },
                   {
                     title: 'Live P&L Tracking',
@@ -161,7 +161,7 @@ export default function LandingPage() {
                   return (
                     <Link
                       key={`${pair.symbol}-${i}`}
-                      to={`/trade/${pair.symbol}`}
+                      to={`/futures/${pair.base}USDT-PERP`}
                       className="coin-marquee-item group"
                     >
                       {icon ? (
@@ -225,7 +225,7 @@ export default function LandingPage() {
               </h2>
 
               <p className="ibo-lead text-zinc-400 max-w-lg mb-8">
-                Instant KYC, deposit INR, then futures, options, and spot on one pro terminal —
+                Instant KYC, deposit INR, then futures and options on one pro terminal —
                 margin &amp; P/L in rupees, withdraw to your bank when you&#39;re ready.
               </p>
 
@@ -295,7 +295,7 @@ export default function LandingPage() {
                     {
                       n: '03',
                       icon: LineChart,
-                      title: 'Trade F&O or spot',
+                      title: 'Trade futures & options',
                       desc: 'Open BTC & ETH markets 24/7 on the pro terminal.',
                       to: '/futures/BTCUSDT-PERP',
                     },
@@ -363,7 +363,7 @@ export default function LandingPage() {
                   </h3>
 
                   <p className="ibo-cta-app__sub">
-                    Native Android is on the way. Trade futures, options, and spot on web now —
+                    Native Android is on the way. Trade futures and options on web now —
                     same account when the app drops.
                   </p>
 

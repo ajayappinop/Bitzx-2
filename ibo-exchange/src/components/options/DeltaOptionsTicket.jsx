@@ -189,7 +189,7 @@ export default function DeltaOptionsTicket({
                     ? buy
                       ? 'bg-[color:var(--ibo-positive)]/15 text-[color:var(--ibo-positive)] border-b-2 border-[color:var(--ibo-positive)]'
                       : 'bg-[color:var(--ibo-negative)]/15 text-[color:var(--ibo-negative)] border-b-2 border-[color:var(--ibo-negative)]'
-                    : 'bg-transparent text-[color:var(--ibo-muted)] hover:text-[color:var(--ibo-ink)]'
+                    : 'bg-transparent text-[color:var(--ibo-muted)] hover:bg-[rgba(254,108,2,0.08)] hover:text-[#FE6C02]'
                 }`}
               >
                 {buy ? `Buy ${kind}` : `Sell ${kind}`}

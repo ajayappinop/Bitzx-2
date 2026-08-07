@@ -21,10 +21,17 @@ async def list_contracts(
     *,
     underlying_symbol: Optional[str] = None,
     listed_only: bool = True,
+    option_type: Optional[str] = None,
     limit: int = 200,
     use_cache: bool = True,
 ) -> List[Dict[str, Any]]:
-    key = redis_cache.cache_key("contracts", underlying_symbol or "all", str(listed_only), str(limit))
+    key = redis_cache.cache_key(
+        "contracts",
+        underlying_symbol or "all",
+        str(listed_only),
+        option_type or "all",
+        str(limit),
+    )
     if use_cache:
         cached = await redis_cache.get(key)
         if cached is not None:
@@ -33,6 +40,7 @@ async def list_contracts(
     rows = await local.list_contracts(
         underlying_symbol=underlying_symbol,
         listed_only=listed_only,
+        option_type=option_type,
         limit=limit,
     )
     out = [enrich_contract_row(r) for r in rows]
@@ -48,12 +56,20 @@ async def get_chain(
     use_cache: bool = True,
 ) -> Dict[str, Any]:
     sym = underlying_symbol.strip().upper()
-    key = redis_cache.cache_key("chain", sym, str(listed_only), str(include_market))
+    key = redis_cache.cache_key("chain", "vanilla", sym, str(listed_only), str(include_market))
     if use_cache:
         cached = await redis_cache.get(key)
         if cached is not None:
             return cached
-    rows = await list_contracts(underlying_symbol=sym, listed_only=listed_only, limit=500, use_cache=True)
+    # Vanilla chain only — MOVE (straddle) lives on /move, never on Options.
+    rows = await list_contracts(
+        underlying_symbol=sym,
+        listed_only=listed_only,
+        option_type="vanilla",
+        limit=500,
+        use_cache=True,
+    )
+    rows = [r for r in rows if str(r.get("option_type") or "").lower() not in ("move",)]
     index_px = await get_index_price(sym)
     now_dt = datetime.now(timezone.utc)
     if include_market and rows:

@@ -61,7 +61,7 @@ function NumField({ label, hint, value, onChange, step = 0.0001, suffix }) {
           step={step}
           value={value ?? ''}
           onChange={(e) => onChange(e.target.value === '' ? null : Number(e.target.value))}
-          className="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm font-mono text-white focus:outline-none focus:border-gold-light/50"
+          className="flex-1 bg-surface-dark border border-white/10 rounded-lg px-3 py-2 text-sm font-mono text-white focus:outline-none focus:border-gold-light/50"
         />
         {suffix && <span className="text-[11px] text-white/45">{suffix}</span>}
       </div>

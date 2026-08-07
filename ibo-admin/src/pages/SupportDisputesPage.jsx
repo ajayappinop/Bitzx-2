@@ -7,17 +7,17 @@ const STATUS = ['all', 'open', 'in_progress', 'waiting_user', 'resolved', 'close
 const PRIORITY = ['low', 'normal', 'high', 'urgent'];
 
 function statusChipClass(status) {
-  if (status === 'resolved' || status === 'closed') return 'bg-[#0ECB81]/20 text-[#0ECB81]';
-  if (status === 'in_progress') return 'bg-[#3B82F6]/20 text-[#3B82F6]';
-  if (status === 'waiting_user') return 'bg-[#8B5CF6]/20 text-[#8B5CF6]';
-  return 'bg-[#0EA4AB]/20 text-[#0EA4AB]';
+  if (status === 'resolved' || status === 'closed') return 'bg-[#00A876]/20 text-[#00A876]';
+  if (status === 'in_progress') return 'bg-[#FE6C02]/20 text-[#FE6C02]';
+  if (status === 'waiting_user') return 'bg-[#B44D01]/20 text-[#FE9D55]';
+  return 'bg-[#FE6C02]/20 text-[#FE9D55]';
 }
 
 function priorityChipClass(priority) {
-  if (priority === 'urgent') return 'bg-[#F6465D] text-white';
-  if (priority === 'high') return 'bg-[#F6465D]/20 text-[#F6465D]';
-  if (priority === 'normal') return 'bg-[#0EA4AB]/20 text-[#0EA4AB]';
-  return 'bg-[#848E9C]/20 text-[#848E9C]';
+  if (priority === 'urgent') return 'bg-[#EB5454] text-white';
+  if (priority === 'high') return 'bg-[#EB5454]/20 text-[#EB5454]';
+  if (priority === 'normal') return 'bg-[#FE6C02]/20 text-[#FE6C02]';
+  return 'bg-[#848E9C]/20 text-[color:var(--ibo-ink-secondary)]';
 }
 
 export default function SupportDisputesPage() {
@@ -129,7 +129,7 @@ export default function SupportDisputesPage() {
         <StatCard title="Avg Response Time" value={stats.avgResponse} icon={Zap} color="purple" />
       </div>
 
-      {error ? <div className="rounded-lg border border-[#F6465D]/40 bg-[#F6465D]/10 p-3 text-sm text-[#F6465D]">{error}</div> : null}
+      {error ? <div className="rounded-lg border border-[#EB5454]/40 bg-[#EB5454]/10 p-3 text-sm text-[#EB5454]">{error}</div> : null}
 
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex gap-2 flex-wrap">
@@ -139,37 +139,37 @@ export default function SupportDisputesPage() {
               type="button"
               onClick={() => setFilters((p) => ({ ...p, status: f }))}
               className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                filters.status === f ? 'bg-[#0EA4AB] text-[#0B0E11]' : 'bg-[#1E2329] text-[#848E9C] hover:text-white'
+                filters.status === f ? 'bg-[#FE6C02] text-[#101013]' : 'bg-surface-card text-[color:var(--ibo-ink-secondary)] hover:text-white'
               }`}
             >
               {f === 'in_progress' ? 'In Progress' : f === 'waiting_user' ? 'Waiting User' : f.charAt(0).toUpperCase() + f.slice(1)}
             </button>
           ))}
         </div>
-        <button type="button" onClick={loadList} className="px-3 py-2 rounded-lg bg-[#1E2329] text-[#848E9C] hover:text-white inline-flex items-center gap-2">
+        <button type="button" onClick={loadList} className="px-3 py-2 rounded-lg bg-surface-card text-[color:var(--ibo-ink-secondary)] hover:text-white inline-flex items-center gap-2">
           <RefreshCw size={14} /> Refresh
         </button>
       </div>
 
-      <div className="bg-[#1E2329] rounded-xl border border-[#2B3139]">
-        <div className="p-4 border-b border-[#2B3139] flex items-center justify-between gap-3">
+      <div className="bg-surface-card rounded-xl border border-surface-border">
+        <div className="p-4 border-b border-surface-border flex items-center justify-between gap-3">
           <h3 className="text-white font-semibold">Support Tickets</h3>
           <div className="flex gap-2">
             <input
-              className="px-3 py-2 bg-[#0B0E11] border border-[#2B3139] rounded-lg text-white placeholder-[#5E6673] text-sm"
+              className="px-3 py-2 bg-surface-dark border border-surface-border rounded-lg text-white placeholder:text-[color:var(--ibo-muted)] text-sm"
               placeholder="Search by ticket, uid, subject"
               value={filters.q}
               onChange={(e) => setFilters((p) => ({ ...p, q: e.target.value }))}
             />
             <select
-              className="px-3 py-2 bg-[#0B0E11] border border-[#2B3139] rounded-lg text-white text-sm"
+              className="px-3 py-2 bg-surface-dark border border-surface-border rounded-lg text-white text-sm"
               value={filters.priority}
               onChange={(e) => setFilters((p) => ({ ...p, priority: e.target.value }))}
             >
               <option value="">All Priority</option>
               {PRIORITY.map((p) => <option key={p} value={p}>{p}</option>)}
             </select>
-            <button type="button" onClick={loadList} className="px-3 py-2 bg-[#0EA4AB] text-[#0B0E11] rounded-lg text-sm font-semibold">
+            <button type="button" onClick={loadList} className="px-3 py-2 bg-[#FE6C02] text-[#101013] rounded-lg text-sm font-semibold">
               Apply
             </button>
           </div>
@@ -177,7 +177,7 @@ export default function SupportDisputesPage() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="text-[#848E9C] text-xs border-b border-[#2B3139]">
+              <tr className="text-[color:var(--ibo-ink-secondary)] text-xs border-b border-surface-border">
                 <th className="text-left p-4">Ticket ID</th>
                 <th className="text-left p-4">Subject</th>
                 <th className="text-left p-4">User</th>
@@ -190,14 +190,14 @@ export default function SupportDisputesPage() {
             <tbody>
               {!loading && items.length === 0 ? (
                 <tr>
-                  <td className="p-6 text-center text-[#848E9C]" colSpan={7}>No tickets found.</td>
+                  <td className="p-6 text-center text-[color:var(--ibo-ink-secondary)]" colSpan={7}>No tickets found.</td>
                 </tr>
               ) : null}
               {items.map((t) => (
-                <tr key={t.id} className="border-b border-[#2B3139] hover:bg-[#0B0E11]/50">
+                <tr key={t.id} className="border-b border-surface-border hover:bg-surface-dark/50">
                   <td className="p-4 text-white font-mono">{t.id}</td>
                   <td className="p-4 text-white">{t.subject}</td>
-                  <td className="p-4 text-[#848E9C]">{t.user_email || t.uid}</td>
+                  <td className="p-4 text-[color:var(--ibo-ink-secondary)]">{t.user_email || t.uid}</td>
                   <td className="p-4 text-center">
                     <span className={`px-2 py-1 rounded text-xs ${priorityChipClass(t.priority)}`}>{t.priority}</span>
                   </td>
@@ -206,7 +206,7 @@ export default function SupportDisputesPage() {
                       {t.status === 'in_progress' ? 'In Progress' : t.status}
                     </span>
                   </td>
-                  <td className="p-4 text-[#848E9C] text-sm">{t.updated_at || t.created_at}</td>
+                  <td className="p-4 text-[color:var(--ibo-ink-secondary)] text-sm">{t.updated_at || t.created_at}</td>
                   <td className="p-4 text-center">
                     <div className="flex justify-center gap-2">
                       <button
@@ -215,7 +215,7 @@ export default function SupportDisputesPage() {
                           setSelectedId(t.id);
                           loadTicket(t.id);
                         }}
-                        className="p-1.5 bg-[#3B82F6]/20 text-[#3B82F6] rounded hover:bg-[#3B82F6]/30"
+                        className="p-1.5 bg-[#FE6C02]/20 text-[#FE6C02] rounded hover:bg-[#FE6C02]/30"
                       >
                         <Eye size={14} />
                       </button>
@@ -226,7 +226,7 @@ export default function SupportDisputesPage() {
                           setTicket(t);
                           updateTicket({ status: 'resolved' });
                         }}
-                        className="p-1.5 bg-[#0ECB81]/20 text-[#0ECB81] rounded hover:bg-[#0ECB81]/30"
+                        className="p-1.5 bg-[#00A876]/20 text-[#00A876] rounded hover:bg-[#00A876]/30"
                       >
                         <CheckCircle size={14} />
                       </button>
@@ -241,26 +241,26 @@ export default function SupportDisputesPage() {
 
       {showTicketModal && ticket ? (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[70] p-4">
-          <div className="bg-[#1E2329] rounded-xl w-full max-w-2xl max-h-[80vh] overflow-hidden border border-[#2B3139]">
-            <div className="p-4 border-b border-[#2B3139] flex items-center justify-between">
+          <div className="bg-surface-card rounded-xl w-full max-w-2xl max-h-[80vh] overflow-hidden border border-surface-border">
+            <div className="p-4 border-b border-surface-border flex items-center justify-between">
               <div>
                 <h3 className="text-white font-semibold">{ticket.id}: {ticket.subject}</h3>
-                <p className="text-sm text-[#848E9C]">{ticket.user_email || ticket.uid}</p>
+                <p className="text-sm text-[color:var(--ibo-ink-secondary)]">{ticket.user_email || ticket.uid}</p>
               </div>
-              <button type="button" onClick={() => setShowTicketModal(false)} className="text-[#848E9C] hover:text-white"><X size={20} /></button>
+              <button type="button" onClick={() => setShowTicketModal(false)} className="text-[color:var(--ibo-ink-secondary)] hover:text-white"><X size={20} /></button>
             </div>
             <div className="p-4 flex gap-2">
-              <select className="px-3 py-2 bg-[#0B0E11] border border-[#2B3139] rounded-lg text-white text-sm" value={ticket.status || 'open'} onChange={(e) => updateTicket({ status: e.target.value })} disabled={saving}>
+              <select className="px-3 py-2 bg-surface-dark border border-surface-border rounded-lg text-white text-sm" value={ticket.status || 'open'} onChange={(e) => updateTicket({ status: e.target.value })} disabled={saving}>
                 {STATUS.filter((s) => s !== 'all').map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
-              <select className="px-3 py-2 bg-[#0B0E11] border border-[#2B3139] rounded-lg text-white text-sm" value={ticket.priority || 'normal'} onChange={(e) => updateTicket({ priority: e.target.value })} disabled={saving}>
+              <select className="px-3 py-2 bg-surface-dark border border-surface-border rounded-lg text-white text-sm" value={ticket.priority || 'normal'} onChange={(e) => updateTicket({ priority: e.target.value })} disabled={saving}>
                 {PRIORITY.map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>
             <div className="p-4 max-h-[44vh] overflow-y-auto space-y-4">
               {(ticket.messages || []).map((m) => (
                 <div key={m.id} className={`flex ${m.from_type === 'admin' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[80%] p-3 rounded-lg ${m.from_type === 'admin' ? 'bg-[#0EA4AB]/20 text-white' : 'bg-[#0B0E11] text-[#D1D5DB]'}`}>
+                  <div className={`max-w-[80%] p-3 rounded-lg ${m.from_type === 'admin' ? 'bg-[#FE6C02]/20 text-white' : 'bg-surface-dark text-[color:var(--ibo-ink)]'}`}>
                     <p className="text-sm whitespace-pre-wrap">{m.message}</p>
                     <p className="text-xs text-[#5E6673] mt-1">
                       {m.from_type === 'admin' ? (m.from_email || 'admin') : 'user'} • {m.created_at} {m.internal_note ? ' • internal' : ''}
@@ -269,14 +269,14 @@ export default function SupportDisputesPage() {
                 </div>
               ))}
             </div>
-            <div className="p-4 border-t border-[#2B3139] space-y-2">
+            <div className="p-4 border-t border-surface-border space-y-2">
               <div className="flex gap-2">
-                <input type="text" value={reply} onChange={(e) => setReply(e.target.value)} placeholder="Type your reply..." className="flex-1 px-4 py-2 bg-[#0B0E11] border border-[#2B3139] rounded-lg text-white placeholder-[#5E6673]" />
-                <button type="button" onClick={sendReply} disabled={saving || !reply.trim()} className="px-4 py-2 bg-[#0EA4AB] text-[#0B0E11] rounded-lg font-medium inline-flex items-center gap-2">
+                <input type="text" value={reply} onChange={(e) => setReply(e.target.value)} placeholder="Type your reply..." className="flex-1 px-4 py-2 bg-surface-dark border border-surface-border rounded-lg text-white placeholder:text-[color:var(--ibo-muted)]" />
+                <button type="button" onClick={sendReply} disabled={saving || !reply.trim()} className="px-4 py-2 bg-[#FE6C02] text-[#101013] rounded-lg font-medium inline-flex items-center gap-2">
                   <Send size={14} /> Send
                 </button>
               </div>
-              <label className="inline-flex items-center gap-2 text-sm text-[#848E9C]">
+              <label className="inline-flex items-center gap-2 text-sm text-[color:var(--ibo-ink-secondary)]">
                 <input type="checkbox" checked={internalNote} onChange={(e) => setInternalNote(e.target.checked)} />
                 Internal note only
               </label>
@@ -290,15 +290,15 @@ export default function SupportDisputesPage() {
 
 function StatCard({ title, value, icon: Icon, color = 'yellow' }) {
   const map = {
-    yellow: 'bg-gradient-to-br from-[#0EA4AB]/20 to-[#0EA4AB]/5 border-[#0EA4AB]/30',
-    blue: 'bg-gradient-to-br from-[#3B82F6]/20 to-[#3B82F6]/5 border-[#3B82F6]/30',
-    green: 'bg-gradient-to-br from-[#0ECB81]/20 to-[#0ECB81]/5 border-[#0ECB81]/30',
-    purple: 'bg-gradient-to-br from-[#8B5CF6]/20 to-[#8B5CF6]/5 border-[#8B5CF6]/30',
+    yellow: 'bg-gradient-to-br from-[#FE6C02]/20 to-[#FE6C02]/5 border-[#FE6C02]/30',
+    blue: 'bg-gradient-to-br from-[#FE6C02]/20 to-[#FE6C02]/5 border-[#FE6C02]/30',
+    green: 'bg-gradient-to-br from-[#00A876]/20 to-[#00A876]/5 border-[#00A876]/30',
+    purple: 'bg-gradient-to-br from-[#B44D01]/20 to-[#B44D01]/5 border-[#B44D01]/30',
   };
   return (
     <div className={`rounded-xl border p-4 ${map[color] || map.yellow}`}>
       <div className="flex items-center justify-between">
-        <p className="text-[#848E9C] text-sm">{title}</p>
+        <p className="text-[color:var(--ibo-ink-secondary)] text-sm">{title}</p>
         <Icon size={18} className="text-white/80" />
       </div>
       <p className="text-2xl font-bold text-white mt-2">{value}</p>

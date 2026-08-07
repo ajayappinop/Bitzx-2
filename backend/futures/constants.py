@@ -24,16 +24,23 @@ COL_MARK_PRICES   = "futures_mark_prices"
 # Linear USDT-margined perps. All PnL, margin, fees are in USDT.
 MARGIN_ASSET = "USDT"
 
+# ── Asset classes (keep crypto futures catalogs free of RWA distortion) ──
+ASSET_CLASS_CRYPTO = "crypto"
+ASSET_CLASS_RWA = "rwa"
+ASSET_CLASSES = (ASSET_CLASS_CRYPTO, ASSET_CLASS_RWA)
+
 # ── Listed perpetual contracts ─────────────────────────────────────────────
 # Each entry maps ``symbol`` (canonical perp symbol) to the underlying
 # Binance spot symbol used to source the mark/index price.
 # Listed perps: each ``binance_symbol`` must exist on Binance spot (mark/index feed).
 # Kept in sync with ``ibo-exchange`` spot ``PAIRS`` (excluding IBO, which has no Binance index).
+# ``asset_class`` defaults to crypto; RWA perps are listed separately and filtered at the API.
 SUPPORTED_SYMBOLS: Dict[str, Dict[str, object]] = {
     "BTCUSDT-PERP": {
         "base": "BTC",
         "quote": "USDT",
         "binance_symbol": "BTCUSDT",
+        "asset_class": ASSET_CLASS_CRYPTO,
         "tick_size": 0.10,
         "lot_size":  0.001,
         "min_qty":   0.001,
@@ -43,6 +50,7 @@ SUPPORTED_SYMBOLS: Dict[str, Dict[str, object]] = {
         "base": "ETH",
         "quote": "USDT",
         "binance_symbol": "ETHUSDT",
+        "asset_class": ASSET_CLASS_CRYPTO,
         "tick_size": 0.01,
         "lot_size":  0.01,
         "min_qty":   0.01,
@@ -52,6 +60,7 @@ SUPPORTED_SYMBOLS: Dict[str, Dict[str, object]] = {
         "base": "BNB",
         "quote": "USDT",
         "binance_symbol": "BNBUSDT",
+        "asset_class": ASSET_CLASS_CRYPTO,
         "tick_size": 0.01,
         "lot_size":  0.01,
         "min_qty":   0.01,
@@ -61,6 +70,7 @@ SUPPORTED_SYMBOLS: Dict[str, Dict[str, object]] = {
         "base": "SOL",
         "quote": "USDT",
         "binance_symbol": "SOLUSDT",
+        "asset_class": ASSET_CLASS_CRYPTO,
         "tick_size": 0.001,
         "lot_size":  0.1,
         "min_qty":   0.1,
@@ -70,6 +80,7 @@ SUPPORTED_SYMBOLS: Dict[str, Dict[str, object]] = {
         "base": "XRP",
         "quote": "USDT",
         "binance_symbol": "XRPUSDT",
+        "asset_class": ASSET_CLASS_CRYPTO,
         "tick_size": 0.0001,
         "lot_size":  1.0,
         "min_qty":   1.0,
@@ -79,6 +90,7 @@ SUPPORTED_SYMBOLS: Dict[str, Dict[str, object]] = {
         "base": "DOGE",
         "quote": "USDT",
         "binance_symbol": "DOGEUSDT",
+        "asset_class": ASSET_CLASS_CRYPTO,
         "tick_size": 0.00001,
         "lot_size":  10.0,
         "min_qty":   10.0,
@@ -88,6 +100,7 @@ SUPPORTED_SYMBOLS: Dict[str, Dict[str, object]] = {
         "base": "ADA",
         "quote": "USDT",
         "binance_symbol": "ADAUSDT",
+        "asset_class": ASSET_CLASS_CRYPTO,
         "tick_size": 0.0001,
         "lot_size":  1.0,
         "min_qty":   1.0,
@@ -97,6 +110,7 @@ SUPPORTED_SYMBOLS: Dict[str, Dict[str, object]] = {
         "base": "POL",
         "quote": "USDT",
         "binance_symbol": "POLUSDT",
+        "asset_class": ASSET_CLASS_CRYPTO,
         "tick_size": 0.0001,
         "lot_size":  1.0,
         "min_qty":   1.0,
@@ -106,6 +120,7 @@ SUPPORTED_SYMBOLS: Dict[str, Dict[str, object]] = {
         "base": "AVAX",
         "quote": "USDT",
         "binance_symbol": "AVAXUSDT",
+        "asset_class": ASSET_CLASS_CRYPTO,
         "tick_size": 0.001,
         "lot_size":  0.1,
         "min_qty":   0.1,
@@ -115,6 +130,7 @@ SUPPORTED_SYMBOLS: Dict[str, Dict[str, object]] = {
         "base": "DOT",
         "quote": "USDT",
         "binance_symbol": "DOTUSDT",
+        "asset_class": ASSET_CLASS_CRYPTO,
         "tick_size": 0.001,
         "lot_size":  0.1,
         "min_qty":   0.1,
@@ -124,6 +140,7 @@ SUPPORTED_SYMBOLS: Dict[str, Dict[str, object]] = {
         "base": "LINK",
         "quote": "USDT",
         "binance_symbol": "LINKUSDT",
+        "asset_class": ASSET_CLASS_CRYPTO,
         "tick_size": 0.001,
         "lot_size":  0.1,
         "min_qty":   0.1,
@@ -133,10 +150,26 @@ SUPPORTED_SYMBOLS: Dict[str, Dict[str, object]] = {
         "base": "LTC",
         "quote": "USDT",
         "binance_symbol": "LTCUSDT",
+        "asset_class": ASSET_CLASS_CRYPTO,
         "tick_size": 0.01,
         "lot_size":  0.01,
         "min_qty":   0.01,
         "max_qty":   200_000.0,
+    },
+    # ── RWA (Real World Assets) — isolated from crypto futures catalogs ──
+    # Delta parity: XAUTUSD perpetual on Tether Gold (XAUT).
+    # Index from Binance spot XAUTUSDT only; never mixed into spot Markets USDT list.
+    "XAUTUSDT-PERP": {
+        "base": "XAUT",
+        "quote": "USDT",
+        "binance_symbol": "XAUTUSDT",
+        "asset_class": ASSET_CLASS_RWA,
+        "display_name": "Tether Gold",
+        "description": "Tether Gold token Perpetual",
+        "tick_size": 0.01,
+        "lot_size":  0.001,
+        "min_qty":   0.001,
+        "max_qty":   10_000.0,
     },
 }
 
@@ -196,6 +229,12 @@ LEVERAGE_TIERS: Dict[str, List[LeverageTier]] = {
     "LTCUSDT-PERP": [
         (   50_000,   50, 0.01,  0.013),
         (  250_000,   20, 0.025, 0.030),
+    ],
+    # RWA — Delta-style XAUT perpetual (up to 100x)
+    "XAUTUSDT-PERP": [
+        (   50_000,  100, 0.005, 0.0065),
+        (  250_000,   50, 0.01,  0.013),
+        (1_000_000,   20, 0.025, 0.030),
     ],
 }
 

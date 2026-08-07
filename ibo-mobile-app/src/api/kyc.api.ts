@@ -81,6 +81,10 @@ export const kycApi = {
   upload: (formData: FormData) =>
     postMultipart<KycUploadResponse>(EP.KYC_UPLOAD, formData),
 
+  /** DELETE /api/kyc/upload/{side} — remove front | back | selfie */
+  deleteUpload: (side: 'front' | 'back' | 'selfie') =>
+    apiClient.delete<KycUploadResponse>(EP.KYC_UPLOAD_SIDE(side)),
+
   /** POST /api/kyc/submit */
   submit: (body: Record<string, unknown>) =>
     apiClient.post<KycStatusResponse>(EP.KYC_SUBMIT, body),

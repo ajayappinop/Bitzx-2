@@ -4,6 +4,7 @@
  * Instrument strip lives above book+ticket — see OptionsInstrumentBar.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   ChevronLeft,
   ChevronRight,
@@ -100,6 +101,15 @@ export default function DeltaOptionsHeader({
             >
               Chart
             </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={optionsView === 'strategy'}
+              className={`doh__view-tab ${optionsView === 'strategy' ? 'is-on' : ''}`}
+              onClick={() => setOptionsView('strategy')}
+            >
+              Strategy Builder
+            </button>
           </div>
 
           <div className="doh__assets" role="tablist" aria-label="Underlying">
@@ -178,17 +188,30 @@ export default function DeltaOptionsHeader({
               </button>
               {moreOpen ? (
                 <div className="doh__menu" role="menu">
-                  <button
-                    type="button"
+                  <Link
+                    to={`/options/strategy/${String(underlying || 'BTC').replace(/USDT$/i, '')}`}
                     role="menuitem"
                     className="doh__menu-item"
-                    onClick={() => {
-                      setMoreOpen(false);
-                      onStrategy?.();
-                    }}
+                    onClick={() => setMoreOpen(false)}
                   >
                     Strategy Builder
-                  </button>
+                  </Link>
+                  <Link
+                    to={`/options/analytics/${String(underlying || 'BTC').replace(/USDT$/i, '')}`}
+                    role="menuitem"
+                    className="doh__menu-item"
+                    onClick={() => setMoreOpen(false)}
+                  >
+                    Options Analytics
+                  </Link>
+                  <Link
+                    to={`/move/${String(underlying || 'BTC').replace(/USDT$/i, '')}`}
+                    role="menuitem"
+                    className="doh__menu-item"
+                    onClick={() => setMoreOpen(false)}
+                  >
+                    MOVE Options (Straddle)
+                  </Link>
                   <button
                     type="button"
                     role="menuitem"

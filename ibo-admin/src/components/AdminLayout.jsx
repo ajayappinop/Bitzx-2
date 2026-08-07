@@ -17,9 +17,12 @@ import {
   Send,
   Layers,
   Gift,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAdminAuth } from '@/context/AdminAuthContext';
+import { useTheme } from '@/context/ThemeContext';
 import { api } from '@/lib/api';
 import { hasPermission, hasAnyPermission } from '@/lib/adminAccess';
 
@@ -49,7 +52,7 @@ const LINKS = [
   { to: '/market-catalog', label: 'Market Catalog', icon: Globe, permission: 'view_listings' },
   { to: '/token-listings', label: 'Token Listings', icon: Coins, permission: 'view_listings' },
   { to: '/analysis', label: 'Reports & Analytics', icon: BarChart3, permission: 'view_analytics' },
-  { to: '/trading', label: 'Spot workspace', icon: Activity, permission: 'view_orders' },
+  { to: '/trading', label: 'Trading workspace', icon: Activity, permission: 'view_orders' },
   // ✅ Futures module (cleanly added)
   { to: '/futures', label: 'Futures Operations', icon: TrendingUp, end: true,
     permissions: ['view_orders', 'view_trades', 'view_finance', 'view_markets'] },
@@ -81,7 +84,7 @@ const LINKS = [
 const LINK_GROUPS = [
   { id: 'userOps', label: 'User Ops', links: ['/', '/users', '/kyc', '/support-disputes'] },
   { id: 'funds', label: 'Funds', links: ['/funds', '/withdrawals', '/deposit-events', '/inr-deposits', '/inr-withdrawals', '/inr-settings', '/signzy-settings', '/ledger', '/wallet-adjustments', '/finance', '/treasury', '/admin-wallet', '/treasury-transfer', '/treasury-omnibus'] },
-  { id: 'spotTrading', label: 'Spot Trading', links: ['/trading', '/trading-activity'] },
+  { id: 'spotTrading', label: 'Trading Ops', links: ['/trading', '/trading-activity'] },
   { id: 'futures', label: 'Futures Trading', links: ['/futures', '/futures/activity'] },
   { id: 'options', label: 'Options Trading', links: ['/options'] },
   { id: 'p2p', label: 'P2P Trading', links: ['/p2p'] },
@@ -185,6 +188,7 @@ function AlertBadge({ stats }) {
 
 export default function AdminLayout() {
   const { admin, logout } = useAdminAuth();
+  const { isLight, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
@@ -226,7 +230,7 @@ export default function AdminLayout() {
 
   const linkClass = ({ isActive }) =>
     `flex items-center gap-3 px-4 py-3 rounded-xl text-base font-bold transition-colors ${
-      isActive ? 'admin-nav-link-active text-gold-light border border-gold/25' : 'text-white/80 hover:bg-white/[.08] hover:text-white border border-transparent'
+      isActive ? 'admin-nav-link-active text-[#FE9D55] border border-gold/25' : 'text-white/80 hover:bg-white/[.08] hover:text-white border border-transparent'
     }`;
 
   const groupedVisibleLinks = LINK_GROUPS.map((group) => ({
@@ -249,10 +253,10 @@ export default function AdminLayout() {
       <div className="admin-bg-blob two" />
       <div className="admin-bg-blob three" />
       {/* Desktop sidebar — full viewport height; only the nav list scrolls */}
-      <aside className="relative z-10 hidden h-full min-h-0 w-[260px] shrink-0 flex-col border-r border-surface-border bg-surface-card/95 backdrop-blur-md md:flex">
+      <aside className="relative z-10 hidden h-full min-h-0 w-[260px] shrink-0 flex-col border-r border-surface-border bg-surface-card md:flex">
         <div className="shrink-0 border-b border-surface-border p-5">
-          <p className="text-gold-light font-black text-2xl tracking-tight">IBO</p>
-          <p className="text-cyan-200 text-sm font-semibold tracking-wide">Exchange Admin Panel</p>
+          <p className="text-[#FE6C02] font-black text-2xl tracking-tight">Delta</p>
+          <p className="text-white/55 text-sm font-semibold tracking-wide">Exchange Admin</p>
           <p className="mt-2 truncate font-mono text-sm text-white/75" title={import.meta.env.MODE}>
             {import.meta.env.MODE === 'production' ? 'Production' : 'Development'}
           </p>
@@ -286,7 +290,7 @@ export default function AdminLayout() {
           <button
             type="button"
             onClick={() => { logout(); navigate('/login'); }}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-surface-border text-base font-bold text-white/90 hover:border-red-500/40 hover:text-red-300 transition-colors"
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold bg-[#EB5454] text-white border border-[#EB5454] hover:bg-[#d94848] transition-colors"
           >
             <LogOut size={16} /> Log out
           </button>
@@ -295,7 +299,7 @@ export default function AdminLayout() {
 
       {/* Main column: top bars fixed; page content scrolls */}
       <div className="relative z-10 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-        <div className="hidden h-16 shrink-0 items-center justify-between border-b border-surface-border bg-surface-card/90 px-6 backdrop-blur-md md:flex">
+        <div className="hidden h-16 shrink-0 items-center justify-between border-b border-surface-border bg-surface-card px-6 md:flex">
           <div>
             <p className="text-base font-semibold text-white">{pageLabel}</p>
             <p className="text-xs text-white/70">Manage your exchange platform</p>
@@ -330,6 +334,15 @@ export default function AdminLayout() {
             </div>
             <button
               type="button"
+              onClick={toggleTheme}
+              aria-label={isLight ? 'Switch to dark theme' : 'Switch to light theme'}
+              title={isLight ? 'Dark mode' : 'Light mode'}
+              className="p-2 hover:bg-surface-hover rounded-lg text-white/60 hover:text-white border border-transparent hover:border-surface-border"
+            >
+              {isLight ? <Moon size={18} /> : <Sun size={18} />}
+            </button>
+            <button
+              type="button"
               aria-label="Notifications"
               className="relative p-2 hover:bg-surface-hover rounded-lg text-white/60 hover:text-white"
             >
@@ -337,32 +350,36 @@ export default function AdminLayout() {
               <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-500" />
             </button>
             <StatusChip role={admin?.role} />
-            <button
-              type="button"
-              onClick={() => { logout(); navigate('/login'); }}
-              className="flex items-center gap-2 px-3 py-2 bg-surface-card border border-surface-border rounded-lg text-white/70 hover:text-white hover:bg-surface-hover transition-colors"
-            >
-              <LogOut size={16} />
-              <span className="text-sm">Logout</span>
-            </button>
           </div>
         </div>
-        <header className="z-40 flex shrink-0 items-center justify-between gap-3 border-b border-surface-border bg-surface-card/95 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-md md:hidden">
-          <span className="font-extrabold text-gold-light">IBO Admin</span>
-          <button
-            type="button"
-            onClick={() => setOpen(v => !v)}
-            className="p-2 rounded-lg border border-surface-border text-white"
-            aria-label="Menu"
-          >
-            {open ? <X size={22} /> : <Menu size={22} />}
-          </button>
+        <header className="z-40 flex shrink-0 items-center justify-between gap-3 border-b border-surface-border bg-surface-card px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] md:hidden">
+          <span className="font-extrabold text-[#FE6C02]">Delta Admin</span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={isLight ? 'Switch to dark theme' : 'Switch to light theme'}
+              className="p-2 rounded-lg border border-surface-border"
+              style={{ color: 'var(--ibo-ink)' }}
+            >
+              {isLight ? <Moon size={18} /> : <Sun size={18} />}
+            </button>
+            <button
+              type="button"
+              onClick={() => setOpen(v => !v)}
+              className="p-2 rounded-lg border border-surface-border"
+              style={{ color: 'var(--ibo-ink)' }}
+              aria-label="Menu"
+            >
+              {open ? <X size={22} /> : <Menu size={22} />}
+            </button>
+          </div>
         </header>
 
         {open && (
           <div className="md:hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm pt-[env(safe-area-inset-top)]" onClick={() => setOpen(false)}>
             <nav
-              className="absolute right-0 top-0 bottom-0 w-[min(100%,min(280px,100vw))] max-h-[100dvh] overflow-y-auto overscroll-contain bg-surface-card/95 backdrop-blur-md border-l border-surface-border p-4 pb-[max(1rem,env(safe-area-inset-bottom))] space-y-1"
+              className="absolute right-0 top-0 bottom-0 w-[min(100%,min(280px,100vw))] max-h-[100dvh] overflow-y-auto overscroll-contain bg-surface-card border-l border-surface-border p-4 pb-[max(1rem,env(safe-area-inset-bottom))] space-y-1"
               onClick={e => e.stopPropagation()}
             >
               {groupedVisibleLinks.map((group) => (
@@ -381,7 +398,7 @@ export default function AdminLayout() {
               <button
                 type="button"
                 onClick={() => { logout(); navigate('/login'); setOpen(false); }}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-base font-bold text-red-300 border border-red-500/20 mt-4"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-bold bg-[#EB5454] text-white border border-[#EB5454] hover:bg-[#d94848] transition-colors mt-4"
               >
                 <LogOut size={18} /> Log out
               </button>
@@ -391,7 +408,7 @@ export default function AdminLayout() {
 
         {import.meta.env.DEV ? (
           <div
-            className="fixed bottom-2 right-2 z-[200] pointer-events-none rounded-lg bg-sky-500/15 border border-sky-500/35 px-2.5 py-1 text-[10px] font-bold text-sky-200/95 shadow-lg"
+            className="fixed bottom-2 right-2 z-[200] pointer-events-none rounded-lg bg-[#FE6C02]/15 border border-[#FE6C02]/35 px-2.5 py-1 text-[10px] font-bold text-[#FE9D55] shadow-lg"
             title="ibo-admin on :5174 — use Market Catalog in sidebar for landing/markets display settings"
           >
             Admin UI · /market-catalog
@@ -410,7 +427,7 @@ export default function AdminLayout() {
 function StatusChip({ role }) {
   const label = role ? role.toUpperCase() : 'ADMIN';
   return (
-    <span className="inline-flex items-center rounded-full border border-cyan-400/35 bg-cyan-500/10 px-3 py-1 text-sm font-bold text-cyan-200">
+    <span className="inline-flex items-center rounded-full border border-[#FE6C02]/35 bg-[#FE6C02]/10 px-3 py-1 text-sm font-bold text-[#FE9D55]">
       {label}
     </span>
   );

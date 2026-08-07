@@ -1,6 +1,6 @@
 export function AdminPageHeader({
   icon: Icon,
-  iconClassName = 'text-cyan-300',
+  iconClassName = 'text-[#FE6C02]',
   title,
   subtitle,
   badge,
@@ -20,7 +20,7 @@ export function AdminPageHeader({
             (badge || actions) ? (
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 {badge ? (
-                  <span className="admin-pill border-cyan-400/30 bg-cyan-500/10 text-cyan-200">
+                  <span className="admin-pill border-[#FE6C02]/30 bg-[#FE6C02]/10 text-[#FE9D55]">
                     {badge}
                   </span>
                 ) : null}
@@ -29,7 +29,7 @@ export function AdminPageHeader({
             ) : null
           ) : (
             badge ? (
-              <span className="admin-pill mt-3 border-cyan-400/30 bg-cyan-500/10 text-cyan-200">
+              <span className="admin-pill mt-3 border-[#FE6C02]/30 bg-[#FE6C02]/10 text-[#FE9D55]">
                 {badge}
               </span>
             ) : null
@@ -43,16 +43,17 @@ export function AdminPageHeader({
   );
 }
 
-export function GradientStatCard({ label, value, hint, tone = 'cyan' }) {
+export function GradientStatCard({ label, value, hint, tone = 'orange' }) {
   const tones = {
-    cyan: 'from-[#3B82F6]/20 to-transparent border-[#3B82F6]/30',
-    emerald: 'from-[#0ECB81]/20 to-transparent border-[#0ECB81]/30',
-    violet: 'from-[#8B5CF6]/20 to-transparent border-[#8B5CF6]/30',
-    amber: 'from-[#0EA4AB]/20 to-transparent border-[#0EA4AB]/30',
-    rose: 'from-[#F6465D]/20 to-transparent border-[#F6465D]/30',
+    orange: 'from-[#FE6C02]/20 to-transparent border-[#FE6C02]/30',
+    cyan: 'from-[#FE6C02]/20 to-transparent border-[#FE6C02]/30',
+    emerald: 'from-[#00A876]/20 to-transparent border-[#00A876]/30',
+    violet: 'from-[#FE6C02]/15 to-transparent border-[#B44D01]/30',
+    amber: 'from-[#FE9D55]/20 to-transparent border-[#FE6C02]/30',
+    rose: 'from-[#EB5454]/20 to-transparent border-[#EB5454]/30',
   };
   return (
-    <div className={`admin-kpi-card bg-gradient-to-br ${tones[tone] || tones.cyan}`}>
+    <div className={`admin-kpi-card bg-gradient-to-br ${tones[tone] || tones.orange}`}>
       <p className="text-sm font-semibold text-white/90">{label}</p>
       <p className="admin-kpi-value">{value}</p>
       {hint ? <p className="text-sm text-white/70 mt-1">{hint}</p> : null}
@@ -83,9 +84,9 @@ export function StatusBadge({ tone = 'neutral', children, compact = false }) {
   const map = {
     success: 'border-emerald-500/35 bg-emerald-500/15 text-emerald-200',
     danger: 'border-rose-500/35 bg-rose-500/15 text-rose-200',
-    warning: 'border-gold/35 bg-gold/15 text-gold-light',
-    info: 'border-cyan-500/35 bg-cyan-500/15 text-cyan-200',
-    violet: 'border-violet-500/35 bg-violet-500/15 text-violet-200',
+    warning: 'border-gold/35 bg-gold/15 text-[#FE9D55]',
+    info: 'border-[#FE6C02]/35 bg-[#FE6C02]/15 text-[#FE9D55]',
+    violet: 'border-[#B44D01]/35 bg-[#FE6C02]/10 text-[#FE9D55]',
     neutral: 'border-surface-border bg-white/10 text-white/85',
   };
   const cls = compact

@@ -636,10 +636,10 @@ export default function TradingWorkspacePage() {
 
 function SpotKpi({ label, value, tone = 'blue', mono = false }) {
   const tones = {
-    blue: 'from-[#3B82F6]/35 via-[#2563EB]/18 border-[#3B82F6]/45 shadow-[0_0_36px_rgba(59,130,246,0.2)]',
-    cyan: 'from-[#22D3EE]/35 via-[#0891B2]/18 border-[#22D3EE]/45 shadow-[0_0_36px_rgba(34,211,238,0.2)]',
-    yellow: 'from-[#0EA4AB]/35 via-[#0EA4AB]/18 border-[#0EA4AB]/45 shadow-[0_0_36px_rgba(14,164,171,0.2)]',
-    green: 'from-[#10B981]/35 via-[#059669]/18 border-[#10B981]/45 shadow-[0_0_36px_rgba(16,185,129,0.2)]',
+    blue: 'from-[#FE6C02]/35 via-[#E76202]/18 border-[#FE6C02]/45 shadow-[0_0_36px_rgba(254,108,2,0.2)]',
+    cyan: 'from-[#FE9D55]/35 via-[#FE6C02]/18 border-[#FE6C02]/45 shadow-[0_0_36px_rgba(254,108,2,0.2)]',
+    yellow: 'from-[#FE9D55]/35 via-[#B44D01]/18 border-[#FE6C02]/45 shadow-[0_0_36px_rgba(254,108,2,0.2)]',
+    green: 'from-[#00A876]/35 via-[#00A876]/18 border-[#00A876]/45 shadow-[0_0_36px_rgba(0,168,118,0.2)]',
   };
   return (
     <div className={`relative overflow-hidden rounded-xl border bg-gradient-to-br to-transparent p-4 flex-1 min-w-[210px] transition-transform duration-200 hover:-translate-y-0.5 hover:scale-[1.01] ${tones[tone] || tones.blue}`}>

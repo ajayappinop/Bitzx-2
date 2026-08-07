@@ -172,7 +172,7 @@ export default function FeesCommissionsPanel() {
   }, [pairFees, pairSearch]);
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[radial-gradient(120%_100%_at_0%_0%,rgba(16,185,129,0.16),transparent_45%),radial-gradient(120%_100%_at_100%_100%,rgba(56,189,248,0.14),transparent_50%),linear-gradient(145deg,rgba(9,14,23,0.97),rgba(2,8,18,0.95))] p-5 sm:p-7 shadow-[0_24px_60px_rgba(0,0,0,0.5)]">
+    <div className="relative overflow-hidden rounded-3xl border border-surface-border bg-[radial-gradient(120%_100%_at_0%_0%,rgba(16,185,129,0.16),transparent_45%),radial-gradient(120%_100%_at_100%_100%,rgba(56,189,248,0.14),transparent_50%),linear-gradient(145deg,rgba(9,14,23,0.97),rgba(2,8,18,0.95))] p-5 sm:p-7 shadow-[0_24px_60px_rgba(0,0,0,0.5)]">
       <div className="pointer-events-none absolute -top-20 -left-20 h-48 w-48 rounded-full bg-emerald-500/15 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-24 -right-16 h-56 w-56 rounded-full bg-cyan-500/15 blur-3xl" />
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
@@ -215,7 +215,7 @@ export default function FeesCommissionsPanel() {
         </div>
       </div>
       <div className="grid xl:grid-cols-12 gap-4">
-        <div className="rounded-2xl border border-white/12 bg-slate-900/55 p-4 xl:col-span-8 backdrop-blur-sm">
+        <div className="rounded-2xl border border-surface-border bg-surface-card p-4 xl:col-span-8 backdrop-blur-sm">
           <p className="mb-3 inline-flex items-center gap-2 text-sm font-extrabold uppercase tracking-[0.12em] text-emerald-100"><Coins size={16} className="text-emerald-300" /> Spot Fees</p>
           <div className="space-y-3">
             <label className="block text-xs text-white/70">
@@ -223,7 +223,7 @@ export default function FeesCommissionsPanel() {
               <input
                 value={form.maker_fee_rate}
                 onChange={(e) => setForm((v) => ({ ...v, maker_fee_rate: e.target.value }))}
-                className="mt-1 w-full rounded-xl border border-white/15 bg-slate-950/70 px-3 py-2 text-white font-mono focus:outline-none focus:border-emerald-300/55"
+                className="mt-1 w-full rounded-xl border border-surface-border bg-surface-dark px-3 py-2 text-white font-mono focus:outline-none focus:border-emerald-300/55"
               />
             </label>
             <label className="block text-xs text-white/70">
@@ -231,11 +231,11 @@ export default function FeesCommissionsPanel() {
               <input
                 value={form.taker_fee_rate}
                 onChange={(e) => setForm((v) => ({ ...v, taker_fee_rate: e.target.value }))}
-                className="mt-1 w-full rounded-xl border border-white/15 bg-slate-950/70 px-3 py-2 text-white font-mono focus:outline-none focus:border-sky-300/55"
+                className="mt-1 w-full rounded-xl border border-surface-border bg-surface-dark px-3 py-2 text-white font-mono focus:outline-none focus:border-sky-300/55"
               />
             </label>
           </div>
-          <div className="mt-4 overflow-hidden rounded-xl border border-white/12 shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
+          <div className="mt-4 overflow-hidden rounded-xl border border-surface-border shadow-[0_10px_24px_rgba(16,185,129,0.08)]">
             <table className="w-full text-xs">
               <thead className="bg-gradient-to-r from-emerald-500/20 to-transparent text-white">
                 <tr>
@@ -247,7 +247,7 @@ export default function FeesCommissionsPanel() {
                 {spotStats.length === 0 ? (
                   <tr><td colSpan={2} className="px-3 py-3 text-slate-300/70">No spot fee rows.</td></tr>
                 ) : spotStats.map((r) => (
-                  <tr key={r.asset} className="border-t border-white/10 hover:bg-emerald-500/10 transition-colors">
+                  <tr key={r.asset} className="border-t border-surface-border hover:bg-emerald-500/10 transition-colors">
                     <td className="px-3 py-2 text-slate-100">{r.asset}</td>
                     <td className="px-3 py-2 text-right font-mono text-emerald-200">{Number(r.total || 0).toFixed(8)}</td>
                   </tr>
@@ -264,19 +264,19 @@ export default function FeesCommissionsPanel() {
                   value={pairSearch}
                   onChange={(e) => setPairSearch(e.target.value)}
                   placeholder="Search pair (e.g. BTCUSDT)"
-                  className="w-full rounded-xl border border-white/15 bg-slate-950/70 pl-8 pr-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-300/50"
+                  className="w-full rounded-xl border border-surface-border bg-surface-dark pl-8 pr-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-cyan-300/50"
                 />
               </div>
             </div>
-            <div className="overflow-hidden rounded-xl border border-white/12 shadow-[0_10px_24px_rgba(6,182,212,0.12)]">
+            <div className="overflow-hidden rounded-xl border border-surface-border shadow-[0_10px_24px_rgba(6,182,212,0.12)]">
             <div className="adm-table-x scrollbar-thin max-h-[420px] overflow-auto">
             <table className="w-full text-xs min-w-[560px]">
               <thead className="text-white">
                 <tr>
-                  <th className="sticky top-0 z-20 bg-slate-900/95 text-left px-3 py-2">Pair</th>
-                  <th className="sticky top-0 z-20 bg-slate-900/95 text-right px-3 py-2">Maker Fee</th>
-                  <th className="sticky top-0 z-20 bg-slate-900/95 text-right px-3 py-2">Taker Fee</th>
-                  <th className="sticky top-0 z-20 bg-slate-900/95 text-right px-3 py-2">Action</th>
+                  <th className="sticky top-0 z-20 bg-surface-card text-left px-3 py-2">Pair</th>
+                  <th className="sticky top-0 z-20 bg-surface-card text-right px-3 py-2">Maker Fee</th>
+                  <th className="sticky top-0 z-20 bg-surface-card text-right px-3 py-2">Taker Fee</th>
+                  <th className="sticky top-0 z-20 bg-surface-card text-right px-3 py-2">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -289,20 +289,20 @@ export default function FeesCommissionsPanel() {
                     taker_fee_rate: String(r.taker_fee_rate ?? 0),
                   };
                   return (
-                    <tr key={sym} className="border-t border-white/10 hover:bg-cyan-500/10 transition-colors">
+                    <tr key={sym} className="border-t border-surface-border hover:bg-cyan-500/10 transition-colors">
                       <td className="px-3 py-2 font-mono text-gold-light/90">{sym}</td>
                       <td className="px-3 py-2 text-right">
                         <input
                           value={edit.maker_fee_rate}
                           onChange={(e) => setPairFeeEdits((prev) => ({ ...prev, [sym]: { ...edit, maker_fee_rate: e.target.value } }))}
-                          className="w-24 rounded border border-white/20 bg-slate-950/70 px-2 py-1 text-right font-mono text-emerald-200 focus:outline-none focus:border-emerald-300/55"
+                          className="w-24 rounded border border-surface-border bg-surface-dark px-2 py-1 text-right font-mono text-emerald-200 focus:outline-none focus:border-emerald-300/55"
                         />
                       </td>
                       <td className="px-3 py-2 text-right">
                         <input
                           value={edit.taker_fee_rate}
                           onChange={(e) => setPairFeeEdits((prev) => ({ ...prev, [sym]: { ...edit, taker_fee_rate: e.target.value } }))}
-                          className="w-24 rounded border border-white/20 bg-slate-950/70 px-2 py-1 text-right font-mono text-cyan-200 focus:outline-none focus:border-cyan-300/55"
+                          className="w-24 rounded border border-surface-border bg-surface-dark px-2 py-1 text-right font-mono text-cyan-200 focus:outline-none focus:border-cyan-300/55"
                         />
                       </td>
                       <td className="px-3 py-2 text-right">
@@ -325,7 +325,7 @@ export default function FeesCommissionsPanel() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/12 bg-slate-900/55 p-4 xl:col-span-4 backdrop-blur-sm">
+        <div className="rounded-2xl border border-surface-border bg-surface-card p-4 xl:col-span-4 backdrop-blur-sm">
           <p className="mb-3 inline-flex items-center gap-2 text-sm font-extrabold uppercase tracking-[0.12em] text-sky-100"><ArrowDownCircle size={16} className="text-cyan-300" /> Withdrawal Fees (IBO)</p>
           <div className="space-y-3">
             <label className="block text-xs text-white/70">
@@ -333,7 +333,7 @@ export default function FeesCommissionsPanel() {
               <input
                 value={form.withdraw_fee_rate}
                 onChange={(e) => setForm((v) => ({ ...v, withdraw_fee_rate: e.target.value }))}
-                className="mt-1 w-full rounded-xl border border-white/15 bg-slate-950/70 px-3 py-2 text-white font-mono focus:outline-none focus:border-cyan-300/55"
+                className="mt-1 w-full rounded-xl border border-surface-border bg-surface-dark px-3 py-2 text-white font-mono focus:outline-none focus:border-cyan-300/55"
               />
               <span className="mt-1 block text-[11px] text-white/45">Fraction of USDT notional (0.001 = 0.1%). Converted to IBO. 0 = off.</span>
             </label>
@@ -342,7 +342,7 @@ export default function FeesCommissionsPanel() {
               <input
                 value={form.withdraw_gas_fee_ibo}
                 onChange={(e) => setForm((v) => ({ ...v, withdraw_gas_fee_ibo: e.target.value }))}
-                className="mt-1 w-full rounded-xl border border-white/15 bg-slate-950/70 px-3 py-2 text-white font-mono focus:outline-none focus:border-cyan-300/55"
+                className="mt-1 w-full rounded-xl border border-surface-border bg-surface-dark px-3 py-2 text-white font-mono focus:outline-none focus:border-cyan-300/55"
               />
               <span className="mt-1 block text-[11px] text-white/45">Used when a chain has no override below. 0 = no gas fee.</span>
             </label>
@@ -364,7 +364,7 @@ export default function FeesCommissionsPanel() {
                     value={gasByChain[c.id] ?? ''}
                     placeholder={`default ${form.withdraw_gas_fee_ibo || '0'}`}
                     onChange={(e) => setGasByChain((v) => ({ ...v, [c.id]: e.target.value }))}
-                    className="flex-1 rounded-lg border border-white/15 bg-slate-950/70 px-2 py-1.5 text-white font-mono focus:outline-none focus:border-cyan-300/55"
+                    className="flex-1 rounded-lg border border-surface-border bg-surface-dark px-2 py-1.5 text-white font-mono focus:outline-none focus:border-cyan-300/55"
                   />
                 </label>
               ))}
@@ -373,7 +373,7 @@ export default function FeesCommissionsPanel() {
             <div className="rounded-xl border border-sky-300/35 bg-sky-400/10 p-3 text-xs text-sky-100/85">
               Withdrawal fees are charged only in IBO from the user&apos;s spot wallet, using these admin settings. Platform pays real BNB/ETH/TRX gas on-chain.
             </div>
-            <div className="rounded-xl border border-white/12 bg-slate-950/45 p-3 space-y-2">
+            <div className="rounded-xl border border-surface-border bg-surface-dark p-3 space-y-2">
               <p className="mb-1 text-[11px] uppercase tracking-[0.12em] text-slate-300/70">Saved live config</p>
               <p className="text-sm font-mono text-cyan-200">Fee rate: {String(controls?.withdraw_fee_rate ?? form.withdraw_fee_rate ?? 0)}</p>
               <p className="text-sm font-mono text-cyan-200">Default gas: {String(controls?.withdraw_gas_fee_ibo ?? form.withdraw_gas_fee_ibo ?? 0)} IBO</p>

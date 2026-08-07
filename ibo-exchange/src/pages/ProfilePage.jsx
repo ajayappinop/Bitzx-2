@@ -787,7 +787,7 @@ function ProfileTab({ user, updateUser }) {
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-[color:var(--ibo-ink)] m-0">Identity verification</p>
             <p className="text-[13px] text-[color:var(--ibo-ink-secondary)] m-0 mt-1 leading-relaxed">
-              Complete KYC to unlock spot trading, deposits, and withdrawals on Delta.
+              Complete KYC to unlock trading, deposits, and withdrawals on Delta.
             </p>
           </div>
           <Link to="/account/kyc" className="wallet-action-primary shrink-0">

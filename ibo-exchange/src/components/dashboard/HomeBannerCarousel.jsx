@@ -14,7 +14,7 @@ function handleBannerCta(navigate, banner) {
   const url = String(banner.cta_url || '').trim();
   switch (action) {
     case 'markets':      navigate('/markets'); break;
-    case 'trade':        navigate('/trade/IBOUSDT'); break;
+    case 'trade':        navigate('/futures/BTCUSDT-PERP'); break;
     case 'wallet':       navigate('/wallet'); break;
     case 'wallet_swap':  navigate('/wallet?tab=swap'); break;
     case 'futures':      navigate('/futures/BTCUSDT'); break;

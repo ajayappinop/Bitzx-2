@@ -32,7 +32,7 @@ const SEED = [
   {
     id: 'funds',
     title: 'Add funds to start',
-    body: 'Deposit INR or crypto to fund your spot and futures wallets.',
+    body: 'Deposit INR or crypto to fund your Funding and F&O wallets.',
     type: 'wallet',
     href: '/account/deposits',
     ts: Date.now() - 1000 * 60 * 60 * 26,

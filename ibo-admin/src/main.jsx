@@ -2,14 +2,17 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { AdminAuthProvider } from '@/context/AdminAuthContext';
+import { ThemeProvider } from '@/context/ThemeContext';
 import App from '@/App';
 import '@/index.css';
 
 const app = (
   <BrowserRouter>
-    <AdminAuthProvider>
-      <App />
-    </AdminAuthProvider>
+    <ThemeProvider>
+      <AdminAuthProvider>
+        <App />
+      </AdminAuthProvider>
+    </ThemeProvider>
   </BrowserRouter>
 );
 

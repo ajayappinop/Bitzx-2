@@ -1,5 +1,5 @@
 /**
- * Transfer hub — Delta ↔ USDT convert + Spot ↔ Futures USDT wallet transfers.
+ * Transfer hub — Funding ↔ Futures USDT wallet transfers.
  * Used at /account/transfer and the wallet Swap tab.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -75,20 +75,12 @@ function swapRouteLabel(order) {
 function ModeTabs({ mode, onChange }) {
   const tabs = [
     {
-      id: 'convert',
-      tone: 'orange',
-      label: 'Convert assets',
-      desc: 'Swap Delta and USDT at market rate',
-      icon: ArrowDownUp,
-      chips: ['Delta', 'USDT'],
-    },
-    {
       id: 'wallets',
       tone: 'teal',
       label: 'Move wallets',
-      desc: 'Shift USDT between Spot and Futures',
+      desc: 'Shift USDT between Funding and Futures',
       icon: ArrowLeftRight,
-      chips: ['Spot', 'Futures'],
+      chips: ['Funding', 'Futures'],
     },
   ];
 
@@ -456,7 +448,7 @@ function ConvertPanel() {
         <div className="xfer-card">
           <div className="xfer-side__head">
             <Wallet size={15} className="text-[#FE6C02]" />
-            <h3>Spot balances</h3>
+            <h3>Funding balances</h3>
             <button
               type="button"
               onClick={() => fetchWallet()}
@@ -583,8 +575,8 @@ function WalletTransferPanel() {
 
   const isToFutures = direction === 'spot_to_futures';
   const max = isToFutures ? spotAvail : futAvail;
-  const fromLabel = isToFutures ? 'Spot' : 'Futures';
-  const toLabel = isToFutures ? 'Futures' : 'Spot';
+  const fromLabel = isToFutures ? 'Funding' : 'Futures';
+  const toLabel = isToFutures ? 'Futures' : 'Funding';
 
   const setPct = (p) => {
     if (max <= 0) return;
@@ -637,14 +629,14 @@ function WalletTransferPanel() {
                 onClick={() => setDirection('spot_to_futures')}
                 className={`xfer-wallet-toggle__btn${isToFutures ? ' is-active' : ''}`}
               >
-                Spot → Futures
+                Funding → Futures
               </button>
               <button
                 type="button"
                 onClick={() => setDirection('futures_to_spot')}
                 className={`xfer-wallet-toggle__btn${!isToFutures ? ' is-active' : ''}`}
               >
-                Futures → Spot
+                Futures → Funding
               </button>
             </div>
 
@@ -719,7 +711,7 @@ function WalletTransferPanel() {
 
         <p className="xfer-note">
           <Info size={13} className="shrink-0 mt-0.5 opacity-70" />
-          Internal USDT moves between Spot and Futures are free and instant. Funds in Futures can only
+          Internal USDT moves between Funding and Futures are free and instant. Funds in Futures can only
           be used as margin for perpetual trading.
         </p>
       </div>
@@ -741,7 +733,7 @@ function WalletTransferPanel() {
           </div>
           <div className="space-y-2.5">
             <div className={`xfer-wallet-card${isToFutures ? ' is-source' : ' is-dest'}`}>
-              <span className="xfer-wallet-card__tag">Spot</span>
+              <span className="xfer-wallet-card__tag">Funding</span>
               <p className="xfer-wallet-card__value font-mono tabular-nums">{fmt(spotAvail, 2)} <span>USDT</span></p>
               <p className="xfer-wallet-card__hint">Trading &amp; convert balance</p>
             </div>
@@ -761,8 +753,8 @@ function WalletTransferPanel() {
             <h3>How it works</h3>
           </div>
           <ul className="xfer-steps">
-            <li>Choose Spot → Futures to fund perpetual margin.</li>
-            <li>Choose Futures → Spot to unlock USDT for convert or withdraw.</li>
+            <li>Choose Funding → Futures to fund perpetual margin.</li>
+            <li>Choose Futures → Funding to unlock USDT for convert or withdraw.</li>
             <li>Only available (unlocked) USDT can be transferred.</li>
           </ul>
           <Link to="/futures/BTCUSDT-PERP" className="xfer-link">
@@ -777,20 +769,16 @@ function WalletTransferPanel() {
 // ── Hub shell ───────────────────────────────────────────────────────────────
 
 export default function IboSwapPanel() {
-  const [mode, setMode] = useState('convert');
-
   return (
     <div className="xfer-hub font-ui w-full">
       <div className="xfer-hub__intro">
         <p className="xfer-hub__lead">
-          Move value instantly — convert Delta to USDT, or shift USDT between Spot and Futures.
+          Move USDT instantly between Funding and Futures wallets.
         </p>
       </div>
 
-      <ModeTabs mode={mode} onChange={setMode} />
-
       <div className="mt-5 sm:mt-6">
-        {mode === 'convert' ? <ConvertPanel /> : <WalletTransferPanel />}
+        <WalletTransferPanel />
       </div>
     </div>
   );

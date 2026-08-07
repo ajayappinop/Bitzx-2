@@ -1168,7 +1168,7 @@ export default function FuturesTradeForm({ symbol, limitPriceSeed = null }) {
 
     <div className="font-ui flex flex-col h-full min-h-0 text-[color:var(--ibo-ink)]">
 
-      {/* Long / Short + leverage */}
+      {/* Long / Short */}
 
       <div className="flex items-center gap-2 px-3 pt-3 pb-2">
 
@@ -1186,7 +1186,7 @@ export default function FuturesTradeForm({ symbol, limitPriceSeed = null }) {
 
                 ? 'bg-emerald-500/15 text-emerald-400 border-b-2 border-emerald-400'
 
-                : 'bg-transparent text-[color:var(--ibo-muted)] hover:text-[color:var(--ibo-ink)]'
+                : 'bg-transparent text-[color:var(--ibo-muted)] hover:bg-[rgba(254,108,2,0.08)] hover:text-[#FE6C02]'
 
             }`}
 
@@ -1208,7 +1208,7 @@ export default function FuturesTradeForm({ symbol, limitPriceSeed = null }) {
 
                 ? 'bg-rose-500/15 text-rose-400 border-b-2 border-rose-400'
 
-                : 'bg-transparent text-[color:var(--ibo-muted)] hover:text-[color:var(--ibo-ink)]'
+                : 'bg-transparent text-[color:var(--ibo-muted)] hover:bg-[rgba(254,108,2,0.08)] hover:text-[#FE6C02]'
 
             }`}
 
@@ -1220,9 +1220,11 @@ export default function FuturesTradeForm({ symbol, limitPriceSeed = null }) {
 
         </div>
 
-        <LeverageSelector symbol={symbol} max={meta.max_leverage} compact />
-
       </div>
+
+      {/* Full-width Delta-style leverage range */}
+
+      <LeverageSelector symbol={symbol} max={meta.max_leverage} />
 
 
 
@@ -1620,7 +1622,7 @@ function SizeField({ label, value, step, unit, placeholder, onChange, hint, warn
 
       <div className={`flex items-center bg-[color:var(--ibo-card)] border rounded-lg px-3 py-2.5 transition-colors ${
 
-        warn ? 'border-rose-500/50' : 'border-white/10 focus-within:border-gold-light/50'
+        warn ? 'border-rose-500/50' : 'border-[color:var(--ibo-border-solid)] focus-within:border-[#FE6C02]/55'
 
       }`}>
 

@@ -13,7 +13,7 @@ import { SITE_CONFIG, SUPPORT_MAILTO } from '@/lib/siteConfig';
 const FAQS = [
   {
     q: 'Is Delta Exchange available in India?',
-    a: 'Yes. Delta is built for India with Instant KYC (Aadhaar, PAN, face match), INR deposit and withdrawal flows, and full trading on futures, options, and spot.',
+    a: 'Yes. Delta is built for India with Instant KYC (Aadhaar, PAN, face match), INR deposit and withdrawal flows, and full trading on futures and options.',
   },
   {
     q: 'Do I need to hold crypto to trade?',
@@ -21,7 +21,7 @@ const FAQS = [
   },
   {
     q: 'What can I trade on Delta?',
-    a: 'Trade Bitcoin and Ether futures & options, perpetual markets, and spot pairs — with deep books, pro charts, and portfolio P&L in one place. Markets stay open 24/7.',
+    a: 'Trade Bitcoin and Ether futures & options, and perpetual markets — with deep books, pro charts, and portfolio P&L in one place. Markets stay open 24/7.',
   },
   {
     q: 'How do INR deposits and withdrawals work?',

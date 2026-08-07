@@ -137,12 +137,12 @@ export default function RegisterPage() {
       maxWidthClass="max-w-[420px]"
       side={
         <AuthPromoPanel
-          title={<>Trade Spot, Futures &amp; more</>}
+          title={<>Trade Futures, Options &amp; more</>}
           subtitle="Join Delta Exchange for deep liquidity, pro charts, and INR-ready onboarding."
           items={[
             {
               title: 'Trade without friction',
-              desc: 'Spot USDT pairs, Delta markets, and portfolio tools in one terminal.',
+              desc: 'Futures, options, and portfolio tools in one terminal.',
             },
             {
               title: 'INR deposit & payout',

@@ -144,11 +144,19 @@ async def _apply_position_updates(
     fill_amt: float,
     fill_price: float,
     session: Any,
+    allow_short_open: bool = False,
 ) -> None:
     if buyer_uid != SYSTEM_LIQUIDITY_UID:
         await pos_svc.apply_buy_open(buyer_uid, contract_id, fill_amt, fill_price, session=session)
     if seller_uid != SYSTEM_LIQUIDITY_UID:
-        await pos_svc.apply_sell_close(seller_uid, contract_id, fill_amt, session=session)
+        await pos_svc.apply_sell_fill(
+            seller_uid,
+            contract_id,
+            fill_amt,
+            fill_price,
+            allow_short_open=allow_short_open,
+            session=session,
+        )
 
 
 async def _settle_leg(
@@ -442,6 +450,7 @@ async def _execute_single_fill(
         fill_amt=fill_amt,
         fill_price=fill_price,
         session=session,
+        allow_short_open=bool(taker.get("allow_short_open") or updated_maker.get("allow_short_open")),
     )
 
     await _finalize_order(updated_maker["id"], session=session)
@@ -552,6 +561,7 @@ async def _execute_synthetic_fill(
         fill_amt=fill_amt,
         fill_price=fill_price,
         session=session,
+        allow_short_open=bool(taker.get("allow_short_open")),
     )
 
     await db()[COL_ORDERS].update_one(

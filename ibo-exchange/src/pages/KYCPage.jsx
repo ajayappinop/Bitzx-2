@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import {
   Shield, CheckCircle, Clock, AlertCircle,
   ChevronRight, ChevronLeft, FileText, User,
-  Globe, CreditCard, Upload, ImageIcon, ExternalLink, Loader2, Camera,
+  Globe, CreditCard, Upload, ImageIcon, ExternalLink, Loader2, Camera, Trash2,
 } from 'lucide-react';
 import { useAuth, authFetch } from '@/context/AuthContext';
 import { exchangeApiOrigin } from '@/lib/apiBase';
@@ -25,7 +25,7 @@ import {
 const API = exchangeApiOrigin(import.meta.env.VITE_BACKEND_URL);
 
 const KYC_BENEFITS = [
-  { icon: Shield, title: 'Spot trading', desc: 'Unlock all pairs after approval' },
+  { icon: Shield, title: 'F&O trading', desc: 'Unlock futures and options after approval' },
   { icon: CreditCard, title: 'Fiat & crypto rails', desc: 'Deposits and withdrawals' },
   { icon: CheckCircle, title: 'Protected account', desc: 'Identity tied to your profile' },
   { icon: Globe, title: 'Compliance ready', desc: 'Meets exchange requirements' },
@@ -313,15 +313,47 @@ function UploadSlot({
   file,
   remoteUrl,
   onPick,
+  onClear,
+  clearing,
   error,
   previewAlt,
 }) {
+  const localPreview = useMemo(() => {
+    if (!file || !file.type?.startsWith('image/')) return '';
+    return URL.createObjectURL(file);
+  }, [file]);
+
+  useEffect(() => {
+    if (!localPreview) return undefined;
+    return () => URL.revokeObjectURL(localPreview);
+  }, [localPreview]);
+
+  const previewSrc = localPreview || (remoteUrl && isImagePath(remoteUrl) ? `${API}${remoteUrl}` : '');
+  const hasUpload = !!(file || remoteUrl);
+
   return (
     <div className="min-w-0">
-      <p className="ibo-field-label !mb-2">
-        {label}
-        {required ? <span className="text-[#F6465D] ml-0.5 normal-case tracking-normal">*</span> : null}
-      </p>
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <p className="ibo-field-label !mb-0">
+          {label}
+          {required ? <span className="text-[#F6465D] ml-0.5 normal-case tracking-normal">*</span> : null}
+        </p>
+        {hasUpload ? (
+          <button
+            type="button"
+            disabled={!!clearing}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onClear?.();
+            }}
+            className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#F6465D] hover:underline disabled:opacity-50"
+          >
+            {clearing ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
+            Remove
+          </button>
+        ) : null}
+      </div>
       <label className="kyc-upload">
         <input
           type="file"
@@ -333,17 +365,17 @@ function UploadSlot({
           }}
         />
         <ImageIcon size={20} className="text-[color:var(--ibo-muted)]" />
-        <span className="kyc-upload__name">{file ? file.name : 'Choose file'}</span>
+        <span className="kyc-upload__name">{file ? file.name : (remoteUrl ? 'Replace file' : 'Choose file')}</span>
         <span className="kyc-upload__hint">JPEG, PNG, WebP, or PDF · max 15MB</span>
       </label>
-      {remoteUrl && !file && isImagePath(remoteUrl) ? (
+      {previewSrc ? (
         <img
-          src={`${API}${remoteUrl}`}
+          src={previewSrc}
           alt={previewAlt}
           className="mt-2 rounded-xl max-h-40 object-contain border border-[color:var(--ibo-border-solid)] w-full bg-[color:var(--ibo-bg)]"
         />
       ) : null}
-      {remoteUrl && !file && !isImagePath(remoteUrl) ? (
+      {!previewSrc && remoteUrl && !isImagePath(remoteUrl) ? (
         <a
           href={`${API}${remoteUrl}`}
           target="_blank"
@@ -367,6 +399,10 @@ function Step2({
   idBackFile,
   onPickFront,
   onPickBack,
+  onClearFront,
+  onClearBack,
+  clearingFront,
+  clearingBack,
   uploading,
   errors = {},
   touched = {},
@@ -442,6 +478,8 @@ function Step2({
             file={idFrontFile}
             remoteUrl={docFrontUrl}
             onPick={onPickFront}
+            onClear={onClearFront}
+            clearing={clearingFront}
             error={show('document_front')}
             previewAlt="ID front"
           />
@@ -450,6 +488,8 @@ function Step2({
             file={idBackFile}
             remoteUrl={docBackUrl}
             onPick={onPickBack}
+            onClear={onClearBack}
+            clearing={clearingBack}
             error={show('document_back')}
             previewAlt="ID back"
           />
@@ -471,6 +511,11 @@ function Step3({ personal, document: doc, docFrontUrl, docBackUrl }) {
       <strong>{value || '—'}</strong>
     </div>
   );
+
+  const frontPreview = docFrontUrl && isImagePath(docFrontUrl) ? `${API}${docFrontUrl}` : '';
+  const backPreview = docBackUrl && isImagePath(docBackUrl) ? `${API}${docBackUrl}` : '';
+  const frontPdf = docFrontUrl && !isImagePath(docFrontUrl) ? `${API}${docFrontUrl}` : '';
+  const backPdf = docBackUrl && !isImagePath(docBackUrl) ? `${API}${docBackUrl}` : '';
 
   return (
     <div className="space-y-4">
@@ -503,14 +548,54 @@ function Step3({ personal, document: doc, docFrontUrl, docBackUrl }) {
         <Row label="Back upload" value={docBackUrl ? 'Attached' : '—'} />
       </div>
 
-      {docFrontUrl && isImagePath(docFrontUrl) ? (
-        <div className="wallet-surface p-4">
-          <p className="text-[11px] font-semibold text-[color:var(--ibo-muted)] mb-2">ID preview (front)</p>
-          <img
-            src={`${API}${docFrontUrl}`}
-            alt=""
-            className="max-h-48 rounded-lg border border-[color:var(--ibo-border-solid)] object-contain"
-          />
+      {(frontPreview || backPreview || frontPdf || backPdf) ? (
+        <div className="grid sm:grid-cols-2 gap-4">
+          {frontPreview ? (
+            <div className="wallet-surface p-4">
+              <p className="text-[11px] font-semibold text-[color:var(--ibo-muted)] mb-2">ID preview (front)</p>
+              <img
+                src={frontPreview}
+                alt="ID front"
+                className="max-h-48 w-full rounded-lg border border-[color:var(--ibo-border-solid)] object-contain bg-[color:var(--ibo-bg)]"
+              />
+            </div>
+          ) : null}
+          {backPreview ? (
+            <div className="wallet-surface p-4">
+              <p className="text-[11px] font-semibold text-[color:var(--ibo-muted)] mb-2">ID preview (back)</p>
+              <img
+                src={backPreview}
+                alt="ID back"
+                className="max-h-48 w-full rounded-lg border border-[color:var(--ibo-border-solid)] object-contain bg-[color:var(--ibo-bg)]"
+              />
+            </div>
+          ) : null}
+          {frontPdf ? (
+            <div className="wallet-surface p-4">
+              <p className="text-[11px] font-semibold text-[color:var(--ibo-muted)] mb-2">ID document (front)</p>
+              <a
+                href={frontPdf}
+                target="_blank"
+                rel="noreferrer"
+                className="text-xs text-[#FE6C02] inline-flex items-center gap-1 font-semibold hover:underline"
+              >
+                View front PDF <ExternalLink size={12} />
+              </a>
+            </div>
+          ) : null}
+          {backPdf ? (
+            <div className="wallet-surface p-4">
+              <p className="text-[11px] font-semibold text-[color:var(--ibo-muted)] mb-2">ID document (back)</p>
+              <a
+                href={backPdf}
+                target="_blank"
+                rel="noreferrer"
+                className="text-xs text-[#FE6C02] inline-flex items-center gap-1 font-semibold hover:underline"
+              >
+                View back PDF <ExternalLink size={12} />
+              </a>
+            </div>
+          ) : null}
         </div>
       ) : null}
 
@@ -1016,6 +1101,8 @@ export default function KYCPage({ accountMode = false } = {}) {
   const [idFrontFile, setIdFrontFile] = useState(null);
   const [idBackFile, setIdBackFile] = useState(null);
   const [uploadingDocs, setUploadingDocs] = useState(false);
+  const [clearingFront, setClearingFront] = useState(false);
+  const [clearingBack, setClearingBack] = useState(false);
   const [revealPersonalErrors, setRevealPersonalErrors] = useState(false);
   const [revealDocumentErrors, setRevealDocumentErrors] = useState(false);
   const [touchedPersonal, setTouchedPersonal] = useState({});
@@ -1036,7 +1123,9 @@ export default function KYCPage({ accountMode = false } = {}) {
           setDocInfo((d) => ({ ...d, ...data.document_info }));
         }
         if (data.document_front_url) setDocFrontUrl(data.document_front_url);
+        else setDocFrontUrl('');
         if (data.document_back_url) setDocBackUrl(data.document_back_url);
+        else setDocBackUrl('');
       })
       .catch(() => {});
   }, []);
@@ -1131,6 +1220,38 @@ export default function KYCPage({ accountMode = false } = {}) {
     setIdBackFile(f);
     setTouchedDoc((t) => ({ ...t, document_back: true }));
   };
+
+  const clearUploadedSide = async (side) => {
+    const isFront = side === 'front';
+    const setClearing = isFront ? setClearingFront : setClearingBack;
+    const setFile = isFront ? setIdFrontFile : setIdBackFile;
+    const remoteUrl = isFront ? docFrontUrl : docBackUrl;
+    const setRemote = isFront ? setDocFrontUrl : setDocBackUrl;
+    setError('');
+    setServerDocumentErrors({});
+    setFile(null);
+    if (!remoteUrl) {
+      setTouchedDoc((t) => ({ ...t, [isFront ? 'document_front' : 'document_back']: true }));
+      return;
+    }
+    setClearing(true);
+    try {
+      const res = await authFetch(`${API}/api/kyc/upload/${side}`, { method: 'DELETE' });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(parseApiError(j) || 'Could not remove document');
+      setRemote('');
+      if (isFront && j.document_back_url) setDocBackUrl(j.document_back_url);
+      if (!isFront && j.document_front_url) setDocFrontUrl(j.document_front_url);
+      setTouchedDoc((t) => ({ ...t, [isFront ? 'document_front' : 'document_back']: true }));
+    } catch (e) {
+      setError(e.message || 'Could not remove document');
+    } finally {
+      setClearing(false);
+    }
+  };
+
+  const handleClearFront = () => clearUploadedSide('front');
+  const handleClearBack = () => clearUploadedSide('back');
 
   const hasIdFront = !!(idFrontFile || docFrontUrl);
 
@@ -1547,6 +1668,10 @@ export default function KYCPage({ accountMode = false } = {}) {
                     idBackFile={idBackFile}
                     onPickFront={handlePickFront}
                     onPickBack={handlePickBack}
+                    onClearFront={handleClearFront}
+                    onClearBack={handleClearBack}
+                    clearingFront={clearingFront}
+                    clearingBack={clearingBack}
                     uploading={uploadingDocs}
                     errors={documentErrors}
                     touched={touchedDoc}

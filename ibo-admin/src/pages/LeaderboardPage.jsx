@@ -156,7 +156,7 @@ function DataTable({
       <div className="adm-table-x scrollbar-thin min-w-0">
         <table className="w-full text-sm min-w-[560px]">
           <thead>
-            <tr className="text-left text-[10px] font-extrabold text-white/45 uppercase border-b border-surface-border bg-black/20">
+            <tr className="text-left text-[10px] font-extrabold text-white/45 uppercase border-b border-surface-border bg-surface-dark">
               <th className="px-3 py-2.5 w-14">#</th>
               <th className="px-3 py-2.5">User</th>
               {variant === 'flow' ? (
@@ -657,7 +657,7 @@ export default function LeaderboardPage() {
             {methodologyOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           </button>
           {methodologyOpen && (
-            <p className="text-[11px] text-white/40 leading-relaxed max-w-4xl border border-surface-border rounded-xl p-4 bg-black/20">
+            <p className="text-[11px] text-white/40 leading-relaxed max-w-4xl border border-surface-border rounded-xl p-4 bg-surface-dark">
               {data.methodology} P&amp;L is always all-time. Deposit and withdrawal tables respect the flow window and optional asset filter.
             </p>
           )}

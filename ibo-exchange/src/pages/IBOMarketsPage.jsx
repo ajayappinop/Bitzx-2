@@ -156,7 +156,7 @@ function IboMobileCard({ market, isFavorite, onToggleFavorite }) {
       <RangeBar low={market.lowPrice} high={market.highPrice} price={market.price} />
 
       <Link
-        to={`/trade/${market.symbol}`}
+        to={`/ibo-market?symbol=${market.symbol}`}
         className="flex items-center justify-center w-full py-2.5 rounded-md bg-[color:var(--ibo-accent)] text-[#101013] font-bold text-sm hover:brightness-110 transition-[filter]"
       >
         Trade {base}
@@ -347,7 +347,7 @@ export default function IBOMarketsPage() {
                       <button
                         key={m.symbol}
                         type="button"
-                        onClick={() => navigate(`/trade/${m.symbol}`)}
+                        onClick={() => navigate(`/ibo-market?symbol=${m.symbol}`)}
                         className="delta-movers-row flex w-full items-center gap-2.5 px-3 py-2 text-left"
                       >
                         {icon ? (
@@ -500,7 +500,7 @@ export default function IBOMarketsPage() {
                           key={m.symbol}
                           className="border-b transition-colors cursor-pointer"
                           style={{ borderColor: 'var(--ibo-border-solid)' }}
-                          onClick={() => navigate(`/trade/${m.symbol}`)}
+                          onClick={() => navigate(`/ibo-market?symbol=${m.symbol}`)}
                         >
                           <td
                             className="py-2.5 pl-3 pr-1.5 sm:pl-4 md:pl-6 lg:pl-8 xl:pl-10"
@@ -567,7 +567,7 @@ export default function IBOMarketsPage() {
                             className="py-2.5 pl-2 pr-3 text-right sm:pr-4 md:pr-6 lg:pr-8 xl:pr-10"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <Link to={`/trade/${m.symbol}`} className={TRADE_BTN_CLASS}>
+                            <Link to={`/ibo-market?symbol=${m.symbol}`} className={TRADE_BTN_CLASS}>
                               Trade
                             </Link>
                           </td>

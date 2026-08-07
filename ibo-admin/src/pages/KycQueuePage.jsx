@@ -263,7 +263,7 @@ export default function KycQueuePage() {
                             </div>
                             <div className="mt-4 flex flex-wrap gap-4">
                               {row.document_front_url && (
-                                <div className="rounded-xl border border-surface-border bg-black/30 p-3 max-w-md">
+                                <div className="rounded-xl border border-surface-border bg-surface-dark p-3 max-w-md">
                                   <p className="text-[10px] font-extrabold text-white/45 uppercase mb-2">ID front</p>
                                   {/\.(jpe?g|png|webp)$/i.test(row.document_front_url) ? (
                                     <a href={mediaUrl(row.document_front_url)} target="_blank" rel="noreferrer" className="block">
@@ -277,7 +277,7 @@ export default function KycQueuePage() {
                                 </div>
                               )}
                               {row.document_back_url && (
-                                <div className="rounded-xl border border-surface-border bg-black/30 p-3 max-w-md">
+                                <div className="rounded-xl border border-surface-border bg-surface-dark p-3 max-w-md">
                                   <p className="text-[10px] font-extrabold text-white/45 uppercase mb-2">ID back</p>
                                   {/\.(jpe?g|png|webp)$/i.test(row.document_back_url) ? (
                                     <a href={mediaUrl(row.document_back_url)} target="_blank" rel="noreferrer" className="block">
@@ -294,7 +294,7 @@ export default function KycQueuePage() {
                                 <p className="text-white/40 text-sm">No document files attached for this submission.</p>
                               )}
                               {row.selfie_url && (
-                                <div className="rounded-xl border border-surface-border bg-black/30 p-3 max-w-md">
+                                <div className="rounded-xl border border-surface-border bg-surface-dark p-3 max-w-md">
                                   <p className="text-[10px] font-extrabold text-white/45 uppercase mb-2">Selfie</p>
                                   {/\.(jpe?g|png|webp)$/i.test(row.selfie_url) ? (
                                     <a href={mediaUrl(row.selfie_url)} target="_blank" rel="noreferrer" className="block">
@@ -308,7 +308,7 @@ export default function KycQueuePage() {
                                 </div>
                               )}
                               {row.face_match && (
-                                <div className="rounded-xl border border-surface-border bg-black/30 p-3 min-w-[200px]">
+                                <div className="rounded-xl border border-surface-border bg-surface-dark p-3 min-w-[200px]">
                                   <p className="text-[10px] font-extrabold text-white/45 uppercase mb-2">Face match</p>
                                   <p className={`text-sm font-bold ${row.face_match.verified ? 'text-green-400' : 'text-red-400'}`}>
                                     {row.face_match.verified ? 'Verified' : 'Failed'}

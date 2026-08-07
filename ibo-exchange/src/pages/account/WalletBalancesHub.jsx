@@ -1,5 +1,5 @@
 /**
- * Full multi-wallet balances hub — Account Value, Spot, FNO, Fee Voucher.
+ * Full multi-wallet balances hub — Account Value, Funding, FNO, Fee Voucher.
  * Used by /account/balances (matches nav wallet dropdown, with full detail).
  */
 import { useCallback, useEffect, useState } from 'react';
@@ -15,7 +15,7 @@ import WalletPage from '@/pages/WalletPage';
 const USD_INR = 85;
 const VIEWS = [
   { id: 'overview', label: 'Overview', icon: Wallet },
-  { id: 'spot', label: 'Spot Wallet', icon: Coins },
+  { id: 'funding', label: 'Funding Wallet', icon: Coins },
   { id: 'fno', label: 'FNO Wallet', icon: BarChart3 },
   { id: 'voucher', label: 'Fee Voucher', icon: Ticket },
 ];
@@ -87,7 +87,8 @@ export default function WalletBalancesHub() {
   const { balance, walletAssets, walletLoading, fetchWallet } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const rawView = searchParams.get('wallet') || 'overview';
-  const view = VIEWS.some((v) => v.id === rawView) ? rawView : 'overview';
+  const normalizedView = rawView === 'spot' ? 'funding' : rawView;
+  const view = VIEWS.some((v) => v.id === normalizedView) ? normalizedView : 'overview';
   const [hidden, setHidden] = useState(false);
   const [fut, setFut] = useState(null);
   const [futLoading, setFutLoading] = useState(false);
@@ -191,7 +192,7 @@ export default function WalletBalancesHub() {
 
           <div className="lg:w-[min(100%,20rem)] grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-1 divide-x sm:divide-x lg:divide-x-0 divide-y-0 lg:divide-y divide-[color:var(--ibo-border-solid)]">
             {[
-              { label: 'Spot', inr: spotWalletInr, usd: spotUsd, id: 'spot' },
+              { label: 'Funding', inr: spotWalletInr, usd: spotUsd, id: 'funding' },
               { label: 'FNO', inr: fnoInr, usd: futUsd, id: 'fno', badge: 'Primary' },
               { label: 'Avail. margin', inr: marginInr, usd: futAvail, id: 'fno' },
               { label: 'Fee voucher', inr: feeInr, usd: feeUsd, id: 'voucher' },
@@ -243,16 +244,16 @@ export default function WalletBalancesHub() {
       {/* Sections */}
       {view === 'overview' && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button type="button" className="wb-card" onClick={() => setView('spot')}>
+          <button type="button" className="wb-card" onClick={() => setView('funding')}>
             <div className="wb-card__top">
-              <span className="wb-card__title">Spot Wallet</span>
+              <span className="wb-card__title">Funding Wallet</span>
               <ChevronRight size={16} className="text-[#FE6C02]" />
             </div>
-            <p className="wb-card__desc">INR, USDT and crypto for spot trading</p>
+            <p className="wb-card__desc">Deposit, withdraw, and transfer to F&O</p>
             <Dual inr={spotWalletInr} usd={spotUsd} hidden={hidden} large />
             <div className="wb-card__meta">
               <span>{(walletAssets || []).length} assets</span>
-              <span>Deposit · Withdraw · Trade</span>
+              <span>Deposit · Withdraw · Transfer</span>
             </div>
           </button>
 
@@ -308,7 +309,7 @@ export default function WalletBalancesHub() {
         </div>
       )}
 
-      {view === 'spot' && (
+      {view === 'funding' && (
         <div className="delta-account-embed">
           <WalletPage accountMode forcedTab="balances" hideChrome />
         </div>

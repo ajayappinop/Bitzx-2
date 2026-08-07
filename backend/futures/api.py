@@ -14,10 +14,11 @@ from services.errors import InsufficientFundsError
 
 from .constants import (
     ALLOWED_LEVERAGE,
+    ASSET_CLASS_CRYPTO,
     LEVERAGE_TIERS,
     MIN_ORDER_NOTIONAL_USDT,
 )
-from .symbols import get_supported_symbols
+from .symbols import filter_symbols_by_asset_class, get_supported_symbols
 from .deps import current_user
 from .models import (
     ClosePositionRequest,
@@ -45,9 +46,20 @@ router = APIRouter(prefix="/api/futures", tags=["futures"])
 # ── Catalog / market data ────────────────────────────────────────────────
 
 @router.get("/symbols")
-async def list_symbols():
+async def list_symbols(
+    asset_class: str = Query(
+        ASSET_CLASS_CRYPTO,
+        description="Filter catalog: crypto (default), rwa, or all. Default crypto prevents RWA leakage.",
+    ),
+):
+    """Public futures catalog.
+
+    Default ``asset_class=crypto`` so existing Futures / Markets UIs never
+    receive RWA contracts (e.g. XAUT) mixed into crypto perpetual lists.
+    """
+    catalog = filter_symbols_by_asset_class(get_supported_symbols(), asset_class)
     out = []
-    for sym, meta in get_supported_symbols().items():
+    for sym, meta in catalog.items():
         tiers = LEVERAGE_TIERS.get(sym) or []
         max_lev = int(tiers[0][1]) if tiers else 10
         out.append({
@@ -61,8 +73,11 @@ async def list_symbols():
             "max_leverage": max_lev,
             "min_notional": MIN_ORDER_NOTIONAL_USDT,
             "binance_symbol": meta["binance_symbol"],
+            "asset_class": meta.get("asset_class") or ASSET_CLASS_CRYPTO,
+            "display_name": meta.get("display_name"),
+            "description": meta.get("description"),
         })
-    return {"symbols": out, "leverage_options": ALLOWED_LEVERAGE}
+    return {"symbols": out, "leverage_options": ALLOWED_LEVERAGE, "asset_class": asset_class}
 
 
 @router.get("/mark-price")

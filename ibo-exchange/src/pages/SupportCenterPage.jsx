@@ -60,7 +60,7 @@ const TOPICS = [
   {
     icon: LineChart,
     title: 'Trading & orders',
-    desc: 'Futures, options, spot, order history, and positions.',
+    desc: 'Futures, options, order history, and positions.',
     href: '/markets',
   },
   {

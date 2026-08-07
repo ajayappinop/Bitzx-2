@@ -9,11 +9,11 @@ import CoinAvatar from '@/components/CoinAvatar';
 function StatChip({ label, children, className = '', tone = 'neutral' }) {
   const toneMap = {
     neutral: 'border-surface-border bg-surface-dark/40',
-    blue: 'border-[#3B82F6]/28 bg-[#3B82F6]/10',
-    cyan: 'border-[#22D3EE]/28 bg-[#22D3EE]/10',
-    green: 'border-[#0ECB81]/28 bg-[#0ECB81]/10',
-    yellow: 'border-[#0EA4AB]/28 bg-[#0EA4AB]/10',
-    rose: 'border-[#F6465D]/28 bg-[#F6465D]/10',
+    blue: 'border-[#FE6C02]/28 bg-[#FE6C02]/10',
+    cyan: 'border-[#FE6C02]/28 bg-[#FE6C02]/10',
+    green: 'border-[#00A876]/28 bg-[#00A876]/10',
+    yellow: 'border-[#FE9D55]/28 bg-[#FE6C02]/10',
+    rose: 'border-[#EB5454]/28 bg-[#EB5454]/10',
   };
   return (
     <div className={`rounded-xl border px-3 py-2 min-w-0 ${toneMap[tone] || toneMap.neutral} ${className}`}>

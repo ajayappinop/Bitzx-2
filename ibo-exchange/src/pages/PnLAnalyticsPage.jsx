@@ -200,7 +200,7 @@ export default function PnLAnalyticsPage({ accountMode = false } = {}) {
               </h2>
               {!accountMode ? (
                 <p className="text-[11px] text-[color:var(--ibo-muted)] mt-0.5">
-                  Spot positions and fill history
+                  Futures & options P&L
                 </p>
               ) : null}
             </div>
@@ -227,7 +227,7 @@ export default function PnLAnalyticsPage({ accountMode = false } = {}) {
               <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
               <span className="hidden sm:inline">Refresh</span>
             </button>
-            <Link to="/trade/IBOUSDT" className="wallet-action-primary text-xs !px-2.5 !py-1.5">
+            <Link to="/futures/BTCUSDT-PERP" className="wallet-action-primary text-xs !px-2.5 !py-1.5">
               Trade
             </Link>
           </div>
@@ -416,7 +416,7 @@ export default function PnLAnalyticsPage({ accountMode = false } = {}) {
         {view === 'positions' ? (
           <section className="space-y-3">
             <p className="text-[12px] text-[color:var(--ibo-muted)] leading-relaxed max-w-3xl">
-              Average cost vs mark. Close sells available balance (same as Trade → Assets). Approved KYC required.
+              Spot trading has been removed from this site. Open and manage positions on Futures.
             </p>
 
             {loading && positions.length === 0 ? (
@@ -428,7 +428,7 @@ export default function PnLAnalyticsPage({ accountMode = false } = {}) {
             ) : filteredPositions.length === 0 ? (
               <div className="delta-account-empty">
                 <p className="delta-account-empty__title">No positions match these filters</p>
-                <Link to="/trade/IBOUSDT" className="delta-account-empty__cta">
+                <Link to="/futures/BTCUSDT-PERP" className="delta-account-empty__cta">
                   Start trading
                 </Link>
               </div>
@@ -464,7 +464,7 @@ export default function PnLAnalyticsPage({ accountMode = false } = {}) {
                                 <span className="font-semibold text-[color:var(--ibo-ink)]">
                                   {p.asset}/USDT
                                 </span>
-                                <span className="delta-account-pill">Spot</span>
+                                
                               </div>
                             </td>
                             <td className="text-right font-mono tabular-nums">{fmtP(p.amount)}</td>
@@ -572,7 +572,7 @@ export default function PnLAnalyticsPage({ accountMode = false } = {}) {
                 Balances
               </Link>{' '}
               or{' '}
-              <Link to="/trade/IBOUSDT" className="text-[#FE6C02] font-semibold hover:underline">
+              <Link to="/futures/BTCUSDT-PERP" className="text-[#FE6C02] font-semibold hover:underline">
                 Trade
               </Link>
               .

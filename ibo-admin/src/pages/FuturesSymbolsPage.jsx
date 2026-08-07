@@ -37,14 +37,14 @@ function Row({ s, onSave, busy }) {
         <td key={k} className="px-2 py-2">
           <input type="number" step={step} value={draft[k] ?? ''}
             onChange={(e) => setDraft((d) => ({ ...d, [k]: e.target.value === '' ? null : Number(e.target.value) }))}
-            className="w-24 bg-black/30 border border-white/10 rounded px-2 py-1 text-sm font-mono text-white" />
+            className="w-24 bg-surface-dark border border-white/10 rounded px-2 py-1 text-sm font-mono text-white" />
         </td>
       ))}
       {/* max_leverage must be one of ALLOWED_LEVERAGE — use a dropdown to prevent invalid input */}
       <td className="px-2 py-2">
         <select value={draft.max_leverage ?? ''}
           onChange={(e) => setDraft((d) => ({ ...d, max_leverage: e.target.value === '' ? null : Number(e.target.value) }))}
-          className="w-24 bg-black/30 border border-white/10 rounded px-2 py-1 text-sm font-mono text-white">
+          className="w-24 bg-surface-dark border border-white/10 rounded px-2 py-1 text-sm font-mono text-white">
           {ALLOWED_LEVERAGE.map((lv) => (
             <option key={lv} value={lv}>{lv}×</option>
           ))}

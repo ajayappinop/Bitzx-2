@@ -180,7 +180,7 @@ function WithdrawalDetailModal({
         </div>
 
         {pending && canAct && (
-          <div className="shrink-0 flex flex-wrap gap-2 justify-end px-5 py-4 border-t border-surface-border bg-black/20">
+          <div className="shrink-0 flex flex-wrap gap-2 justify-end px-5 py-4 border-t border-surface-border bg-surface-dark">
             <button
               type="button"
               disabled={!!acting}
@@ -361,7 +361,7 @@ export default function InrWithdrawalsPage() {
         <select
           value={statusFilter}
           onChange={(e) => { setStatusFilter(e.target.value); setSkip(0); }}
-          className="rounded-xl border border-surface-border bg-black/30 px-3 py-2 text-sm text-white"
+          className="rounded-xl border border-surface-border bg-surface-dark px-3 py-2 text-sm text-white"
         >
           {STATUS_OPTIONS.map((o) => (
             <option key={o.value || 'all'} value={o.value}>{o.label}</option>
@@ -372,7 +372,7 @@ export default function InrWithdrawalsPage() {
           value={uidFilter}
           onChange={(e) => { setUidFilter(e.target.value); setSkip(0); }}
           placeholder="Filter by user UID"
-          className="rounded-xl border border-surface-border bg-black/30 px-3 py-2 text-sm text-white font-mono min-w-[200px] placeholder:text-white/35"
+          className="rounded-xl border border-surface-border bg-surface-dark px-3 py-2 text-sm text-white font-mono min-w-[200px] placeholder:text-white/35"
         />
         <Link to="/inr-deposits" className="text-sm font-bold text-gold-light hover:underline">
           INR deposits →
@@ -471,7 +471,7 @@ export default function InrWithdrawalsPage() {
               After you send {fmtInr(approveTarget.amount_inr)} to the user&apos;s bank or UPI, confirm below.
               This completes their IBO sell — reserved IBO ({fmtIbo(approveTarget.amount_ibo)}) is settled; nothing is sent on-chain.
             </p>
-            <div className="rounded-xl border border-white/10 bg-black/30 p-3">
+            <div className="rounded-xl border border-white/10 bg-surface-dark p-3">
               <PayoutDetailsBlock row={approveTarget} />
             </div>
             <label className="block text-xs font-bold text-white/50 uppercase">
@@ -481,7 +481,7 @@ export default function InrWithdrawalsPage() {
                 onChange={(e) => setPayoutRef(e.target.value)}
                 placeholder="Bank or UPI transaction reference"
                 required
-                className="mt-1 w-full rounded-xl border border-surface-border bg-black/30 px-3 py-2 text-white text-sm font-mono"
+                className="mt-1 w-full rounded-xl border border-surface-border bg-surface-dark px-3 py-2 text-white text-sm font-mono"
               />
             </label>
             <label className="block text-xs font-bold text-white/50 uppercase">
@@ -490,7 +490,7 @@ export default function InrWithdrawalsPage() {
                 value={approveNote}
                 onChange={(e) => setApproveNote(e.target.value)}
                 placeholder="Optional"
-                className="mt-1 w-full rounded-xl border border-surface-border bg-black/30 px-3 py-2 text-white text-sm"
+                className="mt-1 w-full rounded-xl border border-surface-border bg-surface-dark px-3 py-2 text-white text-sm"
               />
             </label>
             <div className="flex justify-end gap-2">
@@ -521,7 +521,7 @@ export default function InrWithdrawalsPage() {
               onChange={(e) => setRejectReason(e.target.value)}
               rows={4}
               placeholder="Reason for rejection"
-              className="w-full rounded-xl border border-surface-border bg-black/30 px-3 py-2 text-white text-sm"
+              className="w-full rounded-xl border border-surface-border bg-surface-dark px-3 py-2 text-white text-sm"
             />
             <div className="flex gap-2 justify-end">
               <button type="button" onClick={() => setRejectTarget(null)} className="px-4 py-2 rounded-xl border border-surface-border text-sm font-bold text-white">Cancel</button>

@@ -5,8 +5,7 @@ import {
   ArrowUpRight, Wallet, LayoutDashboard,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { COIN_ICONS, exchangeWsPath, normalizeMarketsList } from '@/services/marketApi';
-import ClosePositionModal from '@/components/trading/ClosePositionModal';
+import { exchangeWsPath, normalizeMarketsList } from '@/services/marketApi';
 import WalletPage from '@/pages/WalletPage';
 import WalletBalancesHub from '@/pages/account/WalletBalancesHub';
 import IboSwapPanel from '@/components/wallet/IboSwapPanel';
@@ -41,7 +40,7 @@ function fmtP(v) {
   return n.toFixed(6);
 }
 
-function EmptyState({ title, ctaTo = '/trade/IBOUSDT', cta = 'Start trading' }) {
+function EmptyState({ title, ctaTo = '/futures/BTCUSDT-PERP', cta = 'Start trading' }) {
   return (
     <div className="delta-account-empty">
       <p className="delta-account-empty__title">{title}</p>
@@ -84,28 +83,7 @@ function normalizeTradingTab(raw) {
 }
 
 function PositionsPanel() {
-  const {
-    user,
-    liveSpotPositions,
-    fetchLiveSpotPositions,
-    balance,
-  } = useAuth();
-  const [closePos, setClosePos] = useState(null);
-  const [mode, setMode] = useState('all'); // all | spot | futures
-  const positions = liveSpotPositions ?? [];
-  const loading = Boolean(user && liveSpotPositions == null);
-
-  useEffect(() => {
-    fetchLiveSpotPositions?.();
-  }, [fetchLiveSpotPositions]);
-
-  const filtered = useMemo(() => {
-    if (mode === 'futures') return [];
-    return positions;
-  }, [mode, positions]);
-
-  const totalUnreal = filtered.reduce((s, p) => s + (parseFloat(p.unrealized_pnl) || 0), 0);
-  const totalMval = filtered.reduce((s, p) => s + (parseFloat(p.market_value_usdt) || 0), 0);
+  const { user, balance } = useAuth();
   const usdt = Number(balance?.USDT ?? 0);
 
   return (
@@ -113,128 +91,17 @@ function PositionsPanel() {
       <SummaryStrip
         items={[
           { label: 'USDT balance', value: `$${usdt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` },
-          { label: 'Positions value', value: `$${totalMval.toLocaleString(undefined, { maximumFractionDigits: 2 })}` },
-          {
-            label: 'Unrealized P&L',
-            value: `${totalUnreal >= 0 ? '+' : ''}$${totalUnreal.toLocaleString(undefined, { maximumFractionDigits: 2 })}`,
-            tone: totalUnreal > 0 ? 'up' : totalUnreal < 0 ? 'down' : '',
-          },
-          { label: 'Open positions', value: String(filtered.length) },
+          { label: 'Positions value', value: '$0.00' },
+          { label: 'Unrealized P&L', value: '$0.00' },
+          { label: 'Open positions', value: '0' },
         ]}
       />
 
-      <div className="delta-account-tabs">
-        {[
-          { id: 'all', label: 'All' },
-          { id: 'spot', label: 'Spot' },
-          { id: 'futures', label: 'Futures' },
-        ].map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            onClick={() => setMode(t.id)}
-            className={`delta-account-tabs__btn${mode === t.id ? ' is-active' : ''}`}
-          >
-            {t.label}
-          </button>
-        ))}
-        <button
-          type="button"
-          className="delta-account-tabs__refresh"
-          onClick={() => fetchLiveSpotPositions?.()}
-          disabled={loading}
-          title="Refresh"
-        >
-          <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-        </button>
-      </div>
-
-      {mode === 'futures' ? (
-        <EmptyState
-          title="No open futures positions"
-          ctaTo="/futures/BTCUSDT-PERP"
-          cta="Trade futures"
-        />
-      ) : loading ? (
-        <div className="delta-account-empty">
-          <p className="delta-account-empty__title">Loading positions…</p>
-        </div>
-      ) : filtered.length === 0 ? (
-        <EmptyState title="No open positions" />
-      ) : (
-        <div className="delta-account-table-wrap">
-          <table className="delta-account-table">
-            <thead>
-              <tr>
-                <th className="text-left">Contract</th>
-                <th className="text-right">Size</th>
-                <th className="text-right">Avg. entry</th>
-                <th className="text-right">Mark</th>
-                <th className="text-right">Value</th>
-                <th className="text-right">Unrealized P&amp;L</th>
-                <th className="text-right">ROE</th>
-                <th className="text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((p) => {
-                const upnl = Number(p.unrealized_pnl || 0);
-                const pct = Number(p.unrealized_pnl_pct || 0);
-                const qty = Number(p.amount || 0);
-                const asset = p.asset || String(p.symbol || '').replace(/USDT$/i, '') || '—';
-                const mark = Number(p.current_price || p.mark_price || 0);
-                const entry = Number(p.avg_cost || p.avg_price || p.entry_price || 0);
-                const mval = Number(p.market_value_usdt || 0);
-                return (
-                  <tr key={p.asset || p.symbol || asset}>
-                    <td className="text-left">
-                      <div className="flex items-center gap-2">
-                        {COIN_ICONS[asset] ? (
-                          <img src={COIN_ICONS[asset]} alt="" className="w-5 h-5 rounded-full" />
-                        ) : null}
-                        <span className="font-semibold text-[color:var(--ibo-ink)]">{asset}/USDT</span>
-                        <span className="delta-account-pill">Spot</span>
-                      </div>
-                    </td>
-                    <td className="text-right font-mono tabular-nums">{fmtP(qty)}</td>
-                    <td className="text-right font-mono tabular-nums">{fmtP(entry)}</td>
-                    <td className="text-right font-mono tabular-nums">{fmtP(mark)}</td>
-                    <td className="text-right font-mono tabular-nums">
-                      ${mval.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                    </td>
-                    <td className={`text-right font-mono tabular-nums font-semibold ${upnl >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
-                      {upnl >= 0 ? '+' : ''}${upnl.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                    </td>
-                    <td className={`text-right font-mono tabular-nums ${pct >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
-                      {pct >= 0 ? '+' : ''}{pct.toFixed(2)}%
-                    </td>
-                    <td className="text-right">
-                      <button
-                        type="button"
-                        className="delta-account-close-btn"
-                        onClick={() => setClosePos(p)}
-                      >
-                        Close
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {closePos ? (
-        <ClosePositionModal
-          position={closePos}
-          onDismiss={() => setClosePos(null)}
-          onSuccess={() => {
-            setClosePos(null);
-            fetchLiveSpotPositions?.();
-          }}
-        />
-      ) : null}
+      <EmptyState
+        title={user ? 'No open futures positions' : 'Sign in to view positions'}
+        ctaTo="/futures/BTCUSDT-PERP"
+        cta="Trade futures"
+      />
     </>
   );
 }
@@ -294,12 +161,8 @@ export function AccountPositions() {
 /* ─── Orders tables ─────────────────────────────────────────────────────── */
 
 export function AccountOrders({ mode = 'open', embedded = false }) {
-  const { openOrders, orderHistory, fetchOrders } = useAuth();
-  const orders = mode === 'open' ? openOrders : orderHistory;
-
-  useEffect(() => {
-    fetchOrders?.();
-  }, [fetchOrders]);
+  // Spot order books removed with spot trading.
+  const orders = [];
 
   const body = (
     <>
@@ -314,7 +177,9 @@ export function AccountOrders({ mode = 'open', embedded = false }) {
 
       {orders.length === 0 ? (
         <EmptyState
-          title={mode === 'open' ? 'No open orders' : 'No order history'}
+          title={mode === 'open' ? 'No open futures orders here' : 'No spot order history'}
+          ctaTo="/futures/BTCUSDT-PERP"
+          cta="Trade futures"
         />
       ) : (
         <div className="delta-account-table-wrap">
@@ -373,11 +238,8 @@ export function AccountOrders({ mode = 'open', embedded = false }) {
 /* ─── Trade history ─────────────────────────────────────────────────────── */
 
 export function AccountTradeHistory({ embedded = false }) {
-  const { userTrades, fetchUserTrades } = useAuth();
-
-  useEffect(() => {
-    fetchUserTrades?.();
-  }, [fetchUserTrades]);
+  // Spot fill history removed with spot trading.
+  const userTrades = [];
 
   const body = (
     <>
@@ -389,7 +251,7 @@ export function AccountTradeHistory({ embedded = false }) {
       </div>
 
       {userTrades.length === 0 ? (
-        <EmptyState title="No trade history" />
+        <EmptyState title="No spot trade history" ctaTo="/futures/BTCUSDT-PERP" cta="Trade futures" />
       ) : (
         <div className="delta-account-table-wrap">
           <table className="delta-account-table">
@@ -445,10 +307,9 @@ export function AccountOverview() {
     walletAssets,
     openOrders,
     orderHistory,
-    liveSpotPositions,
   } = useAuth();
   const [priceByAsset, setPriceByAsset] = useState({ USDT: 1 });
-  const positions = liveSpotPositions ?? [];
+  const positions = [];
 
   useEffect(() => {
     if (!user) return undefined;
@@ -534,7 +395,7 @@ export function AccountOverview() {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Link to="/trade/IBOUSDT" className="delta-account-primary-btn">
+        <Link to="/futures/BTCUSDT-PERP" className="delta-account-primary-btn">
           <LayoutDashboard size={14} /> Trade now
         </Link>
         <Link to="/account/deposits" className="delta-account-ghost-btn">

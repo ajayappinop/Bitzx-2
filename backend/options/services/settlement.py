@@ -47,7 +47,10 @@ def intrinsic_usdt_per_contract(*, option_type: str, index_s: float, strike: flo
         return max(0.0, s - k)
     if opt == "put":
         return max(0.0, k - s)
-    raise ValueError("option_type must be call or put")
+    if opt == "move":
+        # MOVE / straddle settles to absolute price movement from strike (Delta-style).
+        return abs(s - k)
+    raise ValueError("option_type must be call, put, or move")
 
 
 def _settlement_spot_from_env(sym: str) -> Optional[float]:
@@ -133,21 +136,42 @@ async def _settle_leg(
     )
 
     if payout_r > 1e-10:
-        await oledger.credit(
-            uid,
-            payout_r,
-            asset=MARGIN_ASSET,
-            txn_type="settlement_pay",
-            ref_type="settlement",
-            ref_id=leg_id,
-            meta={
-                "contract_id": cid,
-                "position_id": pos_id,
-                "option_type": contract.get("option_type"),
-                "strike": contract.get("strike"),
-            },
-            session=session,
-        )
+        side = str(pos.get("side") or "long").lower()
+        if side == "short":
+            # Short MOVE/option pays settlement intrinsic (long receives it).
+            await oledger.debit(
+                uid,
+                payout_r,
+                asset=MARGIN_ASSET,
+                txn_type="settlement_pay",
+                ref_type="settlement",
+                ref_id=leg_id,
+                meta={
+                    "contract_id": cid,
+                    "position_id": pos_id,
+                    "option_type": contract.get("option_type"),
+                    "strike": contract.get("strike"),
+                    "side": "short",
+                },
+                session=session,
+            )
+        else:
+            await oledger.credit(
+                uid,
+                payout_r,
+                asset=MARGIN_ASSET,
+                txn_type="settlement_pay",
+                ref_type="settlement",
+                ref_id=leg_id,
+                meta={
+                    "contract_id": cid,
+                    "position_id": pos_id,
+                    "option_type": contract.get("option_type"),
+                    "strike": contract.get("strike"),
+                    "side": "long",
+                },
+                session=session,
+            )
 
     await db()[COL_POSITIONS].update_one(
         {"id": pos_id, "status": "open"},

@@ -84,6 +84,7 @@ export const EP = {
 
   // KYC
   KYC_UPLOAD: '/api/kyc/upload',
+  KYC_UPLOAD_SIDE: (side: string) => `/api/kyc/upload/${side}`,
   KYC_SUBMIT: '/api/kyc/submit',
   KYC_STATUS: '/api/kyc/status',
   KYC_MODE: '/api/kyc/mode',

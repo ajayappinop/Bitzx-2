@@ -32,8 +32,8 @@ class OrderCreateRequest(BaseModel):
             raise ValueError("limit orders require price > 0")
         if otype == "market" and self.post_only:
             raise ValueError("post_only is incompatible with market orders")
-        if self.side == "sell" and not self.reduce_only:
-            raise ValueError("sell orders must be reduce_only in v1")
+        # Vanilla options: sell must be reduce_only. MOVE (straddle) may open shorts.
+        # Enforced in place_order once the contract type is known.
         return self
 
     @validator("type")
@@ -59,7 +59,7 @@ class ContractCreate(BaseModel):
     underlying_symbol: str
     expiry: str = Field(..., description="ISO8601 UTC")
     strike: float = Field(gt=0)
-    option_type: Literal["call", "put"]
+    option_type: Literal["call", "put", "move"]
     tick_size: float = Field(0.01, gt=0)
     lot_size: float = Field(1.0, gt=0)
     min_qty: float = Field(1.0, gt=0)

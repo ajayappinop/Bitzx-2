@@ -1,116 +1,122 @@
-import { useEffect, useState, useRef } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useFutures } from '@/context/FuturesContext';
 
-/** Compact Delta-style leverage dropdown (replaces bulky slider card). */
-export default function LeverageSelector({ symbol, max, compact = false }) {
+/**
+ * Full-width Delta-style leverage range for the futures trade ticket.
+ * Snaps to discrete leverage options (1×, 5×, 10× …).
+ */
+export default function LeverageSelector({ symbol, max }) {
   const { settings, setLeverage, leverageOptions } = useFutures();
   const cur = settings[symbol]?.leverage ?? 10;
   const [value, setValue] = useState(cur);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState(null);
-  const [open, setOpen] = useState(false);
-  const ref = useRef(null);
+
+  const opts = useMemo(() => {
+    const list = (leverageOptions || [1, 5, 10, 20, 50, 100]).filter((l) => !max || l <= max);
+    return list.length ? list : [1];
+  }, [leverageOptions, max]);
 
   useEffect(() => {
     setValue(cur);
   }, [cur]);
 
+  // Keep local value on an allowed option when the option list changes.
   useEffect(() => {
-    if (!open) return undefined;
-    const onDoc = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
-    };
-    document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
-  }, [open]);
+    setValue((v) => {
+      if (opts.includes(v)) return v;
+      return opts.reduce((best, n) =>
+        Math.abs(n - v) < Math.abs(best - v) ? n : best
+      , opts[0]);
+    });
+  }, [opts]);
 
-  const opts = (leverageOptions || []).filter((l) => !max || l <= max);
+  const idx = Math.max(0, opts.indexOf(value));
+  const pct = opts.length <= 1 ? 0 : (idx / (opts.length - 1)) * 100;
 
-  const apply = async (v) => {
+  const apply = useCallback(async (v) => {
+    if (busy) return;
+    if (v === cur) return;
     setBusy(true);
     setErr(null);
     try {
       await setLeverage(symbol, v);
       setValue(v);
-      setOpen(false);
     } catch (e) {
       setErr(e.message || 'failed');
+      setValue(cur);
     } finally {
       setBusy(false);
     }
+  }, [busy, cur, setLeverage, symbol]);
+
+  const onSlide = (e) => {
+    const next = opts[Number(e.target.value)] ?? opts[0];
+    setValue(next);
   };
 
-  if (compact) {
-    return (
-      <div className="relative" ref={ref}>
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => setOpen((o) => !o)}
-          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-[color:var(--ibo-border-solid)]
-            bg-[color:var(--ibo-card)] text-[12px] font-bold text-[#FE6C02] hover:border-[#FE6C02]/40"
-        >
-          {value}x
-          <ChevronDown size={12} className={open ? 'rotate-180' : ''} />
-        </button>
-        {open ? (
-          <div className="absolute right-0 top-full z-30 mt-1 w-28 max-h-48 overflow-y-auto rounded-lg border border-[color:var(--ibo-border-solid)] bg-[color:var(--ibo-card)] shadow-xl scrollbar-hide py-1">
-            {opts.map((l) => (
-              <button
-                key={l}
-                type="button"
-                disabled={busy}
-                onClick={() => apply(l)}
-                className={`w-full px-3 py-1.5 text-left text-[12px] font-mono ${
-                  value === l ? 'text-[#FE6C02] bg-[#FE6C02]/10' : 'text-[color:var(--ibo-ink)] hover:bg-white/5'
-                }`}
-              >
-                {l}x
-              </button>
-            ))}
-          </div>
-        ) : null}
-        {err ? <p className="text-[10px] text-rose-400 mt-1">{err}</p> : null}
-      </div>
-    );
-  }
+  const commit = () => {
+    apply(value);
+  };
 
   return (
-    <div className="rounded-xl border border-[color:var(--ibo-border-solid)] bg-[color:var(--ibo-card)] p-3">
-      <div className="flex items-center justify-between text-xs text-white/60">
-        <span>Leverage</span>
-        <span className="font-mono text-white">{value}x</span>
+    <div className="w-full px-3 pb-2.5 pt-0.5">
+      <div className="flex items-center justify-between gap-2 mb-1.5">
+        <span className="text-[11px] font-semibold text-[color:var(--ibo-muted)]">
+          Leverage
+        </span>
+        <span className="text-[13px] font-extrabold tabular-nums text-[#FE6C02]">
+          {value}×
+        </span>
       </div>
-      <input
-        type="range"
-        min={Math.min(...opts) || 1}
-        max={Math.max(...opts) || 125}
-        value={value}
-        disabled={busy}
-        onChange={(e) => setValue(Number(e.target.value))}
-        onMouseUp={(e) => apply(Number(e.target.value))}
-        onTouchEnd={(e) => apply(Number(e.target.value))}
-        className="w-full mt-2 accent-gold"
-      />
-      <div className="flex flex-wrap gap-1 mt-2">
-        {opts.map((l) => (
-          <button
-            key={l}
-            type="button"
-            disabled={busy}
-            onClick={() => apply(l)}
-            className={`px-2 py-1 rounded text-xs font-mono ${
-              value === l
-                ? 'bg-[rgba(254, 108, 2,0.2)] text-[#FE6C02] border border-[rgba(254, 108, 2,0.4)]'
-                : 'bg-[color:var(--ibo-elevated)] text-[color:var(--ibo-muted)] hover:bg-[color:var(--ibo-hover)]'
-            }`}
-          >
-            {l}x
-          </button>
-        ))}
+
+      <div className="relative pt-0.5 pb-1">
+        <input
+          type="range"
+          min={0}
+          max={Math.max(0, opts.length - 1)}
+          step={1}
+          value={idx}
+          disabled={busy || opts.length <= 1}
+          aria-label={`Leverage ${value}x`}
+          aria-valuemin={opts[0]}
+          aria-valuemax={opts[opts.length - 1]}
+          aria-valuenow={value}
+          onChange={onSlide}
+          onMouseUp={commit}
+          onTouchEnd={commit}
+          onKeyUp={(e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'Home' || e.key === 'End') {
+              commit();
+            }
+          }}
+          className="delta-lev-range w-full"
+          style={{ '--lev-pct': `${pct}%` }}
+        />
+
+        {/* Tick marks under the track */}
+        <div className="pointer-events-none absolute left-0 right-0 top-[7px] flex justify-between px-[1px]">
+          {opts.map((l) => (
+            <span
+              key={l}
+              className={`block h-1.5 w-px ${
+                l <= value ? 'bg-[#FE6C02]/70' : 'bg-[color:var(--ibo-border-solid)]'
+              }`}
+            />
+          ))}
+        </div>
       </div>
-      {err && <div className="text-xs text-rose-400 mt-2">{err}</div>}
+
+      <div className="flex items-center justify-between mt-0.5">
+        <span className="text-[10px] font-semibold tabular-nums text-[color:var(--ibo-muted)]">
+          {opts[0]}×
+        </span>
+        <span className="text-[10px] font-semibold tabular-nums text-[color:var(--ibo-muted)]">
+          {opts[opts.length - 1]}×
+        </span>
+      </div>
+
+      {err ? <p className="text-[10px] text-rose-400 mt-1">{err}</p> : null}
     </div>
   );
 }

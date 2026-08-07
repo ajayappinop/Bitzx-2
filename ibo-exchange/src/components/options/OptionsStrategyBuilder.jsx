@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Plus, Trash2 } from 'lucide-react';
 
 function legLabel(c, underlying) {
@@ -176,14 +177,20 @@ export default function OptionsStrategyBuilder({
           <span className="mx-2 opacity-40">·</span>
           Net Δ <b style={{ color: 'var(--ibo-ink)' }}>{summary.netDelta.toFixed(3)}</b>
         </div>
-        <button
-          type="button"
-          disabled={!legs.length}
-          className="rounded-md bg-[#fe6c02] px-4 py-2 text-[12px] font-bold text-white disabled:opacity-40"
-          title="Multi-leg submit coming with strategy orders API"
-        >
-          Review strategy
-        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            to={`/move/${String(underlying || 'BTC').replace(/USDT$/i, '')}`}
+            className="rounded-md border border-[#fe6c02]/40 px-3 py-2 text-[12px] font-bold text-[#fe6c02] hover:bg-[rgba(254,108,2,0.08)]"
+          >
+            MOVE straddle
+          </Link>
+          <Link
+            to={`/options/strategy/${String(underlying || 'BTC').replace(/USDT$/i, '')}`}
+            className="rounded-md bg-[#fe6c02] px-4 py-2 text-[12px] font-bold text-white"
+          >
+            Open Strategy Builder
+          </Link>
+        </div>
       </div>
     </div>
   );

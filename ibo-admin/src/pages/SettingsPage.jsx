@@ -279,11 +279,11 @@ function DepositMonitorSection({ controls, patchControls, busy }) {
             </div>
 
             {/* Credit savings info */}
-            <div className="rounded-xl border border-sky-500/20 bg-sky-500/8 px-4 py-3 text-xs text-sky-300/80 leading-relaxed">
-              <p className="font-semibold text-sky-300 mb-1">Estimated QuickNode savings</p>
+            <div className="rounded-xl border border-[#FE6C02]/20 bg-[#FE6C02]/8 px-4 py-3 text-xs text-[#FE9D55]/80 leading-relaxed">
+              <p className="font-semibold text-[#FE9D55] mb-1">Estimated QuickNode savings</p>
               <p>
                 Continuous poller: ~4.8 M credits/day (BSC alone at 1 block/3 s × 166 creds/block).
-                On-demand at 30 s interval, 50 daily users: ~100 K credits/day — <span className="font-bold text-sky-200">~98% reduction</span>.
+                On-demand at 30 s interval, 50 daily users: ~100 K credits/day — <span className="font-bold text-[#FE9D55]">~98% reduction</span>.
               </p>
             </div>
           </div>
@@ -452,8 +452,8 @@ function HedgerGlobalsSection({ controls, patchControls, busy }) {
       <div className="mb-5 p-4 rounded-xl border border-gold/25 bg-gold/10 text-gold-light/90 text-sm space-y-2">
         <p className="font-bold text-gold-light">Environment dependency</p>
         <p>
-          The process must also have <code className="font-mono text-xs bg-black/30 px-1.5 py-0.5 rounded">HEDGER_WORKER_ENABLED=true</code> in{' '}
-          <code className="font-mono text-xs bg-black/30 px-1.5 py-0.5 rounded">backend/.env</code> or the worker never starts. Use the live banner on{' '}
+          The process must also have <code className="font-mono text-xs bg-surface-dark px-1.5 py-0.5 rounded">HEDGER_WORKER_ENABLED=true</code> in{' '}
+          <code className="font-mono text-xs bg-surface-dark px-1.5 py-0.5 rounded">backend/.env</code> or the worker never starts. Use the live banner on{' '}
           <Link to="/hedger" className="underline font-semibold">Hedging</Link> to confirm state.
         </p>
       </div>
@@ -1633,7 +1633,7 @@ export default function SettingsPage() {
                     key: 'coming_soon_enabled',
                     enabled: !controls.coming_soon_enabled,
                   })}
-                  style={{ flexShrink: 0, width: 48, height: 26, position: 'relative', borderRadius: 9999, border: 'none', cursor: 'pointer', transition: 'background 0.2s', background: controls.coming_soon_enabled ? '#0EA4AB' : 'rgba(255,255,255,0.15)', padding: 0 }}
+                  style={{ flexShrink: 0, width: 48, height: 26, position: 'relative', borderRadius: 9999, border: 'none', cursor: 'pointer', transition: 'background 0.2s', background: controls.coming_soon_enabled ? '#FE6C02' : 'rgba(255,255,255,0.15)', padding: 0 }}
                   aria-checked={!!controls.coming_soon_enabled}
                   role="switch"
                 >
@@ -1712,9 +1712,9 @@ export default function SettingsPage() {
             <div className="space-y-4 max-w-xl">
               <p className="text-xs text-white/55 leading-relaxed">
                 Set to <strong className="text-white/80">0</strong> to disable. Requires{' '}
-                <code className="text-cyan-200/90 text-[11px]">TREASURY_ETH_PRIVATE_KEY</code>,{' '}
-                <code className="text-cyan-200/90 text-[11px]">IBO_CONTRACT_ADDRESS</code>, and{' '}
-                <code className="text-cyan-200/90 text-[11px]">QUICKNODE_BSC_URL</code>. Users see the transfer in Wallet history;
+                <code className="text-[#FE9D55]/90 text-[11px]">TREASURY_ETH_PRIVATE_KEY</code>,{' '}
+                <code className="text-[#FE9D55]/90 text-[11px]">IBO_CONTRACT_ADDRESS</code>, and{' '}
+                <code className="text-[#FE9D55]/90 text-[11px]">QUICKNODE_BSC_URL</code>. Users see the transfer in Wallet history;
                 balance credits after RPC confirmations and KYC approval.
               </p>
               <label className="block">
@@ -1795,7 +1795,7 @@ export default function SettingsPage() {
                     key: 'sms_dev_otp_enabled',
                     enabled: !controls.sms_dev_otp_enabled,
                   })}
-                  style={{ flexShrink: 0, width: 48, height: 26, position: 'relative', borderRadius: 9999, border: 'none', cursor: 'pointer', transition: 'background 0.2s', background: controls.sms_dev_otp_enabled ? '#0EA4AB' : 'rgba(255,255,255,0.15)', padding: 0 }}
+                  style={{ flexShrink: 0, width: 48, height: 26, position: 'relative', borderRadius: 9999, border: 'none', cursor: 'pointer', transition: 'background 0.2s', background: controls.sms_dev_otp_enabled ? '#FE6C02' : 'rgba(255,255,255,0.15)', padding: 0 }}
                   aria-checked={!!controls.sms_dev_otp_enabled}
                   role="switch"
                 >
@@ -1881,7 +1881,7 @@ export default function SettingsPage() {
                       {description ? (
                         <p className="text-xs text-white/65 mt-1.5 leading-relaxed">{description}</p>
                       ) : null}
-                      <p className={`text-xs font-semibold mt-2 ${inverted && enabled ? 'text-gold-light' : 'text-cyan-200/90'}`}>
+                      <p className={`text-xs font-semibold mt-2 ${inverted && enabled ? 'text-gold-light' : 'text-[#FE9D55]/90'}`}>
                         {platformSwitchStatus(k, enabled)}
                       </p>
                       <p className="text-[10px] font-mono text-white/40 mt-2 truncate" title={k}>{k}</p>
@@ -1915,9 +1915,9 @@ export default function SettingsPage() {
           <ul className="text-sm text-white/75 space-y-2 list-disc list-inside max-w-3xl">
             <li>
               <strong className="text-white/90">API process env:</strong>{' '}
-              <code className="text-cyan-200/90 text-xs">DEPOSIT_POLL_ENABLED=true</code>
+              <code className="text-[#FE9D55]/90 text-xs">DEPOSIT_POLL_ENABLED=true</code>
               {' '}and{' '}
-              <code className="text-cyan-200/90 text-xs">DEPOSIT_CREDIT_ENABLED=true</code>
+              <code className="text-[#FE9D55]/90 text-xs">DEPOSIT_CREDIT_ENABLED=true</code>
               {' '}so both background tasks attach at startup (with a real blockchain provider).
             </li>
             <li>
@@ -1928,7 +1928,7 @@ export default function SettingsPage() {
               Users see rows and confirmation progress under Wallet → History → Deposits; balances increase when status becomes credited.
             </li>
             <li>
-              <strong className="text-white/90">Admin:</strong> use <strong className="text-white">Deposit events</strong> in the sidebar (Phase 5) for a global filtered queue and optional manual credit (requires <code className="text-cyan-200/90 text-xs">manage_treasury</code>).
+              <strong className="text-white/90">Admin:</strong> use <strong className="text-white">Deposit events</strong> in the sidebar (Phase 5) for a global filtered queue and optional manual credit (requires <code className="text-[#FE9D55]/90 text-xs">manage_treasury</code>).
             </li>
           </ul>
         </AdminPanel>
@@ -1941,7 +1941,7 @@ export default function SettingsPage() {
         subtitle="Rates are percentages of trade or withdrawal notional. Settlement is always in IBO from the user’s spot wallet (except legacy in-flight withdrawals)."
       >
         <div className="space-y-8">
-          <p className="text-xs text-cyan-200/90 bg-cyan-500/10 border border-cyan-500/25 rounded-xl px-4 py-3 leading-relaxed">
+          <p className="text-xs text-[#FE9D55]/90 bg-[#FE6C02]/10 border border-[#FE6C02]/25 rounded-xl px-4 py-3 leading-relaxed">
             <strong className="text-white/95">IBO fee settlement:</strong> Spot maker/taker, futures, and options trading fees are charged in IBO.
             Withdrawal platform fee and gas fee below are also deducted in IBO. Users need sufficient IBO before trading or withdrawing.
             Futures/options global rates are edited on their overview pages; spot uses the fields here.

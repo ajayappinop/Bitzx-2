@@ -246,21 +246,21 @@ export default function WithdrawalsPage() {
             ))}
           </select>
           <div className="relative">
-            <Search size={14} className="absolute left-3 top-3.5 text-white/45" />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/45 pointer-events-none" />
             <input
               value={addrFilter}
               onChange={(e) => { setSkip(0); setAddrFilter(e.target.value); }}
               placeholder="Destination address"
-              className="w-full rounded-xl bg-surface-dark border border-surface-border pl-8 pr-3 py-2 text-sm text-white font-mono"
+              className="w-full rounded-xl bg-surface-dark border border-surface-border pl-10 pr-3 py-2 text-sm text-white font-mono"
             />
           </div>
           <div className="relative lg:col-span-2">
-            <Search size={14} className="absolute left-3 top-3.5 text-white/45" />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/45 pointer-events-none" />
             <input
               value={txFilter}
               onChange={(e) => { setSkip(0); setTxFilter(e.target.value); }}
               placeholder="Tx hash"
-              className="w-full rounded-xl bg-surface-dark border border-surface-border pl-8 pr-3 py-2 text-sm text-white font-mono"
+              className="w-full rounded-xl bg-surface-dark border border-surface-border pl-10 pr-3 py-2 text-sm text-white font-mono"
             />
           </div>
           <select

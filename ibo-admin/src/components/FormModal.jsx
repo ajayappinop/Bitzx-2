@@ -40,7 +40,7 @@ export default function FormModal({
         className="w-full max-w-2xl rounded-3xl border border-surface-border bg-surface-card p-6 shadow-2xl max-h-[90vh] overflow-y-auto relative"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="absolute -top-10 -left-10 w-36 h-36 rounded-full bg-violet-500/10 blur-3xl pointer-events-none" />
+        <div className="absolute -top-10 -left-10 w-36 h-36 rounded-full bg-[#FE6C02]/10 blur-3xl pointer-events-none" />
         <h3 className="text-xl sm:text-2xl font-black text-white">{title}</h3>
         {subtitle ? <p className="text-white/80 text-base mt-1 mb-5">{subtitle}</p> : <div className="mb-5" />}
         <div className="space-y-3">
@@ -82,7 +82,7 @@ export default function FormModal({
             type="button"
             onClick={onClose}
             disabled={busy}
-            className="px-4 py-2.5 rounded-xl border border-surface-border text-white/90 text-sm font-bold disabled:opacity-40"
+            className="adm-btn-secondary"
           >
             {cancelText}
           </button>
@@ -90,9 +90,9 @@ export default function FormModal({
             type="button"
             onClick={() => onConfirm(values)}
             disabled={!canConfirm}
-            className={`px-4 py-2.5 rounded-xl text-sm font-bold disabled:opacity-40 ${
-              danger ? 'bg-gradient-to-r from-red-500/25 to-rose-500/20 border border-red-500/45 text-red-200' : 'bg-gradient-to-r from-cyan-500/25 to-indigo-500/20 border border-cyan-400/45 text-cyan-100'
-            }`}
+            className={danger
+              ? 'px-4 py-2.5 rounded-lg text-sm font-bold disabled:opacity-40 bg-gradient-to-r from-red-500/25 to-rose-500/20 border border-red-500/45 text-red-200'
+              : 'adm-btn-primary'}
           >
             {confirmText}
           </button>

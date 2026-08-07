@@ -155,8 +155,8 @@ export function ledgerTypeLabel(row) {
   const refType = String(row?.ref_type || '').toLowerCase();
   const direction = String(meta.direction || '').toLowerCase();
   if (refType === 'futures_transfer') {
-    if (direction === 'spot_to_futures') return 'Transfer to Futures';
-    if (direction === 'futures_to_spot') return 'Transfer from Futures';
+    if (direction === 'spot_to_futures') return 'Transfer Funding → Futures';
+    if (direction === 'futures_to_spot') return 'Transfer Futures → Funding';
     return 'Futures transfer';
   }
 

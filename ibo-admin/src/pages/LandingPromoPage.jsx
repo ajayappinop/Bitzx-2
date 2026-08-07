@@ -243,7 +243,7 @@ export default function LandingPromoPage() {
         </div>
         <div className="flex flex-wrap items-center gap-4">
           {coin.image_url ? (
-            <img src={assetUrl(coin.image_url)} alt="" className="h-24 rounded-lg border border-white/10 object-contain bg-black/40" />
+            <img src={assetUrl(coin.image_url)} alt="" className="h-24 rounded-lg border border-white/10 object-contain bg-surface-card" />
           ) : (
             <div className="h-24 w-32 rounded-lg border border-dashed border-white/15 flex items-center justify-center text-white/30 text-xs">
               <ImageIcon size={20} />
@@ -277,7 +277,7 @@ export default function LandingPromoPage() {
         </div>
         <div className="flex flex-wrap items-center gap-4">
           {app.image_url ? (
-            <img src={assetUrl(app.image_url)} alt="" className="h-24 rounded-lg border border-white/10 object-contain bg-black/40" />
+            <img src={assetUrl(app.image_url)} alt="" className="h-24 rounded-lg border border-white/10 object-contain bg-surface-card" />
           ) : (
             <div className="h-24 w-32 rounded-lg border border-dashed border-white/15 flex items-center justify-center text-white/30 text-xs">
               <ImageIcon size={20} />

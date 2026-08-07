@@ -65,7 +65,7 @@ function KycDocImage({ label, url }) {
   const href = mediaUrl(url);
   if (!href) return null;
   return (
-    <div className="rounded-xl border border-surface-border bg-black/25 p-3 max-w-xs">
+    <div className="rounded-xl border border-surface-border bg-surface-dark p-3 max-w-xs">
       <p className="text-[10px] font-bold text-white/45 mb-2">{label}</p>
       {isImagePath(url) ? (
         <a href={href} target="_blank" rel="noreferrer" className="block">

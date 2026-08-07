@@ -744,7 +744,7 @@ export default function RegisterPage() {
 
           title={<>Create your trading account</>}
 
-          subtitle="Join Delta Exchange for spot markets, INR-ready funding, and a secure KYC-backed platform built for India."
+          subtitle="Join Delta Exchange for futures and options, INR-ready funding, and a secure KYC-backed platform built for India."
 
           items={[
 

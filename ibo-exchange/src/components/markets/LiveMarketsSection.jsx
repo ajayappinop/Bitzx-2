@@ -103,7 +103,7 @@ function DesktopRow({ market }) {
 
       <td className="sticky right-0 z-[1] bg-surface-dark group-hover:bg-surface-hover px-3 sm:px-4 py-3.5 text-right border-l border-white/[0.05]">
         <Link
-          to={`/trade/${market.symbol}`}
+          to={`/futures/${String(market.symbol).replace(/USDT$/,'')}USDT-PERP`}
           className="inline-flex items-center gap-1 text-xs sm:text-sm font-bold text-gold-light bg-gold/10 hover:bg-gold/20 border border-gold/25 px-3 py-1.5 rounded-lg transition-colors"
         >
           Trade <ArrowRight size={13} />

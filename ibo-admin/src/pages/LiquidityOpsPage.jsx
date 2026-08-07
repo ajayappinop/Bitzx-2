@@ -462,7 +462,7 @@ function ListSection({ title, items }) {
       {!items.length ? <p className="text-xs text-white/50">No rows</p> : (
         <div className="space-y-2 max-h-[260px] overflow-auto pr-1">
           {items.map((it, idx) => (
-            <pre key={idx} className="text-[11px] leading-5 whitespace-pre-wrap bg-black/20 rounded-lg border border-white/5 p-2 text-white/80">
+            <pre key={idx} className="text-[11px] leading-5 whitespace-pre-wrap bg-surface-dark rounded-lg border border-white/5 p-2 text-white/80">
               {JSON.stringify(it, null, 2)}
             </pre>
           ))}

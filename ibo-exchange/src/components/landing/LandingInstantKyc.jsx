@@ -115,7 +115,7 @@ export default function LandingInstantKyc() {
           </h2>
           <p className="ibo-lead text-zinc-400 max-w-none mx-auto">
             Complete digital KYC with Aadhaar, PAN, live face match, and bank linking — so you can deposit INR,
-            unlock limits, and trade futures, options, and spot with confidence.
+            unlock limits, and trade futures and options with confidence.
           </p>
         </motion.div>
 

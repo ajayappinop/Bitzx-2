@@ -4030,6 +4030,8 @@ FALLBACK_PRICES: Dict[str, float] = {
     "SOLUSDT": 145.0,   "XRPUSDT": 0.52,    "DOGEUSDT": 0.12,
     "ADAUSDT": 0.45,    "POLUSDT": 0.45,  "AVAXUSDT": 36.0,
     "DOTUSDT": 7.0,     "LINKUSDT": 15.0,   "LTCUSDT": 85.0,
+    # RWA index fallback only — XAUT is NOT in BINANCE_USDT_PAIRS (spot Markets stay crypto-only).
+    "XAUTUSDT": 4000.0,
     # IBO-quoted pair fallbacks (price in IBO = base_usdt / ibo_price)
     **{sym: round(IBO_PAIR_FALLBACK_USDT.get(base, 1.0) / 0.4523, 4)
        for sym, base in IBO_QUOTED_SYMBOL_MAP.items()},
@@ -12437,6 +12439,59 @@ async def upload_kyc_documents(
         "document_front_url": front_url,
         "document_back_url": back_url,
         "selfie_url": selfie_url,
+    }
+
+
+@api_router.delete("/kyc/upload/{side}")
+async def delete_kyc_upload(
+    side: str,
+    current_user: dict = Depends(get_current_user),
+):
+    """Remove an uploaded KYC document side (front | back | selfie) from disk and DB."""
+    if db is None:
+        raise HTTPException(503, "Database unavailable")
+    enforce_user_actions_allowed(current_user)
+    await enforce_feature("kyc_enabled", "KYC submission is currently paused by admin")
+    side_key = (side or "").strip().lower()
+    field_map = {
+        "front": "document_front_url",
+        "back": "document_back_url",
+        "selfie": "selfie_url",
+    }
+    if side_key not in field_map:
+        raise HTTPException(status_code=400, detail="side must be front, back, or selfie")
+    uid = current_user["uid"]
+    existing = await db.kyc.find_one({"uid": uid})
+    if existing and existing.get("status") == "approved":
+        raise HTTPException(400, "KYC already approved — documents cannot be removed")
+    if existing and existing.get("status") == "pending":
+        raise HTTPException(400, "KYC is under review — documents cannot be removed")
+
+    for p in KYC_DIR.glob(f"kyc_{uid}_{side_key}_*"):
+        try:
+            p.unlink()
+        except OSError:
+            pass
+
+    field = field_map[side_key]
+    unset_fields: Dict[str, Any] = {field: ""}
+    if side_key == "selfie":
+        unset_fields["face_match"] = ""
+    now = datetime.now(timezone.utc).isoformat()
+    await db.kyc.update_one(
+        {"uid": uid},
+        {
+            "$unset": unset_fields,
+            "$set": {"updated_at": now},
+        },
+    )
+    snap = await db.kyc.find_one({"uid": uid}, {"_id": 0}) or {}
+    return {
+        "ok": True,
+        "side": side_key,
+        "document_front_url": snap.get("document_front_url"),
+        "document_back_url": snap.get("document_back_url"),
+        "selfie_url": snap.get("selfie_url"),
     }
 
 

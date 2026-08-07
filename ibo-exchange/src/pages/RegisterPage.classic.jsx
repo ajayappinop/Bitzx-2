@@ -80,7 +80,7 @@ const PERKS = [
 
   { icon: Zap, color: '#00A876', title: 'Instant Demo Balance', desc: '$5,000 USDT + multi-asset demo funds' },
 
-  { icon: BarChart2, color: '#60a5fa', title: '100+ Trading Pairs', desc: 'Spot trade all major cryptocurrencies' },
+  { icon: BarChart2, color: '#60a5fa', title: '100+ Trading Pairs', desc: 'Trade futures and options on major cryptocurrencies' },
 
   { icon: Shield, color: '#FE6C02', title: 'KYC-Secured Platform', desc: 'Identity verification for safe trading' },
 

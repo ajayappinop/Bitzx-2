@@ -21,7 +21,15 @@ async function jsonOrThrow(res) {
 
 // ── Public market data ──────────────────────────────────────────────────────
 export const futuresApi = {
-  listSymbols: () => fetch(`${API}/symbols`).then(jsonOrThrow),
+  /**
+   * @param {{ assetClass?: 'crypto'|'rwa'|'all' }} [opts]
+   * Default assetClass=crypto — RWA never mixes into crypto futures UIs.
+   */
+  listSymbols: (opts = {}) => {
+    const ac = opts.assetClass ?? 'crypto';
+    const q = ac && ac !== 'all' ? `?asset_class=${encodeURIComponent(ac)}` : '?asset_class=all';
+    return fetch(`${API}/symbols${q}`).then(jsonOrThrow);
+  },
   markPrice:  (symbol) => fetch(`${API}/mark-price?symbol=${encodeURIComponent(symbol)}`).then(jsonOrThrow),
   orderbook:  (symbol, depth = 25) =>
     fetch(`${API}/orderbook?symbol=${encodeURIComponent(symbol)}&depth=${depth}`).then(jsonOrThrow),

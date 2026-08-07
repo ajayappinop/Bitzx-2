@@ -4,17 +4,21 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
-        mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['Inter', 'ui-monospace', 'monospace'],
       },
       colors: {
-        gold: { DEFAULT: '#0EA4AB', light: '#C5E35B', dark: '#1B5FFF' },
+        gold: {
+          DEFAULT: '#FE6C02',
+          light: 'var(--ibo-accent-text)',
+          dark: '#B44D01',
+        },
         surface: {
-          DEFAULT: '#0a1024',
-          dark: '#050a1a',
-          card: '#0d1530',
-          border: '#1a2748',
-          hover: '#121c38',
+          DEFAULT: 'rgb(var(--ibo-surface-rgb) / <alpha-value>)',
+          dark: 'rgb(var(--ibo-bg-rgb) / <alpha-value>)',
+          card: 'rgb(var(--ibo-card-rgb) / <alpha-value>)',
+          border: 'var(--ibo-border-solid)',
+          hover: 'var(--ibo-hover)',
         },
       },
     },

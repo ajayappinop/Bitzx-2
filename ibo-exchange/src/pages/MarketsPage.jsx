@@ -46,11 +46,16 @@ const num = v => {
 const MAJOR_BASES = new Set(['BTC', 'ETH', 'BNB', 'SOL', 'XRP']);
 
 const MARKET_MODES = [
-  { id: 'spot', label: 'Spot', desc: 'USDT pairs' },
-  { id: 'web3', label: 'BEP-20 / Web3', desc: 'Full token directory' },
   { id: 'futures', label: 'Futures', desc: 'USDT perpetuals' },
+  { id: 'rwa', label: 'RWA', desc: 'Real-world asset perps' },
   { id: 'options', label: 'Options', desc: 'USDT · v1 long-only' },
-  { id: 'ibo', label: 'Delta Markets', desc: 'Delta-quoted pairs' },
+  { id: 'web3', label: 'BEP-20 / Web3', desc: 'Full token directory' },
+];
+
+/** RWA tab — gold / commodity tokenized assets only */
+const RWA_CATEGORY_TABS = [
+  { id: 'all', label: 'All' },
+  { id: 'favorites', label: 'Watchlist', icon: Star },
 ];
 
 const CATEGORY_TABS = [
@@ -195,7 +200,7 @@ export default function MarketsPage() {
   const [showVerify, setShowVerify] = useState(false);
   const { markets, loading } = useLiveMarkets();
   const [search, setSearch] = useState('');
-  const [marketMode, setMarketMode] = useState('spot');
+  const [marketMode, setMarketMode] = useState('futures');
   const [category, setCategory] = useState('all');
   const [favorites, setFavorites] = useState(() => {
     try { return JSON.parse(localStorage.getItem('maxbyteex_favs') || '[]'); } catch { return []; }
@@ -241,6 +246,9 @@ export default function MarketsPage() {
     setShowVerify(false);
   };
 
+  const perpTradeHref = (sym) =>
+    `${marketMode === 'rwa' ? '/rwa' : '/futures'}/${encodeURIComponent(sym)}`;
+
   useEffect(() => {
     if (marketMode !== 'options') return undefined;
     let cancelled = false;
@@ -254,7 +262,7 @@ export default function MarketsPage() {
         try {
           const chain = await optionsApi.getChain(sym, true, true);
           if (Array.isArray(chain?.contracts) && chain.contracts.length) {
-            list = chain.contracts;
+            list = chain.contracts.filter((c) => String(c.option_type || '').toLowerCase() !== 'move');
             idx = chain.index_price ?? null;
           }
         } catch {
@@ -264,7 +272,7 @@ export default function MarketsPage() {
           try {
             const demo = await optionsApi.demoChain(sym);
             if (Array.isArray(demo?.contracts) && demo.contracts.length) {
-              list = demo.contracts;
+              list = demo.contracts.filter((c) => String(c.option_type || '').toLowerCase() !== 'move');
               idx = demo.index_price ?? null;
             }
           } catch {
@@ -293,11 +301,12 @@ export default function MarketsPage() {
   }, [marketMode, optionsUnderlying]);
 
   useEffect(() => {
-    if (marketMode !== 'futures') return undefined;
+    if (marketMode !== 'futures' && marketMode !== 'rwa') return undefined;
     let cancelled = false;
     setFuturesLoading(true);
+    const assetClass = marketMode === 'rwa' ? 'rwa' : 'crypto';
     futuresApi
-      .listSymbols()
+      .listSymbols({ assetClass })
       .then((d) => {
         if (!cancelled) setFuturesCatalog(Array.isArray(d?.symbols) ? d.symbols : []);
       })
@@ -313,7 +322,7 @@ export default function MarketsPage() {
   }, [marketMode]);
 
   useEffect(() => {
-    if (marketMode !== 'futures') return undefined;
+    if (marketMode !== 'futures' && marketMode !== 'rwa') return undefined;
     let cancelled = false;
     const tick = async () => {
       try {
@@ -334,7 +343,7 @@ export default function MarketsPage() {
   }, [marketMode]);
 
   useEffect(() => {
-    if (marketMode !== 'futures' || !futuresCatalog.length) return undefined;
+    if ((marketMode !== 'futures' && marketMode !== 'rwa') || !futuresCatalog.length) return undefined;
     let cancelled = false;
     const loadFunding = () => {
       Promise.all(
@@ -364,7 +373,7 @@ export default function MarketsPage() {
   }, [futuresCatalog, marketMode]);
 
   useEffect(() => {
-    if (marketMode !== 'futures') return undefined;
+    if (marketMode !== 'futures' && marketMode !== 'rwa') return undefined;
     let closed = false;
     let ws = null;
     let reconnectTimer = null;
@@ -524,7 +533,11 @@ export default function MarketsPage() {
   const refreshFuturesPage = async () => {
     setFuturesLoading(true);
     try {
-      const [d, spotList] = await Promise.all([futuresApi.listSymbols(), marketApi.getMarkets()]);
+      const assetClass = marketMode === 'rwa' ? 'rwa' : 'crypto';
+      const [d, spotList] = await Promise.all([
+        futuresApi.listSymbols({ assetClass }),
+        marketApi.getMarkets(),
+      ]);
       setFuturesCatalog(Array.isArray(d?.symbols) ? d.symbols : []);
       const map = Object.fromEntries(spotList.filter((m) => m?.symbol).map((m) => [m.symbol, m]));
       setUnderlyingMarkets(map);
@@ -538,10 +551,12 @@ export default function MarketsPage() {
   useEffect(() => {
     const tab = new URLSearchParams(location.search).get('tab');
     if (tab === 'web3') setMarketMode('web3');
+    if (tab === 'rwa') setMarketMode('rwa');
+    if (tab === 'futures') setMarketMode('futures');
   }, [location.search]);
 
   useEffect(() => {
-    if (marketMode !== 'futures') {
+    if (marketMode !== 'futures' && marketMode !== 'rwa') {
       setFuturesSearch('');
       setFuturesCategory('all');
     }
@@ -556,7 +571,7 @@ export default function MarketsPage() {
       try {
         const chain = await optionsApi.getChain(sym, true, true);
         if (Array.isArray(chain?.contracts) && chain.contracts.length) {
-          list = chain.contracts;
+          list = chain.contracts.filter((c) => String(c.option_type || '').toLowerCase() !== 'move');
           idx = chain.index_price ?? null;
         }
       } catch {
@@ -566,7 +581,7 @@ export default function MarketsPage() {
         try {
           const demo = await optionsApi.demoChain(sym);
           if (Array.isArray(demo?.contracts) && demo.contracts.length) {
-            list = demo.contracts;
+            list = demo.contracts.filter((c) => String(c.option_type || '').toLowerCase() !== 'move');
             idx = demo.index_price ?? null;
           }
         } catch {
@@ -682,7 +697,7 @@ export default function MarketsPage() {
               Markets
             </h1>
             <p className="mt-0.5 text-[12px] sm:text-[13px]" style={{ color: 'var(--ibo-muted)' }}>
-              Spot · Futures · Options
+              Futures · Options · Markets
                 </p>
               </div>
             </div>
@@ -737,7 +752,7 @@ export default function MarketsPage() {
                         <button
                         key={m.symbol}
                           type="button"
-                        onClick={() => navigate(`/trade/${m.symbol}`)}
+                        onClick={() => navigate(`/futures/${String(m.symbol).replace(/USDT$/,'')}USDT-PERP`)}
                         className="delta-movers-row flex w-full items-center gap-2.5 px-3 py-2 text-left"
                         >
                           {icon ? (
@@ -815,7 +830,7 @@ export default function MarketsPage() {
           />
         )}
 
-        {marketMode === 'futures' && (
+        {marketMode === 'futures' || marketMode === 'rwa' ? (
           <>
             {/* Full-bleed Delta markets list — edge to edge, no card box */}
             <div
@@ -828,9 +843,9 @@ export default function MarketsPage() {
                 <div
                   className="flex min-w-0 flex-1 items-center gap-0 overflow-x-auto overscroll-x-contain pl-2 pr-1 sm:pl-4 md:pl-6 lg:pl-8 xl:pl-10 [scrollbar-width:none]"
                   role="tablist"
-                  aria-label="Futures categories"
+                  aria-label={marketMode === 'rwa' ? 'RWA categories' : 'Futures categories'}
                 >
-                  {FUTURES_CATEGORY_TABS.map(({ id, label, icon: Icon }) => (
+                  {(marketMode === 'rwa' ? RWA_CATEGORY_TABS : FUTURES_CATEGORY_TABS).map(({ id, label, icon: Icon }) => (
                     <MarketsCategoryTab
                         key={id}
                       id={id}
@@ -930,7 +945,7 @@ export default function MarketsPage() {
                               <tr
                               key={row.symbol}
                                 className="delta-market-row border-b transition-colors cursor-pointer"
-                                onClick={() => navigate(`/futures/${encodeURIComponent(row.symbol)}`)}
+                                onClick={() => navigate(perpTradeHref(row.symbol))}
                               >
                                 <td className="delta-market-row__fav py-3.5 pl-3 pr-2 sm:pl-4 md:pl-6 lg:pl-8 xl:pl-10" onClick={(e) => e.stopPropagation()}>
                                 <button
@@ -1011,7 +1026,7 @@ export default function MarketsPage() {
                               </td>
                                 <td className="py-3.5 pl-3 pr-3 text-right sm:pr-4 md:pr-6 lg:pr-8 xl:pr-10" onClick={(e) => e.stopPropagation()}>
                                 <Link
-                                  to={`/futures/${encodeURIComponent(row.symbol)}`}
+                                  to={perpTradeHref(row.symbol)}
                                     className={TRADE_BTN_CLASS}
                                 >
                                     Trade
@@ -1138,7 +1153,7 @@ export default function MarketsPage() {
                           </div>
                         </div>
                         <Link
-                          to={`/futures/${encodeURIComponent(row.symbol)}`}
+                          to={perpTradeHref(row.symbol)}
                             className={`${TRADE_BTN_CLASS} w-full`}
                         >
                             Trade
@@ -1151,7 +1166,7 @@ export default function MarketsPage() {
           </div>
 
           </>
-        )}
+        ) : null}
 
         {marketMode === 'web3' && (
           <BscTokenDirectory
@@ -1173,7 +1188,7 @@ export default function MarketsPage() {
             <div
               className="flex min-w-0 flex-1 items-center gap-0 overflow-x-auto overscroll-x-contain pl-2 pr-1 sm:pl-4 md:pl-6 lg:pl-8 xl:pl-10 [scrollbar-width:none]"
               role="tablist"
-              aria-label="Spot categories"
+              aria-label="Market categories"
             >
               {CATEGORY_TABS.map(({ id, label, icon: Icon }) => (
                 <MarketsCategoryTab
@@ -1266,7 +1281,7 @@ export default function MarketsPage() {
                           <tr
                           key={m.symbol}
                             className="delta-market-row border-b transition-colors cursor-pointer"
-                            onClick={() => navigate(`/trade/${m.symbol}`)}
+                            onClick={() => navigate(`/futures/${String(m.symbol).replace(/USDT$/,'')}USDT-PERP`)}
                           >
                             <td className="delta-market-row__fav py-3.5 pl-3 pr-1.5 sm:pl-4 md:pl-6 lg:pl-8 xl:pl-10" onClick={(e) => e.stopPropagation()}>
                               <button type="button" onClick={() => toggleFav(m.symbol)} className="delta-market-row__star p-1.5 rounded-md" aria-label={isFav ? 'Remove from watchlist' : 'Add to watchlist'}>
@@ -1298,7 +1313,7 @@ export default function MarketsPage() {
                             </td>
                             <td className="py-3.5 pl-2 pr-3 text-right sm:pr-4 md:pr-6 lg:pr-8 xl:pr-10" onClick={(e) => e.stopPropagation()}>
                             <Link
-                              to={`/trade/${m.symbol}`}
+                              to={`/futures/${String(m.symbol).replace(/USDT$/,'')}USDT-PERP`}
                                 className={TRADE_BTN_CLASS}
                             >
                                 Trade
@@ -1341,23 +1356,10 @@ export default function MarketsPage() {
         </>
         )}
 
-        {/* ── Delta Markets section ──────────────────────────────────────── */}
-        {marketMode === 'ibo' && (
-          <div className="text-center py-8">
-            <p className="text-white/50 text-sm mb-4">
-              Delta-quoted pairs are available on the dedicated Delta Markets page.
-            </p>
-            <Link
-              to="/ibo-markets"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gold/15 border border-gold/30 text-gold-light font-bold text-sm hover:bg-gold/25 transition-colors"
-            >
-              Open Delta Markets <ArrowRight size={14} />
-            </Link>
-          </div>
-        )}
+        {/* ── Delta Markets section removed (spot-engine product) ─────────── */}
 
         <p className="text-white/45 text-xs sm:text-sm text-center mt-8 px-2">
-          Delta data from Delta backend · Other pairs from Binance public 24h ticker · Not financial advice
+          Market data from public feeds · Not financial advice
         </p>
       </div>
     </div>

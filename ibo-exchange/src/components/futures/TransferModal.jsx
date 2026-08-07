@@ -27,7 +27,7 @@ export default function TransferModal({ open, onClose }) {
         'Transfer complete',
         isToFutures
           ? `${Number(amount).toFixed(2)} USDT moved to your Futures wallet.`
-          : `${Number(amount).toFixed(2)} USDT returned to your Spot wallet.`,
+          : `${Number(amount).toFixed(2)} USDT returned to your Funding wallet.`,
       );
       setAmount('');
       onClose();
@@ -75,7 +75,7 @@ export default function TransferModal({ open, onClose }) {
                 : 'bg-white/[0.04] text-[color:var(--ibo-ink-secondary)] border-transparent hover:bg-white/[0.07]'
             }`}
           >
-            Spot → Futures
+            Funding → Futures
           </button>
           <button
             type="button"
@@ -86,7 +86,7 @@ export default function TransferModal({ open, onClose }) {
                 : 'bg-white/[0.04] text-[color:var(--ibo-ink-secondary)] border-transparent hover:bg-white/[0.07]'
             }`}
           >
-            Futures → Spot
+            Futures → Funding
           </button>
         </div>
 

@@ -24,10 +24,11 @@ export function formatExpiryTabLabel(iso) {
   return `${day} ${months[d.getUTCMonth()]} ${yy}`;
 }
 
-/** e.g. P-BTC-64400-060826 */
+/** e.g. P-BTC-64400-060826 or MV-BTC-64400-060826 */
 export function formatDeltaInstrumentId(contract, underlying) {
   if (!contract) return '—';
-  const t = String(contract.option_type || '').toLowerCase() === 'put' ? 'P' : 'C';
+  const ot = String(contract.option_type || '').toLowerCase();
+  const t = ot === 'put' ? 'P' : ot === 'move' ? 'MV' : 'C';
   const base = baseFromUsdt(contract.underlying_symbol || underlying || '');
   const strike = Number(contract.strike);
   const strikeStr = Number.isFinite(strike)
@@ -43,4 +44,23 @@ export function formatDeltaInstrumentId(contract, underlying) {
     dmy = `${dd}${mm}${yy}`;
   }
   return `${t}-${base}-${strikeStr}-${dmy}`;
+}
+
+/** True for MOVE / straddle contracts (never belong on the vanilla Options chain). */
+export function isMoveContract(rowOrId) {
+  if (rowOrId == null) return false;
+  if (typeof rowOrId === 'string') {
+    return /_MV$/i.test(rowOrId) || /_MV_/i.test(rowOrId);
+  }
+  const ot = String(rowOrId.option_type || rowOrId.product || '').toLowerCase();
+  if (ot === 'move') return true;
+  return isMoveContract(rowOrId.id || rowOrId.contract_id || '');
+}
+
+export function vanillaContractsOnly(list) {
+  return (list || []).filter((c) => !isMoveContract(c));
+}
+
+export function moveContractsOnly(list) {
+  return (list || []).filter((c) => isMoveContract(c));
 }

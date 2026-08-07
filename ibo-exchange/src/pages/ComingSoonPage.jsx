@@ -220,7 +220,7 @@ export default function ComingSoonPage({ message, launchDate }) {
           transition={{ delay: 0.5 }}
           className="flex flex-wrap justify-center gap-2 mb-10"
         >
-          {['Spot Trading', 'Delta Markets', 'Futures', 'P2P', 'Low Fees', 'Secure'].map((f) => (
+          {['Futures Trading', 'Options', 'Futures', 'P2P', 'Low Fees', 'Secure'].map((f) => (
             <span key={f} className="px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.04] text-xs font-semibold text-white/60">
               {f}
             </span>

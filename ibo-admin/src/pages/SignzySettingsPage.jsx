@@ -152,7 +152,7 @@ export default function SignzySettingsPage() {
               selected={kycMode}
               title="Manual Review"
               description="Users upload ID + selfie, run Signzy face match, then submit for admin review."
-              color="#0EA4AB"
+              color="#FE6C02"
               onClick={setKycMode}
               disabled={!canManage || loading}
             />
@@ -231,7 +231,7 @@ export default function SignzySettingsPage() {
               selected={bankVerifyMode}
               title="Manual Review"
               description="Bank details are saved as unverified. Admin or operations team verifies before processing payouts."
-              color="#0EA4AB"
+              color="#FE6C02"
               onClick={setBankVerifyMode}
               disabled={!canManage || loading}
             />
@@ -274,8 +274,7 @@ export default function SignzySettingsPage() {
           <button
             onClick={save}
             disabled={saving || loading}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-[#05070d] disabled:opacity-40"
-            style={{ background: 'linear-gradient(135deg,#0EA4AB,#C5E35B)' }}
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-[#101013] bg-logo-gradient disabled:opacity-40"
           >
             <Save size={15} />
             {saving ? 'Saving…' : 'Save settings'}

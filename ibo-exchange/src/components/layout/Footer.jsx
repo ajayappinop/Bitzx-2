@@ -9,10 +9,11 @@ const SUPPORT_EMAIL = SITE_CONFIG.supportEmail;
 
 const LINKS = {
   Exchange: [
-    { label: 'Futures', to: '/futures/BTCUSDT-PERP' },
-    { label: 'Options', to: '/options/BTCUSDT' },
-    { label: 'Spot', to: '/trade/BTCUSDT' },
+    { label: 'Trade', to: '/futures/BTCUSDT-PERP' },
     { label: 'Markets', to: '/markets' },
+    { label: 'Futures', to: '/futures/BTCUSDT-PERP' },
+    { label: 'RWA', to: '/rwa/XAUTUSDT-PERP' },
+    { label: 'Options', to: '/options/BTCUSDT' },
     { label: 'Deposit INR', to: '/wallet/deposit/inr' },
   ],
   Company: [

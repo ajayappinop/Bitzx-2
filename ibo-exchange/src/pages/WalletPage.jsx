@@ -175,7 +175,7 @@ function BalancesTab({ walletAssets, walletLoading, fetchWallet, priceByAsset, o
         <div className="flex flex-col xl:flex-row xl:items-stretch">
           <div className="flex-1 min-w-0 px-5 sm:px-6 py-5 sm:py-6 border-b xl:border-b-0 xl:border-r border-[color:var(--ibo-border-solid)]">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--ibo-muted)]">
-              Spot portfolio
+              Funding portfolio
             </p>
             <p className="mt-2 text-3xl sm:text-4xl font-bold tabular-nums tracking-tight text-[color:var(--ibo-ink)]">
               {money(totalUSD)}
@@ -219,7 +219,7 @@ function BalancesTab({ walletAssets, walletLoading, fetchWallet, priceByAsset, o
         <div className="flex items-center justify-between gap-3 px-5 sm:px-6 py-3.5 border-b border-[color:var(--ibo-border-solid)]">
           <div>
             <h2 className="text-sm font-bold text-[color:var(--ibo-ink)]">Balances</h2>
-            <p className="text-[11px] text-[color:var(--ibo-muted)] mt-0.5">Spot holdings by USD weight</p>
+            <p className="text-[11px] text-[color:var(--ibo-muted)] mt-0.5">Holdings by USD weight</p>
           </div>
           <button
             type="button"
@@ -234,7 +234,7 @@ function BalancesTab({ walletAssets, walletLoading, fetchWallet, priceByAsset, o
         {ranked.length === 0 ? (
           <div className="px-6 py-14 text-center">
             <Wallet className="mx-auto text-[color:var(--ibo-muted)] opacity-40 mb-3" size={28} />
-            <p className="text-sm font-semibold text-[color:var(--ibo-ink)]">No spot balances yet</p>
+            <p className="text-sm font-semibold text-[color:var(--ibo-ink)]">No balances yet</p>
             <p className="text-xs text-[color:var(--ibo-muted)] mt-1">Deposit crypto or INR to fund your wallet.</p>
             <button type="button" onClick={() => onTab?.('deposit')} className="wallet-action-primary mt-4 mx-auto">
               Deposit now
@@ -299,12 +299,12 @@ function BalancesTab({ walletAssets, walletLoading, fetchWallet, priceByAsset, o
                         Swap
                       </button>
                     ) : null}
-                    <Link to={`/trade/${w.asset}USDT?side=buy`} className="wallet-chip-btn wallet-chip-btn--pos">
+                    <Link to={`/futures/${w.asset}USDT-PERP`} className="wallet-chip-btn wallet-chip-btn--pos">
                       Buy
                     </Link>
                     {w.asset !== 'USDT' && (
                       <Link
-                        to={`/trade/${w.asset}USDT?side=sell`}
+                        to={`/futures/${w.asset}USDT-PERP`}
                         className={`wallet-chip-btn ${w.available > 1e-12 ? 'wallet-chip-btn--neg' : 'opacity-35 pointer-events-none'}`}
                         onClick={(e) => { if (w.available <= 1e-12) e.preventDefault(); }}
                       >
@@ -1322,7 +1322,7 @@ function HistoryTab() {
     autoStart: true,
     onDeposit: () => load(),
     onExpire: () => {
-      // Session ended — return user to Spot balances (default wallet tab).
+      // Session ended — return user to balances (default wallet tab).
       setSearchParams({}, { replace: true });
     },
   });
@@ -2147,7 +2147,7 @@ function LedgerTab() {
 // ── Main WalletPage ───────────────────────────────────────────────────────────
 
 const TABS = [
-  { id: 'balances',    label: 'Spot balances', icon: Wallet },
+  { id: 'balances',    label: 'Balances', icon: Wallet },
   { id: 'swap',        label: 'Swap',          icon: ArrowLeftRight },
   { id: 'futures',     label: 'Futures',     icon: TrendingUp },
   { id: 'deposit',     label: 'Deposit',     icon: ArrowDownCircle },
@@ -2351,7 +2351,7 @@ export default function WalletPage({ accountMode = false, forcedTab = null, hide
                 <RefreshCw size={14} className={walletLoading ? 'animate-spin' : ''} />
                 Refresh
               </button>
-              <Link to="/trade/IBOUSDT" className="wallet-action-primary">
+              <Link to="/futures/BTCUSDT-PERP" className="wallet-action-primary">
                 <BarChart2 size={14} /> Trade
               </Link>
             </div>

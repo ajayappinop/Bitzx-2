@@ -131,7 +131,7 @@ export default function ListCoinPage() {
                 List your coin
               </h1>
               <p className="text-[11px] text-[color:var(--ibo-muted)] mt-0.5 m-0 truncate">
-                Apply for deposits, withdrawals, and spot trading
+                Apply for deposits, withdrawals, and exchange listing
               </p>
             </div>
           </div>

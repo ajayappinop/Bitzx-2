@@ -30,6 +30,18 @@ import { Colors, FontFamily, FontSize, Spacing, Radius } from '../../theme';
 import { effectiveKycStatus, isKycApproved } from '../../utils/kycGate';
 import AdaptiveKeyboardAvoidingView from '@/components/common/AdaptiveKeyboardAvoidingView';
 import { iosManualKeyboardScrollProps } from '@/utils/iosKeyboardScroll';
+import { API_URL } from '../../config/env';
+
+function kycMediaUrl(rel?: string | null): string {
+  if (!rel) return '';
+  if (/^https?:\/\//i.test(rel)) return rel;
+  return `${API_URL}${rel.startsWith('/') ? '' : '/'}${rel}`;
+}
+
+function isKycImagePath(url?: string | null): boolean {
+  if (!url) return false;
+  return /\.(jpe?g|png|webp)$/i.test(url);
+}
 
 type Props = {
   navigation: NativeStackNavigationProp<ProfileStackParamList, 'KYCWizard'>;
@@ -194,6 +206,7 @@ export default function KYCWizardScreen({ navigation }: Props) {
   const [backType, setBackType] = useState('image/jpeg');
   const [backName, setBackName] = useState('back.jpg');
   const [uploadingDocs, setUploadingDocs] = useState(false);
+  const [clearingSide, setClearingSide] = useState<'front' | 'back' | null>(null);
   const [docFrontUrl, setDocFrontUrl] = useState('');
   const [docBackUrl, setDocBackUrl] = useState('');
 
@@ -214,6 +227,28 @@ export default function KYCWizardScreen({ navigation }: Props) {
       setDocBackUrl('');
     }
     setFieldErrors((e) => ({ ...e, document_front: '' }));
+  };
+
+  const handleClearUpload = async (side: 'front' | 'back') => {
+    setBanner('');
+    if (side === 'front') {
+      setFrontUri('');
+      if (!docFrontUrl) return;
+    } else {
+      setBackUri('');
+      if (!docBackUrl) return;
+    }
+    setClearingSide(side);
+    try {
+      await kycApi.deleteUpload(side);
+      if (side === 'front') setDocFrontUrl('');
+      else setDocBackUrl('');
+    } catch (err) {
+      setBannerType('error');
+      setBanner(parseApiError(err));
+    } finally {
+      setClearingSide(null);
+    }
   };
 
   // Upload picked files and return { front_url, back_url }
@@ -554,41 +589,81 @@ export default function KYCWizardScreen({ navigation }: Props) {
                     <Text style={styles.fieldError}> — {fieldErrors.document_front}</Text>
                   ) : null}
                 </Text>
-                <TouchableOpacity style={styles.uploadBox} onPress={() => handlePickImage('front')}>
-                  {frontUri ? (
-                    <Image source={{ uri: frontUri }} style={styles.previewImg} resizeMode="cover" />
-                  ) : docFrontUrl ? (
-                    <View style={styles.uploadedBadge}>
-                      <Icon name="check-circle" size={22} color={Colors.success} />
-                      <Text style={styles.uploadedText}>Uploaded</Text>
-                    </View>
-                  ) : (
-                    <>
-                      <Icon name="camera-outline" size={28} color={Colors.textMuted} />
-                      <Text style={styles.uploadText}>Tap to upload front side</Text>
-                    </>
-                  )}
-                </TouchableOpacity>
+                <View style={styles.uploadWrap}>
+                  {(frontUri || docFrontUrl) ? (
+                    <TouchableOpacity
+                      style={styles.removeBtn}
+                      onPress={() => handleClearUpload('front')}
+                      disabled={clearingSide === 'front'}
+                    >
+                      {clearingSide === 'front' ? (
+                        <ActivityIndicator size="small" color={Colors.danger} />
+                      ) : (
+                        <>
+                          <Icon name="trash-can-outline" size={14} color={Colors.danger} />
+                          <Text style={styles.removeText}>Remove</Text>
+                        </>
+                      )}
+                    </TouchableOpacity>
+                  ) : null}
+                  <TouchableOpacity style={styles.uploadBox} onPress={() => handlePickImage('front')}>
+                    {frontUri ? (
+                      <Image source={{ uri: frontUri }} style={styles.previewImg} resizeMode="cover" />
+                    ) : docFrontUrl && isKycImagePath(docFrontUrl) ? (
+                      <Image source={{ uri: kycMediaUrl(docFrontUrl) }} style={styles.previewImg} resizeMode="cover" />
+                    ) : docFrontUrl ? (
+                      <View style={styles.uploadedBadge}>
+                        <Icon name="check-circle" size={22} color={Colors.success} />
+                        <Text style={styles.uploadedText}>Uploaded</Text>
+                      </View>
+                    ) : (
+                      <>
+                        <Icon name="camera-outline" size={28} color={Colors.textMuted} />
+                        <Text style={styles.uploadText}>Tap to upload front side</Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
+                </View>
 
                 {/* Back upload (optional for passport) */}
                 {doc.document_type !== 'passport' && (
                   <>
                     <Text style={styles.fieldLabel}>Back side (optional)</Text>
-                    <TouchableOpacity style={styles.uploadBox} onPress={() => handlePickImage('back')}>
-                      {backUri ? (
-                        <Image source={{ uri: backUri }} style={styles.previewImg} resizeMode="cover" />
-                      ) : docBackUrl ? (
-                        <View style={styles.uploadedBadge}>
-                          <Icon name="check-circle" size={22} color={Colors.success} />
-                          <Text style={styles.uploadedText}>Uploaded</Text>
-                        </View>
-                      ) : (
-                        <>
-                          <Icon name="camera-outline" size={28} color={Colors.textMuted} />
-                          <Text style={styles.uploadText}>Tap to upload back side</Text>
-                        </>
-                      )}
-                    </TouchableOpacity>
+                    <View style={styles.uploadWrap}>
+                      {(backUri || docBackUrl) ? (
+                        <TouchableOpacity
+                          style={styles.removeBtn}
+                          onPress={() => handleClearUpload('back')}
+                          disabled={clearingSide === 'back'}
+                        >
+                          {clearingSide === 'back' ? (
+                            <ActivityIndicator size="small" color={Colors.danger} />
+                          ) : (
+                            <>
+                              <Icon name="trash-can-outline" size={14} color={Colors.danger} />
+                              <Text style={styles.removeText}>Remove</Text>
+                            </>
+                          )}
+                        </TouchableOpacity>
+                      ) : null}
+                      <TouchableOpacity style={styles.uploadBox} onPress={() => handlePickImage('back')}>
+                        {backUri ? (
+                          <Image source={{ uri: backUri }} style={styles.previewImg} resizeMode="cover" />
+                        ) : docBackUrl && isKycImagePath(docBackUrl) ? (
+                          <Image source={{ uri: kycMediaUrl(docBackUrl) }} style={styles.previewImg} resizeMode="cover" />
+                        ) : docBackUrl ? (
+                          <View style={styles.uploadedBadge}>
+                            <Icon name="check-circle" size={22} color={Colors.success} />
+                            <Text style={styles.uploadedText}>Uploaded</Text>
+                          </View>
+                        ) : (
+                          <>
+                            <Icon name="camera-outline" size={28} color={Colors.textMuted} />
+                            <Text style={styles.uploadText}>Tap to upload back side</Text>
+                          </>
+                        )}
+                      </TouchableOpacity>
+                    </View>
                   </>
                 )}
 
@@ -640,12 +715,22 @@ export default function KYCWizardScreen({ navigation }: Props) {
                   ))}
                 </View>
 
-                {/* Front image preview */}
-                {(frontUri || (docFrontUrl && /\.(jpe?g|png|webp)$/i.test(docFrontUrl))) && (
+                {/* Front / back image preview */}
+                {(frontUri || (docFrontUrl && isKycImagePath(docFrontUrl))) && (
                   <View style={styles.previewCard}>
                     <Text style={styles.previewLabel}>ID front preview</Text>
                     <Image
-                      source={{ uri: frontUri || docFrontUrl }}
+                      source={{ uri: frontUri || kycMediaUrl(docFrontUrl) }}
+                      style={styles.previewFull}
+                      resizeMode="contain"
+                    />
+                  </View>
+                )}
+                {(backUri || (docBackUrl && isKycImagePath(docBackUrl))) && (
+                  <View style={styles.previewCard}>
+                    <Text style={styles.previewLabel}>ID back preview</Text>
+                    <Image
+                      source={{ uri: backUri || kycMediaUrl(docBackUrl) }}
                       style={styles.previewFull}
                       resizeMode="contain"
                     />
@@ -758,6 +843,16 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surfaceHover, overflow: 'hidden',
     gap: Spacing[2],
   },
+  uploadWrap: { gap: Spacing[2] },
+  removeBtn: {
+    alignSelf: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing[1],
+    paddingVertical: Spacing[1],
+    paddingHorizontal: Spacing[2],
+  },
+  removeText: { fontFamily: FontFamily.semiBold, fontSize: FontSize.xs, color: Colors.danger },
   uploadText: { fontFamily: FontFamily.regular, fontSize: FontSize.sm, color: Colors.textMuted },
   uploadedBadge: { alignItems: 'center', gap: Spacing[2] },
   uploadedText: { fontFamily: FontFamily.semiBold, fontSize: FontSize.sm, color: Colors.success },

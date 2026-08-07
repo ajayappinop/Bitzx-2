@@ -23,11 +23,13 @@ class LocalExchangeProvider(OptionsMarketProvider):
         *,
         underlying_symbol: Optional[str] = None,
         listed_only: bool = True,
+        option_type: Optional[str] = None,
         limit: int = 500,
     ) -> List[Dict[str, Any]]:
         return await contracts_svc.list_contracts(
             underlying_symbol=underlying_symbol,
             listed_only=listed_only,
+            option_type=option_type,
             limit=limit,
         )
 

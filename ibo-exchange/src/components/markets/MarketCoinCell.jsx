@@ -76,7 +76,7 @@ export default function MarketCoinCell({ market, size = 40, showQuote = true, li
 
   if (linkToTrade && market?.symbol) {
     return (
-      <Link to={`/trade/${market.symbol}`} className="hover:opacity-90 transition-opacity">
+      <Link to={`/futures/${String(market.symbol).replace(/USDT$/,'')}USDT-PERP`} className="hover:opacity-90 transition-opacity">
         {inner}
       </Link>
     );

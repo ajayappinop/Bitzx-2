@@ -7,20 +7,26 @@ from typing import Any, Dict
 from listings.registry import get_market_pair_defs
 
 
-def _default_futures_meta(base: str, spot_symbol: str) -> Dict[str, Any]:
+def _default_futures_meta(base: str, spot_symbol: str, *, asset_class: str = "crypto") -> Dict[str, Any]:
     b = (base or "").upper()
     # Conservative defaults for thin / DEX-listed assets.
     if b in {"BTC", "ETH"}:
         tick, lot, min_q, max_q = 0.10, 0.001, 0.001, 1000.0
     elif b in {"BNB", "SOL"}:
         tick, lot, min_q, max_q = 0.01, 0.01, 0.01, 50_000.0
+    elif b in {"XAUT", "PAXG"}:
+        tick, lot, min_q, max_q = 0.01, 0.001, 0.001, 10_000.0
     else:
         tick, lot, min_q, max_q = 0.00001, 1.0, 1.0, 10_000_000.0
+    ac = (asset_class or "crypto").lower()
+    if ac not in {"crypto", "rwa"}:
+        ac = "crypto"
     return {
         "base": b,
         "quote": "USDT",
         "binance_symbol": spot_symbol.upper(),
         "index_source": "listed",
+        "asset_class": ac,
         "tick_size": tick,
         "lot_size": lot,
         "min_qty": min_q,
@@ -40,6 +46,10 @@ def merge_listed_into_futures(static: Dict[str, Dict[str, object]]) -> Dict[str,
             continue
         perp = f"{spot}-PERP"
         if perp in merged:
+            # Never overwrite static majors / RWA with listed defaults.
             continue
-        merged[perp] = _default_futures_meta(base, spot)
+        # Only promote to RWA when admin explicitly tagged the spot listing.
+        cat = str(p.get("market_category") or "").lower()
+        asset_class = "rwa" if cat == "rwa" else "crypto"
+        merged[perp] = _default_futures_meta(base, spot, asset_class=asset_class)
     return merged

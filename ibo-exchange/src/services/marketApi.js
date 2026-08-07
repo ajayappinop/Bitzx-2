@@ -205,7 +205,7 @@ export function walletAssetLabel(asset) {
 }
 
 export function tradeHrefForWalletAsset(asset) {
-  return `/trade/${asset}USDT`;
+  return `/futures/${asset}USDT-PERP`;
 }
 
 function iboTickerFallback() {

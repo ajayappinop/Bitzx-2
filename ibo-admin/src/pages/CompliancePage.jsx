@@ -861,13 +861,13 @@ export default function CompliancePage({ mode = 'aml' }) {
 
 function Stat({ title, value, tone = 'blue', icon: Icon }) {
   const tones = {
-    blue: 'bg-gradient-to-br from-[#3B82F6]/30 via-[#3B82F6]/14 to-transparent border-[#3B82F6]/45',
-    emerald: 'bg-gradient-to-br from-[#0ECB81]/30 via-[#0ECB81]/14 to-transparent border-[#0ECB81]/45',
-    cyan: 'bg-gradient-to-br from-[#22D3EE]/30 via-[#22D3EE]/14 to-transparent border-[#22D3EE]/45',
-    yellow: 'bg-gradient-to-br from-[#0EA4AB]/30 via-[#0EA4AB]/14 to-transparent border-[#0EA4AB]/45',
-    purple: 'bg-gradient-to-br from-[#8B5CF6]/30 via-[#8B5CF6]/14 to-transparent border-[#8B5CF6]/45',
-    red: 'bg-gradient-to-br from-[#F6465D]/30 via-[#F6465D]/14 to-transparent border-[#F6465D]/45',
-    rose: 'bg-gradient-to-br from-[#EF4444]/30 via-[#EF4444]/14 to-transparent border-[#EF4444]/45',
+    blue: 'bg-gradient-to-br from-[#FE6C02]/30 via-[#FE6C02]/14 to-transparent border-[#FE6C02]/45',
+    emerald: 'bg-gradient-to-br from-[#00A876]/30 via-[#00A876]/14 to-transparent border-[#00A876]/45',
+    cyan: 'bg-gradient-to-br from-[#FE9D55]/30 via-[#FE6C02]/14 to-transparent border-[#FE6C02]/45',
+    yellow: 'bg-gradient-to-br from-[#FE9D55]/30 via-[#FE6C02]/14 to-transparent border-[#FE6C02]/45',
+    purple: 'bg-gradient-to-br from-[#B44D01]/30 via-[#FE6C02]/14 to-transparent border-[#B44D01]/45',
+    red: 'bg-gradient-to-br from-[#EB5454]/30 via-[#EB5454]/14 to-transparent border-[#EB5454]/45',
+    rose: 'bg-gradient-to-br from-[#EB5454]/30 via-[#EB5454]/14 to-transparent border-[#EB5454]/45',
   };
   return (
     <div className={`rounded-xl border p-4 shadow-[0_10px_24px_rgba(0,0,0,0.22)] ${tones[tone] || tones.blue}`}>

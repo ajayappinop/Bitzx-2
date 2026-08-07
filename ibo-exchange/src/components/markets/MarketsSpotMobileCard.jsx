@@ -52,7 +52,7 @@ export default function MarketsSpotMobileCard({ market, isFavorite, onToggleFavo
       </div>
 
       <Link
-        to={`/trade/${market.symbol}`}
+        to={`/futures/${String(market.symbol).replace(/USDT$/,'')}USDT-PERP`}
         className="flex items-center justify-center gap-2 w-full py-2.5 rounded-md bg-[color:var(--ibo-accent)] text-[#101013] font-bold text-sm hover:brightness-110 transition-[filter]"
       >
         Trade {base}

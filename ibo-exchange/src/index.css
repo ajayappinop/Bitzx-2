@@ -3943,11 +3943,107 @@ button.font-ui,
   --ibo-hover: rgba(255, 255, 255, 0.04);
   --ibo-border: rgba(255, 255, 255, 0.07);
   --ibo-border-solid: rgba(255, 255, 255, 0.1);
+  accent-color: #FE6C02;
+  caret-color: #FE6C02;
 }
 .delta-trade input:not([type='checkbox']):not([type='radio']),
 .delta-trade textarea,
 .delta-trade select {
   background-color: transparent !important;
+  caret-color: #FE6C02;
+}
+/* Orange hover / focus — replace browser default blue on trade tickets */
+.delta-trade .delta-trade-ticket input:not([type='checkbox']):not([type='radio']):hover:not(:disabled):not(:focus),
+.delta-trade .delta-trade-ticket select:hover:not(:disabled):not(:focus),
+.delta-trade .delta-trade-ticket textarea:hover:not(:disabled):not(:focus),
+.delta-trade .delta-trade-box:hover:not(:focus-within) {
+  border-color: rgba(254, 108, 2, 0.4) !important;
+}
+.delta-trade .delta-trade-ticket input:not([type='checkbox']):not([type='radio']):focus,
+.delta-trade .delta-trade-ticket select:focus,
+.delta-trade .delta-trade-ticket textarea:focus,
+.delta-trade .delta-trade-box:focus-within {
+  outline: none !important;
+  border-color: rgba(254, 108, 2, 0.65) !important;
+  box-shadow: 0 0 0 2px rgba(254, 108, 2, 0.16) !important;
+}
+.delta-trade .delta-trade-ticket a:hover {
+  color: #FE6C02 !important;
+}
+.delta-trade .delta-trade-ticket input[type='range'] {
+  accent-color: #FE6C02;
+}
+
+/* Delta-style leverage range (full-width trade ticket) */
+.delta-lev-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  z-index: 1;
+  --lev-pct: 0%;
+  --lev-track: rgba(255, 255, 255, 0.12);
+  background: linear-gradient(
+    to right,
+    #FE6C02 0%,
+    #FE6C02 var(--lev-pct),
+    var(--lev-track) var(--lev-pct),
+    var(--lev-track) 100%
+  );
+}
+html[data-theme='light'] .delta-lev-range {
+  --lev-track: rgba(18, 20, 24, 0.12);
+}
+.delta-lev-range:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.delta-lev-range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: transparent;
+}
+.delta-lev-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: -6px;
+  border-radius: 50%;
+  background: #FE6C02;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(254, 108, 2, 0.35), 0 2px 8px rgba(254, 108, 2, 0.35);
+  cursor: grab;
+  transition: transform 0.12s ease;
+}
+.delta-lev-range:active::-webkit-slider-thumb {
+  cursor: grabbing;
+  transform: scale(1.08);
+}
+.delta-lev-range::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: transparent;
+  border: none;
+}
+.delta-lev-range::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #FE6C02;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(254, 108, 2, 0.35), 0 2px 8px rgba(254, 108, 2, 0.35);
+  cursor: grab;
+}
+.delta-trade .delta-trade-ticket ::selection {
+  background: rgba(254, 108, 2, 0.28);
+  color: inherit;
 }
 /* Outline fields / chips inside the terminal */
 .delta-trade .delta-trade-box,
@@ -4138,6 +4234,14 @@ html[data-theme='dark'] .doc-opts-page {
   min-width: 480px;
   max-width: 720px;
   box-sizing: border-box;
+}
+/* Strategy Builder — Orders Basket rail (narrower than book+ticket) */
+.delta-trade.doc-opts.doc-opts--strategy {
+  --delta-right-w: min(400px, 38vw);
+}
+.delta-trade.doc-opts.doc-opts--strategy .delta-right-col {
+  min-width: 340px;
+  max-width: 420px;
 }
 .delta-options-header {
   align-items: stretch;
@@ -11975,6 +12079,10 @@ html[data-theme='dark'] .delta-account__rail { background: #0f1116; }
   font-weight: 700;
   cursor: pointer;
   transition: background 0.14s, color 0.14s, box-shadow 0.14s;
+}
+.qt2-mode__btn:not(.is-on):hover {
+  color: var(--qt-orange);
+  background: color-mix(in srgb, var(--qt-orange) 10%, transparent);
 }
 .qt2-mode__btn.is-buy.is-on {
   color: #fff;

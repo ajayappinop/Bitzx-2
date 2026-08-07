@@ -31,7 +31,7 @@ function formatSettleTick(tick) {
 
 function KvTable({ rows }) {
   return (
-    <div className="rounded-lg border border-white/10 overflow-hidden bg-black/20">
+    <div className="rounded-lg border border-white/10 overflow-hidden bg-surface-dark">
       <table className="w-full text-sm table-fixed">
         <tbody>
           {rows.map(([k, v]) => (
@@ -184,7 +184,7 @@ export default function OptionsOverviewPage() {
 
   if (loading && !overview) {
     return (
-      <div className="rounded-xl border border-white/10 bg-black/20 py-16 text-center text-white/50 text-sm">
+      <div className="rounded-xl border border-white/10 bg-surface-dark py-16 text-center text-white/50 text-sm">
         Loading options overview…
       </div>
     );
@@ -267,7 +267,7 @@ export default function OptionsOverviewPage() {
           ].map(([label, val]) => (
             <div
               key={label}
-              className="rounded-xl border border-white/[0.08] bg-black/25 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+              className="rounded-xl border border-white/[0.08] bg-surface-dark px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
             >
               <p className="text-[11px] uppercase tracking-wider text-white/45 font-bold">{label}</p>
               <p className="text-2xl font-extrabold text-white mt-1 tabular-nums">{fmtCount(val)}</p>
@@ -278,7 +278,7 @@ export default function OptionsOverviewPage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         {overview?.effective_fee_rates && (
-          <div className="rounded-xl border border-white/[0.08] bg-black/25 p-4 space-y-3">
+          <div className="rounded-xl border border-white/[0.08] bg-surface-dark p-4 space-y-3">
             <div className="flex items-center gap-2">
               <span className="text-[11px] uppercase tracking-wider text-white/50 font-bold">Effective fees</span>
               <span
@@ -304,7 +304,7 @@ export default function OptionsOverviewPage() {
         )}
 
         {feeSink?.enabled && feeSink.wallet && (
-          <div className="rounded-xl border border-white/[0.08] bg-black/25 p-4 space-y-3">
+          <div className="rounded-xl border border-white/[0.08] bg-surface-dark p-4 space-y-3">
             <span className="text-[11px] uppercase tracking-wider text-white/50 font-bold">Fee sink wallet</span>
             <KvTable
               rows={[
@@ -330,13 +330,13 @@ export default function OptionsOverviewPage() {
       {feeSink && feeSink.enabled === false && (
         <div className="rounded-xl border border-gold/25 bg-gold/10 px-4 py-3 text-sm text-gold-light/90/90">
           Fee sink is off. Set{' '}
-          <code className="bg-black/30 px-1.5 py-0.5 rounded font-mono text-xs">OPTIONS_FEE_SINK_UID</code> to route
+          <code className="bg-surface-dark px-1.5 py-0.5 rounded font-mono text-xs">OPTIONS_FEE_SINK_UID</code> to route
           fees to a dedicated wallet.
         </div>
       )}
 
       {overview?.ops && (
-        <div className="rounded-xl border border-white/[0.08] bg-black/25 p-4 space-y-3">
+        <div className="rounded-xl border border-white/[0.08] bg-surface-dark p-4 space-y-3">
           <span className="text-[11px] uppercase tracking-wider text-white/50 font-bold">Runtime & settlement</span>
           <KvTable
             rows={[
@@ -353,7 +353,7 @@ export default function OptionsOverviewPage() {
       )}
 
       {controls && (
-        <div className="rounded-xl border border-white/[0.08] bg-black/25 p-4 space-y-5 max-w-3xl">
+        <div className="rounded-xl border border-white/[0.08] bg-surface-dark p-4 space-y-5 max-w-3xl">
           <h2 className="text-sm font-bold text-white">Platform controls</h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {[
@@ -364,7 +364,7 @@ export default function OptionsOverviewPage() {
             ].map(({ key, label }) => (
               <label
                 key={key}
-                className="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-black/30 px-3 py-3 cursor-pointer hover:border-white/15"
+                className="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-surface-dark px-3 py-3 cursor-pointer hover:border-white/15"
               >
                 <span className="text-sm text-white/90">{label}</span>
                 <input
@@ -399,7 +399,7 @@ export default function OptionsOverviewPage() {
                   value={feeTaker}
                   onChange={(e) => setFeeTaker(e.target.value)}
                   placeholder="0.0005"
-                  className="mt-1 block w-full rounded-lg bg-black/40 border border-white/15 px-2 py-2 font-mono text-sm text-white tabular-nums"
+                  className="mt-1 block w-full rounded-lg bg-surface-card border border-white/15 px-2 py-2 font-mono text-sm text-white tabular-nums"
                 />
               </label>
               <label className="block text-xs min-w-[8rem]">
@@ -409,7 +409,7 @@ export default function OptionsOverviewPage() {
                   value={feeMaker}
                   onChange={(e) => setFeeMaker(e.target.value)}
                   placeholder="-0.0001"
-                  className="mt-1 block w-full rounded-lg bg-black/40 border border-white/15 px-2 py-2 font-mono text-sm text-white tabular-nums"
+                  className="mt-1 block w-full rounded-lg bg-surface-card border border-white/15 px-2 py-2 font-mono text-sm text-white tabular-nums"
                 />
               </label>
               <button

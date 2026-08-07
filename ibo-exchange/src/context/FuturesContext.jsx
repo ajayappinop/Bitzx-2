@@ -37,7 +37,15 @@ function mergeMarketTick(prev = {}, incoming = {}) {
   return out;
 }
 
-export function FuturesProvider({ children, initialSymbol = null }) {
+export function FuturesProvider({
+  children,
+  initialSymbol = null,
+  /** crypto (default) | rwa — never mix catalogs */
+  assetClass = 'crypto',
+  basePath = '/futures',
+  defaultSymbol = 'BTCUSDT-PERP',
+  productLabel = null,
+}) {
   const { user } = useAuth();
 
   const [symbols, setSymbols] = useState([]);
@@ -62,7 +70,7 @@ export function FuturesProvider({ children, initialSymbol = null }) {
     let retryTimer = null;
 
     const load = () => {
-      futuresApi.listSymbols()
+      futuresApi.listSymbols({ assetClass })
         .then((data) => {
           if (cancelled) return;
           const syms = data?.symbols || [];
@@ -84,9 +92,14 @@ export function FuturesProvider({ children, initialSymbol = null }) {
       cancelled = true;
       if (retryTimer) clearTimeout(retryTimer);
     };
-  }, []);
+  }, [assetClass]);
 
-  // ── Markets WS (public, fan-out for every supported symbol) ───────────
+  const catalogSet = useMemo(
+    () => new Set(symbols.map((s) => s.symbol)),
+    [symbols],
+  );
+
+  // ── Markets WS (public) — only apply ticks for symbols in this catalog ─
   const marketsWsRef = useRef(null);
   useEffect(() => {
     let cancelled = false;
@@ -101,6 +114,8 @@ export function FuturesProvider({ children, initialSymbol = null }) {
           const next = { ...prev };
           for (const m of msg.markets || []) {
             if (!m?.symbol) continue;
+            // Isolation: ignore ticks outside this product catalog (crypto vs RWA).
+            if (catalogSet.size && !catalogSet.has(m.symbol)) continue;
             next[m.symbol] = mergeMarketTick(prev[m.symbol], m);
           }
           return next;
@@ -115,9 +130,9 @@ export function FuturesProvider({ children, initialSymbol = null }) {
       if (timer) clearTimeout(timer);
       try { ws?.close(); } catch { /* ignore */ }
     };
-  }, []);
+  }, [catalogSet]);
 
-  // ── Binance public miniTicker WS — live index prices ──────────────────
+  // ── Binance public miniTicker WS — live index prices for THIS catalog only
   // The backend mark-price worker may lag or be unreachable.  Binance's
   // public stream (no API key, CORS-open for WebSocket) gives us a
   // sub-second index feed directly in the browser.
@@ -128,20 +143,20 @@ export function FuturesProvider({ children, initialSymbol = null }) {
   //       takes precedence for PnL / liquidation math once it arrives.
   //
   // Symbol mapping: futures "BTCUSDT-PERP" → Binance "btcusdt" (strip -PERP).
+  // Streams are built from the filtered catalog so RWA (XAUT) never overlays crypto.
   useEffect(() => {
-    // Build stream list from the known futures symbols.
-    const FUTURES_SYMBOLS = [
-      'BTCUSDT-PERP', 'ETHUSDT-PERP', 'BNBUSDT-PERP', 'SOLUSDT-PERP',
-      'XRPUSDT-PERP', 'DOGEUSDT-PERP', 'ADAUSDT-PERP', 'POLUSDT-PERP',
-      'AVAXUSDT-PERP', 'DOTUSDT-PERP',
-    ];
-    // binance stream name → futures symbol
+    if (!symbols.length) return undefined;
+
     const binToFut = {};
-    for (const sym of FUTURES_SYMBOLS) {
-      const binSym = sym.replace('-PERP', '').toLowerCase();
-      binToFut[binSym] = sym;
+    for (const row of symbols) {
+      const sym = row.symbol;
+      const binSym = String(row.binance_symbol || sym.replace(/-PERP$/i, '')).toLowerCase();
+      if (binSym) binToFut[binSym] = sym;
     }
-    const streams = Object.keys(binToFut).map(s => `${s}@miniTicker`).join('/');
+    const streamKeys = Object.keys(binToFut);
+    if (!streamKeys.length) return undefined;
+
+    const streams = streamKeys.map((s) => `${s}@miniTicker`).join('/');
     const url = `wss://stream.binance.com:9443/stream?streams=${streams}`;
 
     let cancelled   = false;
@@ -219,7 +234,7 @@ export function FuturesProvider({ children, initialSymbol = null }) {
       if (flushTimer) clearTimeout(flushTimer);
       try { ws?.close(); } catch { /* ignore */ }
     };
-  }, []);
+  }, [symbols]);
 
   // ── Orderbook WS (per active symbol) ──────────────────────────────────
   useEffect(() => {
@@ -414,11 +429,13 @@ export function FuturesProvider({ children, initialSymbol = null }) {
     placeOrder, cancelOrder, closePosition, transfer, syncLocked,
     refreshAccount, upsertOpenOrder,
     activeMark: activeSymbol ? markets[activeSymbol] : null,
+    assetClass, basePath, defaultSymbol, productLabel,
   }), [
     symbols, leverageOptions, activeSymbol, markets, orderbook, recentTrades,
     wallet, positions, openOrders, orderHistory, userTrades, settings,
     setLeverage, setMarginMode, placeOrder, cancelOrder, closePosition, transfer, syncLocked,
     refreshAccount, upsertOpenOrder,
+    assetClass, basePath, defaultSymbol, productLabel,
   ]);
 
   return <FuturesContext.Provider value={value}>{children}</FuturesContext.Provider>;

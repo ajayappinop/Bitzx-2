@@ -89,6 +89,7 @@ function useFundingCountdown() {
 
 function PairDropdown({ activeSymbol, symbols }) {
   const navigate = useNavigate();
+  const { basePath = '/futures', productLabel } = useFutures();
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState(null);
   const ref = useRef(null);
@@ -97,7 +98,7 @@ function PairDropdown({ activeSymbol, symbols }) {
   const base = meta?.base || (activeSymbol || '').split('USDT')[0] || '';
   const icon = COIN_ICONS[base];
   const switchTo = (sym) => {
-    navigate(`/futures/${sym}`);
+    navigate(`${basePath}/${sym}`);
     setOpen(false);
   };
 
@@ -116,10 +117,19 @@ function PairDropdown({ activeSymbol, symbols }) {
           className="flex items-center gap-2 px-2.5 py-1.5 rounded-md border border-[color:var(--ibo-border-solid)]
             bg-[color:var(--ibo-card)] hover:border-[#FE6C02]/40 transition-colors"
         >
-          {icon ? <img src={icon} alt={base} className="w-5 h-5 rounded-full" /> : null}
+          {icon ? <img src={icon} alt={base} className="w-5 h-5 rounded-full" /> : (
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500/20 text-[9px] font-extrabold text-amber-600">
+              {base.slice(0, 2)}
+            </span>
+          )}
           <span className="text-[14px] font-bold text-[color:var(--ibo-ink)] tracking-tight">
             {base}USD
           </span>
+          {productLabel ? (
+            <span className="rounded bg-[#fe6c02]/12 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-[#fe6c02]">
+              {productLabel}
+            </span>
+          ) : null}
           <ChevronDown
             size={14}
             className={`text-[color:var(--ibo-muted)] transition-transform ${open ? 'rotate-180' : ''}`}
@@ -147,7 +157,7 @@ function PairDropdown({ activeSymbol, symbols }) {
             className="scrollbar-hide"
           >
             <div className="px-3 pt-2 pb-1 text-[10px] uppercase tracking-widest text-white/45 font-bold">
-              Perpetuals
+              {productLabel === 'RWA' ? 'RWA Perpetuals' : 'Perpetuals'}
             </div>
             {symbols.map((s) => {
               const active = s.symbol === activeSymbol;
@@ -161,17 +171,23 @@ function PairDropdown({ activeSymbol, symbols }) {
                 >
                   {COIN_ICONS[s.base] ? (
                     <img src={COIN_ICONS[s.base]} alt={s.base} className="w-6 h-6 rounded-full" />
-                  ) : null}
+                  ) : (
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-500/20 text-[9px] font-extrabold text-amber-600">
+                      {String(s.base || '').slice(0, 2)}
+                    </span>
+                  )}
                   <div className="flex-1">
-                    <div className="font-bold text-[13px]">{s.base}USD</div>
-                    <div className="text-[10px] text-white/45">Up to {s.max_leverage}×</div>
+                    <div className="font-bold text-[13px]">{s.display_name || `${s.base}USD`}</div>
+                    <div className="text-[10px] text-white/45">
+                      {s.description || `Up to ${s.max_leverage}×`}
+                    </div>
                   </div>
                 </button>
               );
             })}
             <div className="border-t border-white/5 mt-1">
               <Link
-                to="/markets"
+                to={productLabel === 'RWA' ? '/markets?tab=rwa' : '/markets'}
                 onClick={() => setOpen(false)}
                 className="flex items-center gap-2 px-3 py-2.5 text-white/55 text-sm hover:bg-white/5"
               >
@@ -324,7 +340,13 @@ function FuturesTradePageInner() {
   const { symbol: routeSym } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { symbols, activeSymbol, setActiveSymbol } = useFutures();
+  const {
+    symbols,
+    activeSymbol,
+    setActiveSymbol,
+    basePath = '/futures',
+    defaultSymbol = DEFAULT_SYMBOL,
+  } = useFutures();
 
   const [funding, setFunding] = useState(null);
   const [mobileTab, setMobileTab] = useState('trade');
@@ -343,26 +365,26 @@ function FuturesTradePageInner() {
   );
 
   useEffect(() => {
-    const sym = routeSym ? routeSym.toUpperCase() : DEFAULT_SYMBOL;
+    const sym = routeSym ? routeSym.toUpperCase() : defaultSymbol;
     if (sym !== activeSymbol) setActiveSymbol(sym);
-  }, [routeSym]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [routeSym, defaultSymbol]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!symbols.length) return;
     if (!routeSym) {
-      const target = symbols.find((s) => s.symbol === DEFAULT_SYMBOL) || symbols[0];
-      if (target) navigate(`/futures/${target.symbol}`, { replace: true });
+      const target = symbols.find((s) => s.symbol === defaultSymbol) || symbols[0];
+      if (target) navigate(`${basePath}/${target.symbol}`, { replace: true });
       return;
     }
     const upper = routeSym.toUpperCase();
     const found = symbols.find((s) => s.symbol === upper);
     if (!found) {
-      const target = symbols.find((s) => s.symbol === DEFAULT_SYMBOL) || symbols[0];
-      if (target) navigate(`/futures/${target.symbol}`, { replace: true });
+      const target = symbols.find((s) => s.symbol === defaultSymbol) || symbols[0];
+      if (target) navigate(`${basePath}/${target.symbol}`, { replace: true });
     } else if (found.symbol !== activeSymbol) {
       setActiveSymbol(found.symbol);
     }
-  }, [routeSym, symbols, navigate]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [routeSym, symbols, navigate, basePath, defaultSymbol]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     let cancelled = false;
@@ -480,11 +502,22 @@ function FuturesTradePageInner() {
   );
 }
 
-export default function FuturesTradePage() {
+export default function FuturesTradePage({
+  assetClass = 'crypto',
+  basePath = '/futures',
+  defaultSymbol = DEFAULT_SYMBOL,
+  productLabel = null,
+} = {}) {
   const { symbol: urlSym } = useParams();
-  const initialSymbol = urlSym ? urlSym.toUpperCase() : DEFAULT_SYMBOL;
+  const initialSymbol = urlSym ? urlSym.toUpperCase() : defaultSymbol;
   return (
-    <FuturesProvider initialSymbol={initialSymbol}>
+    <FuturesProvider
+      initialSymbol={initialSymbol}
+      assetClass={assetClass}
+      basePath={basePath}
+      defaultSymbol={defaultSymbol}
+      productLabel={productLabel}
+    >
       <FuturesTradePageInner />
     </FuturesProvider>
   );

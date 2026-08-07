@@ -343,7 +343,7 @@ function DepositDetailModal({ row, onClose, canAct, acting, onApprove, onReject,
                   href={proofSrc}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 flex flex-col min-h-[200px] md:min-h-0 rounded-xl border border-surface-border bg-black/40 overflow-hidden hover:border-gold/30 transition-colors"
+                  className="flex-1 flex flex-col min-h-[200px] md:min-h-0 rounded-xl border border-surface-border bg-surface-card overflow-hidden hover:border-gold/30 transition-colors"
                 >
                   <img
                     src={proofSrc}
@@ -569,7 +569,7 @@ export default function InrDepositsPage() {
         <select
           value={statusFilter}
           onChange={(e) => { setStatusFilter(e.target.value); setSkip(0); }}
-          className="rounded-xl border border-surface-border bg-black/30 px-3 py-2 text-sm text-white"
+          className="rounded-xl border border-surface-border bg-surface-dark px-3 py-2 text-sm text-white"
         >
           {STATUS_OPTIONS.map((o) => (
             <option key={o.value || 'all'} value={o.value}>{o.label}</option>
@@ -580,7 +580,7 @@ export default function InrDepositsPage() {
           value={uidFilter}
           onChange={(e) => { setUidFilter(e.target.value); setSkip(0); }}
           placeholder="Filter by user UID"
-          className="rounded-xl border border-surface-border bg-black/30 px-3 py-2 text-sm text-white font-mono min-w-[200px] placeholder:text-white/35"
+          className="rounded-xl border border-surface-border bg-surface-dark px-3 py-2 text-sm text-white font-mono min-w-[200px] placeholder:text-white/35"
         />
         {uidFilter ? (
           <button
@@ -836,7 +836,7 @@ export default function InrDepositsPage() {
               onChange={(e) => setRejectReason(e.target.value)}
               rows={4}
               placeholder="Reason for rejection"
-              className="w-full rounded-xl border border-surface-border bg-black/30 px-3 py-2 text-white text-sm"
+              className="w-full rounded-xl border border-surface-border bg-surface-dark px-3 py-2 text-white text-sm"
             />
             <div className="flex gap-2 justify-end">
               <button

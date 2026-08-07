@@ -75,14 +75,14 @@ export default function OptionsUnderlyingsPage() {
         </div>
       )}
 
-      <div className="flex flex-wrap items-end gap-3 rounded-xl border border-white/[0.08] bg-black/25 p-4">
+      <div className="flex flex-wrap items-end gap-3 rounded-xl border border-white/[0.08] bg-surface-dark p-4">
         <div>
           <label className="block text-[11px] text-white/50 font-bold uppercase mb-1">Symbol (BASEUSDT)</label>
           <input
             value={sym}
             onChange={(e) => setSym(e.target.value)}
             placeholder="BTCUSDT"
-            className="rounded-lg bg-black/40 border border-white/15 px-3 py-2 text-sm text-white font-mono w-44"
+            className="rounded-lg bg-surface-card border border-white/15 px-3 py-2 text-sm text-white font-mono w-44"
           />
         </div>
         <div>
@@ -91,7 +91,7 @@ export default function OptionsUnderlyingsPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Bitcoin"
-            className="rounded-lg bg-black/40 border border-white/15 px-3 py-2 text-sm text-white w-48"
+            className="rounded-lg bg-surface-card border border-white/15 px-3 py-2 text-sm text-white w-48"
           />
         </div>
         <button
@@ -113,10 +113,10 @@ export default function OptionsUnderlyingsPage() {
         </button>
       </div>
 
-      <div className="rounded-xl border border-white/[0.08] bg-black/20 overflow-hidden">
+      <div className="rounded-xl border border-white/[0.08] bg-surface-dark overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm min-w-[520px]">
-            <thead className="text-left text-[11px] uppercase text-white/50 font-bold border-b border-white/10 bg-black/30">
+            <thead className="text-left text-[11px] uppercase text-white/50 font-bold border-b border-white/10 bg-surface-dark">
               <tr>
                 <th className="px-4 py-3 text-right w-20">ID</th>
                 <th className="px-4 py-3">Symbol</th>

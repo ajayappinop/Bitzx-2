@@ -68,7 +68,9 @@ async def place_order(uid: str, body: Any) -> Dict[str, Any]:
     side = body.side.lower()
     if side not in ("buy", "sell"):
         raise ValueError("invalid side")
-    if side == "sell" and not body.reduce_only:
+    is_move = str(contract.get("option_type") or "").lower() == "move"
+    allow_short_open = bool(is_move and side == "sell" and not body.reduce_only)
+    if side == "sell" and not body.reduce_only and not is_move:
         raise ValueError("opening short options is not enabled — use reduce_only to close longs")
 
     qty = _round_qty(contract, float(body.quantity))
@@ -107,14 +109,28 @@ async def place_order(uid: str, body: Any) -> Dict[str, Any]:
                     raise ValueError("no liquidity for market sell")
                 price = _round_price(contract, float(bids[0][0]))
 
-    if side == "sell":
+    if side == "sell" and body.reduce_only:
         pos = await pos_svc.get_position(uid, contract["id"])
-        if not pos or float(pos.get("qty") or 0) + 1e-12 < qty:
+        if not pos or str(pos.get("side") or "long").lower() != "long" or float(pos.get("qty") or 0) + 1e-12 < qty:
             raise ValueError("insufficient long position for reduce_only sell")
 
     premium_usdt = _round(price * qty)
     if side == "buy" and premium_usdt < MIN_PREMIUM_LOCK_USDT:
         raise ValueError(f"order premium lock below minimum ({MIN_PREMIUM_LOCK_USDT} USDT)")
+
+    # MOVE short: lock initial margin ≈ IM%×index + mark (per contract), Delta-style.
+    short_margin_lock = 0.0
+    if allow_short_open:
+        from ..constants import MOVE_SHORT_IM_PCT
+        from ..providers.registry import get_index_price as resolve_index
+
+        idx = await resolve_index(str(contract.get("underlying_symbol") or ""))
+        index_px = float(idx or 0.0)
+        if index_px <= 0:
+            index_px = float(price)  # fallback
+        short_margin_lock = _round((MOVE_SHORT_IM_PCT * index_px + price) * qty)
+        if short_margin_lock < MIN_PREMIUM_LOCK_USDT:
+            raise ValueError(f"short margin lock below minimum ({MIN_PREMIUM_LOCK_USDT} USDT)")
 
     taker_r, maker_r = await controls_svc.effective_fee_rates()
     if float(maker_r) < -1e-12 and not get_fee_sink_uid():
@@ -133,7 +149,7 @@ async def place_order(uid: str, body: Any) -> Dict[str, Any]:
     if est_fee_ibo > 0:
         await ibo_fee_svc.ensure_ibo_fee_balance(uid, est_fee_ibo, context="options")
 
-    notional_lock = premium_usdt if side == "buy" else 0.0
+    notional_lock = premium_usdt if side == "buy" else short_margin_lock
 
     order_id = f"optord_{uuid.uuid4().hex[:16]}"
     order_doc: Dict[str, Any] = {
@@ -147,6 +163,7 @@ async def place_order(uid: str, body: Any) -> Dict[str, Any]:
         "filled": 0.0,
         "remaining": qty,
         "reduce_only": bool(body.reduce_only),
+        "allow_short_open": allow_short_open,
         "post_only": post_only,
         "time_in_force": tif,
         "init_lock": notional_lock if side == "buy" else 0.0,
@@ -157,15 +174,21 @@ async def place_order(uid: str, body: Any) -> Dict[str, Any]:
         "updated_at": _now_iso(),
     }
 
-    if side == "buy" and notional_lock > 0:
+    if notional_lock > 0:
         try:
             await oledger.lock(
                 uid,
                 notional_lock,
                 ref_type="order",
                 ref_id=order_id,
-                meta={"contract_id": contract["id"], "side": side, "price": price},
+                meta={
+                    "contract_id": contract["id"],
+                    "side": side,
+                    "price": price,
+                    "lock_kind": "short_margin" if allow_short_open else "premium",
+                },
             )
+            order_doc["locked_usdt"] = notional_lock
         except InsufficientFundsError:
             raise
 
@@ -202,11 +225,16 @@ async def cancel_order(uid: str, order_id: str) -> Dict[str, Any]:
     if updated is None:
         raise ValueError("order not cancellable")
 
-    if updated.get("side") == "buy":
+    if updated.get("side") == "buy" or updated.get("allow_short_open"):
         rem = float(updated.get("remaining") or 0.0)
         lim = float(updated.get("price") or 0.0)
         pad = float(updated.get("fee_lock_pad") or 0.0)
-        unused = _round(rem * lim * (1.0 + pad)) if pad > 0 else _round(rem * lim)
+        if updated.get("allow_short_open"):
+            locked = float(updated.get("locked_usdt") or 0.0)
+            qty0 = float(updated.get("quantity") or 0.0) or 1.0
+            unused = _round(locked * (rem / qty0)) if locked > 0 else 0.0
+        else:
+            unused = _round(rem * lim * (1.0 + pad)) if pad > 0 else _round(rem * lim)
         if unused > 0:
             try:
                 await oledger.unlock(

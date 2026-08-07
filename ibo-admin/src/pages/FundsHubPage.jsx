@@ -10,9 +10,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Layers, ArrowUpCircle, ArrowDownCircle, IndianRupee,
-  BookText, Wallet, ReceiptText, Landmark, Send,
+  BookText, ReceiptText, Landmark,
   RefreshCw, AlertCircle, ChevronRight, ArrowRight,
-  CheckCircle2, Info, Coins, ShieldCheck,
+  CheckCircle2, Info, ShieldCheck, Banknote,
+  Scale, Flame, ArrowLeftRight,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAdminAuth } from '@/context/AdminAuthContext';
@@ -72,7 +73,7 @@ const SECTIONS = [
   {
     id: 'inr-withdrawals',
     to: '/inr-withdrawals',
-    icon: IndianRupee,
+    icon: Banknote,
     color: 'rose',
     label: 'INR Withdrawals',
     role: 'Finance · Multiple times daily',
@@ -97,11 +98,11 @@ const SECTIONS = [
   {
     id: 'wallet-adjustments',
     to: '/wallet-adjustments',
-    icon: Wallet,
+    icon: Scale,
     color: 'cyan',
     label: 'Wallet Management',
     role: 'Operations · On-demand',
-    what: 'Manually credit or debit any user\'s spot or futures wallet. Every adjustment requires a reason note and is permanently logged for audit.',
+    what: 'Manually credit or debit any user\'s funding or futures wallet. Every adjustment requires a reason note and is permanently logged for audit.',
     when: 'Compensating a user for a platform error, correcting a misposted balance, or provisioning a test account.',
     action: 'Manage wallets',
     permissions: ['manage_users', 'adjust_wallets'],
@@ -133,7 +134,7 @@ const SECTIONS = [
   {
     id: 'admin-wallet',
     to: '/admin-wallet',
-    icon: Wallet,
+    icon: Flame,
     color: 'violet',
     label: 'Admin Wallet',
     role: 'Treasury · Before payouts',
@@ -145,7 +146,7 @@ const SECTIONS = [
   {
     id: 'treasury-transfer',
     to: '/treasury-transfer',
-    icon: Send,
+    icon: ArrowLeftRight,
     color: 'gold',
     label: 'Treasury Transfer',
     role: 'Treasury · On-demand',
@@ -171,13 +172,55 @@ const SECTIONS = [
 /* ── colour map ───────────────────────────────────────────────────────── */
 
 const COLORS = {
-  amber:   { ring: 'border-gold/40',  bg: 'bg-gold/10',  icon: 'text-gold-light',  badge: 'bg-gold/20 text-gold-light',  btn: 'border-gold/30 text-gold-light hover:bg-gold/10' },
-  emerald: { ring: 'border-emerald-500/40',bg: 'bg-emerald-500/10',icon: 'text-emerald-300',badge: 'bg-emerald-500/20 text-emerald-200',btn: 'border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10' },
-  orange:  { ring: 'border-orange-500/40', bg: 'bg-orange-500/10', icon: 'text-orange-300', badge: 'bg-orange-500/20 text-orange-200', btn: 'border-orange-500/30 text-orange-300 hover:bg-orange-500/10' },
-  rose:    { ring: 'border-rose-500/40',   bg: 'bg-rose-500/10',   icon: 'text-rose-300',   badge: 'bg-rose-500/20 text-rose-200',   btn: 'border-rose-500/30 text-rose-300 hover:bg-rose-500/10' },
-  violet:  { ring: 'border-violet-500/40', bg: 'bg-violet-500/10', icon: 'text-violet-300', badge: 'bg-violet-500/20 text-violet-200', btn: 'border-violet-500/30 text-violet-300 hover:bg-violet-500/10' },
-  cyan:    { ring: 'border-cyan-500/40',   bg: 'bg-cyan-500/10',   icon: 'text-cyan-300',   badge: 'bg-cyan-500/20 text-cyan-200',   btn: 'border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/10' },
-  gold:    { ring: 'border-gold/40',       bg: 'bg-gold/10',       icon: 'text-gold-light', badge: 'bg-gold/20 text-gold-light',     btn: 'border-gold/30 text-gold-light hover:bg-gold/10' },
+  amber:   {
+    ring: 'border-[#FE6C02]/35',
+    bg: 'bg-[#FE6C02]/12',
+    icon: 'text-[#FE6C02]',
+    badge: 'bg-[#FE6C02]/15 text-[#8f3600] border border-[#FE6C02]/30',
+    btn: 'border-[#FE6C02]/35 text-[#8f3600] hover:bg-[#FE6C02]/10',
+  },
+  emerald: {
+    ring: 'border-[#00A876]/35',
+    bg: 'bg-[#00A876]/12',
+    icon: 'text-[#00A876]',
+    badge: 'bg-[#00A876]/15 text-[#007a56] border border-[#00A876]/30',
+    btn: 'border-[#00A876]/35 text-[#007a56] hover:bg-[#00A876]/10',
+  },
+  orange:  {
+    ring: 'border-[#FE6C02]/35',
+    bg: 'bg-[#FE6C02]/12',
+    icon: 'text-[#E76202]',
+    badge: 'bg-[#FE6C02]/15 text-[#8f3600] border border-[#FE6C02]/30',
+    btn: 'border-[#FE6C02]/35 text-[#8f3600] hover:bg-[#FE6C02]/10',
+  },
+  rose:    {
+    ring: 'border-[#EB5454]/35',
+    bg: 'bg-[#EB5454]/12',
+    icon: 'text-[#EB5454]',
+    badge: 'bg-[#EB5454]/15 text-[#c53030] border border-[#EB5454]/30',
+    btn: 'border-[#EB5454]/35 text-[#c53030] hover:bg-[#EB5454]/10',
+  },
+  violet:  {
+    ring: 'border-[#B44D01]/35',
+    bg: 'bg-[#B44D01]/12',
+    icon: 'text-[#B44D01]',
+    badge: 'bg-[#FE6C02]/12 text-[#8f3600] border border-[#B44D01]/30',
+    btn: 'border-[#B44D01]/35 text-[#8f3600] hover:bg-[#FE6C02]/10',
+  },
+  cyan:    {
+    ring: 'border-[#FE6C02]/35',
+    bg: 'bg-[#FE6C02]/10',
+    icon: 'text-[#FE6C02]',
+    badge: 'bg-[#FE6C02]/15 text-[#8f3600] border border-[#FE6C02]/30',
+    btn: 'border-[#FE6C02]/35 text-[#8f3600] hover:bg-[#FE6C02]/10',
+  },
+  gold:    {
+    ring: 'border-[#FE6C02]/35',
+    bg: 'bg-[#FE6C02]/12',
+    icon: 'text-[#FE6C02]',
+    badge: 'bg-[#FE6C02]/15 text-[#8f3600] border border-[#FE6C02]/30',
+    btn: 'border-[#FE6C02]/35 text-[#8f3600] hover:bg-[#FE6C02]/10',
+  },
 };
 
 /* ── SectionCard ──────────────────────────────────────────────────────── */
@@ -190,16 +233,16 @@ function SectionCard({ section, alerts }) {
   return (
     <Link
       to={section.to}
-      className={`group flex flex-col gap-3 rounded-2xl border ${c.ring} bg-surface-card/70 p-5 transition-all hover:bg-surface-card hover:shadow-lg hover:scale-[1.01] active:scale-[0.99]`}
+      className={`group flex flex-col gap-3 rounded-lg border ${c.ring} bg-surface-card p-5 transition-all hover:shadow-md hover:border-[#FE6C02]/45`}
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
-        <div className={`w-10 h-10 rounded-xl ${c.bg} flex items-center justify-center shrink-0`}>
-          <Icon size={20} className={c.icon} />
+        <div className={`w-11 h-11 rounded-lg ${c.bg} border ${c.ring} flex items-center justify-center shrink-0`}>
+          <Icon size={22} strokeWidth={2.15} className={c.icon} aria-hidden />
         </div>
         {pendingCount > 0 && (
-          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold ${c.badge}`}>
-            <AlertCircle size={11} />
+          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold ${c.badge}`}>
+            <AlertCircle size={11} strokeWidth={2.2} />
             {pendingCount > 99 ? '99+' : pendingCount} pending
           </span>
         )}
@@ -207,8 +250,8 @@ function SectionCard({ section, alerts }) {
 
       {/* Title + role */}
       <div>
-        <p className="text-base font-bold text-white group-hover:text-white">{section.label}</p>
-        <p className={`text-[11px] font-semibold uppercase tracking-wide mt-0.5 ${c.icon} opacity-70`}>
+        <p className="text-base font-bold text-[color:var(--ibo-ink)]">{section.label}</p>
+        <p className={`text-[11px] font-semibold uppercase tracking-wide mt-0.5 ${c.icon}`}>
           {section.role}
         </p>
       </div>
@@ -217,15 +260,15 @@ function SectionCard({ section, alerts }) {
       <p className="text-sm text-white/65 leading-relaxed flex-1">{section.what}</p>
 
       {/* When to use */}
-      <div className="rounded-lg bg-white/[.04] border border-white/[.06] px-3 py-2">
+      <div className="rounded-md bg-[color:var(--ibo-bg)] border border-surface-border px-3 py-2">
         <p className="text-[11px] font-semibold text-white/40 uppercase tracking-wide mb-0.5">When to use</p>
         <p className="text-xs text-white/60 leading-relaxed">{section.when}</p>
       </div>
 
       {/* CTA */}
-      <div className={`mt-auto flex items-center justify-between rounded-lg border ${c.btn} px-3 py-2 text-xs font-semibold transition-colors`}>
+      <div className={`mt-auto flex items-center justify-between rounded-md border ${c.btn} px-3 py-2 text-xs font-semibold transition-colors`}>
         {section.action}
-        <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+        <ChevronRight size={14} strokeWidth={2.2} className="group-hover:translate-x-0.5 transition-transform" />
       </div>
     </Link>
   );
@@ -235,13 +278,13 @@ function SectionCard({ section, alerts }) {
 
 function FlowStep({ n, label, desc, color = 'cyan', last = false }) {
   const dotCls = {
-    emerald: 'bg-emerald-500 ring-emerald-500/30',
-    amber:   'bg-gold ring-gold/30',
-    violet:  'bg-violet-500 ring-violet-500/30',
-    cyan:    'bg-cyan-500 ring-cyan-500/30',
-    gold:    'bg-gold ring-gold/30',
-    rose:    'bg-rose-500 ring-rose-500/30',
-  }[color] || 'bg-cyan-500 ring-cyan-500/30';
+    emerald: 'bg-[#00A876] ring-[#00A876]/30',
+    amber:   'bg-[#FE6C02] ring-[#FE6C02]/30',
+    violet:  'bg-[#B44D01] ring-[#FE6C02]/30',
+    cyan:    'bg-[#FE6C02] ring-[#FE6C02]/30',
+    gold:    'bg-[#FE6C02] ring-[#FE6C02]/30',
+    rose:    'bg-[#EB5454] ring-[#EB5454]/30',
+  }[color] || 'bg-[#FE6C02] ring-[#FE6C02]/30';
 
   return (
     <div className="flex gap-3 min-w-0">
@@ -304,7 +347,7 @@ function FundsFlowGuide() {
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div>
             <h2 className="admin-section-title !mb-1 flex items-center gap-2">
-              <Info size={18} className="text-cyan-400" />
+              <Info size={18} strokeWidth={2.15} className="text-[#FE6C02]" />
               How Funds Flow — Plain English Guide
             </h2>
             <p className="text-sm text-white/60">Step-by-step: what happens behind the scenes for each money movement type.</p>
@@ -384,16 +427,16 @@ function PendingAlertBanner({ alerts, loading }) {
 
 function QuickRef() {
   const rows = [
-    { q: 'A user says their deposit hasn\'t arrived',        where: 'Deposit Events',       to: '/deposit-events',   icon: ArrowDownCircle, color: 'text-emerald-300' },
-    { q: 'User is waiting for a crypto withdrawal',         where: 'Withdrawals',          to: '/withdrawals',      icon: ArrowUpCircle,   color: 'text-gold-light' },
-    { q: 'User uploaded INR payment proof',                 where: 'INR Deposits',         to: '/inr-deposits',     icon: IndianRupee,     color: 'text-orange-300' },
-    { q: 'User wants INR back to their bank',               where: 'INR Withdrawals',      to: '/inr-withdrawals',  icon: IndianRupee,     color: 'text-rose-300' },
-    { q: 'Need to credit/debit a user\'s balance manually', where: 'Wallet Management',    to: '/wallet-adjustments',icon: Wallet,         color: 'text-cyan-300' },
-    { q: 'Check hot wallet balance before big payout',      where: 'Admin Wallet',         to: '/admin-wallet',     icon: Wallet,          color: 'text-violet-300' },
-    { q: 'Hot wallet running low — need to refill it',       where: 'Hot & Cold Wallets (run sweep)', to: '/treasury-omnibus', icon: ShieldCheck, color: 'text-rose-300' },
-    { q: 'Send treasury funds to cold storage',             where: 'Treasury Transfer',    to: '/treasury-transfer',icon: Send,            color: 'text-gold-light' },
-    { q: 'Monthly revenue & fee report',                    where: 'Finance & Reports',    to: '/finance',          icon: ReceiptText,     color: 'text-emerald-300' },
-    { q: 'Audit a user\'s balance history',                 where: 'Ledger',               to: '/ledger',           icon: BookText,        color: 'text-violet-300' },
+    { q: 'A user says their deposit hasn\'t arrived',        where: 'Deposit Events',       to: '/deposit-events',   icon: ArrowDownCircle, color: 'text-[#00A876]' },
+    { q: 'User is waiting for a crypto withdrawal',         where: 'Withdrawals',          to: '/withdrawals',      icon: ArrowUpCircle,   color: 'text-[#FE6C02]' },
+    { q: 'User uploaded INR payment proof',                 where: 'INR Deposits',         to: '/inr-deposits',     icon: IndianRupee,     color: 'text-[#E76202]' },
+    { q: 'User wants INR back to their bank',               where: 'INR Withdrawals',      to: '/inr-withdrawals',  icon: Banknote,        color: 'text-[#EB5454]' },
+    { q: 'Need to credit/debit a user\'s balance manually', where: 'Wallet Management',    to: '/wallet-adjustments',icon: Scale,          color: 'text-[#FE6C02]' },
+    { q: 'Check hot wallet balance before big payout',      where: 'Admin Wallet',         to: '/admin-wallet',     icon: Flame,           color: 'text-[#B44D01]' },
+    { q: 'Hot wallet running low — need to refill it',       where: 'Hot & Cold Wallets (run sweep)', to: '/treasury-omnibus', icon: ShieldCheck, color: 'text-[#EB5454]' },
+    { q: 'Send treasury funds to cold storage',             where: 'Treasury Transfer',    to: '/treasury-transfer',icon: ArrowLeftRight,  color: 'text-[#FE6C02]' },
+    { q: 'Monthly revenue & fee report',                    where: 'Finance & Reports',    to: '/finance',          icon: ReceiptText,     color: 'text-[#00A876]' },
+    { q: 'Audit a user\'s balance history',                 where: 'Ledger',               to: '/ledger',           icon: BookText,        color: 'text-[#B44D01]' },
   ];
 
   return (
@@ -409,17 +452,19 @@ function QuickRef() {
             <Link
               key={row.to}
               to={row.to}
-              className="flex items-center justify-between gap-4 px-4 sm:px-5 py-3.5 hover:bg-white/[.03] transition-colors group"
+              className="flex items-center justify-between gap-4 px-4 sm:px-5 py-3.5 hover:bg-surface-hover transition-colors group"
             >
               <div className="flex items-center gap-3 min-w-0">
-                <Icon size={16} className={`${row.color} shrink-0`} />
-                <p className="text-sm text-white/75 group-hover:text-white transition-colors truncate">
+                <span className="w-8 h-8 rounded-md border border-surface-border bg-[color:var(--ibo-bg)] flex items-center justify-center shrink-0">
+                  <Icon size={16} strokeWidth={2.15} className={row.color} aria-hidden />
+                </span>
+                <p className="text-sm text-white/75 group-hover:text-[color:var(--ibo-ink)] transition-colors truncate">
                   {row.q}
                 </p>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
                 <span className={`text-xs font-semibold ${row.color}`}>{row.where}</span>
-                <ChevronRight size={13} className="text-white/30 group-hover:translate-x-0.5 transition-transform" />
+                <ChevronRight size={13} strokeWidth={2.2} className="text-white/30 group-hover:translate-x-0.5 transition-transform" />
               </div>
             </Link>
           );

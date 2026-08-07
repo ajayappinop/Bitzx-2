@@ -414,8 +414,8 @@ export default function TreasuryOmnibusWalletsPage() {
           <div className="text-sm text-gold-light/90/90 leading-relaxed">
             <p className="font-bold text-gold-light/90 mb-1">You can view this page but cannot add wallets</p>
             <p>
-              The <strong>"Add wallet address"</strong> button requires the <code className="bg-black/20 px-1 rounded text-xs">manage_treasury</code> permission.
-              Your role can view treasury data only. Ask a <strong>Super Admin</strong> or <strong>Finance</strong> admin to add the hot wallet, or grant you <code className="bg-black/20 px-1 rounded text-xs">manage_treasury</code> in Admin settings.
+              The <strong>"Add wallet address"</strong> button requires the <code className="bg-surface-dark px-1 rounded text-xs">manage_treasury</code> permission.
+              Your role can view treasury data only. Ask a <strong>Super Admin</strong> or <strong>Finance</strong> admin to add the hot wallet, or grant you <code className="bg-surface-dark px-1 rounded text-xs">manage_treasury</code> in Admin settings.
             </p>
           </div>
         </div>
@@ -1578,7 +1578,7 @@ export default function TreasuryOmnibusWalletsPage() {
                             <p className="font-semibold text-cyan-50 mb-1">Required hot wallet address (from server)</p>
                             <p className="font-mono text-[11px] break-all text-cyan-100/90">{expectedHotSigner}</p>
                             <p className="mt-1.5 text-cyan-100/70">
-                              Hot wallets must exactly match <code className="bg-black/20 px-1 rounded">TREASURY_ETH_PRIVATE_KEY</code> on the server. Paste this address — not a different one.
+                              Hot wallets must exactly match <code className="bg-surface-dark px-1 rounded">TREASURY_ETH_PRIVATE_KEY</code> on the server. Paste this address — not a different one.
                             </p>
                             <button
                               type="button"
@@ -1591,7 +1591,7 @@ export default function TreasuryOmnibusWalletsPage() {
                         ) : (
                           <p>
                             Server signing key is not configured for {effectiveCreateAsset || 'this coin'}.
-                            Set <code className="bg-black/20 px-1 rounded">TREASURY_ETH_PRIVATE_KEY</code> in backend .env first.
+                            Set <code className="bg-surface-dark px-1 rounded">TREASURY_ETH_PRIVATE_KEY</code> in backend .env first.
                           </p>
                         )}
                       </div>

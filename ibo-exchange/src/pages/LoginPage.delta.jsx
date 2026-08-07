@@ -172,7 +172,7 @@ export default function LoginPage() {
 
         <AuthPromoPanel
 
-          title={<>Trade Spot, Futures &amp; more</>}
+          title={<>Trade Futures, Options &amp; more</>}
 
           subtitle="Elevate your crypto trading with deep liquidity, pro charts, and INR-ready onboarding."
 
@@ -182,7 +182,7 @@ export default function LoginPage() {
 
               title: 'Trade without friction',
 
-              desc: 'Spot USDT pairs, Delta markets, and portfolio tools in one terminal.',
+              desc: 'Futures, options, and portfolio tools in one terminal.',
 
             },
 

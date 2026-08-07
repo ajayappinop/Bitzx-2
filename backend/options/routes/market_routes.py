@@ -34,8 +34,9 @@ async def orderbook_by_contract(contract: str, limit: int = Query(25, ge=1, le=1
     return {"contract_id": contract, **snap}
 
 
-@router.get("/trades/{contract}")
+@router.get("/market/trades/{contract}")
 async def trades_by_contract(contract: str, limit: int = Query(50, ge=1, le=200)):
+    """Public tape for a contract. Prefer /contracts/{id}/trades; this path avoids clashing with /trades/me."""
     c = await contracts_svc.get(contract)
     if not c:
         raise HTTPException(status_code=404, detail="contract not found")

@@ -12,7 +12,7 @@ class OptionContractDoc(TypedDict, total=False):
     underlying_asset: str
     expiry: str
     strike: float
-    option_type: Literal["call", "put"]
+    option_type: Literal["call", "put", "move"]
     symbol: str
     multiplier: float
     settlement_asset: str

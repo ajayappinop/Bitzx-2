@@ -103,21 +103,21 @@ export default function FuturesWalletAdjustmentsPage() {
         </p>
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-2">
           <input placeholder="User UID" value={uid} onChange={(e) => setUid(e.target.value)}
-            className="bg-black/30 border border-white/10 rounded px-3 py-2 text-sm font-mono text-white col-span-2" />
+            className="bg-surface-dark border border-white/10 rounded px-3 py-2 text-sm font-mono text-white col-span-2" />
           <select value={direction} onChange={(e) => setDirection(e.target.value)}
-            className="bg-black/30 border border-white/10 rounded px-3 py-2 text-sm">
+            className="bg-surface-dark border border-white/10 rounded px-3 py-2 text-sm">
             <option value="credit">Credit (+)</option>
             <option value="debit">Debit (−)</option>
           </select>
           <input type="number" step="0.01" placeholder="Amount" value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="bg-black/30 border border-white/10 rounded px-3 py-2 text-sm font-mono" />
+            className="bg-surface-dark border border-white/10 rounded px-3 py-2 text-sm font-mono" />
           <input placeholder="Reason (e.g. compensation)" value={reason}
             onChange={(e) => setReason(e.target.value)}
-            className="bg-black/30 border border-white/10 rounded px-3 py-2 text-sm" />
+            className="bg-surface-dark border border-white/10 rounded px-3 py-2 text-sm" />
           <textarea placeholder="Note (optional)" value={note}
             onChange={(e) => setNote(e.target.value)}
-            className="bg-black/30 border border-white/10 rounded px-3 py-2 text-sm col-span-5" rows={2} />
+            className="bg-surface-dark border border-white/10 rounded px-3 py-2 text-sm col-span-5" rows={2} />
         </div>
         <div className="flex items-center gap-3 mt-3">
           <button disabled={submitting} onClick={submit}

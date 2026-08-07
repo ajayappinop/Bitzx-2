@@ -300,7 +300,7 @@ function PortfolioTab({ walletAssets, priceByAsset, positions, liveLoading }) {
 
                         <Link
 
-                          to={`/trade/${w.asset}USDT`}
+                          to={`/futures/${w.asset}USDT-PERP`}
 
                           className="text-xs text-gold-light bg-gold/10 hover:bg-gold/20 border border-gold/20 px-3 py-1 rounded-lg transition-colors inline-flex items-center gap-1"
 
@@ -362,7 +362,7 @@ function OrdersTab({ orders }) {
 
           <p>No orders yet</p>
 
-          <Link to="/trade/IBOUSDT" className="text-gold-light text-sm hover:underline">Start trading →</Link>
+          <Link to="/futures/BTCUSDT-PERP" className="text-gold-light text-sm hover:underline">Start trading →</Link>
 
         </div>
 
@@ -614,7 +614,7 @@ export default function DashboardPage() {
 
               <Link
 
-                to="/trade/IBOUSDT"
+                to="/futures/BTCUSDT-PERP"
 
                 className="ibo-hover-scale flex items-center gap-2 bg-logo-gradient text-surface-dark font-bold px-5 py-2.5 rounded-xl text-sm shadow-md shadow-black/25"
 

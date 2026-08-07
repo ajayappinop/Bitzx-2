@@ -1,15 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light" class="light">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/ibo-logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>IBO Admin</title>
+    <meta name="theme-color" content="#F3F4F6" />
+    <title>Delta Admin</title>
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('ibo-admin-theme-v2');
+          var next = t === 'dark' ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', next);
+          document.documentElement.classList.remove('light', 'dark');
+          document.documentElement.classList.add(next);
+          document.documentElement.style.colorScheme = next;
+          try { localStorage.removeItem('ibo-admin-theme-v1'); } catch (e2) {}
+        } catch (e) {}
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   </head>
-  <body class="bg-surface-dark text-white antialiased">
+  <body class="bg-surface-dark text-[color:var(--ibo-ink)] antialiased">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

@@ -17,7 +17,7 @@ COL_SETTLEMENT_EVENTS = "options_settlement_events"
 MARGIN_ASSET: Final = "USDT"
 SYSTEM_LIQUIDITY_UID: Final = "__OPTIONS_SYSTEM__"
 
-OPTION_TYPES = ("call", "put")
+OPTION_TYPES = ("call", "put", "move")
 ORDER_SIDES = ("buy", "sell")
 ORDER_TYPES = ("limit", "market")
 TIME_IN_FORCE = ("gtc", "ioc", "fok")
@@ -29,7 +29,10 @@ CONTRACT_STATUSES = ("draft", "listed", "halted", "expired", "settling", "settle
 TAKER_FEE_RATE = 0.0005  # 5 bps
 MAKER_FEE_RATE = 0.0002  # 2 bps
 
+# MOVE (straddle) short initial margin ≈ IM% × index + mark (per contract), Delta-style.
+MOVE_SHORT_IM_PCT = 0.10
+
 MIN_PREMIUM_LOCK_USDT = 1.0
 
-OptionType = Literal["call", "put"]
+OptionType = Literal["call", "put", "move"]
 OrderSide = Literal["buy", "sell"]

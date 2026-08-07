@@ -167,6 +167,9 @@ def build_demo_contract_dicts(underlying_symbol: str, spot: float) -> List[Dict[
     expiries = _expiries()
     rows: List[Dict[str, Any]] = []
     now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    # ATM (±1 step) MOVE / straddle contracts — Delta-style MV product.
+    atm = min(strikes, key=lambda s: abs(s - spot)) if strikes else round(spot / step) * step
+    move_strikes = sorted({atm, atm - step, atm + step})
     for expiry in expiries:
         for strike in strikes:
             for opt in ("call", "put"):
@@ -178,6 +181,7 @@ def build_demo_contract_dicts(underlying_symbol: str, spot: float) -> List[Dict[
                         "expiry": expiry,
                         "strike": float(strike),
                         "option_type": opt,
+                        "product": "vanilla",
                         "tick_size": 0.01,
                         "lot_size": 1.0,
                         "min_qty": 1.0,
@@ -191,6 +195,31 @@ def build_demo_contract_dicts(underlying_symbol: str, spot: float) -> List[Dict[
                         "demo_index_price": round(float(spot), 8),
                     }
                 )
+        for strike in move_strikes:
+            if strike <= 0:
+                continue
+            cid = _contract_id(usym, expiry, strike, "move")
+            rows.append(
+                {
+                    "id": cid,
+                    "underlying_symbol": usym,
+                    "expiry": expiry,
+                    "strike": float(strike),
+                    "option_type": "move",
+                    "product": "move",
+                    "tick_size": 0.01,
+                    "lot_size": 1.0,
+                    "min_qty": 1.0,
+                    "max_qty": 1_000_000.0,
+                    "listed": True,
+                    "trading_enabled": True,
+                    "status": "listed",
+                    "created_at": now,
+                    "updated_at": now,
+                    "demo_contract": True,
+                    "demo_index_price": round(float(spot), 8),
+                }
+            )
     return rows
 
 
@@ -199,7 +228,11 @@ async def demo_chain_payload(underlying_symbol: str) -> Dict[str, Any]:
     spot = await resolve_demo_spot(usym)
     if spot <= 0:
         raise ValueError("invalid spot")
-    contracts = build_demo_contract_dicts(usym, spot)
+    # Vanilla Options preview only — MOVE/straddle is a separate product (/move-chain).
+    contracts = [
+        r for r in build_demo_contract_dicts(usym, spot)
+        if str(r.get("option_type") or "").lower() != "move"
+    ]
     payload = {
         "underlying_symbol": usym,
         "demo": True,

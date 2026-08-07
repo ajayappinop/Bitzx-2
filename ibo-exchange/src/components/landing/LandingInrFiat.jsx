@@ -105,7 +105,7 @@ export default function LandingInrFiat() {
               style={{ color: 'var(--ibo-ink-secondary)' }}
             >
               Conveniently deposit INR directly from your bank account or UPI. Funds become trading capital after
-              review so you can open futures, options, and spot positions.
+              review so you can open futures and options positions.
             </p>
             <InrMinDepositNote minDepositInr={minDepositInr} className="mb-5" />
 

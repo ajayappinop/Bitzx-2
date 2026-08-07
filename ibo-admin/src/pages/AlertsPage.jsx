@@ -120,7 +120,7 @@ function DetailDrawer({ alert, onClose }) {
 
         <div>
           <div className="text-white/40 uppercase text-[11px] mb-1">Meta</div>
-          <pre className="text-[11px] font-mono text-white/70 bg-black/30 border border-white/10 rounded-lg p-3 overflow-auto max-h-[40vh]">
+          <pre className="text-[11px] font-mono text-white/70 bg-surface-dark border border-white/10 rounded-lg p-3 overflow-auto max-h-[40vh]">
 {JSON.stringify(alert.meta || {}, null, 2)}
           </pre>
         </div>
@@ -331,7 +331,7 @@ export default function AlertsPage() {
             value={filters.search}
             onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
             placeholder="Search title / message / type"
-            className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-black/30 border border-white/10 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/30"
+            className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-surface-dark border border-white/10 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/30"
           />
         </div>
         <input
@@ -339,7 +339,7 @@ export default function AlertsPage() {
           value={filters.source}
           onChange={(e) => setFilters((f) => ({ ...f, source: e.target.value }))}
           placeholder="Source (hedger, treasury…)"
-          className="w-[180px] px-3 py-1.5 rounded-lg bg-black/30 border border-white/10 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/30"
+          className="w-[180px] px-3 py-1.5 rounded-lg bg-surface-dark border border-white/10 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/30"
         />
       </div>
 

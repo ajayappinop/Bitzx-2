@@ -24,14 +24,15 @@ function sumObjValues(obj) {
   return Object.values(obj).reduce((s, v) => s + Number(v || 0), 0);
 }
 
-function Card({ to, icon: Icon, label, value, sub, color, tone = 'blue' }) {
+function Card({ to, icon: Icon, label, value, sub, color, tone = 'orange' }) {
   const toneMap = {
-    blue: 'from-[#3B82F6]/20 to-transparent border-[#3B82F6]/30 hover:border-[#3B82F6]/45',
-    green: 'from-[#0ECB81]/20 to-transparent border-[#0ECB81]/30 hover:border-[#0ECB81]/45',
-    yellow: 'from-[#0EA4AB]/20 to-transparent border-[#0EA4AB]/30 hover:border-[#0EA4AB]/45',
-    red: 'from-[#F6465D]/20 to-transparent border-[#F6465D]/30 hover:border-[#F6465D]/45',
-    purple: 'from-[#8B5CF6]/20 to-transparent border-[#8B5CF6]/30 hover:border-[#8B5CF6]/45',
-    cyan: 'from-[#22D3EE]/18 to-transparent border-[#22D3EE]/30 hover:border-[#22D3EE]/45',
+    blue: 'from-[#FE6C02]/18 to-transparent border-[#FE6C02]/30 hover:border-[#FE6C02]/45',
+    green: 'from-[#00A876]/20 to-transparent border-[#00A876]/30 hover:border-[#00A876]/45',
+    yellow: 'from-[#FE9D55]/18 to-transparent border-[#FE6C02]/30 hover:border-[#FE6C02]/45',
+    red: 'from-[#EB5454]/20 to-transparent border-[#EB5454]/30 hover:border-[#EB5454]/45',
+    purple: 'from-[#FE6C02]/15 to-transparent border-[#B44D01]/30 hover:border-[#FE6C02]/40',
+    cyan: 'from-[#FE6C02]/18 to-transparent border-[#FE6C02]/30 hover:border-[#FE6C02]/45',
+    orange: 'from-[#FE6C02]/20 to-transparent border-[#FE6C02]/30 hover:border-[#FE6C02]/45',
     neutral: 'from-white/10 to-transparent border-white/15 hover:border-white/30',
   };
   return (
@@ -210,25 +211,25 @@ export default function DashboardPage() {
           {/* KPI cards first */}
           <h2 className="text-base font-extrabold text-white mb-3">Key metrics</h2>
           <div className="grid grid-cols-1 min-[380px]:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
-            <Card to="/users" icon={Users} label="Total users" value={stats.users_total} color="text-blue-400" tone="blue" />
+            <Card to="/users" icon={Users} label="Total users" value={stats.users_total} color="text-[#FE9D55]" tone="orange" />
             <Card
               to="/users"
               icon={Users}
               label="New signups (7d)"
               value={stats.users_new_7d ?? 0}
-              color="text-sky-400"
-              tone="cyan"
+              color="text-[#FE6C02]"
+              tone="orange"
               sub="All registrations"
             />
             <Card to="/kyc" icon={UserCheck} label="Pending KYC" value={stats.kyc_pending} color="text-gold" tone="yellow" />
-            <Card to="/deposits?status=pending" icon={ArrowDownToLine} label="Deposits pending" value={stats.deposits_pending} color="text-green-400" tone="green" />
+            <Card to="/deposits?status=pending" icon={ArrowDownToLine} label="Deposits pending" value={stats.deposits_pending} color="text-[#00A876]" tone="green" />
             <Card
               to="/settings"
               icon={RefreshCw}
               label="On-chain deposits (in flight)"
               value={stats.deposit_events_chain_inflight ?? 0}
-              color="text-cyan-300"
-              tone="cyan"
+              color="text-[#FE9D55]"
+              tone="orange"
               sub="Phase 4: pending/confirming events — enable auto-credit in Settings"
             />
             <Card
@@ -250,7 +251,7 @@ export default function DashboardPage() {
               tone="yellow"
               sub="Fix on Hot & cold wallets"
             />
-            <Card to="/trading" icon={Activity} label="Spot trades (24h)" value={stats.trades_24h ?? 0} color="text-cyan-400" tone="cyan" />
+            <Card to="/trading" icon={Activity} label="Trades (24h)" value={stats.trades_24h ?? 0} color="text-[#FE9D55]" tone="orange" />
             <Card to="/trading" icon={Activity} label="Spot trades (7d)" value={stats.trades_7d ?? 0} color="text-white/80" tone="neutral" />
             <Card to="/analysis?days=1" icon={Gauge} label="Trading volume (24h)" value={fmtVol(stats.platform_volume_24h)} color="text-emerald-400" tone="green" sub="In USDT" />
             <Card to="/analysis?days=7" icon={Gauge} label="Trading volume (7d)" value={fmtVol(stats.platform_volume_7d)} color="text-emerald-300/90" tone="green" sub="In USDT" />
@@ -303,9 +304,9 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="mt-3 text-xs text-white/60">
-              <Link to="/settings" className="text-gold-light hover:underline">Settings</Link>
+              <Link to="/settings" className="text-[#8f3600] font-semibold hover:underline">Settings</Link>
               <span className="mx-1">|</span>
-              <Link to="/liquidity-ops" className="text-gold-light hover:underline">Liquidity Operations</Link>
+              <Link to="/liquidity-ops" className="text-[#8f3600] font-semibold hover:underline">Liquidity Operations</Link>
             </div>
           </AdminPanel>
 
@@ -358,7 +359,7 @@ export default function DashboardPage() {
               <p className="text-base font-extrabold text-white mb-3">Trade count</p>
               <Sparkline values={tradeTrend} className="w-full h-24 sm:h-28" width={620} height={120} stroke="rgb(34,211,238)" fill="rgba(34,211,238,0.14)" />
               <p className="text-xs text-white/50 mt-2">
-                Window trades: <span className="font-mono text-cyan-300">{tradeTrend.reduce((s, v) => s + v, 0).toLocaleString()}</span>
+                Window trades: <span className="font-mono text-[#FE9D55]">{tradeTrend.reduce((s, v) => s + v, 0).toLocaleString()}</span>
               </p>
             </AdminPanel>
           </div>
@@ -372,7 +373,7 @@ export default function DashboardPage() {
                 ) : analyticsDaily.map(d => (
                   <div key={d.date} className="flex-1 min-w-[8px]">
                     <div
-                      className="w-full rounded-t bg-violet-400/75"
+                      className="w-full rounded-t bg-[#FE6C02]/75"
                       style={{ height: `${(Number(d.trades || 0) / maxTrade) * 70}%`, minHeight: Number(d.trades || 0) ? 4 : 0 }}
                       title={`${d.date} trades: ${d.trades}`}
                     />
@@ -450,8 +451,8 @@ export default function DashboardPage() {
 
           <h2 className="text-sm font-extrabold text-white/45 uppercase tracking-widest mb-3">Shortcuts</h2>
           <div className="grid grid-cols-1 min-[380px]:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <Card to="/trading" icon={Activity} label="Trading activity" value={stats.trades_total ?? 0} color="text-cyan-400" sub="All-time fills" />
-            <Card to="/analysis" icon={BarChart3} label="Analytics" value="Open" color="text-violet-400" />
+            <Card to="/trading" icon={Activity} label="Trading activity" value={stats.trades_total ?? 0} color="text-[#FE9D55]" sub="All-time fills" />
+            <Card to="/analysis" icon={BarChart3} label="Analytics" value="Open" color="text-[#FE6C02]" />
             <Card to="/audit" icon={ScrollText} label="Who changed what" value="Open" color="text-white/60" />
             {isSuper ? (
               <Card to="/settings" icon={Settings} label="Admin users" value="Settings" color="text-gold-light" />

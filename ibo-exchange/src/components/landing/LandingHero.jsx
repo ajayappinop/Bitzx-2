@@ -243,7 +243,7 @@ export default function LandingHero() {
           transition={{ delay: 0.16 }}
           className="ibo-hero-lead"
         >
-          Elevate your crypto F&amp;O trading with futures, options, and spot — deposit INR, trade without
+          Elevate your crypto F&amp;O trading with futures and options — deposit INR, trade without
           holding underlying coins, and track margin &amp; P/L on a pro terminal built for India.
         </motion.p>
 

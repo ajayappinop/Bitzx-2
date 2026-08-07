@@ -66,7 +66,7 @@ function MarketTodayRow({ market }) {
 
   return (
     <Link
-      to={`/trade/${market.symbol}`}
+      to={`/futures/${String(market.symbol).replace(/USDT$/,'')}USDT-PERP`}
       className="group flex items-center gap-3 py-3.5 first:pt-1 last:pb-1 -mx-2 px-2 rounded-lg transition-colors hover:bg-[color:var(--ibo-hover)]"
     >
       {icon ? (

@@ -52,7 +52,7 @@ function PreviewTable({ data }) {
   const rest = Object.entries(data).filter(([k]) => !skip.has(k));
   const rows = [...preferred, ...rest.map(([k, v]) => [k, typeof v === 'object' ? JSON.stringify(v) : String(v)])];
   return (
-    <div className="rounded-lg border border-white/10 overflow-hidden mt-2 bg-black/25">
+    <div className="rounded-lg border border-white/10 overflow-hidden mt-2 bg-surface-dark">
       <table className="w-full text-xs table-fixed">
         <tbody>
           {rows.map(([k, v]) => (
@@ -238,7 +238,7 @@ export default function OptionsContractsPage() {
         </div>
       )}
 
-      <div className="rounded-xl border border-white/[0.08] bg-black/25 p-4 space-y-4">
+      <div className="rounded-xl border border-white/[0.08] bg-surface-dark p-4 space-y-4">
         <h2 className="text-sm font-bold text-white">Create contract</h2>
         <div className="flex flex-wrap items-end gap-3">
           <div className="min-w-[130px]">
@@ -246,7 +246,7 @@ export default function OptionsContractsPage() {
             <select
               value={underlyingSymbol}
               onChange={(e) => setUnderlyingSymbol(e.target.value)}
-              className="mt-1 w-full rounded-lg bg-black/40 border border-white/15 px-3 py-2 text-sm text-white font-mono"
+              className="mt-1 w-full rounded-lg bg-surface-card border border-white/15 px-3 py-2 text-sm text-white font-mono"
             >
               {underlyings.map((u) => (
                 <option key={u.id} value={u.symbol}>
@@ -260,7 +260,7 @@ export default function OptionsContractsPage() {
             <select
               value={optionType}
               onChange={(e) => setOptionType(e.target.value)}
-              className="mt-1 w-full rounded-lg bg-black/40 border border-white/15 px-3 py-2 text-sm text-white"
+              className="mt-1 w-full rounded-lg bg-surface-card border border-white/15 px-3 py-2 text-sm text-white"
             >
               <option value="call">Call</option>
               <option value="put">Put</option>
@@ -272,7 +272,7 @@ export default function OptionsContractsPage() {
               value={expiry}
               onChange={(e) => setExpiry(e.target.value)}
               placeholder="2026-12-20T16:00:00Z"
-              className="mt-1 w-full rounded-lg bg-black/40 border border-white/15 px-3 py-2 text-sm text-white font-mono"
+              className="mt-1 w-full rounded-lg bg-surface-card border border-white/15 px-3 py-2 text-sm text-white font-mono"
             />
           </div>
           <div className="min-w-[100px]">
@@ -281,7 +281,7 @@ export default function OptionsContractsPage() {
               value={strike}
               onChange={(e) => setStrike(e.target.value)}
               placeholder="70000"
-              className="mt-1 w-full rounded-lg bg-black/40 border border-white/15 px-3 py-2 text-sm text-white font-mono tabular-nums"
+              className="mt-1 w-full rounded-lg bg-surface-card border border-white/15 px-3 py-2 text-sm text-white font-mono tabular-nums"
             />
           </div>
           <button
@@ -295,13 +295,13 @@ export default function OptionsContractsPage() {
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 rounded-xl border border-white/[0.08] bg-black/20 px-4 py-3">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 rounded-xl border border-white/[0.08] bg-surface-dark px-4 py-3">
         <div className="flex items-center gap-2 min-w-[160px]">
           <label className="text-[11px] uppercase font-bold text-white/50 whitespace-nowrap">Filter</label>
           <select
             value={filterUnderlying}
             onChange={(e) => setFilterUnderlying(e.target.value)}
-            className="flex-1 rounded-lg bg-black/40 border border-white/15 px-2 py-2 text-sm text-white font-mono"
+            className="flex-1 rounded-lg bg-surface-card border border-white/15 px-2 py-2 text-sm text-white font-mono"
           >
             <option value="">All underlyings</option>
             {underlyings.map((u) => (
@@ -317,7 +317,7 @@ export default function OptionsContractsPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search id, symbol, expiry, strike…"
-            className="flex-1 rounded-lg bg-black/40 border border-white/15 px-3 py-2 text-sm text-white placeholder:text-white/30"
+            className="flex-1 rounded-lg bg-surface-card border border-white/15 px-3 py-2 text-sm text-white placeholder:text-white/30"
           />
         </div>
         <button
@@ -331,10 +331,10 @@ export default function OptionsContractsPage() {
         </button>
       </div>
 
-      <div className="rounded-xl border border-white/[0.08] bg-black/20 overflow-hidden">
+      <div className="rounded-xl border border-white/[0.08] bg-surface-dark overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm min-w-[1100px]">
-            <thead className="text-left text-[11px] uppercase text-white/50 font-bold border-b border-white/10 bg-black/30">
+            <thead className="text-left text-[11px] uppercase text-white/50 font-bold border-b border-white/10 bg-surface-dark">
               <tr>
                 <th className="px-3 py-3 min-w-[200px]">Contract</th>
                 <th className="px-3 py-3 whitespace-nowrap">Underlying</th>

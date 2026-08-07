@@ -35,7 +35,7 @@ export default function ConfirmModal({
         className="w-full max-w-lg max-h-[min(90dvh,calc(100vh-2rem))] overflow-y-auto overscroll-contain rounded-3xl border border-surface-border bg-surface-card p-5 sm:p-6 shadow-2xl relative"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="absolute -top-10 -right-10 w-36 h-36 rounded-full bg-cyan-500/10 blur-3xl pointer-events-none" />
+        <div className="absolute -top-10 -right-10 w-36 h-36 rounded-full bg-[#FE6C02]/10 blur-3xl pointer-events-none" />
         <h3 className="text-xl sm:text-2xl font-black text-white mb-2 pr-6">{title}</h3>
         {message ? <p className="text-white/85 text-base mb-5 break-words">{message}</p> : null}
 
@@ -57,7 +57,7 @@ export default function ConfirmModal({
             type="button"
             disabled={busy}
             onClick={onClose}
-            className="w-full sm:w-auto px-4 py-3 rounded-xl border border-surface-border text-white/90 text-sm font-bold disabled:opacity-40"
+            className="adm-btn-secondary w-full sm:w-auto"
           >
             {cancelText}
           </button>
@@ -65,11 +65,9 @@ export default function ConfirmModal({
             type="button"
             disabled={!canConfirm}
             onClick={() => onConfirm(value)}
-            className={`w-full sm:w-auto px-4 py-3 rounded-xl text-sm font-bold disabled:opacity-40 ${
-              danger
-                ? 'bg-gradient-to-r from-red-500/25 to-rose-500/20 border border-red-500/45 text-red-200'
-                : 'bg-gradient-to-r from-cyan-500/25 to-indigo-500/20 border border-cyan-400/45 text-cyan-100'
-            }`}
+            className={danger
+              ? 'w-full sm:w-auto px-4 py-3 rounded-lg text-sm font-bold disabled:opacity-40 bg-gradient-to-r from-red-500/25 to-rose-500/20 border border-red-500/45 text-red-200'
+              : 'adm-btn-primary w-full sm:w-auto'}
           >
             {confirmText}
           </button>

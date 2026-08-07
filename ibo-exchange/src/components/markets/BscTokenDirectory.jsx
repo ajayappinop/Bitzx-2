@@ -220,7 +220,7 @@ function TokenCard({ item, compact }) {
 
           <Link
 
-            to={`/trade/${item.trade_symbol || `${item.base}Delta`}`}
+            to={`/futures/BTCUSDT-PERP`}
 
             className="flex items-center justify-center gap-1 px-3 py-2 rounded-xl border text-xs font-bold hover:opacity-90"
 

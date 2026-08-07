@@ -47,7 +47,7 @@ function TopCoinCard({ market, index }) {
         </p>
       ) : null}
       <Link
-        to={`/trade/${market.symbol}`}
+        to={`/futures/${String(market.symbol).replace(/USDT$/,'')}USDT-PERP`}
         className="inline-flex items-center justify-center gap-2 rounded-xl bg-logo-gradient text-[#101013] text-sm font-bold py-2.5 hover:brightness-110 transition-[filter]"
       >
         Trade {base} <ArrowRight size={14} />

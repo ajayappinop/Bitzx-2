@@ -23,7 +23,7 @@ const DEPOSIT_SHIELD = '/hero/deposit-shield.png?v=10';
 const IBO_POINTS = [
   { n: '01', title: 'Trade without owning crypto', desc: 'Open futures and options on BTC & ETH without holding the underlying coins.' },
   { n: '02', title: 'Margin & P/L in INR', desc: 'Deposit rupees, trade 24/7, and track positions with INR-ready settlement rails.' },
-  { n: '03', title: 'Spot, futures & options', desc: 'One pro interface for perpetual futures, options chain, and spot markets.' },
+  { n: '03', title: 'Futures & options', desc: 'One pro interface for perpetual futures and options chain.' },
 ];
 
 const DEPOSIT_PATHS = [
@@ -31,7 +31,7 @@ const DEPOSIT_PATHS = [
     icon: '/hero/deposit-wallet.png?v=10',
     accent: 'rgba(96,165,250,0.45)',
     title: 'Deposit INR',
-    desc: 'Link your bank account and deposit INR conveniently. Use balances as capital for F&O and spot trading.',
+    desc: 'Link your bank account and deposit INR conveniently. Use balances as capital for futures and options trading.',
     link: '/wallet/deposit/inr',
     cta: 'Deposit INR',
   },
@@ -70,8 +70,8 @@ const JOURNEY_STEPS = [
   },
   {
     n: '03',
-    title: 'Trade F&O or spot',
-    desc: 'Launch futures, options, or spot markets on Bitcoin, Ether, and more — open 24/7 with efficient margining.',
+    title: 'Trade futures & options',
+    desc: 'Launch futures and options markets on Bitcoin, Ether, and more — open 24/7 with efficient margining.',
     to: '/futures/BTCUSDT-PERP',
     cta: 'Trade futures',
     altTo: '/options/BTCUSDT',
@@ -335,7 +335,7 @@ export default function LandingPlatformFlow() {
 
               <p className="ibo-lead text-zinc-400 max-w-lg mb-8">
 
-                Elevate your crypto F&O trading with 24/7 open markets, efficient margining, and INR settlement. Futures, options, and spot in one terminal — built for Indian traders.
+                Elevate your crypto F&O trading with 24/7 open markets, efficient margining, and INR settlement. Futures and options in one terminal — built for Indian traders.
 
               </p>
 
@@ -557,7 +557,7 @@ export default function LandingPlatformFlow() {
 
             <p className="ibo-lead text-zinc-400">
 
-              Link your bank, deposit INR, or fund with USDT — then trade futures, options, and spot with verified rails.
+              Link your bank, deposit INR, or fund with USDT — then trade futures and options with verified rails.
 
             </p>
 
@@ -853,7 +853,7 @@ export default function LandingPlatformFlow() {
 
             <Link
 
-              to="/quick-trade"
+              to="/futures/BTCUSDT-PERP"
 
               className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/12 px-8 py-3.5 text-[15px] font-medium text-white hover:bg-white/[0.05] ibo-btn-outline"
 

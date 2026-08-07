@@ -333,7 +333,7 @@ export default function InrSettingsPage() {
                 min="0"
                 step="0.01"
                 inputMode="decimal"
-                className="mt-1 w-full rounded-lg border border-surface-border bg-black/30 px-3 py-2 text-white text-sm"
+                className="mt-1 w-full rounded-lg border border-surface-border bg-surface-dark px-3 py-2 text-white text-sm"
                 value={gwMinDeposit}
                 onChange={(e) => setGwMinDeposit(e.target.value)}
               />
@@ -344,7 +344,7 @@ export default function InrSettingsPage() {
             <div>
               <label className="text-xs text-white/50 uppercase">Deposit flow</label>
               <select
-                className="mt-1 w-full rounded-lg border border-surface-border bg-black/30 px-3 py-2 text-white text-sm"
+                className="mt-1 w-full rounded-lg border border-surface-border bg-surface-dark px-3 py-2 text-white text-sm"
                 value={gwMode}
                 onChange={(e) => onDepositModeChange(e.target.value)}
               >
@@ -357,7 +357,7 @@ export default function InrSettingsPage() {
               <div>
                 <label className="text-xs text-white/50 uppercase">Gateway provider</label>
                 <select
-                  className="mt-1 w-full rounded-lg border border-surface-border bg-black/30 px-3 py-2 text-white text-sm"
+                  className="mt-1 w-full rounded-lg border border-surface-border bg-surface-dark px-3 py-2 text-white text-sm"
                   value={gwProvider === 'none' ? '' : gwProvider}
                   onChange={(e) => setGwProvider(e.target.value)}
                   required
@@ -390,7 +390,7 @@ export default function InrSettingsPage() {
                   type="number"
                   min="0"
                   step="1"
-                  className="mt-1 w-full rounded-lg border border-surface-border bg-black/30 px-3 py-2 text-white text-sm"
+                  className="mt-1 w-full rounded-lg border border-surface-border bg-surface-dark px-3 py-2 text-white text-sm"
                   value={gwAutoMax}
                   onChange={(e) => setGwAutoMax(e.target.value)}
                 />
@@ -450,7 +450,7 @@ export default function InrSettingsPage() {
             {loading && items.length === 0 ? (
               <p className="text-white/60 text-sm">Loading…</p>
             ) : items.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-surface-border bg-black/20 px-5 py-8 text-center">
+              <div className="rounded-xl border border-dashed border-surface-border bg-surface-dark px-5 py-8 text-center">
                 <p className="text-white/70 text-sm font-semibold">No payment methods yet</p>
                 <p className="text-white/45 text-xs mt-2 max-w-sm mx-auto">
                   {canManage
@@ -463,7 +463,7 @@ export default function InrSettingsPage() {
                 {items.map((m) => (
                   <li
                     key={m.id}
-                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-surface-border bg-black/20 px-4 py-3"
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-surface-border bg-surface-dark px-4 py-3"
                   >
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
@@ -542,7 +542,7 @@ export default function InrSettingsPage() {
                       <div key={key}>
                         <label className="text-xs text-white/50 uppercase">{label}</label>
                         <input
-                          className="mt-1 w-full rounded-lg border border-surface-border bg-black/30 px-3 py-2 text-white text-sm"
+                          className="mt-1 w-full rounded-lg border border-surface-border bg-surface-dark px-3 py-2 text-white text-sm"
                           value={bank[key]}
                           onChange={(e) => setBank((b) => ({ ...b, [key]: e.target.value }))}
                           required={key !== 'branch'}
@@ -557,7 +557,7 @@ export default function InrSettingsPage() {
                     <div>
                       <label className="text-xs text-white/50 uppercase">UPI ID</label>
                       <input
-                        className="mt-1 w-full rounded-lg border border-surface-border bg-black/30 px-3 py-2 text-white text-sm font-mono"
+                        className="mt-1 w-full rounded-lg border border-surface-border bg-surface-dark px-3 py-2 text-white text-sm font-mono"
                         value={upi.upi_id}
                         onChange={(e) => setUpi((u) => ({ ...u, upi_id: e.target.value }))}
                         required
@@ -566,7 +566,7 @@ export default function InrSettingsPage() {
                     <div>
                       <label className="text-xs text-white/50 uppercase">Display name</label>
                       <input
-                        className="mt-1 w-full rounded-lg border border-surface-border bg-black/30 px-3 py-2 text-white text-sm"
+                        className="mt-1 w-full rounded-lg border border-surface-border bg-surface-dark px-3 py-2 text-white text-sm"
                         value={upi.display_name}
                         onChange={(e) => setUpi((u) => ({ ...u, display_name: e.target.value }))}
                         required
@@ -580,7 +580,7 @@ export default function InrSettingsPage() {
                     <div>
                       <label className="text-xs text-white/50 uppercase">Label</label>
                       <input
-                        className="mt-1 w-full rounded-lg border border-surface-border bg-black/30 px-3 py-2 text-white text-sm"
+                        className="mt-1 w-full rounded-lg border border-surface-border bg-surface-dark px-3 py-2 text-white text-sm"
                         value={qr.label}
                         onChange={(e) => setQr({ label: e.target.value })}
                         required

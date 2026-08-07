@@ -30,6 +30,7 @@ import {
 import { COIN_ICONS } from '@/services/marketApi';
 import { useToast, friendlyError } from '@/context/ToastContext';
 import { estimateIboFee, formatIboFee } from '@/lib/iboFee';
+import { isMoveContract, vanillaContractsOnly } from '@/components/options/deltaInstrumentUtils';
 const DEFAULT_UNDERLYING = 'BTCUSDT';
 function fmtNum(v, d = 4) {
   const n = Number(v);
@@ -294,6 +295,12 @@ export default function OptionsTradePage() {
   const { user, kyc, balance } = useAuth();
   const toast = useToast();
   const underlying = (rawUnderlying || DEFAULT_UNDERLYING).toUpperCase().replace(/[^A-Z0-9]/g, '') || DEFAULT_UNDERLYING;
+  // Guard: /options/move must never render as vanilla Options (legacy path → /move).
+  useEffect(() => {
+    if (underlying === 'MOVE') {
+      navigate('/move/BTC', { replace: true });
+    }
+  }, [underlying, navigate]);
   const [underlyings, setUnderlyings] = useState([]);
   const [contracts, setContracts] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
@@ -424,10 +431,11 @@ export default function OptionsTradePage() {
       const fast = await optionsApi.listContracts({
         underlying_symbol: underlying,
         listed_only: true,
+        option_type: 'vanilla',
         limit: 500,
       });
       if (Array.isArray(fast?.contracts) && fast.contracts.length) {
-        list = fast.contracts;
+        list = vanillaContractsOnly(fast.contracts);
         setContracts(list);
         setLoading(false);
       }
@@ -436,7 +444,7 @@ export default function OptionsTradePage() {
     }
     try {
       const cRes = await optionsApi.getChain(underlying, true);
-      list = cRes.contracts || list;
+      list = vanillaContractsOnly(cRes.contracts || list);
     } catch (e) {
       chainErr = e.message || 'Could not load chain from API';
     }
@@ -446,7 +454,7 @@ export default function OptionsTradePage() {
       try {
         const d = await optionsApi.demoChain(underlying);
         if (d?.demo && Array.isArray(d.contracts) && d.contracts.length) {
-          list = d.contracts;
+          list = vanillaContractsOnly(d.contracts);
           demo = true;
           idx = d.index_price ?? null;
         }
@@ -459,7 +467,7 @@ export default function OptionsTradePage() {
     }
     setUsingDemoChain(demo);
     setDemoIndexPrice(idx);
-    setContracts(list);
+    setContracts(vanillaContractsOnly(list));
     setSelectedId((prev) => {
       if (prev && list.some((c) => c.id === prev)) return prev;
       /* No default strike — user picks Call/Put on the chain first; book + ticket appear after. */
@@ -478,10 +486,12 @@ export default function OptionsTradePage() {
         optionsApi.myTrades({ limit: 40 }),
       ]);
       setWallet(w);
-      setPositions(p.positions || []);
-      setOpenOrders(o.orders || []);
-      setOrderHist(h.orders || []);
-      setMyTrades(t.trades || []);
+      // Vanilla Options blotter only — MOVE/straddle positions belong on /move.
+      const notMove = (row) => !isMoveContract(row?.contract_id || row);
+      setPositions((p.positions || []).filter(notMove));
+      setOpenOrders((o.orders || []).filter(notMove));
+      setOrderHist((h.orders || []).filter(notMove));
+      setMyTrades((t.trades || []).filter(notMove));
     } catch {
       /* non-fatal */
     }
@@ -530,10 +540,11 @@ export default function OptionsTradePage() {
     const handle = openOptionsAccountWs((msg) => {
       if (msg?.type !== 'options_account') return;
       if (msg.wallet) setWallet(msg.wallet);
-      if (Array.isArray(msg.positions)) setPositions(msg.positions);
-      if (Array.isArray(msg.open_orders)) setOpenOrders(msg.open_orders);
-      if (Array.isArray(msg.order_history)) setOrderHist(msg.order_history);
-      if (Array.isArray(msg.user_trades)) setMyTrades(msg.user_trades);
+      const notMove = (row) => !isMoveContract(row?.contract_id || row);
+      if (Array.isArray(msg.positions)) setPositions(msg.positions.filter(notMove));
+      if (Array.isArray(msg.open_orders)) setOpenOrders(msg.open_orders.filter(notMove));
+      if (Array.isArray(msg.order_history)) setOrderHist(msg.order_history.filter(notMove));
+      if (Array.isArray(msg.user_trades)) setMyTrades(msg.user_trades.filter(notMove));
     });
     return () => handle?.close();
   }, [user]);
@@ -729,7 +740,7 @@ export default function OptionsTradePage() {
         'Transfer complete',
         isIn
           ? `${fmtNum(a, 2)} USDT moved to your Options wallet — ready to trade.`
-          : `${fmtNum(a, 2)} USDT returned to your Spot wallet.`,
+          : `${fmtNum(a, 2)} USDT returned to your Funding wallet.`,
       );
       setXferAmt('');
       setXferOpen(false);
@@ -1323,7 +1334,13 @@ export default function OptionsTradePage() {
           <div className="delta-options-header__tools min-w-0 flex-1 overflow-hidden">
             <DeltaOptionsHeader
               optionsView={optionsView}
-              setOptionsView={setOptionsView}
+              setOptionsView={(v) => {
+                if (v === 'strategy') {
+                  navigate(`/options/strategy/${baseFromUsdt(underlying)}`);
+                  return;
+                }
+                setOptionsView(v);
+              }}
               underlyings={ul}
               underlying={underlying}
               onSelectUnderlying={(sym) => {
@@ -1338,7 +1355,7 @@ export default function OptionsTradePage() {
               onChangeCols={(next) => setChainCols(resolveChainCols(next))}
               onRefresh={refresh}
               loading={loading}
-              onStrategy={() => setOptionsView((v) => (v === 'strategy' ? 'chain' : 'strategy'))}
+              onStrategy={() => navigate(`/options/strategy/${baseFromUsdt(underlying)}`)}
             />
           </div>
           <div className="delta-right-col shrink-0 border-l border-[#e8eaed] min-h-0">

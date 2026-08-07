@@ -1,5 +1,5 @@
 /**
- * Navbar wallet balance dropdown — Account Value, Spot / FNO wallets, funds CTAs.
+ * Navbar wallet balance dropdown — Account Value, Funding / FNO wallets, funds CTAs.
  * Modeled after Delta Exchange India wallet popover.
  */
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -258,13 +258,13 @@ export default function NavWalletDropdown({ className = '' }) {
                 ) : null}
 
                 <WalletRow
-                  label="Spot Wallet"
+                  label="Funding Wallet"
                   inr={spotWalletInr}
                   usd={spotUsd}
                   hidden={hidden}
-                  href="/account/balances?wallet=spot"
+                  href="/account/balances?wallet=funding"
                   onClick={close}
-                  tip="INR, USDT and crypto held for spot trading"
+                  tip="INR, USDT and crypto for deposits, withdrawals, and F&O transfers"
                 />
 
                 <WalletRow

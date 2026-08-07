@@ -17,9 +17,9 @@ const ITEMS = [
     glow: 'rgba(0, 168, 118,0.32)',
   },
   {
-    to: '/trade/IBOUSDT',
-    label: 'Spot',
-    sub: 'Limit · Market · Charts',
+    to: '/account/balances?wallet=funding',
+    label: 'Funding Wallet',
+    sub: 'Deposit · Withdraw · Transfer',
     icon: '/hero/why-usdc-coin.png?v=1',
     glow: 'rgba(254, 108, 2,0.36)',
   },
@@ -101,7 +101,7 @@ export default function LandingProductStrip() {
 
       <div className="relative ibo-landing-container pt-7 md:pt-8 pb-2">
         <p className="text-center ibo-eyebrow mb-5 tracking-[0.22em]">
-          Futures · options · spot · INR
+          Futures · options · INR
         </p>
       </div>
 

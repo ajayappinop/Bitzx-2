@@ -1,13 +1,12 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   Search, ChevronLeft, ChevronRight, User, MapPin, Phone, Shield,
-  PauseCircle, PlayCircle, CirclePause, Ban, CheckCircle, Filter, Loader2,
+  PauseCircle, CirclePause, Ban, CheckCircle, Filter, Loader2,
   ArrowDownToLine, ArrowUpFromLine,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useListSort } from '@/lib/useListSort';
-import SortableTh from '@/components/SortableTh';
 
 const ACTIVE_OPTS = [
   { value: '', label: 'All accounts' },
@@ -67,6 +66,7 @@ export default function UsersPage() {
   const [suggestLoading, setSuggestLoading] = useState(false);
   const [showSuggest, setShowSuggest] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [selectedUid, setSelectedUid] = useState('');
   const wrapRef = useRef(null);
   const { sortBy, sortDir, sortParams, toggleSort: _toggleSort, resetSort } = useListSort(
     searchParams.get('sort') || 'created_at',
@@ -79,6 +79,21 @@ export default function UsersPage() {
     },
     [_toggleSort],
   );
+
+  const selectedUser = useMemo(
+    () => items.find((u) => u.uid === selectedUid) || items[0] || null,
+    [items, selectedUid],
+  );
+
+  useEffect(() => {
+    if (!items.length) {
+      setSelectedUid('');
+      return;
+    }
+    if (!items.some((u) => u.uid === selectedUid)) {
+      setSelectedUid(items[0].uid);
+    }
+  }, [items, selectedUid]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -344,7 +359,7 @@ export default function UsersPage() {
               type="button"
               onClick={exportUsersExcel}
               disabled={exporting}
-              className="rounded-xl border border-surface-border px-4 py-3 text-white/90 text-sm font-bold hover:bg-white/[.05] disabled:opacity-50"
+              className="adm-btn-secondary"
             >
               {exporting ? 'Exporting…' : 'Export'}
             </button>
@@ -368,7 +383,7 @@ export default function UsersPage() {
               setDateTo('');
               resetSort();
             }}
-            className="rounded-xl border border-surface-border px-4 py-2 text-white/85 text-sm font-bold hover:bg-white/[.05]"
+            className="adm-btn-secondary"
           >
             Clear filters
           </button>
@@ -417,139 +432,188 @@ export default function UsersPage() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden min-w-0">
-        <div className="adm-table-x scrollbar-thin">
-          <table className="w-full text-sm min-w-[1280px]">
-            <thead>
-              <tr className="text-left text-[11px] font-extrabold text-white/50 uppercase tracking-wider border-b border-surface-border bg-white/[.02]">
-                <SortableTh className="px-4 py-3" sortKey="name" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>User</SortableTh>
-                <SortableTh className="px-4 py-3" sortKey="email" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Contact</SortableTh>
-                <SortableTh className="px-4 py-3" sortKey="uid" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>UID</SortableTh>
-                <SortableTh className="px-4 py-3" sortKey="kyc_status" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>KYC</SortableTh>
-                <th className="px-4 py-3">
-                  <span className="inline-flex items-center gap-1.5">
-                    <ArrowDownToLine size={13} className="text-emerald-400/90" />
-                    Deposits
-                  </span>
-                  <span className="block text-[9px] font-semibold text-white/35 normal-case tracking-normal mt-0.5">Approved · by asset</span>
-                </th>
-                <th className="px-4 py-3">
-                  <span className="inline-flex items-center gap-1.5">
-                    <ArrowUpFromLine size={13} className="text-gold/90" />
-                    Withdrawals
-                  </span>
-                  <span className="block text-[9px] font-semibold text-white/35 normal-case tracking-normal mt-0.5">Approved · gross amt</span>
-                </th>
-                <th className="px-4 py-3">Account</th>
-                <th className="px-4 py-3">Pauses</th>
-                <SortableTh className="px-4 py-3" sortKey="last_login_at" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Last login</SortableTh>
-                <SortableTh className="px-4 py-3" sortKey="created_at" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Joined</SortableTh>
-                <th className="px-4 py-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={11} className="px-4 py-16 text-center text-white/50">Loading…</td>
-                </tr>
-              ) : items.length === 0 ? (
-                <tr>
-                  <td colSpan={11} className="px-4 py-16 text-center text-white/50">No users match.</td>
-                </tr>
-              ) : (
-                items.map((u) => (
-                  <tr key={u.uid} className="border-b border-surface-border/60 hover:bg-white/[.03]">
-                    <td className="px-4 py-3">
-                      <p className="font-bold text-white">{u.name || '—'}</p>
-                      <p className="text-white/45 text-xs font-mono mt-0.5" title={u.uid}>
-                        {u.uid}
-                      </p>
-                      {u.country ? (
-                        <p className="text-white/45 text-xs inline-flex items-center gap-1 mt-0.5">
-                          <MapPin size={11} className="opacity-60" />
-                          {u.country}
-                        </p>
-                      ) : null}
-                    </td>
-                    <td className="px-4 py-3">
-                      <p className="text-white/80 text-xs break-all">{u.email}</p>
-                      {u.phone ? (
-                        <p className="text-white/45 text-xs mt-1 inline-flex items-center gap-1">
-                          <Phone size={11} className="opacity-60" />
-                          {u.phone}
-                        </p>
-                      ) : (
-                        <p className="text-white/30 text-xs mt-1">—</p>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 font-mono text-[11px] text-white/70 max-w-[120px] truncate" title={u.uid}>
-                      {u.uid}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`text-[10px] font-extrabold uppercase px-2 py-1 rounded-md border inline-flex items-center gap-1 ${kycBadgeClass(u.kyc_status)}`}>
-                        <Shield size={11} />
-                        {u.kyc_status || 'unverified'}
-                      </span>
-                      {u.two_factor_enabled && (
-                        <span
-                          title="Two-factor authentication enabled"
-                          className="mt-1 inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md border border-emerald-500/35 bg-emerald-500/10 text-emerald-300"
-                        >
-                          2FA
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-[11px] text-emerald-200/90 font-mono leading-snug max-w-[200px]" title={formatTotalsByAsset(u.deposit_totals)}>
-                      {formatTotalsByAsset(u.deposit_totals)}
-                    </td>
-                    <td className="px-4 py-3 text-[11px] text-gold-light/90 font-mono leading-snug max-w-[200px]" title={formatTotalsByAsset(u.withdrawal_totals)}>
-                      {formatTotalsByAsset(u.withdrawal_totals)}
-                    </td>
-                    <td className="px-4 py-3">
-                      {u.is_active !== false ? (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-300">
-                          <CheckCircle size={14} />
-                          Active
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-red-300">
-                          <Ban size={14} />
-                          Disabled
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-col gap-1 text-[11px]">
-                        <span className={`inline-flex items-center gap-1 font-semibold ${u.user_features_paused ? 'text-gold-light' : 'text-white/45'}`}>
-                          {u.user_features_paused ? <PauseCircle size={12} /> : <PlayCircle size={12} />}
-                          Features {u.user_features_paused ? 'paused' : 'on'}
-                        </span>
-                        <span className={`inline-flex items-center gap-1 font-semibold ${u.user_trading_paused ? 'text-sky-300' : 'text-white/45'}`}>
-                          {u.user_trading_paused ? <CirclePause size={12} /> : <PlayCircle size={12} />}
-                          Trading {u.user_trading_paused ? 'paused' : 'on'}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-white/55 text-xs whitespace-nowrap">
-                      {u.last_login_at ? new Date(u.last_login_at).toLocaleString() : '—'}
-                    </td>
-                    <td className="px-4 py-3 text-white/55 text-xs whitespace-nowrap">
-                      {u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <Link
-                        to={`/users/${u.uid}`}
-                        className="text-gold-light font-bold text-xs hover:underline"
-                      >
-                        View
-                      </Link>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+      <div className="rounded-lg border border-surface-border bg-surface-card overflow-hidden min-w-0">
+        <div className="flex flex-wrap items-center gap-1.5 px-3 py-2 border-b border-surface-border bg-[color:var(--ibo-thead)]">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-white/40 mr-1">Sort</span>
+          {[
+            { key: 'name', label: 'Name' },
+            { key: 'email', label: 'Email' },
+            { key: 'kyc_status', label: 'KYC' },
+            { key: 'last_login_at', label: 'Last login' },
+            { key: 'created_at', label: 'Joined' },
+          ].map(({ key, label }) => {
+            const activeSort = sortBy === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => toggleSort(key)}
+                className={`px-2.5 py-1 rounded-md text-[11px] font-bold border transition-colors ${
+                  activeSort
+                    ? 'border-[#FE6C02]/40 bg-[#FE6C02]/10 text-[#8f3600]'
+                    : 'border-surface-border text-white/55 hover:text-white hover:bg-surface-hover'
+                }`}
+              >
+                {label}{activeSort ? (sortDir === 'asc' ? ' ↑' : ' ↓') : ''}
+              </button>
+            );
+          })}
         </div>
+
+        {loading ? (
+          <div className="px-4 py-20 text-center text-white/50 text-sm">Loading…</div>
+        ) : items.length === 0 ? (
+          <div className="px-4 py-20 text-center text-white/50 text-sm">No users match.</div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-[minmax(260px,34%)_1fr] min-h-[420px]">
+            {/* Left directory */}
+            <div className="border-b lg:border-b-0 lg:border-r border-surface-border max-h-[520px] overflow-y-auto scrollbar-thin bg-[color:var(--ibo-bg)]">
+              <ul>
+                {items.map((u) => {
+                  const selected = (selectedUser?.uid || '') === u.uid;
+                  return (
+                    <li key={u.uid}>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedUid(u.uid)}
+                        className={`w-full text-left px-3 py-2.5 border-b border-surface-border/70 transition-colors ${
+                          selected
+                            ? 'bg-[#FE6C02]/10 border-l-2 border-l-[#FE6C02]'
+                            : 'hover:bg-surface-hover border-l-2 border-l-transparent'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <p className={`font-semibold text-[13px] truncate ${selected ? 'text-[#8f3600]' : 'text-[color:var(--ibo-ink)]'}`}>
+                            {u.name || '—'}
+                          </p>
+                          <span className={`shrink-0 text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded border ${kycBadgeClass(u.kyc_status)}`}>
+                            {u.kyc_status || 'unverified'}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-white/55 truncate mt-0.5">{u.email || '—'}</p>
+                        <p className="text-[10px] font-mono text-white/35 truncate mt-0.5">{u.uid}</p>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
+            {/* Right inspector */}
+            <div className="p-4 sm:p-5 min-w-0 bg-surface-card">
+              {selectedUser ? (
+                <div className="space-y-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-11 h-11 rounded-lg border border-[#FE6C02]/30 bg-[#FE6C02]/10 text-[#8f3600] flex items-center justify-center font-black text-sm shrink-0">
+                          {(selectedUser.name || selectedUser.email || '?')
+                            .split(/\s+/)
+                            .filter(Boolean)
+                            .slice(0, 2)
+                            .map((p) => p[0]?.toUpperCase())
+                            .join('') || '?'}
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className="text-lg font-black text-[color:var(--ibo-ink)] truncate">{selectedUser.name || '—'}</h3>
+                          <p className="text-[11px] font-mono text-white/45 truncate">{selectedUser.uid}</p>
+                        </div>
+                      </div>
+                      <div className="mt-3 space-y-1 text-[12px]">
+                        <p className="text-white/70 break-all">{selectedUser.email || '—'}</p>
+                        {selectedUser.phone ? (
+                          <p className="text-white/50 inline-flex items-center gap-1.5">
+                            <Phone size={12} /> {selectedUser.phone}
+                          </p>
+                        ) : null}
+                        {selectedUser.country ? (
+                          <p className="text-white/50 inline-flex items-center gap-1.5">
+                            <MapPin size={12} /> {selectedUser.country}
+                          </p>
+                        ) : null}
+                      </div>
+                    </div>
+                    <Link
+                      to={`/users/${selectedUser.uid}`}
+                      className="adm-btn-primary"
+                    >
+                      Open profile <ChevronRight size={14} />
+                    </Link>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5">
+                    <span className={`text-[10px] font-extrabold uppercase px-2 py-1 rounded-md border inline-flex items-center gap-1 ${kycBadgeClass(selectedUser.kyc_status)}`}>
+                      <Shield size={11} /> {selectedUser.kyc_status || 'unverified'}
+                    </span>
+                    <span className={`text-[10px] font-bold px-2 py-1 rounded-md border inline-flex items-center gap-1 ${
+                      selectedUser.is_active !== false
+                        ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600'
+                        : 'border-red-500/30 bg-red-500/10 text-red-500'
+                    }`}>
+                      {selectedUser.is_active !== false ? <CheckCircle size={11} /> : <Ban size={11} />}
+                      {selectedUser.is_active !== false ? 'Active' : 'Disabled'}
+                    </span>
+                    {selectedUser.two_factor_enabled ? (
+                      <span className="text-[10px] font-extrabold uppercase px-2 py-1 rounded-md border border-emerald-500/30 bg-emerald-500/10 text-emerald-600">2FA</span>
+                    ) : null}
+                    {selectedUser.user_features_paused ? (
+                      <span className="text-[10px] font-bold px-2 py-1 rounded-md border border-gold/30 bg-gold/10 text-[#8f3600] inline-flex items-center gap-1">
+                        <PauseCircle size={11} /> Features paused
+                      </span>
+                    ) : null}
+                    {selectedUser.user_trading_paused ? (
+                      <span className="text-[10px] font-bold px-2 py-1 rounded-md border border-[#FE6C02]/30 bg-[#FE6C02]/10 text-[#8f3600] inline-flex items-center gap-1">
+                        <CirclePause size={11} /> Trading paused
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="rounded-md border border-surface-border bg-[color:var(--ibo-bg)] p-3">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-white/40 inline-flex items-center gap-1.5">
+                        <ArrowDownToLine size={12} className="text-emerald-500" /> Approved deposits
+                      </p>
+                      <p className="mt-2 text-sm font-mono font-semibold text-emerald-600 break-words">
+                        {formatTotalsByAsset(selectedUser.deposit_totals)}
+                      </p>
+                    </div>
+                    <div className="rounded-md border border-surface-border bg-[color:var(--ibo-bg)] p-3">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-white/40 inline-flex items-center gap-1.5">
+                        <ArrowUpFromLine size={12} className="text-[#FE6C02]" /> Approved withdrawals
+                      </p>
+                      <p className="mt-2 text-sm font-mono font-semibold text-[#8f3600] break-words">
+                        {formatTotalsByAsset(selectedUser.withdrawal_totals)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 text-[12px]">
+                    <div className="rounded-md border border-surface-border px-3 py-2.5">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-white/40">Last login</p>
+                      <p className="mt-1 text-white/75">
+                        {selectedUser.last_login_at
+                          ? new Date(selectedUser.last_login_at).toLocaleString()
+                          : '—'}
+                      </p>
+                    </div>
+                    <div className="rounded-md border border-surface-border px-3 py-2.5">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-white/40">Joined</p>
+                      <p className="mt-1 text-white/75">
+                        {selectedUser.created_at
+                          ? new Date(selectedUser.created_at).toLocaleString()
+                          : '—'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="h-full min-h-[280px] flex items-center justify-center text-white/45 text-sm">
+                  <span className="inline-flex items-center gap-2"><User size={16} /> Select a user</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-4 gap-3">
@@ -567,17 +631,17 @@ export default function UsersPage() {
               type="button"
               disabled={skip <= 0}
               onClick={() => setSkip((s) => Math.max(0, s - limit))}
-              className="flex items-center gap-1 px-4 py-2 rounded-xl border border-surface-border text-sm font-bold disabled:opacity-40"
+              className="adm-btn-secondary"
             >
-              <ChevronLeft size={18} /> Prev
+              <ChevronLeft size={16} /> Prev
             </button>
             <button
               type="button"
               disabled={skip + limit >= total}
               onClick={() => setSkip((s) => s + limit)}
-              className="flex items-center gap-1 px-4 py-2 rounded-xl border border-surface-border text-sm font-bold disabled:opacity-40"
+              className="adm-btn-secondary"
             >
-              Next <ChevronRight size={18} />
+              Next <ChevronRight size={16} />
             </button>
           </div>
         </div>

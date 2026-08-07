@@ -67,9 +67,27 @@ export const optionsApi = {
       })}`,
     ).then(jsonOrThrow),
 
+  /** MOVE / straddle contracts (Delta-style MV product). */
+  moveChain: (underlyingSymbol, listedOnly = true) =>
+    fetch(
+      `${API}/move-chain${qs({
+        underlying_symbol: underlyingSymbol,
+        listed_only: listedOnly,
+      })}`,
+    ).then(jsonOrThrow),
+
   /** Synthetic strikes from live Binance spot when DB has no contracts (preview / dev). */
   demoChain: (underlyingSymbol) =>
     fetch(`${API}/demo-chain${qs({ underlying_symbol: underlyingSymbol })}`).then(jsonOrThrow),
+
+  /** Options Analytics — recent public fills tape. */
+  analyticsRecentTrades: (q = {}) =>
+    fetch(
+      `${API}/analytics/recent-trades${qs({
+        underlying_symbol: q.underlyingSymbol,
+        limit: q.limit ?? 200,
+      })}`,
+    ).then(jsonOrThrow),
 
   wallet: () => authFetch(`${API}/wallet`).then(jsonOrThrow),
   walletTxns: (q = {}) => authFetch(`${API}/wallet/txns${qs({ limit: q.limit ?? 50, skip: q.skip ?? 0 })}`).then(jsonOrThrow),
