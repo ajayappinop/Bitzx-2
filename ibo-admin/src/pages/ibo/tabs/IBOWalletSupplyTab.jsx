@@ -38,7 +38,7 @@ export default function IBOWalletSupplyTab() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-bold text-white/60 uppercase tracking-widest flex items-center gap-2">
-          <Wallet size={14} className="text-gold-light" /> IBO Platform Supply
+          <Wallet size={14} className="text-gold-light" /> Delta Platform Supply
         </h2>
         <button onClick={load} className="flex items-center gap-1 text-xs text-white/40 hover:text-gold-light transition-colors">
           <RefreshCw size={12} /> Refresh
@@ -47,9 +47,9 @@ export default function IBOWalletSupplyTab() {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
-          { label: 'Total User IBO', value: fmt(data.total_user_ibo) + ' IBO', sub: fmtUsd(data.total_user_usdt_equiv), color: 'amber' },
-          { label: 'Treasury IBO',   value: fmt(data.treasury_ibo) + ' IBO',   sub: fmtUsd(data.treasury_ibo * data.ibo_price_usdt), color: 'blue' },
-          { label: 'Unique Holders', value: fmt(data.holder_count, 0),          sub: 'accounts with IBO balance', color: 'purple' },
+          { label: 'Total User Delta', value: fmt(data.total_user_ibo) + ' Delta', sub: fmtUsd(data.total_user_usdt_equiv), color: 'amber' },
+          { label: 'Treasury Delta',   value: fmt(data.treasury_ibo) + ' Delta',   sub: fmtUsd(data.treasury_ibo * data.ibo_price_usdt), color: 'blue' },
+          { label: 'Unique Holders', value: fmt(data.holder_count, 0),          sub: 'accounts with Delta balance', color: 'purple' },
         ].map((c) => (
           <div key={c.label} className={`rounded-xl border p-4 ${c.color === 'amber' ? 'border-gold/20 bg-gold/5 text-gold-light' : c.color === 'blue' ? 'border-blue-400/20 bg-blue-400/5 text-blue-400' : 'border-purple-400/20 bg-purple-400/5 text-purple-400'}`}>
             <div className="text-xs font-semibold uppercase tracking-wider opacity-60 mb-1">{c.label}</div>
@@ -82,7 +82,7 @@ export default function IBOWalletSupplyTab() {
           </div>
         </div>
         <div className="mt-4 pt-4 border-t border-white/5 flex justify-between text-xs text-white/40">
-          <span>IBO price reference</span>
+          <span>Delta price reference</span>
           <span className="text-gold-light font-semibold">${data.ibo_price_usdt} USDT</span>
         </div>
       </div>

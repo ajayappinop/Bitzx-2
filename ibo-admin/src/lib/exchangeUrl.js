@@ -1,4 +1,4 @@
-/** IBO Exchange web app origin (for admin "Login as user" deep links). */
+/** Delta Exchange web app origin (for admin "Login as user" deep links). */
 export function exchangeAppOrigin() {
   const raw = (import.meta.env.VITE_EXCHANGE_URL || '').trim();
   if (raw) return raw.replace(/\/$/, '');
@@ -46,7 +46,7 @@ export function navigateExchangeImpersonation(tab, accessToken) {
 
   if (tab && !tab.closed) {
     try {
-      tab.document.title = 'IBO Exchange — signing in…';
+      tab.document.title = 'Delta Exchange — signing in…';
       tab.document.body.innerHTML =
         '<p style="font-family:system-ui,sans-serif;padding:2rem;color:#333">Signing you in as user…</p>';
     } catch {

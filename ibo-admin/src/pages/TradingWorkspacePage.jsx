@@ -8,6 +8,7 @@ import LiquidityOpsPage from '@/pages/LiquidityOpsPage';
 import AlertsPage from '@/pages/AlertsPage';
 import AuditPage from '@/pages/AuditPage';
 import { api } from '@/lib/api';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 const TABS = [
   { id: 'spot', label: 'Spot Trading', icon: Activity },
@@ -350,33 +351,32 @@ export default function TradingWorkspacePage() {
                 </button>
               </div>
               {marketErr ? <p className="text-red-300 text-xs mb-2">{marketErr}</p> : null}
-              <div className="adm-table-x scrollbar-thin">
-                <table className="w-full min-w-[760px] text-sm">
+              <AdminDataTable minWidth="760px" fullBleed={false}>
                   <thead>
-                    <tr className="text-left text-[11px] font-extrabold text-white/50 uppercase tracking-wider border-b border-surface-border">
-                      <th className="px-3 py-2">Pair</th>
-                      <th className="px-3 py-2 text-right">Price</th>
-                      <th className="px-3 py-2 text-right">24h Vol</th>
-                      <th className="px-3 py-2 text-right">Maker Fee</th>
-                      <th className="px-3 py-2 text-right">Taker Fee</th>
-                      <th className="px-3 py-2">Status</th>
-                      <th className="px-3 py-2 text-right">Action</th>
+                    <tr>
+                      <th>Pair</th>
+                      <th className="text-right">Price</th>
+                      <th className="text-right">24h Vol</th>
+                      <th className="text-right">Maker Fee</th>
+                      <th className="text-right">Taker Fee</th>
+                      <th>Status</th>
+                      <th className="text-right">Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {visibleMarkets.map((m) => (
-                      <tr key={m.symbol} className="border-b border-surface-border/60 hover:bg-white/[.03] transition-colors">
-                        <td className="px-3 py-2 font-mono text-gold-light/90">{m.symbol}</td>
-                        <td className="px-3 py-2 text-right font-mono">{Number(m.price || 0).toFixed(8)}</td>
-                        <td className="px-3 py-2 text-right font-mono">{Number(m.quoteVolume || 0).toFixed(2)}</td>
-                        <td className="px-3 py-2 text-right font-mono text-emerald-300">{Number(m.maker_fee_rate || 0).toFixed(6)}</td>
-                        <td className="px-3 py-2 text-right font-mono text-cyan-300">{Number(m.taker_fee_rate || 0).toFixed(6)}</td>
-                        <td className="px-3 py-2">
+                      <tr key={m.symbol}>
+                        <td className="font-mono text-gold-light/90">{m.symbol}</td>
+                        <td className="text-right font-mono">{Number(m.price || 0).toFixed(8)}</td>
+                        <td className="text-right font-mono">{Number(m.quoteVolume || 0).toFixed(2)}</td>
+                        <td className="text-right font-mono text-emerald-300">{Number(m.maker_fee_rate || 0).toFixed(6)}</td>
+                        <td className="text-right font-mono text-cyan-300">{Number(m.taker_fee_rate || 0).toFixed(6)}</td>
+                        <td>
                           <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold border ${m.is_active !== false ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' : 'bg-red-500/15 text-red-300 border-red-500/30'}`}>
                             {m.is_active !== false ? 'active' : 'inactive'}
                           </span>
                         </td>
-                        <td className="px-3 py-2 text-right">
+                        <td className="text-right">
                           <button
                             type="button"
                             onClick={() => openEditPair(m)}
@@ -388,8 +388,7 @@ export default function TradingWorkspacePage() {
                       </tr>
                     ))}
                   </tbody>
-                </table>
-              </div>
+              </AdminDataTable>
                 </>
               ) : null}
               {spotMarketTab === 'health' ? (
@@ -454,7 +453,7 @@ export default function TradingWorkspacePage() {
                           <input value={feeForm.withdraw_fee_rate} onChange={(e) => setFeeForm((v) => ({ ...v, withdraw_fee_rate: e.target.value }))} className="mt-1 w-full rounded-lg bg-surface-dark border border-surface-border px-3 py-2 text-white font-mono focus:border-gold/45 outline-none" />
                       </label>
                       <label className="block text-xs text-white/70">
-                        Gas fee (IBO per withdrawal)
+                        Gas fee (Delta per withdrawal)
                           <input value={feeForm.withdraw_gas_fee_ibo} onChange={(e) => setFeeForm((v) => ({ ...v, withdraw_gas_fee_ibo: e.target.value }))} className="mt-1 w-full rounded-lg bg-surface-dark border border-surface-border px-3 py-2 text-white font-mono focus:border-gold/45 outline-none" />
                       </label>
                       <button
@@ -487,31 +486,30 @@ export default function TradingWorkspacePage() {
                   </div>
                   <div className="rounded-xl border border-surface-border bg-surface-dark/40 p-4 shadow-[0_6px_18px_rgba(0,0,0,0.2)]">
                     <p className="text-sm font-bold text-white mb-3">All pairs with fees</p>
-                    <div className="adm-table-x scrollbar-thin">
-                      <table className="w-full min-w-[760px] text-sm">
+                    <AdminDataTable minWidth="760px" fullBleed={false}>
                         <thead>
-                          <tr className="text-left text-[11px] font-extrabold text-white/50 uppercase tracking-wider border-b border-surface-border">
-                            <th className="px-3 py-2">Pair</th>
-                            <th className="px-3 py-2">Status</th>
-                            <th className="px-3 py-2 text-right">Maker fee</th>
-                            <th className="px-3 py-2 text-right">Taker fee</th>
-                            <th className="px-3 py-2 text-right">Action</th>
+                          <tr>
+                            <th>Pair</th>
+                            <th>Status</th>
+                            <th className="text-right">Maker fee</th>
+                            <th className="text-right">Taker fee</th>
+                            <th className="text-right">Action</th>
                           </tr>
                         </thead>
                         <tbody>
                           {marketRows.length === 0 ? (
-                            <tr><td colSpan={5} className="px-3 py-8 text-center text-white/45">No pairs available.</td></tr>
+                            <tr><td colSpan={5} className="text-center text-white/45 !py-8">No pairs available.</td></tr>
                           ) : marketRows.map((m) => (
-                            <tr key={m.symbol} className="border-b border-surface-border/50">
-                              <td className="px-3 py-2 font-mono text-gold-light/90">{m.symbol}</td>
-                              <td className="px-3 py-2">
+                            <tr key={m.symbol}>
+                              <td className="font-mono text-gold-light/90">{m.symbol}</td>
+                              <td>
                                 <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold border ${m.is_active !== false ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' : 'bg-red-500/15 text-red-300 border-red-500/30'}`}>
                                   {m.is_active !== false ? 'active' : 'inactive'}
                                 </span>
                               </td>
-                              <td className="px-3 py-2 text-right font-mono">{Number(feeForm.maker_fee_rate || 0).toFixed(6)}</td>
-                              <td className="px-3 py-2 text-right font-mono">{Number(feeForm.taker_fee_rate || 0).toFixed(6)}</td>
-                              <td className="px-3 py-2 text-right">
+                              <td className="text-right font-mono">{Number(feeForm.maker_fee_rate || 0).toFixed(6)}</td>
+                              <td className="text-right font-mono">{Number(feeForm.taker_fee_rate || 0).toFixed(6)}</td>
+                              <td className="text-right">
                                 <button
                                   type="button"
                                   onClick={() => setSpotMarketTab('fees')}
@@ -523,8 +521,7 @@ export default function TradingWorkspacePage() {
                             </tr>
                           ))}
                         </tbody>
-                      </table>
-                    </div>
+                    </AdminDataTable>
                   </div>
                   <div className="rounded-xl border border-surface-border bg-surface-dark/40 p-4">
                     <p className="text-sm font-bold text-white mb-3">Real-time fee totals by asset</p>
@@ -665,27 +662,25 @@ function OrderBookTable({ title, rows, tone }) {
   return (
     <div className="rounded-xl border border-surface-border bg-surface-dark/50 overflow-hidden">
       <p className={`px-3 py-2 text-xs font-extrabold uppercase tracking-wide border-b border-surface-border ${toneCls}`}>{title}</p>
-      <div className="adm-table-x scrollbar-thin">
-        <table className="w-full min-w-[300px] text-xs">
+      <AdminDataTable minWidth="300px" fullBleed={false} className="!rounded-none !border-0 text-xs">
           <thead>
-            <tr className="text-white/55 border-b border-surface-border/60">
-              <th className="px-3 py-2 text-left">Price</th>
-              <th className="px-3 py-2 text-right">Amount</th>
+            <tr>
+              <th>Price</th>
+              <th className="text-right">Amount</th>
             </tr>
           </thead>
           <tbody>
             {(rows || []).slice(0, 20).map((r, i) => (
-              <tr key={`${title}-${i}`} className="border-b border-surface-border/40">
-                <td className="px-3 py-1.5 font-mono">{Number(r?.[0] || 0).toFixed(8)}</td>
-                <td className="px-3 py-1.5 text-right font-mono">{Number(r?.[1] || 0).toFixed(8)}</td>
+              <tr key={`${title}-${i}`}>
+                <td className="font-mono">{Number(r?.[0] || 0).toFixed(8)}</td>
+                <td className="text-right font-mono">{Number(r?.[1] || 0).toFixed(8)}</td>
               </tr>
             ))}
             {(!rows || rows.length === 0) ? (
-              <tr><td colSpan={2} className="px-3 py-4 text-white/45 text-center">No rows.</td></tr>
+              <tr><td colSpan={2} className="text-white/45 text-center">No rows.</td></tr>
             ) : null}
           </tbody>
-        </table>
-      </div>
+      </AdminDataTable>
     </div>
   );
 }

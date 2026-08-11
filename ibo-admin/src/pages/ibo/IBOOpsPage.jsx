@@ -17,7 +17,7 @@ import IBOAnalyticsTab   from './tabs/IBOAnalyticsTab';
 const IBO_LOGO = '/ibo-logo.png';
 
 /**
- * IBO Trading Ecosystem — 8-tab admin workspace.
+ * Delta Trading Ecosystem — 8-tab admin workspace.
  *
  * Tab routing via `?tab=` URL param so deep-links and refreshes work.
  */
@@ -48,13 +48,13 @@ export default function IBOOpsPage() {
     <div className="space-y-4">
       {/* Header */}
       {/* <div className="flex items-center gap-3">
-        <img src={IBO_LOGO} alt="IBO" className="w-8 h-8 rounded-full object-contain" />
+        <img src={IBO_LOGO} alt="Delta" className="w-8 h-8 rounded-full object-contain" />
         <div> */}
           {/* <h1 className="text-xl font-bold text-white flex items-center gap-2">
-            IBO Trading Ecosystem
+            Delta Trading Ecosystem
           </h1>
           <p className="text-[12px] text-white/50">
-            Manage IBO-as-quote pairs, pricing, liquidity, and user holdings.
+            Manage Delta-as-quote pairs, pricing, liquidity, and user holdings.
           </p> */}
         {/* </div> */}
       {/* </div> */}

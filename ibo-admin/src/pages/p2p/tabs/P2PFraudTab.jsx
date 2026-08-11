@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { Loader2, AlertCircle, RefreshCw, Search, Ban, ShieldAlert } from 'lucide-react';
 import { api } from '@/lib/api';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 const RISK_PILL = {
   low:      'inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-extrabold uppercase text-emerald-300',
@@ -130,12 +131,9 @@ export default function P2PFraudTab() {
         {total > 0 && <span className="ml-2 text-white/40">— page {page} of {pages}</span>}
       </div>
 
-      {/* Table */}
-      <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden">
-        <div className="adm-table-x scrollbar-thin">
-          <table className="w-full text-sm min-w-[1050px]">
+      <AdminDataTable minWidth="1050px">
             <thead>
-              <tr className="border-b border-surface-border bg-white/[.02] text-left text-[11px] font-extrabold uppercase tracking-wider text-white/50">
+              <tr>
                 <Th>UID</Th>
                 <Th right>Strikes</Th>
                 <Th right>Disputes Lost</Th>
@@ -150,28 +148,28 @@ export default function P2PFraudTab() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={10} className="px-4 py-16 text-center text-white/50"><Loader2 size={14} className="inline animate-spin mr-1" />Loading…</td></tr>
+                <tr><td colSpan={10} className="text-center text-white/50 !py-16"><Loader2 size={14} className="inline animate-spin mr-1" />Loading…</td></tr>
               ) : items.length === 0 ? (
-                <tr><td colSpan={10} className="px-4 py-16 text-center text-white/50">No fraud intelligence entries found.</td></tr>
+                <tr><td colSpan={10} className="text-center text-white/50 !py-16">No fraud intelligence entries found.</td></tr>
               ) : items.map((u) => (
-                <tr key={u.uid} className="border-b border-surface-border/60 hover:bg-white/[.025]">
-                  <td className="px-4 py-3 font-mono text-[11px] text-white/80">{u.uid}</td>
-                  <td className="px-4 py-3 text-right tabular-nums text-[12px] text-white/80">{u.strike_count ?? u.strikes ?? 0}</td>
-                  <td className="px-4 py-3 text-right tabular-nums text-[12px] text-white/80">{u.disputes_lost ?? 0}</td>
-                  <td className="px-4 py-3 text-right tabular-nums text-[12px] text-white/80">
+                <tr key={u.uid}>
+                  <td className="font-mono text-[11px] text-white/80">{u.uid}</td>
+                  <td className="text-right tabular-nums text-[12px] text-white/80">{u.strike_count ?? u.strikes ?? 0}</td>
+                  <td className="text-right tabular-nums text-[12px] text-white/80">{u.disputes_lost ?? 0}</td>
+                  <td className="text-right tabular-nums text-[12px] text-white/80">
                     <span className={(u.dispute_loss_rate ?? 0) > 50 ? 'text-rose-300' : ''}>{(u.dispute_loss_rate ?? 0).toFixed(0)}%</span>
                   </td>
-                  <td className="px-4 py-3 text-right tabular-nums text-[12px] text-white/80">
+                  <td className="text-right tabular-nums text-[12px] text-white/80">
                     <span className={(u.cancel_rate_30d ?? 0) > 30 ? 'text-gold-light' : ''}>{(u.cancel_rate_30d ?? 0).toFixed(0)}%</span>
                   </td>
-                  <td className="px-4 py-3 text-right tabular-nums text-[12px] text-white/80">
+                  <td className="text-right tabular-nums text-[12px] text-white/80">
                     {(u.completion_rate_30d ?? 0).toFixed(0)}%
                   </td>
-                  <td className="px-4 py-3 text-[11px] text-white/50 whitespace-nowrap">{fmtDate(u.last_flag_at || u.updated_at)}</td>
-                  <td className="px-4 py-3">
+                  <td className="text-[11px] text-white/50 whitespace-nowrap">{fmtDate(u.last_flag_at || u.updated_at)}</td>
+                  <td>
                     <span className={RISK_PILL[u.risk_level] || RISK_PILL.low}>{u.risk_level || 'low'}</span>
                   </td>
-                  <td className="px-4 py-3 text-[12px]">
+                  <td className="text-[12px]">
                     {u.is_banned
                       ? <span className="text-rose-300 font-bold">Yes</span>
                       : <span className="text-white/30">No</span>}
@@ -179,7 +177,7 @@ export default function P2PFraudTab() {
                       <div className="text-[10px] text-white/40">until {fmtDate(u.ban_expires_at)}</div>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="text-right">
                     {u.is_banned ? (
                       <button
                         type="button"
@@ -201,9 +199,7 @@ export default function P2PFraudTab() {
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
-      </div>
+      </AdminDataTable>
 
       {/* Pagination */}
       {total > 0 && (
@@ -233,5 +229,5 @@ export default function P2PFraudTab() {
 }
 
 function Th({ children, right }) {
-  return <th className={`px-4 py-3 ${right ? 'text-right' : ''}`}>{children}</th>;
+  return <th className={right ? 'text-right' : undefined}>{children}</th>;
 }

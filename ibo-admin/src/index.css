@@ -723,30 +723,45 @@ html[data-theme='dark'] .admin-nav-link-active {
   }
 
   .admin-data-table {
-    @apply w-full text-base;
+    @apply w-full text-sm;
+    border-collapse: collapse;
+    table-layout: auto;
   }
 
   .admin-data-table thead tr {
-    @apply text-left text-sm border-b border-surface-border;
+    @apply text-left border-b border-surface-border;
     color: var(--ibo-ink-secondary);
     background: var(--ibo-thead);
-    letter-spacing: 0.02em;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-size: 0.6875rem;
+    font-weight: 800;
   }
 
   .admin-data-table tbody tr {
-    @apply border-b border-surface-border/60;
-    transition: background-color 180ms ease;
+    @apply border-b border-surface-border;
+    border-bottom-color: color-mix(in srgb, var(--ibo-border-solid) 55%, transparent);
+    transition: background-color 160ms ease;
   }
 
   .admin-data-table tbody tr:hover {
     background: rgba(254, 108, 2, 0.06);
   }
 
-  .admin-page .admin-hero,
-  .admin-page .admin-title,
-  .admin-page .admin-page-lead,
-  .admin-page .admin-subtitle {
-    display: none;
+  .admin-data-table th,
+  .admin-data-table td {
+    padding: 0.8rem 1.15rem;
+    vertical-align: middle;
+  }
+
+  .admin-data-table th:first-child,
+  .admin-data-table td:first-child {
+    padding-left: 1.35rem;
+  }
+
+  .admin-data-table th:last-child,
+  .admin-data-table td:last-child {
+    padding-right: 1.35rem;
   }
 }
 
@@ -807,33 +822,99 @@ html[data-theme='dark'] .admin-nav-link-active {
   padding: 0 !important;
 }
 
-.admin-content .adm-table-x table thead tr th {
-  font-size: 0.75rem !important;
-  color: var(--ibo-ink) !important;
-  background: var(--ibo-thead);
-  box-shadow: 0 1px 0 0 var(--ibo-border);
+/* ── Unified admin tables (all pages under admin-content) ── */
+#root .admin-content table,
+#root .admin-page table {
+  border-collapse: collapse !important;
+  width: 100% !important;
+  table-layout: auto !important;
 }
 
-.admin-content .adm-table-x table tbody tr td,
-.admin-content .adm-table-x table thead tr th {
-  padding: 0.55rem 0.75rem !important;
+#root .admin-content table thead tr,
+#root .admin-page table thead tr {
+  background: var(--ibo-thead) !important;
 }
 
-/* All admin tables — even cell rhythm, no cramped columns */
-.admin-content table {
-  border-collapse: collapse;
-  width: 100%;
-}
-
-.admin-content table thead tr th {
-  padding: 0.55rem 0.75rem !important;
+#root .admin-content table thead th,
+#root .admin-content table thead tr th,
+#root .admin-page table thead th,
+#root .admin-page table thead tr th {
+  text-align: left !important;
+  font-size: 0.6875rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  color: var(--ibo-ink-secondary) !important;
+  background: var(--ibo-thead) !important;
+  border-bottom: 1px solid var(--ibo-border-solid) !important;
+  box-shadow: none !important;
+  white-space: nowrap !important;
   vertical-align: middle !important;
-  white-space: nowrap;
+  padding: 0.85rem 1.25rem !important;
 }
 
-.admin-content table tbody tr td {
-  padding: 0.55rem 0.75rem !important;
+#root .admin-content table tbody td,
+#root .admin-content table tbody tr td,
+#root .admin-page table tbody td,
+#root .admin-page table tbody tr td {
+  font-size: 0.8125rem !important;
+  line-height: 1.45 !important;
   vertical-align: middle !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--ibo-border-solid) 55%, transparent) !important;
+  padding: 0.85rem 1.25rem !important;
+}
+
+#root .admin-content table thead th:first-child,
+#root .admin-content table tbody td:first-child,
+#root .admin-page table thead th:first-child,
+#root .admin-page table tbody td:first-child {
+  padding-left: 1.5rem !important;
+}
+
+#root .admin-content table thead th:last-child,
+#root .admin-content table tbody td:last-child,
+#root .admin-page table thead th:last-child,
+#root .admin-page table tbody td:last-child {
+  padding-right: 1.5rem !important;
+}
+
+#root .admin-content table tbody tr:last-child td,
+#root .admin-page table tbody tr:last-child td {
+  border-bottom: none !important;
+}
+
+#root .admin-content table tbody tr:hover,
+#root .admin-page table tbody tr:hover {
+  background: rgba(254, 108, 2, 0.06) !important;
+}
+
+/* Scroll wrappers — same behavior whether adm-table-x or overflow-x-auto */
+#root .admin-content .adm-table-x,
+#root .admin-page .adm-table-x,
+#root .admin-content .overflow-x-auto:has(table),
+#root .admin-page .overflow-x-auto:has(table) {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+#root .admin-content table td.font-mono,
+#root .admin-content table th.font-mono {
+  letter-spacing: 0.01em;
+}
+
+#root .admin-content table th.text-right,
+#root .admin-content table td.text-right,
+#root .admin-page table th.text-right,
+#root .admin-page table td.text-right {
+  text-align: right !important;
+}
+
+#root .admin-content table th.text-center,
+#root .admin-content table td.text-center,
+#root .admin-page table th.text-center,
+#root .admin-page table td.text-center {
+  text-align: center !important;
 }
 
 /* Soft-edgy corners — mild radius, not pill-soft */
@@ -856,8 +937,61 @@ html[data-theme='dark'] .admin-nav-link-active {
 .admin-content input,
 .admin-content select,
 .admin-content textarea,
-.admin-content button {
+.admin-content button:not([role="switch"]):not(.adm-toggle) {
   min-height: 2.25rem;
+}
+
+/* Switch toggles must stay compact — global button min-height was stretching them */
+.admin-content button[role="switch"],
+.admin-content button.adm-toggle {
+  min-height: 0 !important;
+  padding: 0.125rem !important;
+  line-height: 0;
+  flex-shrink: 0;
+  box-shadow: none;
+  border: 1px solid transparent;
+}
+
+.admin-content button.adm-toggle {
+  /* Off track — always visible on light and dark */
+  background: rgba(18, 20, 24, 0.16) !important;
+  border-color: rgba(18, 20, 24, 0.28) !important;
+}
+
+html[data-theme='dark'] .admin-content button.adm-toggle {
+  background: rgba(255, 255, 255, 0.22) !important;
+  border-color: rgba(255, 255, 255, 0.32) !important;
+}
+
+.admin-content button.adm-toggle[aria-checked='true'] {
+  border-color: transparent !important;
+}
+
+.admin-content button.adm-toggle[aria-checked='true'].adm-toggle--emerald {
+  background: #10b981 !important;
+}
+
+.admin-content button.adm-toggle[aria-checked='true'].adm-toggle--gold {
+  background: #fe6c02 !important;
+}
+
+.admin-content button.adm-toggle[aria-checked='true'].adm-toggle--rose {
+  background: #f43f5e !important;
+}
+
+.admin-content button.adm-toggle .adm-toggle-thumb {
+  background: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(18, 20, 24, 0.08);
+}
+
+html[data-theme='dark'] .admin-content button.adm-toggle .adm-toggle-thumb {
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+.admin-content button[role="switch"]:hover,
+.admin-content button.adm-toggle:hover {
+  filter: none;
 }
 
 .admin-content input,
@@ -877,8 +1011,10 @@ html[data-theme='dark'] .admin-nav-link-active {
 }
 
 .admin-content .rounded-2xl > .adm-table-x table tbody tr:hover,
-.admin-content .rounded-xl > .adm-table-x table tbody tr:hover {
-  background: rgba(254, 108, 2, 0.08);
+.admin-content .rounded-xl > .adm-table-x table tbody tr:hover,
+.admin-content table tbody tr:hover,
+.admin-page table tbody tr:hover {
+  background: rgba(254, 108, 2, 0.06);
 }
 
 /* Light: soften near-black hardcodes used on some pages */
@@ -1028,9 +1164,11 @@ html[data-theme='light'] [class*="hover:bg-white/"]:hover {
   background-color: rgba(18, 20, 24, 0.04) !important;
 }
 
-html[data-theme='light'] .admin-content .adm-table-x table thead tr th {
+html[data-theme='light'] .admin-content table thead tr th,
+html[data-theme='light'] .admin-content .adm-table-x table thead tr th,
+html[data-theme='light'] .admin-page table thead tr th {
   background: var(--ibo-thead) !important;
-  color: var(--ibo-ink) !important;
+  color: var(--ibo-ink-secondary) !important;
 }
 
 html[data-theme='light'] .admin-content input,
@@ -1064,4 +1202,108 @@ html[data-theme='light'] .admin-content [class*="from-[#0EA4AB]"] {
   background-image: none !important;
   background-color: var(--ibo-card) !important;
   border-color: var(--ibo-border-solid) !important;
+}
+
+/* Final table lock — wins over page-level utility classes */
+#root main.admin-content table {
+  border-collapse: collapse !important;
+  width: 100% !important;
+}
+#root main.admin-content table thead th {
+  text-align: left !important;
+  font-size: 0.6875rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.07em !important;
+  text-transform: uppercase !important;
+  color: var(--ibo-ink-secondary) !important;
+  background: var(--ibo-thead) !important;
+  /* Clear column spacing */
+  padding: 0.95rem 1.5rem !important;
+  border-bottom: 2px solid rgba(254, 108, 2, 0.35) !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+}
+#root main.admin-content table tbody td {
+  font-size: 0.8125rem !important;
+  line-height: 1.45 !important;
+  /* Match header column spacing */
+  padding: 0.95rem 1.5rem !important;
+  vertical-align: middle !important;
+  border-bottom: 1px solid var(--ibo-border-solid) !important;
+}
+#root main.admin-content table thead th:first-child,
+#root main.admin-content table tbody td:first-child {
+  padding-left: 1.75rem !important;
+}
+#root main.admin-content table thead th:last-child,
+#root main.admin-content table tbody td:last-child {
+  padding-right: 1.75rem !important;
+}
+#root main.admin-content table tbody tr:last-child td {
+  border-bottom: none !important;
+}
+#root main.admin-content table tbody tr:hover {
+  background: rgba(254, 108, 2, 0.07) !important;
+}
+#root main.admin-content table thead tr {
+  background: var(--ibo-thead) !important;
+}
+#root main.admin-content table thead th.text-right,
+#root main.admin-content table tbody td.text-right {
+  text-align: right !important;
+}
+#root main.admin-content table thead th.text-center,
+#root main.admin-content table tbody td.text-center {
+  text-align: center !important;
+}
+
+/* Force scroll shells for any table wrapper */
+#root main.admin-content .adm-table-x,
+#root main.admin-content .overflow-x-auto:has(table) {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Match System Monitoring: full-bleed table shells across admin pages */
+#root main.admin-content {
+  --adm-pad: 0.75rem;
+}
+@media (min-width: 640px) {
+  #root main.admin-content { --adm-pad: 1.25rem; }
+}
+@media (min-width: 768px) {
+  #root main.admin-content { --adm-pad: 1.5rem; }
+}
+@media (min-width: 1024px) {
+  #root main.admin-content { --adm-pad: 2rem; }
+}
+
+#root main.admin-content .admin-table-shell--bleed,
+#root main.admin-content .rounded-2xl:has(> .adm-table-x),
+#root main.admin-content .rounded-2xl:has(> table),
+#root main.admin-content .rounded-2xl.overflow-hidden:has(table),
+#root main.admin-content .rounded-xl:has(> .adm-table-x),
+#root main.admin-content .rounded-xl:has(> table),
+#root main.admin-content .rounded-xl.overflow-hidden:has(table),
+#root main.admin-content .overflow-x-auto.rounded-xl:has(table),
+#root main.admin-content .overflow-x-auto.rounded-2xl:has(table),
+#root main.admin-content .admin-section:has(> .adm-table-x),
+#root main.admin-content .admin-section:has(table) {
+  margin-left: calc(-1 * var(--adm-pad)) !important;
+  margin-right: calc(-1 * var(--adm-pad)) !important;
+  width: auto !important;
+  max-width: none !important;
+  border-radius: 0 !important;
+  border-left-width: 0 !important;
+  border-right-width: 0 !important;
+  border-top: 1px solid var(--ibo-border-solid) !important;
+  border-bottom: 1px solid var(--ibo-border-solid) !important;
+  padding: 0 !important;
+  background: var(--ibo-card) !important;
+}
+
+#root main.admin-content .rounded-2xl:has(> .adm-table-x) > .adm-table-x,
+#root main.admin-content .rounded-xl:has(> .adm-table-x) > .adm-table-x,
+#root main.admin-content .admin-section:has(> .adm-table-x) > .adm-table-x {
+  margin: 0 !important;
 }

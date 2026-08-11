@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { RefreshCw, X, AlertTriangle } from 'lucide-react';
+import { RefreshCw, AlertTriangle } from 'lucide-react';
 import { api } from '@/lib/api';
 import ConfirmModal from '@/components/ConfirmModal';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 const fmt = (v, dp = 4) => Number.isFinite(Number(v)) ? Number(v).toLocaleString(undefined, { maximumFractionDigits: dp }) : '—';
 
@@ -71,61 +72,59 @@ export default function FuturesPositionsPage() {
         </div>
       )}
 
-      <div className="rounded-2xl border border-surface-border bg-surface-card overflow-x-auto">
-        <table className="w-full text-sm min-w-[1200px]">
-          <thead className="text-[11px] uppercase tracking-wider text-white/45">
-            <tr className="border-b border-white/5">
-              <th className="text-left  px-3 py-2">User</th>
-              <th className="text-left  px-3 py-2">Symbol</th>
-              <th className="text-left  px-3 py-2">Side</th>
-              <th className="text-right px-3 py-2">Qty</th>
-              <th className="text-right px-3 py-2">Entry</th>
-              <th className="text-right px-3 py-2">Mark</th>
-              <th className="text-right px-3 py-2">Lev</th>
-              <th className="text-right px-3 py-2">Margin</th>
-              <th className="text-right px-3 py-2">uPnL</th>
-              <th className="text-right px-3 py-2">Liq.</th>
-              <th className="text-left  px-3 py-2">Opened</th>
-              <th className="text-left  px-3 py-2">Status</th>
-              <th className="text-right px-3 py-2 pr-4">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 && !loading && (
-              <tr><td colSpan={13} className="px-4 py-12 text-center text-white/40">No positions match these filters.</td></tr>
-            )}
-            {rows.map((p) => {
-              const upnl = Number(p.unrealized_pnl || 0);
-              return (
-                <tr key={p.id} className="border-b border-white/5 hover:bg-white/[.02]">
-                  <td className="px-3 py-2 font-mono text-[12px] text-white/80">{p.uid}</td>
-                  <td className="px-3 py-2 font-bold text-white">{p.symbol}</td>
-                  <td className={`px-3 py-2 font-extrabold ${p.side === 'long' ? 'text-emerald-300' : 'text-rose-300'}`}>{p.side?.toUpperCase()}</td>
-                  <td className="px-3 py-2 text-right font-mono">{fmt(Math.abs(p.qty))}</td>
-                  <td className="px-3 py-2 text-right font-mono">${fmt(p.entry_price, 2)}</td>
-                  <td className="px-3 py-2 text-right font-mono">${fmt(p.mark_price || p.entry_price, 2)}</td>
-                  <td className="px-3 py-2 text-right font-mono">{p.leverage}×</td>
-                  <td className="px-3 py-2 text-right font-mono">${fmt(p.isolated_margin, 2)}</td>
-                  <td className={`px-3 py-2 text-right font-mono ${upnl > 0 ? 'text-emerald-300' : upnl < 0 ? 'text-rose-300' : ''}`}>
-                    {upnl >= 0 ? '+' : ''}{fmt(upnl, 2)}
-                  </td>
-                  <td className="px-3 py-2 text-right font-mono text-gold-light">${fmt(p.liquidation_price, 2)}</td>
-                  <td className="px-3 py-2 text-[12px] text-white/60">{(p.opened_at || p.closed_at || '').slice(0, 19).replace('T', ' ')}</td>
-                  <td className="px-3 py-2 text-[12px] capitalize text-white/70">{p.status?.replace('_', ' ')}</td>
-                  <td className="px-3 py-2 text-right pr-4">
-                    {p.status === 'open' && (
-                      <button onClick={() => setConfirm(p)}
-                        className="px-2 py-1 rounded bg-rose-500/15 text-rose-300 border border-rose-400/30 hover:bg-rose-500/25 text-[12px] font-bold">
-                        Force close
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <AdminDataTable minWidth="1200px">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Symbol</th>
+            <th>Side</th>
+            <th className="text-right">Qty</th>
+            <th className="text-right">Entry</th>
+            <th className="text-right">Mark</th>
+            <th className="text-right">Lev</th>
+            <th className="text-right">Margin</th>
+            <th className="text-right">uPnL</th>
+            <th className="text-right">Liq.</th>
+            <th>Opened</th>
+            <th>Status</th>
+            <th className="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.length === 0 && !loading && (
+            <tr><td colSpan={13} className="text-center text-white/40">No positions match these filters.</td></tr>
+          )}
+          {rows.map((p) => {
+            const upnl = Number(p.unrealized_pnl || 0);
+            return (
+              <tr key={p.id}>
+                <td className="font-mono text-[12px] text-white/80">{p.uid}</td>
+                <td className="font-bold text-white">{p.symbol}</td>
+                <td className={`font-extrabold ${p.side === 'long' ? 'text-emerald-300' : 'text-rose-300'}`}>{p.side?.toUpperCase()}</td>
+                <td className="text-right font-mono">{fmt(Math.abs(p.qty))}</td>
+                <td className="text-right font-mono">${fmt(p.entry_price, 2)}</td>
+                <td className="text-right font-mono">${fmt(p.mark_price || p.entry_price, 2)}</td>
+                <td className="text-right font-mono">{p.leverage}×</td>
+                <td className="text-right font-mono">${fmt(p.isolated_margin, 2)}</td>
+                <td className={`text-right font-mono ${upnl > 0 ? 'text-emerald-300' : upnl < 0 ? 'text-rose-300' : ''}`}>
+                  {upnl >= 0 ? '+' : ''}{fmt(upnl, 2)}
+                </td>
+                <td className="text-right font-mono text-gold-light">${fmt(p.liquidation_price, 2)}</td>
+                <td className="text-[12px] text-white/60">{(p.opened_at || p.closed_at || '').slice(0, 19).replace('T', ' ')}</td>
+                <td className="text-[12px] capitalize text-white/70">{p.status?.replace('_', ' ')}</td>
+                <td className="text-right">
+                  {p.status === 'open' && (
+                    <button onClick={() => setConfirm(p)}
+                      className="px-2 py-1 rounded bg-rose-500/15 text-rose-300 border border-rose-400/30 hover:bg-rose-500/25 text-[12px] font-bold">
+                      Force close
+                    </button>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </AdminDataTable>
 
       {/* Pagination */}
       <div className="flex items-center justify-between text-sm text-white/55">

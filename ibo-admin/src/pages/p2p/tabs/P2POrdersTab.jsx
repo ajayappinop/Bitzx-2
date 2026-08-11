@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { Loader2, AlertCircle, RefreshCw, Search } from 'lucide-react';
 import { api } from '@/lib/api';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 const STATUS_PILL = {
   in_progress: 'inline-flex items-center rounded-full border border-gold/30 bg-gold/10 px-2 py-0.5 text-[10px] font-extrabold uppercase text-gold-light',
@@ -119,12 +120,9 @@ export default function P2POrdersTab() {
         {total > 0 && <span className="ml-2 text-white/40">— page {page} of {pages}</span>}
       </div>
 
-      {/* Table */}
-      <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden">
-        <div className="adm-table-x scrollbar-thin">
-          <table className="w-full text-sm min-w-[1100px]">
+      <AdminDataTable minWidth="1100px">
             <thead>
-              <tr className="border-b border-surface-border bg-white/[.02] text-left text-[11px] font-extrabold uppercase tracking-wider text-white/50">
+              <tr>
                 <Th>Order ID</Th>
                 <Th>Side</Th>
                 <Th right>Crypto</Th>
@@ -139,39 +137,37 @@ export default function P2POrdersTab() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={10} className="px-4 py-16 text-center text-white/50"><Loader2 size={14} className="inline animate-spin mr-1" />Loading…</td></tr>
+                <tr><td colSpan={10} className="text-center text-white/50 !py-16"><Loader2 size={14} className="inline animate-spin mr-1" />Loading…</td></tr>
               ) : items.length === 0 ? (
-                <tr><td colSpan={10} className="px-4 py-16 text-center text-white/50">No orders found.</td></tr>
+                <tr><td colSpan={10} className="text-center text-white/50 !py-16">No orders found.</td></tr>
               ) : items.map((o) => (
-                <tr key={o.order_id} className="border-b border-surface-border/60 hover:bg-white/[.025]">
-                  <td className="px-4 py-3 font-mono text-[11px] text-white/70">{o.order_id}</td>
-                  <td className="px-4 py-3">
+                <tr key={o.order_id}>
+                  <td className="font-mono text-[11px] text-white/70">{o.order_id}</td>
+                  <td>
                     <span className={SIDE_PILL[o.side] || SIDE_PILL.buy}>
                       {o.side ?? (o.buyer_id === o.maker_id ? 'buy' : 'sell')} {o.asset}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right font-mono text-[12px] text-white/90 tabular-nums">
+                  <td className="text-right font-mono text-[12px] text-white/90 tabular-nums">
                     {Number(o.crypto_amount || 0).toFixed(6)}
                   </td>
-                  <td className="px-4 py-3 text-right font-mono text-[12px] text-white/90 tabular-nums">
+                  <td className="text-right font-mono text-[12px] text-white/90 tabular-nums">
                     {Number(o.fiat_amount || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                   </td>
-                  <td className="px-4 py-3 text-right font-mono text-[12px] text-white/60 tabular-nums">
+                  <td className="text-right font-mono text-[12px] text-white/60 tabular-nums">
                     {Number(o.price || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                   </td>
-                  <td className="px-4 py-3 font-mono text-[11px] text-white/60 max-w-[130px] truncate">{o.buyer_id}</td>
-                  <td className="px-4 py-3 font-mono text-[11px] text-white/60 max-w-[130px] truncate">{o.seller_id}</td>
-                  <td className="px-4 py-3 text-[11px] text-white/50">{o.payment_method_snapshot?.type || '—'}</td>
-                  <td className="px-4 py-3 text-[11px] text-white/50 whitespace-nowrap">{fmtDate(o.created_at)}</td>
-                  <td className="px-4 py-3">
+                  <td className="font-mono text-[11px] text-white/60 max-w-[130px] truncate">{o.buyer_id}</td>
+                  <td className="font-mono text-[11px] text-white/60 max-w-[130px] truncate">{o.seller_id}</td>
+                  <td className="text-[11px] text-white/50">{o.payment_method_snapshot?.type || '—'}</td>
+                  <td className="text-[11px] text-white/50 whitespace-nowrap">{fmtDate(o.created_at)}</td>
+                  <td>
                     <span className={STATUS_PILL[o.status] || STATUS_PILL.cancelled}>{o.status}</span>
                   </td>
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
-      </div>
+      </AdminDataTable>
 
       {/* Pagination */}
       {total > 0 && (
@@ -201,5 +197,5 @@ export default function P2POrdersTab() {
 }
 
 function Th({ children, right }) {
-  return <th className={`px-4 py-3 ${right ? 'text-right' : ''}`}>{children}</th>;
+  return <th className={right ? 'text-right' : undefined}>{children}</th>;
 }

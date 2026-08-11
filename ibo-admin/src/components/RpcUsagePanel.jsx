@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api } from '@/lib/api';
-import { AdminPanel, GradientStatCard } from '@/components/AdminPrimitives';
+import { AdminPanel, GradientStatCard, AdminDataTable } from '@/components/AdminPrimitives';
 import { RefreshCw, Activity, Zap, Radio } from 'lucide-react';
 
 const CHAIN_LABELS = {
@@ -104,20 +104,19 @@ export default function RpcUsagePanel() {
             />
           </div>
 
-          <div className="rounded-xl border border-surface-border overflow-hidden mb-4">
-            <div className="px-4 py-2.5 border-b border-surface-border bg-white/[0.02] flex items-center gap-2">
+          <div className="mb-4">
+            <div className="px-4 py-2.5 flex items-center gap-2">
               <Activity size={16} className="text-cyan-300" />
               <span className="text-sm font-bold text-white">By chain (current hour)</span>
             </div>
-            <div className="adm-table-x scrollbar-thin">
-              <table className="admin-data-table min-w-[520px]">
+            <AdminDataTable minWidth="520px">
                 <thead>
                   <tr>
-                    <th className="px-4 py-2">Chain</th>
-                    <th className="px-4 py-2 text-right">HTTP RPC</th>
-                    <th className="px-4 py-2 text-right">WS heads</th>
-                    <th className="px-4 py-2 text-right">Credits est.</th>
-                    <th className="px-4 py-2">Top methods</th>
+                    <th>Chain</th>
+                    <th className="text-right">HTTP RPC</th>
+                    <th className="text-right">WS heads</th>
+                    <th className="text-right">Credits est.</th>
+                    <th>Top methods</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -133,11 +132,11 @@ export default function RpcUsagePanel() {
                       : '—';
                     return (
                       <tr key={cid}>
-                        <td className="px-4 py-2 font-semibold">{CHAIN_LABELS[cid] || cid}</td>
-                        <td className="px-4 py-2 text-right font-mono">{fmt(ch?.rpc_calls, 0)}</td>
-                        <td className="px-4 py-2 text-right font-mono">{fmt(ws, 0)}</td>
-                        <td className="px-4 py-2 text-right font-mono text-gold-light/90">{fmt(ch?.credits_est, 0)}</td>
-                        <td className="px-4 py-2 text-xs font-mono text-white/55 max-w-[280px] truncate" title={methods}>
+                        <td className="font-semibold">{CHAIN_LABELS[cid] || cid}</td>
+                        <td className="text-right font-mono">{fmt(ch?.rpc_calls, 0)}</td>
+                        <td className="text-right font-mono">{fmt(ws, 0)}</td>
+                        <td className="text-right font-mono text-gold-light/90">{fmt(ch?.credits_est, 0)}</td>
+                        <td className="text-xs font-mono text-white/55 max-w-[280px] truncate" title={methods}>
                           {methods}
                         </td>
                       </tr>
@@ -145,14 +144,13 @@ export default function RpcUsagePanel() {
                   })}
                   {!cur?.chains || Object.keys(cur.chains).length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="px-4 py-6 text-center text-white/45 text-sm">
+                      <td colSpan={5} className="text-center text-white/45 text-sm py-6">
                         No HTTP RPC recorded this hour yet.
                       </td>
                     </tr>
                   ) : null}
                 </tbody>
-              </table>
-            </div>
+            </AdminDataTable>
           </div>
 
           <div className="flex flex-wrap gap-3 text-xs text-white/50">

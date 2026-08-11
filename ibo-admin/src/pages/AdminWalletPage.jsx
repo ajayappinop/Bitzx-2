@@ -805,7 +805,7 @@ export default function AdminWalletPage() {
         />
         <GradientStatCard
           label="Fees collected"
-          value={loading ? '…' : `${fmtNum(kpis.fees_ibo_total)} IBO`}
+          value={loading ? '…' : `${fmtNum(kpis.fees_ibo_total)} Delta`}
           hint={loading ? '' : `${kpis.fees_withdrawal_count ?? 0} confirmed withdrawals`}
           tone="violet"
         />
@@ -836,7 +836,7 @@ export default function AdminWalletPage() {
           <>
             {iboContract ? (
               <p className="mt-5 pt-4 border-t border-surface-border/60 text-xs text-white/45 leading-relaxed">
-                <span className="text-white/60">IBO token contract</span> (not a wallet):{' '}
+                <span className="text-white/60">Delta token contract</span> (not a wallet):{' '}
                 <span className="font-mono text-white/65">{trimAddr(iboContract)}</span>
                 {' '}
                 <CopyButton text={iboContract} />
@@ -849,7 +849,7 @@ export default function AdminWalletPage() {
               ) : (
                 'not configured — set TREASURY_COLD_PRIVATE_KEY'
               )}
-              ). Configure via Omnibus → IBO cold.
+              ). Configure via Omnibus → Delta cold.
             </p>
           </>
         ) : null}

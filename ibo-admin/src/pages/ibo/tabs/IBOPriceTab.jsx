@@ -75,10 +75,10 @@ export default function IBOPriceTab() {
   return (
     <div className="space-y-6 max-w-2xl">
       <div className="rounded-xl border border-white/8 bg-white/2 p-5 space-y-4">
-        <h3 className="text-sm font-bold text-white flex items-center gap-2"><DollarSign size={16} className="text-gold-light" /> IBO Price Override</h3>
+        <h3 className="text-sm font-bold text-white flex items-center gap-2"><DollarSign size={16} className="text-gold-light" /> Delta Price Override</h3>
         <p className="text-xs text-white/40">
-          Set a manual USDT price for IBO. Leave empty to use the built-in constant ($0.4523).
-          All IBO-quoted pair prices derive from this value: <span className="font-mono text-gold-light">pair_price = base_usdt / ibo_price</span>.
+          Set a manual USDT price for Delta. Leave empty to use the built-in constant ($0.4523).
+          All Delta-quoted pair prices derive from this value: <span className="font-mono text-gold-light">pair_price = base_usdt / ibo_price</span>.
         </p>
         <div className="flex gap-3">
           <input
@@ -112,7 +112,7 @@ export default function IBOPriceTab() {
             onChange={(e) => setSpreadDefault(e.target.value)}
             className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-gold/50"
           />
-          <p className="text-xs text-white/30 mt-1">Applied to all IBO-quoted pair fills. 1 bp = 0.01%</p>
+          <p className="text-xs text-white/30 mt-1">Applied to all Delta-quoted pair fills. 1 bp = 0.01%</p>
         </div>
 
         <div>

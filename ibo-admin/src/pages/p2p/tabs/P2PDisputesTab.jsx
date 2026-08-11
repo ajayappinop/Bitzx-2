@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { Loader2, AlertCircle, RefreshCw, Search, X, CheckCircle2, Flag } from 'lucide-react';
 import { api } from '@/lib/api';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 const STATUS_PILL = {
   open:      'inline-flex items-center rounded-full border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 text-[10px] font-extrabold uppercase text-rose-300',
@@ -89,12 +90,9 @@ export default function P2PDisputesTab() {
         {total > 0 && <span className="ml-2 text-white/40">— page {page} of {pages}</span>}
       </div>
 
-      {/* Table */}
-      <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden">
-        <div className="adm-table-x scrollbar-thin">
-          <table className="w-full text-sm min-w-[900px]">
+      <AdminDataTable minWidth="900px">
             <thead>
-              <tr className="border-b border-surface-border bg-white/[.02] text-left text-[11px] font-extrabold uppercase tracking-wider text-white/50">
+              <tr>
                 <Th>Dispute ID</Th>
                 <Th>Order ID</Th>
                 <Th>Raised By</Th>
@@ -106,20 +104,20 @@ export default function P2PDisputesTab() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={7} className="px-4 py-16 text-center text-white/50"><Loader2 size={14} className="inline animate-spin mr-1" />Loading…</td></tr>
+                <tr><td colSpan={7} className="text-center text-white/50 !py-16"><Loader2 size={14} className="inline animate-spin mr-1" />Loading…</td></tr>
               ) : items.length === 0 ? (
-                <tr><td colSpan={7} className="px-4 py-16 text-center text-white/50">No disputes found.</td></tr>
+                <tr><td colSpan={7} className="text-center text-white/50 !py-16">No disputes found.</td></tr>
               ) : items.map((d) => (
-                <tr key={d.dispute_id} className="border-b border-surface-border/60 hover:bg-white/[.025]">
-                  <td className="px-4 py-3 font-mono text-[11px] text-white/70">{d.dispute_id}</td>
-                  <td className="px-4 py-3 font-mono text-[11px] text-white/70">{d.order_id}</td>
-                  <td className="px-4 py-3 font-mono text-[11px] text-white/80">{d.raised_by_uid}</td>
-                  <td className="px-4 py-3 text-[12px] text-white/60 max-w-xs truncate">{d.reason}</td>
-                  <td className="px-4 py-3 text-[11px] text-white/50 whitespace-nowrap">{fmtDate(d.created_at)}</td>
-                  <td className="px-4 py-3">
+                <tr key={d.dispute_id}>
+                  <td className="font-mono text-[11px] text-white/70">{d.dispute_id}</td>
+                  <td className="font-mono text-[11px] text-white/70">{d.order_id}</td>
+                  <td className="font-mono text-[11px] text-white/80">{d.raised_by_uid}</td>
+                  <td className="text-[12px] text-white/60 max-w-xs truncate">{d.reason}</td>
+                  <td className="text-[11px] text-white/50 whitespace-nowrap">{fmtDate(d.created_at)}</td>
+                  <td>
                     <span className={STATUS_PILL[d.status] || STATUS_PILL.open}>{d.status}</span>
                   </td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="text-right">
                     <button
                       type="button"
                       onClick={() => setSelected(d)}
@@ -131,9 +129,7 @@ export default function P2PDisputesTab() {
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
-      </div>
+      </AdminDataTable>
 
       {/* Pagination */}
       {total > 0 && (
@@ -310,7 +306,7 @@ function DisputeModal({ dispute, onClose }) {
 }
 
 function Th({ children, right }) {
-  return <th className={`px-4 py-3 ${right ? 'text-right' : ''}`}>{children}</th>;
+  return <th className={right ? 'text-right' : undefined}>{children}</th>;
 }
 
 function InfoBox({ label, value, mono }) {

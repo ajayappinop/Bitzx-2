@@ -4,7 +4,7 @@ import { TrendingUp, TrendingDown, LineChart, RefreshCw } from 'lucide-react';
 import { api, getStoredToken, adminWebSocketUrl } from '@/lib/api';
 import { Sparkline } from '@/components/Sparkline';
 import CoinAvatar from '@/components/CoinAvatar';
-import { AdminPageHeader, StatusBadge } from '@/components/AdminPrimitives';
+import { AdminPageHeader, StatusBadge, AdminDataTable } from '@/components/AdminPrimitives';
 import FeesCommissionsPanel from '@/components/FeesCommissionsPanel';
 
 const INTERVALS = [
@@ -426,58 +426,55 @@ export default function MarketsPage({
       ) : null}
 
       {subTab === 'pairs' ? (
-      <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden min-w-0">
-        <div className="adm-table-x scrollbar-thin">
-          <table className="w-full text-sm min-w-[1200px]">
-            <thead>
-              <tr className="text-left text-sm font-semibold text-white/80 border-b border-surface-border bg-white/[.02]">
-                <th className="px-4 py-3">Pair</th>
-                <th className="px-4 py-3 text-right">Last</th>
-                <th className="px-4 py-3 text-right">24h %</th>
-                <th className="px-4 py-3 text-right">24h High</th>
-                <th className="px-4 py-3 text-right">24h Low</th>
-                <th className="px-4 py-3 text-right">Volume</th>
-                <th className="px-4 py-3 text-right">Quote Vol</th>
-                <th className="px-4 py-3 text-right">Bid</th>
-                <th className="px-4 py-3 text-right">Ask</th>
-                <th className="px-4 py-3 text-right">Trades</th>
+      <AdminDataTable minWidth="1200px">
+        <thead>
+              <tr>
+                <th>Pair</th>
+                <th className="text-right">Last</th>
+                <th className="text-right">24h %</th>
+                <th className="text-right">24h High</th>
+                <th className="text-right">24h Low</th>
+                <th className="text-right">Volume</th>
+                <th className="text-right">Quote Vol</th>
+                <th className="text-right">Bid</th>
+                <th className="text-right">Ask</th>
+                <th className="text-right">Trades</th>
               </tr>
             </thead>
             <tbody>
               {loadingM ? (
-                <tr><td colSpan={10} className="px-4 py-12 text-center text-white/45">Loading markets…</td></tr>
+                <tr><td colSpan={10} className="text-center text-white/45 !py-16">Loading markets…</td></tr>
               ) : filteredMarkets.length === 0 ? (
-                <tr><td colSpan={10} className="px-4 py-12 text-center text-white/45">No market rows</td></tr>
+                <tr><td colSpan={10} className="text-center text-white/45 !py-16">No market rows</td></tr>
               ) : (
                 filteredMarkets.map((m) => {
                   const pct = Number(m.priceChangePercent || 0);
                   return (
-                    <tr key={m.symbol} className="border-b border-surface-border/50 hover:bg-white/[.03] cursor-pointer" onClick={() => setSymbol(m.symbol)}>
-                      <td className="px-4 py-3">
+                    <tr key={m.symbol} className="cursor-pointer" onClick={() => setSymbol(m.symbol)}>
+                      <td>
                         <div className="flex items-center gap-2">
                           <CoinAvatar symbol={m.symbol} className="w-8 h-8" title={m.symbol} />
                           <span className="font-mono font-bold text-gold-light/90">{m.symbol}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-right font-mono">{fmt(m.price, 8)}</td>
-                      <td className={`px-4 py-3 text-right font-mono ${pct >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      <td className="text-right font-mono">{fmt(m.price, 8)}</td>
+                      <td className={`text-right font-mono ${pct >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                         {pct >= 0 ? '+' : ''}{pct.toFixed(2)}%
                       </td>
-                      <td className="px-4 py-3 text-right font-mono">{fmt(m.highPrice, 8)}</td>
-                      <td className="px-4 py-3 text-right font-mono">{fmt(m.lowPrice, 8)}</td>
-                      <td className="px-4 py-3 text-right font-mono">{fmtVol(m.volume)}</td>
-                      <td className="px-4 py-3 text-right font-mono">{fmtVol(m.quoteVolume)}</td>
-                      <td className="px-4 py-3 text-right font-mono">{fmt(m.bidPrice, 8)}</td>
-                      <td className="px-4 py-3 text-right font-mono">{fmt(m.askPrice, 8)}</td>
-                      <td className="px-4 py-3 text-right font-mono">{fmt(m.count || 0, 0)}</td>
+                      <td className="text-right font-mono">{fmt(m.highPrice, 8)}</td>
+                      <td className="text-right font-mono">{fmt(m.lowPrice, 8)}</td>
+                      <td className="text-right font-mono">{fmtVol(m.volume)}</td>
+                      <td className="text-right font-mono">{fmtVol(m.quoteVolume)}</td>
+                      <td className="text-right font-mono">{fmt(m.bidPrice, 8)}</td>
+                      <td className="text-right font-mono">{fmt(m.askPrice, 8)}</td>
+                      <td className="text-right font-mono">{fmt(m.count || 0, 0)}</td>
                     </tr>
                   );
                 })
               )}
             </tbody>
-          </table>
-        </div>
-      </div>
+          
+      </AdminDataTable>
       ) : null}
 
       {subTab === 'health' ? (

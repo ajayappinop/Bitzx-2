@@ -6,7 +6,7 @@ import { useAdminAuth } from '@/context/AdminAuthContext';
 import { hasPermission } from '@/lib/adminAccess';
 import CoinAvatar from '@/components/CoinAvatar';
 import UserUidSuggestInput from '@/components/UserUidSuggestInput';
-import { AdminPageHeader, AdminPanel, GradientStatCard } from '@/components/AdminPrimitives';
+import { AdminPageHeader, AdminPanel, GradientStatCard, AdminDataTable } from '@/components/AdminPrimitives';
 
 function fmtUsd(n) {
   const v = Number(n);
@@ -316,41 +316,39 @@ export default function TreasuryPage() {
 
       {/* Asset totals from deposits */}
       <h2 className="text-lg font-extrabold text-white mb-3">Credited deposits — asset totals</h2>
-      <div className="rounded-2xl border border-surface-border bg-surface-card adm-table-x scrollbar-thin min-w-0 mb-6">
-        <table className="w-full text-sm min-w-[480px]">
+      <AdminDataTable minWidth="480px" className="mb-6">
           <thead>
-            <tr className="text-left text-sm font-semibold text-white/75 border-b border-surface-border bg-white/[.02]">
-              <th className="px-4 py-3">Asset</th>
-              <th className="px-4 py-3 text-right">Total deposited</th>
-              <th className="px-4 py-3 text-right">Mark (USDT)</th>
-              <th className="px-4 py-3 text-right">USD value</th>
+            <tr>
+              <th>Asset</th>
+              <th className="text-right">Total deposited</th>
+              <th className="text-right">Mark (USDT)</th>
+              <th className="text-right">USD value</th>
             </tr>
           </thead>
           <tbody>
             {loading && depAssets.length === 0 ? (
-              <tr><td colSpan={4} className="px-4 py-8 text-center text-white/45">Loading…</td></tr>
+              <tr><td colSpan={4} className="text-center text-white/45 !py-8">Loading…</td></tr>
             ) : depAssets.length === 0 ? (
-              <tr><td colSpan={4} className="px-4 py-8 text-center text-white/45">No credited deposits yet.</td></tr>
+              <tr><td colSpan={4} className="text-center text-white/45 !py-8">No credited deposits yet.</td></tr>
             ) : (
               depAssets.map(row => (
-                <tr key={row.asset} className="border-b border-surface-border/50">
-                  <td className="px-4 py-3">
+                <tr key={row.asset}>
+                  <td>
                     <div className="flex items-center gap-2 font-bold text-white">
                       <CoinAvatar asset={row.asset} className="h-6 w-6" />
                       {row.asset}
                     </div>
                   </td>
-                  <td className="px-4 py-3 font-mono text-right text-cyan-200">{fmtNum(row.total_deposited)}</td>
-                  <td className="px-4 py-3 font-mono text-right text-white/70">
+                  <td className="font-mono text-right text-cyan-200">{fmtNum(row.total_deposited)}</td>
+                  <td className="font-mono text-right text-white/70">
                     {row.asset === 'USDT' ? '1.0000' : fmtNum(row.mark_price_usdt, 6)}
                   </td>
-                  <td className="px-4 py-3 font-mono text-right text-white/80">{fmtUsd(row.usd_value)}</td>
+                  <td className="font-mono text-right text-white/80">{fmtUsd(row.usd_value)}</td>
                 </tr>
               ))
             )}
           </tbody>
-        </table>
-      </div>
+      </AdminDataTable>
 
       {/* Custody reserves (mirrored deposit liabilities) */}
       <h2 className="text-lg font-extrabold text-white mb-2">Custody reserves (user deposits)</h2>
@@ -368,49 +366,47 @@ export default function TreasuryPage() {
           </p>
         </div>
       ) : null}
-      <div className="rounded-2xl border border-surface-border bg-surface-card adm-table-x scrollbar-thin min-w-0 mb-6">
-        <table className="w-full text-sm min-w-[720px]">
+      <AdminDataTable minWidth="720px" className="mb-6">
           <thead>
-            <tr className="text-left text-sm font-semibold text-white/75 border-b border-surface-border bg-white/[.02]">
-              <th className="px-4 py-3">Asset</th>
-              <th className="px-4 py-3 text-right">Expected net</th>
-              <th className="px-4 py-3 text-right">Mirrored net</th>
-              <th className="px-4 py-3 text-right">Sync gap</th>
-              <th className="px-4 py-3 text-right">Mark (USDT)</th>
-              <th className="px-4 py-3 text-right">Expected USD</th>
+            <tr>
+              <th>Asset</th>
+              <th className="text-right">Expected net</th>
+              <th className="text-right">Mirrored net</th>
+              <th className="text-right">Sync gap</th>
+              <th className="text-right">Mark (USDT)</th>
+              <th className="text-right">Expected USD</th>
             </tr>
           </thead>
           <tbody>
             {loading && custodyRows.length === 0 ? (
-              <tr><td colSpan={6} className="px-4 py-8 text-center text-white/45">Loading…</td></tr>
+              <tr><td colSpan={6} className="text-center text-white/45 !py-8">Loading…</td></tr>
             ) : custodyRows.length === 0 ? (
-              <tr><td colSpan={6} className="px-4 py-8 text-center text-white/45">No credited deposit custody yet.</td></tr>
+              <tr><td colSpan={6} className="text-center text-white/45 !py-8">No credited deposit custody yet.</td></tr>
             ) : (
               custodyRows.map(row => {
                 const gap = Number(row.sync_gap) || 0;
                 const gapClass = Math.abs(gap) >= 1e-8 ? 'text-gold-light' : 'text-white/50';
                 return (
-                  <tr key={row.asset} className="border-b border-surface-border/50">
-                    <td className="px-4 py-3">
+                  <tr key={row.asset}>
+                    <td>
                       <div className="flex items-center gap-2 font-bold text-white">
                         <CoinAvatar asset={row.asset} className="h-6 w-6" />
                         {row.asset}
                       </div>
                     </td>
-                    <td className="px-4 py-3 font-mono text-right text-cyan-200">{fmtNum(row.expected_net)}</td>
-                    <td className="px-4 py-3 font-mono text-right text-white/80">{fmtNum(row.mirrored_net)}</td>
-                    <td className={`px-4 py-3 font-mono text-right ${gapClass}`}>{fmtNum(row.sync_gap)}</td>
-                    <td className="px-4 py-3 font-mono text-right text-white/70">
+                    <td className="font-mono text-right text-cyan-200">{fmtNum(row.expected_net)}</td>
+                    <td className="font-mono text-right text-white/80">{fmtNum(row.mirrored_net)}</td>
+                    <td className={`font-mono text-right ${gapClass}`}>{fmtNum(row.sync_gap)}</td>
+                    <td className="font-mono text-right text-white/70">
                       {row.asset === 'USDT' ? '1.0000' : fmtNum(row.mark_price_usdt, 6)}
                     </td>
-                    <td className="px-4 py-3 font-mono text-right text-white/80">{fmtUsd(row.expected_usd)}</td>
+                    <td className="font-mono text-right text-white/80">{fmtUsd(row.expected_usd)}</td>
                   </tr>
                 );
               })
             )}
           </tbody>
-        </table>
-      </div>
+      </AdminDataTable>
 
       {/* House inventory */}
       <h2 className="text-lg font-extrabold text-white mb-2">House inventory (SYSTEM trading)</h2>
@@ -425,25 +421,24 @@ export default function TreasuryPage() {
         </div>
       )}
 
-      <div className="rounded-2xl border border-surface-border bg-surface-card adm-table-x scrollbar-thin min-w-0 mb-6">
-        <table className="w-full text-sm min-w-[860px]">
+      <AdminDataTable minWidth="860px" className="mb-6">
           <thead>
-            <tr className="text-left text-sm font-semibold text-white/75 border-b border-surface-border bg-white/[.02]">
-              <th className="px-4 py-3">Asset</th>
-              <th className="px-4 py-3 text-right">Net position</th>
-              <th className="px-4 py-3 text-right">Mark (USDT)</th>
-              <th className="px-4 py-3 text-right">USD value</th>
-              <th className="px-4 py-3 text-right">Limit (base)</th>
-              <th className="px-4 py-3 text-right">Utilisation</th>
-              <th className="px-4 py-3 text-right">Spread (bps)</th>
-              <th className="px-4 py-3 text-right">SYSTEM fills</th>
+            <tr>
+              <th>Asset</th>
+              <th className="text-right">Net position</th>
+              <th className="text-right">Mark (USDT)</th>
+              <th className="text-right">USD value</th>
+              <th className="text-right">Limit (base)</th>
+              <th className="text-right">Utilisation</th>
+              <th className="text-right">Spread (bps)</th>
+              <th className="text-right">SYSTEM fills</th>
             </tr>
           </thead>
           <tbody>
             {loading && positions.length === 0 ? (
-              <tr><td colSpan={8} className="px-4 py-12 text-center text-white/45">Loading…</td></tr>
+              <tr><td colSpan={8} className="text-center text-white/45 !py-12">Loading…</td></tr>
             ) : sortedPositions.length === 0 ? (
-              <tr><td colSpan={8} className="px-4 py-12 text-center text-white/45">No house positions yet.</td></tr>
+              <tr><td colSpan={8} className="text-center text-white/45 !py-12">No house positions yet.</td></tr>
             ) : (
               sortedPositions.map(p => {
                 const net = Number(p.net_position) || 0;
@@ -451,22 +446,22 @@ export default function TreasuryPage() {
                 const util = p.utilisation_pct;
                 const utilClass = util == null ? 'text-white/40' : util >= 90 ? 'text-red-300' : util >= 60 ? 'text-gold-light' : 'text-white/70';
                 return (
-                  <tr key={p.asset} className="border-b border-surface-border/50">
-                    <td className="px-4 py-3">
+                  <tr key={p.asset}>
+                    <td>
                       <div className="flex items-center gap-2 font-bold text-white">
                         <CoinAvatar asset={p.asset} className="h-6 w-6" />
                         {p.asset}
                       </div>
                     </td>
-                    <td className={`px-4 py-3 font-mono text-right ${netClass}`}>{fmtNum(p.net_position)}</td>
-                    <td className="px-4 py-3 font-mono text-right text-white/70">
+                    <td className={`font-mono text-right ${netClass}`}>{fmtNum(p.net_position)}</td>
+                    <td className="font-mono text-right text-white/70">
                       {p.asset === 'USDT' ? '1.0000' : fmtNum(p.mark_price_usdt, 6)}
                     </td>
-                    <td className={`px-4 py-3 font-mono text-right ${netClass}`}>{fmtUsd(p.usd_value)}</td>
-                    <td className="px-4 py-3 font-mono text-right text-white/70">{p.limit_base != null ? fmtNum(p.limit_base, 4) : '—'}</td>
-                    <td className={`px-4 py-3 font-mono text-right ${utilClass}`}>{util != null ? `${util.toFixed(1)}%` : '—'}</td>
-                    <td className="px-4 py-3 font-mono text-right text-white/70">{Number(p.spread_bps || 0).toFixed(1)}</td>
-                    <td className="px-4 py-3 font-mono text-right text-white/60 text-xs">
+                    <td className={`font-mono text-right ${netClass}`}>{fmtUsd(p.usd_value)}</td>
+                    <td className="font-mono text-right text-white/70">{p.limit_base != null ? fmtNum(p.limit_base, 4) : '—'}</td>
+                    <td className={`font-mono text-right ${utilClass}`}>{util != null ? `${util.toFixed(1)}%` : '—'}</td>
+                    <td className="font-mono text-right text-white/70">{Number(p.spread_bps || 0).toFixed(1)}</td>
+                    <td className="font-mono text-right text-white/60 text-xs">
                       <span className="text-green-300/80">+{fmtNum(p.fills_inflow, 4)}</span>
                       {' / '}
                       <span className="text-red-300/80">-{fmtNum(p.fills_outflow, 4)}</span>
@@ -477,8 +472,7 @@ export default function TreasuryPage() {
               })
             )}
           </tbody>
-        </table>
-      </div>
+      </AdminDataTable>
 
       <div className="grid lg:grid-cols-2 gap-3">
         <div className="rounded-2xl border border-surface-border bg-surface-card p-4">
@@ -595,23 +589,22 @@ export default function TreasuryPage() {
             </h2>
           </div>
 
-          <div className="rounded-2xl border border-surface-border bg-surface-card adm-table-x scrollbar-thin min-w-0 mb-4">
-            <table className="w-full text-sm min-w-[720px]">
+          <AdminDataTable minWidth="720px" className="mb-4">
               <thead>
-                <tr className="text-left text-sm font-semibold text-white/75 border-b border-surface-border bg-white/[.02]">
-                  <th className="px-4 py-3 w-8" />
-                  <th className="px-4 py-3">User</th>
-                  <th className="px-4 py-3 text-right">Assets deposited</th>
-                  <th className="px-4 py-3 text-right">Deposit events</th>
-                  <th className="px-4 py-3 text-right">Est. USD</th>
-                  <th className="px-4 py-3 text-right">Last credited</th>
+                <tr>
+                  <th className="w-8" />
+                  <th>User</th>
+                  <th className="text-right">Assets deposited</th>
+                  <th className="text-right">Deposit events</th>
+                  <th className="text-right">Est. USD</th>
+                  <th className="text-right">Last credited</th>
                 </tr>
               </thead>
               <tbody>
                 {loading && pagedUserSummaries.length === 0 ? (
-                  <tr><td colSpan={6} className="px-4 py-8 text-center text-white/45">Loading…</td></tr>
+                  <tr><td colSpan={6} className="text-center text-white/45 !py-8">Loading…</td></tr>
                 ) : pagedUserSummaries.length === 0 ? (
-                  <tr><td colSpan={6} className="px-4 py-8 text-center text-white/45">
+                  <tr><td colSpan={6} className="text-center text-white/45 !py-8">
                     {userSummaries.length === 0 ? 'No deposit records found.' : 'No users match these filters.'}
                   </td></tr>
                 ) : (
@@ -620,8 +613,8 @@ export default function TreasuryPage() {
                     const assetList = user.rows.map(r => r.asset).join(', ');
                     return (
                       <Fragment key={user.uid}>
-                        <tr className="border-b border-surface-border/50 hover:bg-white/[.02]">
-                          <td className="px-4 py-3">
+                        <tr>
+                          <td>
                             <button
                               type="button"
                               onClick={() => toggleUid(user.uid)}
@@ -631,7 +624,7 @@ export default function TreasuryPage() {
                               {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                             </button>
                           </td>
-                          <td className="px-4 py-3">
+                          <td>
                             <Link
                               to={`/users/${encodeURIComponent(user.uid)}`}
                               className="font-mono text-sm text-gold-light hover:underline"
@@ -639,42 +632,42 @@ export default function TreasuryPage() {
                               {user.uid}
                             </Link>
                           </td>
-                          <td className="px-4 py-3 text-right text-white/60 text-xs max-w-[220px] truncate" title={assetList}>
+                          <td className="text-right text-white/60 text-xs max-w-[220px] truncate" title={assetList}>
                             {assetList}
                           </td>
-                          <td className="px-4 py-3 font-mono text-right text-white/70">{user.eventCount}</td>
-                          <td className="px-4 py-3 font-mono text-right text-cyan-200">{fmtUsd(user.totalUsd)}</td>
-                          <td className="px-4 py-3 font-mono text-right text-white/50 text-xs">{fmtTs(user.lastCredited)}</td>
+                          <td className="font-mono text-right text-white/70">{user.eventCount}</td>
+                          <td className="font-mono text-right text-cyan-200">{fmtUsd(user.totalUsd)}</td>
+                          <td className="font-mono text-right text-white/50 text-xs">{fmtTs(user.lastCredited)}</td>
                         </tr>
                         {expanded ? (
-                          <tr className="border-b border-surface-border/50 bg-white/[.015]">
+                          <tr className="bg-white/[.015]">
                             <td />
-                            <td colSpan={5} className="px-4 py-2">
-                              <table className="w-full text-xs">
+                            <td colSpan={5} className="!py-2">
+                              <AdminDataTable fullBleed={false} className="text-xs">
                                 <thead>
-                                  <tr className="text-white/45">
-                                    <th className="text-left pb-1 font-semibold">Asset</th>
-                                    <th className="text-right pb-1 font-semibold">Total deposited</th>
-                                    <th className="text-right pb-1 font-semibold">Events</th>
-                                    <th className="text-right pb-1 font-semibold">Last credited</th>
+                                  <tr>
+                                    <th>Asset</th>
+                                    <th className="text-right">Total deposited</th>
+                                    <th className="text-right">Events</th>
+                                    <th className="text-right">Last credited</th>
                                   </tr>
                                 </thead>
                                 <tbody>
                                   {user.rows.map(r => (
-                                    <tr key={r.asset} className="border-t border-surface-border/25">
-                                      <td className="py-1.5">
+                                    <tr key={r.asset}>
+                                      <td>
                                         <div className="flex items-center gap-2">
                                           <CoinAvatar asset={r.asset} className="h-4 w-4" />
                                           <span className="font-bold text-white">{r.asset}</span>
                                         </div>
                                       </td>
-                                      <td className="py-1.5 font-mono text-right text-cyan-200">{fmtNum(r.total_deposited)}</td>
-                                      <td className="py-1.5 font-mono text-right text-white/60">{r.event_count}</td>
-                                      <td className="py-1.5 font-mono text-right text-white/50">{fmtTs(r.last_credited_at)}</td>
+                                      <td className="font-mono text-right text-cyan-200">{fmtNum(r.total_deposited)}</td>
+                                      <td className="font-mono text-right text-white/60">{r.event_count}</td>
+                                      <td className="font-mono text-right text-white/50">{fmtTs(r.last_credited_at)}</td>
                                     </tr>
                                   ))}
                                 </tbody>
-                              </table>
+                              </AdminDataTable>
                             </td>
                           </tr>
                         ) : null}
@@ -683,8 +676,7 @@ export default function TreasuryPage() {
                   })
                 )}
               </tbody>
-            </table>
-          </div>
+          </AdminDataTable>
 
           {filteredUserSummaries.length > userPageSize ? (
             <div className="flex items-center justify-between text-sm text-white/60">

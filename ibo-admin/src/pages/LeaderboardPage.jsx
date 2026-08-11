@@ -6,7 +6,7 @@ import {
   Sparkles, Info,
 } from 'lucide-react';
 import { api } from '@/lib/api';
-import { AdminPageHeader } from '@/components/AdminPrimitives';
+import { AdminPageHeader, AdminDataTable } from '@/components/AdminPrimitives';
 
 const ASSET_OPTIONS = ['', 'USDT', 'IBO', 'BTC', 'ETH', 'BNB', 'SOL', 'XRP', 'DOGE', 'ADA', 'POL', 'AVAX', 'DOT', 'LINK', 'LTC'];
 
@@ -153,74 +153,72 @@ function DataTable({
         </div>
         <span className="text-[10px] font-bold text-white/35 uppercase">{filtered.length} shown</span>
       </div>
-      <div className="adm-table-x scrollbar-thin min-w-0">
-        <table className="w-full text-sm min-w-[560px]">
-          <thead>
-            <tr className="text-left text-[10px] font-extrabold text-white/45 uppercase border-b border-surface-border bg-surface-dark">
-              <th className="px-3 py-2.5 w-14">#</th>
-              <th className="px-3 py-2.5">User</th>
-              {variant === 'flow' ? (
-                <th className="px-3 py-2.5 text-right whitespace-nowrap">Notional (USDT)</th>
-              ) : (
-                <>
-                  <th className="px-3 py-2.5 text-right whitespace-nowrap">Combined</th>
-                  <th className="px-3 py-2.5 text-right whitespace-nowrap hidden md:table-cell">Realized</th>
-                  <th className="px-3 py-2.5 text-right whitespace-nowrap hidden lg:table-cell">Unrealized</th>
-                  <th className="px-3 py-2.5 text-right whitespace-nowrap">Volume</th>
-                  <th className="px-3 py-2.5 text-right whitespace-nowrap">Fills</th>
-                  <th className="px-3 py-2.5 text-right whitespace-nowrap hidden sm:table-cell">Sells</th>
-                </>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.length === 0 ? (
-              <tr>
-                <td colSpan={variant === 'flow' ? 3 : 8} className="px-4 py-12 text-center">
-                  <p className="text-white/45">{rows?.length ? 'No rows match your search.' : (emptyHint || 'No data.')}</p>
-                </td>
-              </tr>
+      <AdminDataTable minWidth="560px" className="!rounded-none !border-0 !border-t border-surface-border">
+        <thead>
+          <tr>
+            <th className="w-14">#</th>
+            <th>User</th>
+            {variant === 'flow' ? (
+              <th className="text-right whitespace-nowrap">Notional (USDT)</th>
             ) : (
-              filtered.map((row, idx) => (
-                <tr key={row.uid} className="border-b border-surface-border/40 hover:bg-white/[.04] transition-colors">
-                  <td className="px-3 py-3 align-middle">
-                    <RankBadge rank={idx + 1} />
-                  </td>
-                  <td className="px-3 py-3 align-middle">
-                    <UserCell row={row} />
-                  </td>
-                  {variant === 'flow' ? (
-                    <td className="px-3 py-3 text-right font-mono text-cyan-200/90 tabular-nums whitespace-nowrap">
-                      {fmtCompact(row.total_notional_usdt)}
-                    </td>
-                  ) : (
-                    <>
-                      <td className={`px-3 py-3 text-right font-mono font-bold tabular-nums whitespace-nowrap ${pnlClass(row.combined_pnl_estimate_usdt)}`}>
-                        {Number(row.combined_pnl_estimate_usdt).toFixed(4)}
-                      </td>
-                      <td className={`px-3 py-3 text-right font-mono tabular-nums whitespace-nowrap hidden md:table-cell ${pnlClass(row.realized_pnl_usdt)}`}>
-                        {Number(row.realized_pnl_usdt).toFixed(4)}
-                      </td>
-                      <td className={`px-3 py-3 text-right font-mono tabular-nums whitespace-nowrap hidden lg:table-cell ${pnlClass(row.unrealized_pnl_usdt)}`}>
-                        {Number(row.unrealized_pnl_usdt).toFixed(4)}
-                      </td>
-                      <td className="px-3 py-3 text-right font-mono text-white/70 tabular-nums whitespace-nowrap">
-                        {fmtCompact(row.volume_notional_usdt)}
-                      </td>
-                      <td className="px-3 py-3 text-right font-mono text-white/55 tabular-nums whitespace-nowrap">
-                        {row.trade_fill_count}
-                      </td>
-                      <td className="px-3 py-3 text-right font-mono text-white/45 tabular-nums whitespace-nowrap hidden sm:table-cell">
-                        {row.sell_fill_count ?? '—'}
-                      </td>
-                    </>
-                  )}
-                </tr>
-              ))
+              <>
+                <th className="text-right whitespace-nowrap">Combined</th>
+                <th className="text-right whitespace-nowrap hidden md:table-cell">Realized</th>
+                <th className="text-right whitespace-nowrap hidden lg:table-cell">Unrealized</th>
+                <th className="text-right whitespace-nowrap">Volume</th>
+                <th className="text-right whitespace-nowrap">Fills</th>
+                <th className="text-right whitespace-nowrap hidden sm:table-cell">Sells</th>
+              </>
             )}
-          </tbody>
-        </table>
-      </div>
+          </tr>
+        </thead>
+        <tbody>
+          {filtered.length === 0 ? (
+            <tr>
+              <td colSpan={variant === 'flow' ? 3 : 8} className="text-center py-12">
+                <p className="text-white/45">{rows?.length ? 'No rows match your search.' : (emptyHint || 'No data.')}</p>
+              </td>
+            </tr>
+          ) : (
+            filtered.map((row, idx) => (
+              <tr key={row.uid}>
+                <td className="align-middle">
+                  <RankBadge rank={idx + 1} />
+                </td>
+                <td className="align-middle">
+                  <UserCell row={row} />
+                </td>
+                {variant === 'flow' ? (
+                  <td className="text-right font-mono text-cyan-200/90 tabular-nums whitespace-nowrap">
+                    {fmtCompact(row.total_notional_usdt)}
+                  </td>
+                ) : (
+                  <>
+                    <td className={`text-right font-mono font-bold tabular-nums whitespace-nowrap ${pnlClass(row.combined_pnl_estimate_usdt)}`}>
+                      {Number(row.combined_pnl_estimate_usdt).toFixed(4)}
+                    </td>
+                    <td className={`text-right font-mono tabular-nums whitespace-nowrap hidden md:table-cell ${pnlClass(row.realized_pnl_usdt)}`}>
+                      {Number(row.realized_pnl_usdt).toFixed(4)}
+                    </td>
+                    <td className={`text-right font-mono tabular-nums whitespace-nowrap hidden lg:table-cell ${pnlClass(row.unrealized_pnl_usdt)}`}>
+                      {Number(row.unrealized_pnl_usdt).toFixed(4)}
+                    </td>
+                    <td className="text-right font-mono text-white/70 tabular-nums whitespace-nowrap">
+                      {fmtCompact(row.volume_notional_usdt)}
+                    </td>
+                    <td className="text-right font-mono text-white/55 tabular-nums whitespace-nowrap">
+                      {row.trade_fill_count}
+                    </td>
+                    <td className="text-right font-mono text-white/45 tabular-nums whitespace-nowrap hidden sm:table-cell">
+                      {row.sell_fill_count ?? '—'}
+                    </td>
+                  </>
+                )}
+              </tr>
+            ))
+          )}
+        </tbody>
+      </AdminDataTable>
     </div>
   );
 }
@@ -473,7 +471,7 @@ export default function LeaderboardPage() {
               >
                 <option value="">All assets (notional)</option>
                 {ASSET_OPTIONS.filter(Boolean).map((a) => (
-                  <option key={a} value={a}>{a} only</option>
+                  <option key={a} value={a}>{a === 'IBO' ? 'Delta' : a} only</option>
                 ))}
               </select>
             </div>

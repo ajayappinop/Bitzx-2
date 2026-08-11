@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { RefreshCw, AlertTriangle, Plus, FlaskConical, Gavel, X, Search } from 'lucide-react';
 import { api } from '@/lib/api';
 import { formatAdminApiDetail } from '@/lib/adminApiDetail';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 function formatContractExpiry(iso) {
   if (!iso) return '—';
@@ -52,22 +53,20 @@ function PreviewTable({ data }) {
   const rest = Object.entries(data).filter(([k]) => !skip.has(k));
   const rows = [...preferred, ...rest.map(([k, v]) => [k, typeof v === 'object' ? JSON.stringify(v) : String(v)])];
   return (
-    <div className="rounded-lg border border-white/10 overflow-hidden mt-2 bg-surface-dark">
-      <table className="w-full text-xs table-fixed">
-        <tbody>
-          {rows.map(([k, v]) => (
-            <tr key={k} className="border-b border-white/[0.06] last:border-0">
-              <td className="px-3 py-2 w-[44%] text-white/50 font-mono text-[10px] uppercase tracking-wide align-top break-words">
-                {k}
-              </td>
-              <td className="px-3 py-2 text-white/90 font-mono tabular-nums align-top break-words [overflow-wrap:anywhere]">
-                {String(v)}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <AdminDataTable fullBleed={false} className="mt-2">
+      <tbody>
+        {rows.map(([k, v]) => (
+          <tr key={k}>
+            <td className="w-[44%] text-white/50 font-mono text-[10px] uppercase tracking-wide align-top break-words">
+              {k}
+            </td>
+            <td className="text-white/90 font-mono tabular-nums align-top break-words [overflow-wrap:anywhere]">
+              {String(v)}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </AdminDataTable>
   );
 }
 
@@ -331,112 +330,110 @@ export default function OptionsContractsPage() {
         </button>
       </div>
 
-      <div className="rounded-xl border border-white/[0.08] bg-surface-dark overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[1100px]">
-            <thead className="text-left text-[11px] uppercase text-white/50 font-bold border-b border-white/10 bg-surface-dark">
+      <div>
+        <AdminDataTable minWidth="1100px">
+          <thead>
+            <tr>
+              <th className="min-w-[200px]">Contract</th>
+              <th className="whitespace-nowrap">Underlying</th>
+              <th className="min-w-[140px]">Expiry</th>
+              <th className="text-right whitespace-nowrap">Strike</th>
+              <th className="whitespace-nowrap">Type</th>
+              <th className="whitespace-nowrap">Status</th>
+              <th className="text-center whitespace-nowrap">Listed</th>
+              <th className="text-center whitespace-nowrap">Trade</th>
+              <th className="min-w-[160px]">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading && (
               <tr>
-                <th className="px-3 py-3 min-w-[200px]">Contract</th>
-                <th className="px-3 py-3 whitespace-nowrap">Underlying</th>
-                <th className="px-3 py-3 min-w-[140px]">Expiry</th>
-                <th className="px-3 py-3 text-right whitespace-nowrap">Strike</th>
-                <th className="px-3 py-3 whitespace-nowrap">Type</th>
-                <th className="px-3 py-3 whitespace-nowrap">Status</th>
-                <th className="px-3 py-3 text-center whitespace-nowrap">Listed</th>
-                <th className="px-3 py-3 text-center whitespace-nowrap">Trade</th>
-                <th className="px-3 py-3 min-w-[160px]">Actions</th>
+                <td colSpan={9} className="text-center text-white/45">
+                  Loading contracts…
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-white/[0.06]">
-              {loading && (
-                <tr>
-                  <td colSpan={9} className="px-3 py-12 text-center text-white/45">
-                    Loading contracts…
-                  </td>
-                </tr>
-              )}
-              {!loading &&
-                filteredRows.map((r) => {
-                  const meta = contractStatusMeta(r);
-                  const settled = !!(r.settled_at || String(r.status).toLowerCase() === 'settled');
-                  return (
-                    <tr key={r.id} className="hover:bg-white/[0.03]">
-                      <td className="px-3 py-2.5 align-top">
-                        <span
-                          className="font-mono text-xs text-gold-light/95 block truncate max-w-[280px]"
-                          title={r.id}
-                        >
-                          {r.id}
-                        </span>
-                      </td>
-                      <td className="px-3 py-2.5 font-mono text-white/90 whitespace-nowrap">{r.underlying_symbol || '—'}</td>
-                      <td className="px-3 py-2.5 text-white/85 text-xs font-mono leading-snug">{formatContractExpiry(r.expiry)}</td>
-                      <td className="px-3 py-2.5 text-right font-mono tabular-nums text-white">{fmtStrike(r.strike)}</td>
-                      <td className="px-3 py-2.5 text-white/85 text-xs uppercase font-semibold">{r.option_type || '—'}</td>
-                      <td className="px-3 py-2.5">
-                        <span
-                          className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-bold ${meta.className}`}
-                        >
-                          {meta.label}
-                        </span>
-                      </td>
-                      <td className="px-3 py-2.5 text-center">
-                        <input
-                          type="checkbox"
-                          className="w-4 h-4 accent-gold"
-                          checked={!!r.listed}
-                          disabled={busy || settled}
-                          onChange={() => toggle(r, 'listed')}
-                          aria-label={`Listed ${r.id}`}
-                        />
-                      </td>
-                      <td className="px-3 py-2.5 text-center">
-                        <input
-                          type="checkbox"
-                          className="w-4 h-4 accent-gold"
-                          checked={!!r.trading_enabled}
-                          disabled={busy || settled}
-                          onChange={() => toggle(r, 'trading_enabled')}
-                          aria-label={`Trading ${r.id}`}
-                        />
-                      </td>
-                      <td className="px-3 py-2.5 align-top">
-                        {settled ? (
-                          <span className="text-white/35 text-xs">—</span>
-                        ) : (
-                          <div className="flex flex-wrap gap-1">
-                            <button
-                              type="button"
-                              disabled={busy}
-                              onClick={() => settlePreview(r)}
-                              className="inline-flex items-center gap-1 rounded-md border border-white/15 px-2 py-1 text-[11px] text-white/80 hover:bg-white/5"
-                            >
-                              <FlaskConical size={12} /> Preview
-                            </button>
-                            <button
-                              type="button"
-                              disabled={busy}
-                              onClick={() => settleExecute(r)}
-                              className="inline-flex items-center gap-1 rounded-md border border-gold/35 px-2 py-1 text-[11px] text-gold-light/90 hover:bg-gold/10"
-                            >
-                              <Gavel size={12} /> Settle
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-            </tbody>
-          </table>
-        </div>
+            )}
+            {!loading &&
+              filteredRows.map((r) => {
+                const meta = contractStatusMeta(r);
+                const settled = !!(r.settled_at || String(r.status).toLowerCase() === 'settled');
+                return (
+                  <tr key={r.id}>
+                    <td className="align-top">
+                      <span
+                        className="font-mono text-xs text-gold-light/95 block truncate max-w-[280px]"
+                        title={r.id}
+                      >
+                        {r.id}
+                      </span>
+                    </td>
+                    <td className="font-mono text-white/90 whitespace-nowrap">{r.underlying_symbol || '—'}</td>
+                    <td className="text-white/85 text-xs font-mono leading-snug">{formatContractExpiry(r.expiry)}</td>
+                    <td className="text-right font-mono tabular-nums text-white">{fmtStrike(r.strike)}</td>
+                    <td className="text-white/85 text-xs uppercase font-semibold">{r.option_type || '—'}</td>
+                    <td>
+                      <span
+                        className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-bold ${meta.className}`}
+                      >
+                        {meta.label}
+                      </span>
+                    </td>
+                    <td className="text-center">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 accent-gold"
+                        checked={!!r.listed}
+                        disabled={busy || settled}
+                        onChange={() => toggle(r, 'listed')}
+                        aria-label={`Listed ${r.id}`}
+                      />
+                    </td>
+                    <td className="text-center">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 accent-gold"
+                        checked={!!r.trading_enabled}
+                        disabled={busy || settled}
+                        onChange={() => toggle(r, 'trading_enabled')}
+                        aria-label={`Trading ${r.id}`}
+                      />
+                    </td>
+                    <td className="align-top">
+                      {settled ? (
+                        <span className="text-white/35 text-xs">—</span>
+                      ) : (
+                        <div className="flex flex-wrap gap-1">
+                          <button
+                            type="button"
+                            disabled={busy}
+                            onClick={() => settlePreview(r)}
+                            className="inline-flex items-center gap-1 rounded-md border border-white/15 px-2 py-1 text-[11px] text-white/80 hover:bg-white/5"
+                          >
+                            <FlaskConical size={12} /> Preview
+                          </button>
+                          <button
+                            type="button"
+                            disabled={busy}
+                            onClick={() => settleExecute(r)}
+                            className="inline-flex items-center gap-1 rounded-md border border-gold/35 px-2 py-1 text-[11px] text-gold-light/90 hover:bg-gold/10"
+                          >
+                            <Gavel size={12} /> Settle
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+          </tbody>
+        </AdminDataTable>
         {!loading && !filteredRows.length && (
           <p className="p-8 text-center text-white/45 text-sm">
             {rows.length ? 'No contracts match your search.' : 'No contracts in the database for this filter.'}
           </p>
         )}
         {!loading && rows.length > 0 && (
-          <div className="px-4 py-2 border-t border-white/[0.06] text-[11px] text-white/40">
+          <div className="px-4 py-2 text-[11px] text-white/40">
             Showing {filteredRows.length} of {rows.length} loaded
             {filterUnderlying ? ` · ${filterUnderlying}` : ''}
           </div>

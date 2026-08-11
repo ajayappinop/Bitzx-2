@@ -111,10 +111,10 @@ function ReferralNodeCard({
             {(earned > 0 || pending > 0) ? (
               <div className="mt-2 space-y-0.5 text-center w-full">
                 {earned > 0 ? (
-                  <p className="text-[10px] font-bold text-gold-light">{earned.toFixed(4)} IBO earned</p>
+                  <p className="text-[10px] font-bold text-gold-light">{earned.toFixed(4)} Delta earned</p>
                 ) : null}
                 {pending > 0 ? (
-                  <p className="text-[10px] font-bold text-gold">{pending.toFixed(4)} IBO pending</p>
+                  <p className="text-[10px] font-bold text-gold">{pending.toFixed(4)} Delta pending</p>
                 ) : null}
               </div>
             ) : null}

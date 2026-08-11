@@ -24,6 +24,7 @@ import {
 import { api } from '@/lib/api';
 import CoinAvatar from '@/components/CoinAvatar';
 import ConfirmModal from '@/components/ConfirmModal';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 // Phase 8d — Binance hedger admin page.
 //
@@ -33,7 +34,7 @@ import ConfirmModal from '@/components/ConfirmModal';
 //   - treasury position, running net_hedged_qty, effective exposure
 //   - on-demand hedge suggestion (side + qty + reason)
 //   - cooldown remaining
-//   - unhedgeable flag (IBO — no Binance market)
+//   - unhedgeable flag (Delta — no Binance market)
 //
 // Mutations go through two narrow endpoints so admin audit logs capture
 // them independently of generic platform_controls patches:
@@ -227,8 +228,8 @@ function SymbolRow({ row, masterEnabled, onExecute, onSaveConfig }) {
   else if (row.cooldown_remaining_sec > 0) execTitle = `Cooldown: ${row.cooldown_remaining_sec.toFixed(0)}s remaining`;
 
   return (
-    <tr className="border-t border-white/5 align-top">
-      <td className="px-3 py-3">
+    <tr className="align-top">
+      <td>
         <div className="flex items-center gap-2">
           <CoinAvatar symbol={row.base_asset} size={24} />
           <div>
@@ -239,7 +240,7 @@ function SymbolRow({ row, masterEnabled, onExecute, onSaveConfig }) {
           </div>
         </div>
       </td>
-      <td className="px-3 py-3">
+      <td>
         <ModeBadge mode={row.config?.mode} />
         {row.unhedgeable ? (
           <div className="mt-1 inline-flex items-center gap-1 text-[10px] text-white/40">
@@ -247,16 +248,16 @@ function SymbolRow({ row, masterEnabled, onExecute, onSaveConfig }) {
           </div>
         ) : null}
       </td>
-      <td className="px-3 py-3 font-mono text-right text-white/90">
+      <td className="font-mono text-right text-white/90">
         {fmtNum(row.treasury_pos_base, 6)}
       </td>
-      <td className="px-3 py-3 font-mono text-right text-white/70">
+      <td className="font-mono text-right text-white/70">
         {fmtNum(row.net_hedged_qty, 6)}
       </td>
-      <td className={`px-3 py-3 font-mono text-right ${exposureCls}`}>
+      <td className={`font-mono text-right ${exposureCls}`}>
         {fmtNum(exposure, 6)}
       </td>
-      <td className="px-3 py-3">
+      <td>
         {hasSuggestion ? (
           <div>
             <div className="text-white font-extrabold">
@@ -270,10 +271,10 @@ function SymbolRow({ row, masterEnabled, onExecute, onSaveConfig }) {
           </span>
         )}
       </td>
-      <td className="px-3 py-3">
+      <td>
         <SymbolConfigEditor row={row} onSave={(body) => onSaveConfig(row.symbol, body)} />
       </td>
-      <td className="px-3 py-3">
+      <td>
         <button
           type="button"
           title={execTitle}
@@ -302,51 +303,49 @@ function TradesTable({ trades }) {
     );
   }
   return (
-    <div className="overflow-x-auto rounded-xl border border-surface-border">
-      <table className="min-w-full text-sm">
-        <thead className="bg-white/5 text-white/60 text-[11px] uppercase">
-          <tr>
-            <th className="text-left  px-3 py-2">When</th>
-            <th className="text-left  px-3 py-2">Symbol</th>
-            <th className="text-left  px-3 py-2">Side</th>
-            <th className="text-right px-3 py-2">Requested</th>
-            <th className="text-right px-3 py-2">Executed</th>
-            <th className="text-right px-3 py-2">Avg px</th>
-            <th className="text-right px-3 py-2">Notional</th>
-            <th className="text-left  px-3 py-2">Status</th>
-            <th className="text-left  px-3 py-2">Mode</th>
-            <th className="text-left  px-3 py-2">By</th>
-            <th className="text-left  px-3 py-2">Order id / error</th>
+    <AdminDataTable>
+      <thead>
+        <tr>
+          <th>When</th>
+          <th>Symbol</th>
+          <th>Side</th>
+          <th className="text-right">Requested</th>
+          <th className="text-right">Executed</th>
+          <th className="text-right">Avg px</th>
+          <th className="text-right">Notional</th>
+          <th>Status</th>
+          <th>Mode</th>
+          <th>By</th>
+          <th>Order id / error</th>
+        </tr>
+      </thead>
+      <tbody>
+        {trades.map((t) => (
+          <tr key={t.id}>
+            <td className="text-white/70 text-[12px]">{fmtDatetime(t.created_at)}</td>
+            <td className="text-white font-bold">{t.symbol}</td>
+            <td>
+              <span className={`text-[11px] font-extrabold uppercase ${t.side === 'buy' ? 'text-emerald-300' : 'text-rose-300'}`}>
+                {t.side}
+              </span>
+            </td>
+            <td className="text-right font-mono">{fmtNum(t.requested_qty, 6)}</td>
+            <td className="text-right font-mono">{fmtNum(t.executed_qty, 6)}</td>
+            <td className="text-right font-mono">{fmtNum(t.avg_price ?? t.binance_price, 4)}</td>
+            <td className="text-right font-mono">{fmtUsd(t.notional_usdt)}</td>
+            <td><StatusBadge status={t.status} /></td>
+            <td><ModeBadge mode={t.mode} /></td>
+            <td className="text-white/60 text-[12px]">{t.initiator_email || t.initiator || '—'}</td>
+            <td className="text-white/55 text-[11px] font-mono break-all max-w-xs">
+              {t.error
+                ? <span className="text-rose-400">{t.error}</span>
+                : (t.binance_order_id || (t.dry_run ? 'dry-run' : '—'))
+              }
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          {trades.map((t) => (
-            <tr key={t.id} className="border-t border-white/5">
-              <td className="px-3 py-2 text-white/70 text-[12px]">{fmtDatetime(t.created_at)}</td>
-              <td className="px-3 py-2 text-white font-bold">{t.symbol}</td>
-              <td className="px-3 py-2">
-                <span className={`text-[11px] font-extrabold uppercase ${t.side === 'buy' ? 'text-emerald-300' : 'text-rose-300'}`}>
-                  {t.side}
-                </span>
-              </td>
-              <td className="px-3 py-2 text-right font-mono">{fmtNum(t.requested_qty, 6)}</td>
-              <td className="px-3 py-2 text-right font-mono">{fmtNum(t.executed_qty, 6)}</td>
-              <td className="px-3 py-2 text-right font-mono">{fmtNum(t.avg_price ?? t.binance_price, 4)}</td>
-              <td className="px-3 py-2 text-right font-mono">{fmtUsd(t.notional_usdt)}</td>
-              <td className="px-3 py-2"><StatusBadge status={t.status} /></td>
-              <td className="px-3 py-2"><ModeBadge mode={t.mode} /></td>
-              <td className="px-3 py-2 text-white/60 text-[12px]">{t.initiator_email || t.initiator || '—'}</td>
-              <td className="px-3 py-2 text-white/55 text-[11px] font-mono break-all max-w-xs">
-                {t.error
-                  ? <span className="text-rose-400">{t.error}</span>
-                  : (t.binance_order_id || (t.dry_run ? 'dry-run' : '—'))
-                }
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+        ))}
+      </tbody>
+    </AdminDataTable>
   );
 }
 
@@ -554,62 +553,60 @@ function PnlSection() {
       </div>
 
       {/* Per-symbol table */}
-      <div className="overflow-x-auto rounded-xl border border-white/10 bg-white/[0.02]">
-        <table className="w-full text-sm">
-          <thead className="bg-white/5 text-white/60 text-left text-[11px] uppercase tracking-wider">
-            <tr>
-              <th className="px-3 py-2">Symbol</th>
-              <th className="px-3 py-2 text-right">Spread revenue</th>
-              <th className="px-3 py-2 text-right">Hedge cost</th>
-              <th className="px-3 py-2 text-right">Net realised</th>
-              <th className="px-3 py-2 text-right">Fills</th>
-              <th className="px-3 py-2 text-right">Hedges</th>
-              <th className="px-3 py-2 text-right">Open position</th>
-              <th className="px-3 py-2 text-right">Open USD</th>
+      <AdminDataTable>
+        <thead>
+          <tr>
+              <th>Symbol</th>
+              <th className="text-right">Spread revenue</th>
+              <th className="text-right">Hedge cost</th>
+              <th className="text-right">Net realised</th>
+              <th className="text-right">Fills</th>
+              <th className="text-right">Hedges</th>
+              <th className="text-right">Open position</th>
+              <th className="text-right">Open USD</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
+          <tbody>
             {rows.map((r) => (
-              <tr key={r.symbol} className="hover:bg-white/[0.03]">
-                <td className="px-3 py-2">
+              <tr key={r.symbol}>
+                <td>
                   <div className="flex items-center gap-2">
                     <CoinAvatar symbol={r.base_asset} size={20} />
                     <span className="font-bold text-white">{r.symbol}</span>
                   </div>
                 </td>
-                <td className="px-3 py-2 text-right font-mono text-emerald-300">
+                <td className="text-right font-mono text-emerald-300">
                   {fmtUsd(r.spread_revenue_usdt)}
                 </td>
-                <td className={`px-3 py-2 text-right font-mono ${PnlNumberColor({ v: r.hedge_cost_usdt, invert: true })}`}>
+                <td className={`text-right font-mono ${PnlNumberColor({ v: r.hedge_cost_usdt, invert: true })}`}>
                   {fmtUsd(r.hedge_cost_usdt)}
                 </td>
-                <td className={`px-3 py-2 text-right font-mono font-bold ${PnlNumberColor({ v: r.net_realized_usdt })}`}>
+                <td className={`text-right font-mono font-bold ${PnlNumberColor({ v: r.net_realized_usdt })}`}>
                   {fmtUsd(r.net_realized_usdt)}
                 </td>
-                <td className="px-3 py-2 text-right font-mono text-white/60">
+                <td className="text-right font-mono text-white/60">
                   {fmtNum(r.fill_count, 0)}
                 </td>
-                <td className="px-3 py-2 text-right font-mono text-white/60">
+                <td className="text-right font-mono text-white/60">
                   {fmtNum(r.hedge_count, 0)}
                 </td>
-                <td className="px-3 py-2 text-right font-mono text-white/80">
+                <td className="text-right font-mono text-white/80">
                   {fmtNum(r.open_exposure_base, 6)} {r.base_asset}
                 </td>
-                <td className={`px-3 py-2 text-right font-mono ${Number(r.open_exposure_usdt) !== 0 ? 'text-gold-light' : 'text-white/50'}`}>
+                <td className={`text-right font-mono ${Number(r.open_exposure_usdt) !== 0 ? 'text-gold-light' : 'text-white/50'}`}>
                   {fmtUsd(r.open_exposure_usdt)}
                 </td>
               </tr>
             ))}
             {!rows.length && !loading ? (
               <tr>
-                <td className="px-3 py-4 text-white/50 text-center" colSpan={8}>
+                <td className="text-white/50 text-center" colSpan={8}>
                   No symbols to report.
                 </td>
               </tr>
             ) : null}
           </tbody>
-        </table>
-      </div>
+        </AdminDataTable>
 
       {/* Time series */}
       <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02] space-y-2">
@@ -909,25 +906,24 @@ function ReconciliationSection() {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-surface-border bg-surface-card">
-        <table className="min-w-full text-sm">
-          <thead className="bg-white/5 text-white/60 text-[11px] uppercase">
-            <tr>
-              <th className="text-left  px-3 py-2">Asset</th>
-              <th className="text-right px-3 py-2">Binance (free / locked)</th>
-              <th className="text-right px-3 py-2">Baseline</th>
-              <th className="text-right px-3 py-2">Internal hedged</th>
-              <th className="text-right px-3 py-2">Expected</th>
-              <th className="text-right px-3 py-2">Drift</th>
-              <th className="text-right px-3 py-2">Drift (USD)</th>
-              <th className="text-left  px-3 py-2">Severity</th>
-              <th className="text-left  px-3 py-2">Action</th>
+      <AdminDataTable>
+        <thead>
+          <tr>
+              <th>Asset</th>
+              <th className="text-right">Binance (free / locked)</th>
+              <th className="text-right">Baseline</th>
+              <th className="text-right">Internal hedged</th>
+              <th className="text-right">Expected</th>
+              <th className="text-right">Drift</th>
+              <th className="text-right">Drift (USD)</th>
+              <th>Severity</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {pagedRows.map((r) => (
-              <tr key={r.asset} className="border-t border-white/5 align-top">
-                <td className="px-3 py-3">
+              <tr key={r.asset} className="align-top">
+                <td>
                   <div className="flex items-center gap-2">
                     <CoinAvatar symbol={r.asset} size={22} />
                     <div>
@@ -936,13 +932,13 @@ function ReconciliationSection() {
                     </div>
                   </div>
                 </td>
-                <td className="px-3 py-3 font-mono text-right">
+                <td className="font-mono text-right">
                   <div>{fmtNum(r.binance_total, 6)}</div>
                   <div className="text-[10px] text-white/40">
                     {fmtNum(r.binance_free, 6)} / {fmtNum(r.binance_locked, 6)}
                   </div>
                 </td>
-                <td className="px-3 py-3 font-mono text-right text-white/80">
+                <td className="font-mono text-right text-white/80">
                   {fmtNum(r.baseline_qty, 6)}
                   {r.baseline_snapshot_at ? (
                     <div className="text-[10px] text-white/40">{fmtDatetime(r.baseline_snapshot_at)}</div>
@@ -950,13 +946,13 @@ function ReconciliationSection() {
                     <div className="text-[10px] text-gold-light/70">not set</div>
                   )}
                 </td>
-                <td className="px-3 py-3 font-mono text-right text-white/70">
+                <td className="font-mono text-right text-white/70">
                   {fmtNum(r.internal_hedged, 6)}
                 </td>
-                <td className="px-3 py-3 font-mono text-right text-white/90">
+                <td className="font-mono text-right text-white/90">
                   {fmtNum(r.expected_qty, 6)}
                 </td>
-                <td className={`px-3 py-3 font-mono text-right ${
+                <td className={`font-mono text-right ${
                   r.severity === 'critical'
                     ? 'text-rose-300'
                     : r.severity === 'warn' ? 'text-gold-light' : 'text-white/70'
@@ -964,16 +960,16 @@ function ReconciliationSection() {
                   {fmtNum(r.drift_qty, 6)}
                   <div className="text-[10px] text-white/40">{r.drift_pct}%</div>
                 </td>
-                <td className="px-3 py-3 font-mono text-right text-white/90">
+                <td className="font-mono text-right text-white/90">
                   {fmtUsd(r.drift_usd)}
                 </td>
-                <td className="px-3 py-3">
+                <td>
                   <SeverityPill severity={r.severity} />
                   {r.is_quote ? (
                     <div className="text-[10px] text-white/40 mt-1">quote (info only)</div>
                   ) : null}
                 </td>
-                <td className="px-3 py-3">
+                <td>
                   <button
                     type="button"
                     onClick={() => setAcceptModal({ open: true, row: r })}
@@ -994,7 +990,7 @@ function ReconciliationSection() {
             ))}
             {!pagedRows.length && !loading ? (
               <tr>
-                <td colSpan={9} className="px-3 py-4 text-white/50 text-center">
+                <td colSpan={9} className="text-white/50 text-center">
                   {!rows.length
                     ? 'No reconcilable assets.'
                     : 'No rows match the current filters.'}
@@ -1002,8 +998,7 @@ function ReconciliationSection() {
               </tr>
             ) : null}
           </tbody>
-        </table>
-      </div>
+        </AdminDataTable>
 
       {/* ── Pager ────────────────────────────────────────────────────── */}
       {pageSize !== 0 && filteredRows.length > pageSize ? (
@@ -1307,18 +1302,18 @@ export default function HedgerPage() {
       ) : null}
 
       {/* Symbols table */}
-      <div className="overflow-x-auto rounded-2xl border border-surface-border bg-surface-card">
-        <table className="min-w-full text-sm">
-          <thead className="bg-white/5 text-white/60 text-[11px] uppercase">
+      <div>
+        <AdminDataTable>
+          <thead>
             <tr>
-              <th className="text-left  px-3 py-2">Symbol</th>
-              <th className="text-left  px-3 py-2">Mode</th>
-              <th className="text-right px-3 py-2">Treasury pos</th>
-              <th className="text-right px-3 py-2">Net hedged</th>
-              <th className="text-right px-3 py-2">Exposure</th>
-              <th className="text-left  px-3 py-2">Suggestion</th>
-              <th className="text-left  px-3 py-2">Config</th>
-              <th className="text-left  px-3 py-2">Action</th>
+              <th>Symbol</th>
+              <th>Mode</th>
+              <th className="text-right">Treasury pos</th>
+              <th className="text-right">Net hedged</th>
+              <th className="text-right">Exposure</th>
+              <th>Suggestion</th>
+              <th>Config</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -1333,14 +1328,14 @@ export default function HedgerPage() {
             ))}
             {!symbols.length && !loading ? (
               <tr>
-                <td className="px-3 py-4 text-white/50 text-center" colSpan={8}>
+                <td className="text-white/50 text-center" colSpan={8}>
                   No hedgeable symbols configured.
                 </td>
               </tr>
             ) : null}
           </tbody>
-        </table>
-        {busy ? <p className="px-3 py-2 text-[11px] text-white/40">Working on {busy}…</p> : null}
+        </AdminDataTable>
+        {busy ? <p className="text-[11px] text-white/40">Working on {busy}…</p> : null}
       </div>
 
       {/* Phase 9b — PnL */}

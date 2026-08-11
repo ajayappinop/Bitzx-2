@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { Loader2, AlertCircle, RefreshCw, CheckCircle2, XCircle, ShieldCheck } from 'lucide-react';
 import { api } from '@/lib/api';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 const STATUS_PILL = {
   pending:  'inline-flex items-center rounded-full border border-gold/30 bg-gold/10 px-2 py-0.5 text-[10px] font-extrabold uppercase text-gold-light',
@@ -88,12 +89,9 @@ export default function P2PMerchantsTab() {
         {total > 0 && <span className="ml-2 text-white/40">— page {page} of {pages}</span>}
       </div>
 
-      {/* Table */}
-      <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden">
-        <div className="adm-table-x scrollbar-thin">
-          <table className="w-full text-sm min-w-[900px]">
+      <AdminDataTable minWidth="900px">
             <thead>
-              <tr className="border-b border-surface-border bg-white/[.02] text-left text-[11px] font-extrabold uppercase tracking-wider text-white/50">
+              <tr>
                 <Th>Applicant UID</Th>
                 <Th>Display Name</Th>
                 <Th>Experience</Th>
@@ -106,9 +104,9 @@ export default function P2PMerchantsTab() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={8} className="px-4 py-16 text-center text-white/50"><Loader2 size={14} className="inline animate-spin mr-1" />Loading…</td></tr>
+                <tr><td colSpan={8} className="text-center text-white/50 !py-16"><Loader2 size={14} className="inline animate-spin mr-1" />Loading…</td></tr>
               ) : items.length === 0 ? (
-                <tr><td colSpan={8} className="px-4 py-16 text-center text-white/50">No merchant applications found.</td></tr>
+                <tr><td colSpan={8} className="text-center text-white/50 !py-16">No merchant applications found.</td></tr>
               ) : items.map((a) => {
                 const id = a.merchant_id || a.application_id || a.user_id;
                 const displayName = a.display_name || a.business_name || '—';
@@ -116,27 +114,27 @@ export default function P2PMerchantsTab() {
                 const experience = a.trading_experience || a.business_type || '—';
                 const appliedAt  = a.applied_at || a.submitted_at;
                 return (
-                  <tr key={id} className="border-b border-surface-border/60 hover:bg-white/[.025]">
-                    <td className="px-4 py-3 font-mono text-[11px] text-white/70">{a.user_id || a.uid || '—'}</td>
-                    <td className="px-4 py-3 text-[12px] text-white/90 font-semibold">
+                  <tr key={id}>
+                    <td className="font-mono text-[11px] text-white/70">{a.user_id || a.uid || '—'}</td>
+                    <td className="text-[12px] text-white/90 font-semibold">
                       <span className="inline-flex items-center gap-1.5">
                         <ShieldCheck size={12} className="text-gold-light shrink-0" />
                         {displayName}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-[11px] text-white/50">{experience}</td>
-                    <td className="px-4 py-3 text-[11px] text-white/50 tabular-nums">
+                    <td className="text-[11px] text-white/50">{experience}</td>
+                    <td className="text-[11px] text-white/50 tabular-nums text-right">
                       {a.monthly_volume_usd != null ? `$${Number(a.monthly_volume_usd).toLocaleString()}` : '—'}
                     </td>
-                    <td className="px-4 py-3 text-[11px] text-white/50 max-w-xs truncate">{motivation}</td>
-                    <td className="px-4 py-3 text-[11px] text-white/50 whitespace-nowrap">{fmtDate(appliedAt)}</td>
-                    <td className="px-4 py-3">
+                    <td className="text-[11px] text-white/50 max-w-xs truncate">{motivation}</td>
+                    <td className="text-[11px] text-white/50 whitespace-nowrap">{fmtDate(appliedAt)}</td>
+                    <td>
                       <span className={STATUS_PILL[a.status] || STATUS_PILL.pending}>{a.status}</span>
                       {a.rejection_reason && (
                         <div className="text-[10px] text-rose-400 mt-0.5 max-w-[140px] truncate">{a.rejection_reason}</div>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="text-right">
                       {a.status === 'pending' && (
                         <div className="inline-flex items-center gap-1.5">
                           <button
@@ -160,9 +158,7 @@ export default function P2PMerchantsTab() {
                 );
               })}
             </tbody>
-          </table>
-        </div>
-      </div>
+      </AdminDataTable>
 
       {/* Pagination */}
       {total > 0 && (
@@ -192,5 +188,5 @@ export default function P2PMerchantsTab() {
 }
 
 function Th({ children, right }) {
-  return <th className={`px-4 py-3 ${right ? 'text-right' : ''}`}>{children}</th>;
+  return <th className={right ? 'text-right' : undefined}>{children}</th>;
 }

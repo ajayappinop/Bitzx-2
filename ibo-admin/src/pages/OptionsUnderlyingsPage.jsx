@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { RefreshCw, AlertTriangle, Plus } from 'lucide-react';
 import { api } from '@/lib/api';
 import { formatAdminApiDetail } from '@/lib/adminApiDetail';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 export default function OptionsUnderlyingsPage() {
   const [rows, setRows] = useState([]);
@@ -113,48 +114,46 @@ export default function OptionsUnderlyingsPage() {
         </button>
       </div>
 
-      <div className="rounded-xl border border-white/[0.08] bg-surface-dark overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[520px]">
-            <thead className="text-left text-[11px] uppercase text-white/50 font-bold border-b border-white/10 bg-surface-dark">
+      <div>
+        <AdminDataTable minWidth="520px">
+          <thead>
+            <tr>
+              <th className="text-right w-20">ID</th>
+              <th>Symbol</th>
+              <th>Name</th>
+              <th className="text-center w-28">Listed</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading && (
               <tr>
-                <th className="px-4 py-3 text-right w-20">ID</th>
-                <th className="px-4 py-3">Symbol</th>
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3 text-center w-28">Listed</th>
+                <td colSpan={4} className="text-center text-white/45 text-sm">
+                  Loading underlyings…
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-white/[0.06]">
-              {loading && (
-                <tr>
-                  <td colSpan={4} className="px-4 py-10 text-center text-white/45 text-sm">
-                    Loading underlyings…
+            )}
+            {!loading &&
+              rows.map((r) => (
+                <tr key={String(r.id)}>
+                  <td className="font-mono text-xs text-white/60 text-right tabular-nums whitespace-nowrap">
+                    {r.id != null ? String(r.id) : '—'}
+                  </td>
+                  <td className="font-mono font-bold text-white whitespace-nowrap">{r.symbol || '—'}</td>
+                  <td className="text-white/85 max-w-[240px] break-words">{r.display_name || '—'}</td>
+                  <td className="text-center">
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4 accent-gold"
+                      checked={!!r.listed}
+                      disabled={busy}
+                      onChange={() => toggleListed(r)}
+                      aria-label={`Listed ${r.symbol}`}
+                    />
                   </td>
                 </tr>
-              )}
-              {!loading &&
-                rows.map((r) => (
-                  <tr key={String(r.id)} className="hover:bg-white/[0.03]">
-                    <td className="px-4 py-3 font-mono text-xs text-white/60 text-right tabular-nums whitespace-nowrap">
-                      {r.id != null ? String(r.id) : '—'}
-                    </td>
-                    <td className="px-4 py-3 font-mono font-bold text-white whitespace-nowrap">{r.symbol || '—'}</td>
-                    <td className="px-4 py-3 text-white/85 max-w-[240px] break-words">{r.display_name || '—'}</td>
-                    <td className="px-4 py-3 text-center">
-                      <input
-                        type="checkbox"
-                        className="w-4 h-4 accent-gold"
-                        checked={!!r.listed}
-                        disabled={busy}
-                        onChange={() => toggleListed(r)}
-                        aria-label={`Listed ${r.symbol}`}
-                      />
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        </div>
+              ))}
+          </tbody>
+        </AdminDataTable>
         {!rows.length && !loading && (
           <p className="p-8 text-center text-white/45 text-sm">No underlyings yet. Add one above or seed demo data on Overview.</p>
         )}

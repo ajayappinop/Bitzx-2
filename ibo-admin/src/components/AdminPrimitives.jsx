@@ -95,15 +95,68 @@ export function StatusBadge({ tone = 'neutral', children, compact = false }) {
   return <span className={cls}>{children}</span>;
 }
 
+/** Compact on/off switch — immune to admin button min-height / light-theme white remaps */
+export function AdminToggle({
+  checked,
+  onChange,
+  disabled = false,
+  tone = 'emerald',
+  'aria-label': ariaLabel,
+}) {
+  const toneCls =
+    tone === 'gold' ? 'adm-toggle--gold' : tone === 'rose' ? 'adm-toggle--rose' : 'adm-toggle--emerald';
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={ariaLabel}
+      disabled={disabled}
+      onClick={() => {
+        if (!disabled) onChange(!checked);
+      }}
+      className={[
+        'adm-toggle',
+        toneCls,
+        'relative inline-flex h-6 w-11 shrink-0 items-center rounded-full',
+        'transition-colors duration-200 ease-out focus-visible:outline-none',
+        'focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-dark',
+        disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
+      ].join(' ')}
+    >
+      <span
+        className={[
+          'adm-toggle-thumb pointer-events-none block h-5 w-5 rounded-full',
+          'transition-transform duration-200 ease-out will-change-transform',
+          checked ? 'translate-x-5' : 'translate-x-0',
+        ].join(' ')}
+      />
+    </button>
+  );
+}
+
 export function FilterBar({ children, className = '' }) {
   return <div className={`admin-filter-bar ${className}`}>{children}</div>;
 }
 
-export function AdminDataTable({ children, className = '' }) {
+export function AdminDataTable({ children, className = '', fullBleed = true, minWidth }) {
   return (
-    <div className={`admin-section overflow-hidden ${className}`}>
+    <div
+      className={[
+        'admin-table-shell overflow-hidden min-w-0 bg-surface-card border-surface-border',
+        fullBleed
+          ? 'admin-table-shell--bleed border-y'
+          : 'rounded-2xl border',
+        className,
+      ].filter(Boolean).join(' ')}
+    >
       <div className="adm-table-x scrollbar-thin">
-        <table className="admin-data-table">{children}</table>
+        <table
+          className="admin-data-table"
+          style={minWidth ? { minWidth } : undefined}
+        >
+          {children}
+        </table>
       </div>
     </div>
   );

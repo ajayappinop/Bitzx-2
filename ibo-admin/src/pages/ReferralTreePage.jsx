@@ -118,11 +118,11 @@ export default function ReferralTreePage() {
               </div>
               <div>
                 <p className="text-[11px] font-extrabold text-white/40 uppercase tracking-wider mb-1">Total earned</p>
-                <p className="text-lg font-extrabold text-gold-light">{Number(data.summary?.total_earned_ibo || 0).toFixed(4)} IBO</p>
+                <p className="text-lg font-extrabold text-gold-light">{Number(data.summary?.total_earned_ibo || 0).toFixed(4)} Delta</p>
               </div>
               <div>
                 <p className="text-[11px] font-extrabold text-white/40 uppercase tracking-wider mb-1">Pending (awaiting KYC)</p>
-                <p className="text-lg font-extrabold text-gold">{Number(data.summary?.total_pending_ibo || 0).toFixed(4)} IBO</p>
+                <p className="text-lg font-extrabold text-gold">{Number(data.summary?.total_pending_ibo || 0).toFixed(4)} Delta</p>
               </div>
             </div>
           </AdminPanel>

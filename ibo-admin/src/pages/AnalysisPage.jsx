@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { BarChart3, Filter } from 'lucide-react';
 import { api } from '@/lib/api';
 import CoinAvatar from '@/components/CoinAvatar';
-import { AdminPageHeader, GradientStatCard, FilterBar } from '@/components/AdminPrimitives';
+import { AdminPageHeader, GradientStatCard, FilterBar, AdminDataTable } from '@/components/AdminPrimitives';
 
 const DAY_OPTS = [7, 14, 30, 60, 90, 120];
 
@@ -174,33 +174,31 @@ export default function AnalysisPage() {
           </div>
 
           <h2 className="text-xl font-extrabold text-white mb-3">Fees collected in this period</h2>
-          <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-sm font-semibold text-white/80 border-b border-surface-border bg-white/[.02]">
-                  <th className="px-4 py-3">Asset</th>
-                  <th className="px-4 py-3 text-right">Total fees</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(data.fees_period || []).length === 0 ? (
-                  <tr><td colSpan={2} className="px-4 py-8 text-center text-white/45">No fees in period.</td></tr>
-                ) : (
-                  data.fees_period.map(f => (
-                    <tr key={f.asset} className="border-b border-surface-border/50">
-                      <td className="px-4 py-3 font-bold">
-                        <span className="inline-flex items-center gap-2">
-                          <CoinAvatar asset={f.asset} className="h-6 w-6" />
-                          {f.asset}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-right font-mono text-gold-light/90">{f.total}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+          <AdminDataTable>
+            <thead>
+              <tr>
+                <th>Asset</th>
+                <th className="text-right">Total fees</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(data.fees_period || []).length === 0 ? (
+                <tr><td colSpan={2} className="text-center text-white/45 py-8">No fees in period.</td></tr>
+              ) : (
+                data.fees_period.map(f => (
+                  <tr key={f.asset}>
+                    <td className="font-bold">
+                      <span className="inline-flex items-center gap-2">
+                        <CoinAvatar asset={f.asset} className="h-6 w-6" />
+                        {f.asset}
+                      </span>
+                    </td>
+                    <td className="text-right font-mono text-gold-light/90">{f.total}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </AdminDataTable>
 
           <div className="mt-6 flex flex-wrap gap-4 text-sm font-bold">
             <Link to="/treasury" className="text-gold-light hover:underline">Treasury &amp; flows →</Link>

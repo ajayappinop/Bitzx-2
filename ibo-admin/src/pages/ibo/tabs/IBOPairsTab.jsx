@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { ToggleLeft, ToggleRight, Save, AlertCircle } from 'lucide-react';
 import { api } from '@/lib/api';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 const COIN_ICONS = {
   BTC: 'https://assets.coingecko.com/coins/images/1/small/bitcoin.png',
@@ -49,16 +50,15 @@ export default function IBOPairsTab() {
 
   return (
     <div className="space-y-4">
-      <p className="text-xs text-white/40">Enable or disable each IBO-quoted trading pair and set minimum order sizes.</p>
-      <div className="rounded-xl border border-white/8 overflow-hidden">
-        <table className="w-full text-sm">
+      <p className="text-xs text-white/40">Enable or disable each Delta-quoted trading pair and set minimum order sizes.</p>
+      <AdminDataTable>
           <thead>
-            <tr className="border-b border-white/8 bg-white/3">
-              <th className="text-left px-4 py-2.5 text-xs font-semibold text-white/50 uppercase tracking-wider">Pair</th>
-              <th className="text-left px-4 py-2.5 text-xs font-semibold text-white/50 uppercase tracking-wider">Symbol</th>
-              <th className="text-left px-4 py-2.5 text-xs font-semibold text-white/50 uppercase tracking-wider">Min Order</th>
-              <th className="text-center px-4 py-2.5 text-xs font-semibold text-white/50 uppercase tracking-wider">Status</th>
-              <th className="px-4 py-2.5" />
+            <tr>
+              <th>Pair</th>
+              <th>Symbol</th>
+              <th>Min Order</th>
+              <th className="text-center">Status</th>
+              <th />
             </tr>
           </thead>
           <tbody>
@@ -68,15 +68,15 @@ export default function IBOPairsTab() {
               const isSaving = saving === pair.symbol;
               const msg = msgs[pair.symbol];
               return (
-                <tr key={pair.symbol} className="border-b border-white/5 last:border-0 hover:bg-white/2 transition-colors">
-                  <td className="px-4 py-3">
+                <tr key={pair.symbol}>
+                  <td>
                     <div className="flex items-center gap-2">
                       {icon && <img src={icon} alt={base} className="w-5 h-5 rounded-full" />}
-                      <span className="font-bold text-white">{base}<span className="text-white/40">/IBO</span></span>
+                      <span className="font-bold text-white">{base}<span className="text-white/40">/Delta</span></span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 font-mono text-xs text-white/50">{pair.symbol}</td>
-                  <td className="px-4 py-3">
+                  <td className="font-mono text-xs text-white/50">{pair.symbol}</td>
+                  <td>
                     <input
                       type="number" min="0" step="0.0001"
                       defaultValue={pair.min_order_size || ''}
@@ -88,7 +88,7 @@ export default function IBOPairsTab() {
                       className="w-24 bg-white/5 border border-white/10 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-gold/50"
                     />
                   </td>
-                  <td className="px-4 py-3 text-center">
+                  <td className="text-center">
                     <button
                       onClick={() => updatePair(pair.symbol, { enabled: !pair.enabled })}
                       disabled={isSaving}
@@ -99,7 +99,7 @@ export default function IBOPairsTab() {
                         : <><ToggleLeft size={18} className="text-red-400" /><span className="text-red-400">Paused</span></>}
                     </button>
                   </td>
-                  <td className="px-4 py-3 text-right text-xs">
+                  <td className="text-right text-xs">
                     {isSaving && <span className="text-white/30">Saving…</span>}
                     {msg?.ok    && <span className="text-green-400">{msg.text}</span>}
                     {msg && !msg.ok && <span className="text-red-400 flex items-center gap-1"><AlertCircle size={10}/>{msg.text}</span>}
@@ -108,8 +108,7 @@ export default function IBOPairsTab() {
               );
             })}
           </tbody>
-        </table>
-      </div>
+      </AdminDataTable>
     </div>
   );
 }

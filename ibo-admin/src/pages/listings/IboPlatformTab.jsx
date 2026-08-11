@@ -4,7 +4,7 @@ import { api } from '@/lib/api';
 import { useAdminAuth } from '@/context/AdminAuthContext';
 import { hasPermission } from '@/lib/adminAccess';
 import {
-  AdminPanel, GradientStatCard, StatusBadge, FilterBar,
+  AdminPanel, GradientStatCard, StatusBadge, FilterBar, AdminDataTable,
 } from '@/components/AdminPrimitives';
 import {
   RefreshCw, ExternalLink, Coins, Shield, Wallet, AlertTriangle,
@@ -60,7 +60,7 @@ export default function IboPlatformTab({ onError, onOk }) {
     try {
       const res = await api.listings.platformToken();
       const json = await res.json();
-      if (!res.ok) throw new Error(json.detail || 'Failed to load IBO overview');
+      if (!res.ok) throw new Error(json.detail || 'Failed to load Delta overview');
       setData(json);
     } catch (e) {
       onError(e.message || 'Load failed');
@@ -81,7 +81,7 @@ export default function IboPlatformTab({ onError, onOk }) {
       const json = await res.json();
       if (!res.ok) throw new Error(json.detail || 'Reseed failed');
       setData(json);
-      onOk('IBO token re-seeded from environment. Restart not required.');
+      onOk('Delta token re-seeded from environment. Restart not required.');
     } catch (e) {
       onError(e.message || 'Reseed failed');
     } finally {
@@ -98,23 +98,23 @@ export default function IboPlatformTab({ onError, onOk }) {
       const json = await res.json();
       if (!res.ok) throw new Error(json.detail || 'Update failed');
       await load();
-      onOk('IBO settings updated.');
+      onOk('Delta settings updated.');
     } catch (e) {
       onError(e.message || 'Update failed');
     }
   };
 
   if (loading && !data) {
-    return <p className="text-white/50 text-sm py-12 text-center">Loading IBO platform token…</p>;
+    return <p className="text-white/50 text-sm py-12 text-center">Loading Delta platform token…</p>;
   }
 
   if (!data) {
     return (
-      <AdminPanel title="IBO not configured" subtitle="Set IBO_CONTRACT_ADDRESS in backend .env and reseed.">
+      <AdminPanel title="Delta not configured" subtitle="Set IBO_CONTRACT_ADDRESS in backend .env and reseed.">
         <p className="text-white/55 text-sm">Could not load platform token overview.</p>
         {canManage ? (
           <button type="button" onClick={reseed} disabled={busy} className="mt-4 px-4 py-2 rounded-xl border border-gold/40 text-sm font-bold">
-            Apply env &amp; seed IBO
+            Apply env &amp; seed Delta
           </button>
         ) : null}
       </AdminPanel>
@@ -139,7 +139,7 @@ export default function IboPlatformTab({ onError, onOk }) {
         <div>
           <h2 className="text-lg font-extrabold text-white flex items-center gap-2">
             <Coins className="text-gold-light" size={22} />
-            Your token — {data.symbol || 'IBO'}
+            Your token — {(data.symbol === 'IBO' ? 'Delta' : data.symbol) || 'Delta'}
           </h2>
           <p className="text-sm text-white/55 mt-1">
             {data.network_display} · {data.standard} · matches BscScan token page
@@ -160,7 +160,7 @@ export default function IboPlatformTab({ onError, onOk }) {
       {!data.seeded ? (
         <div className="rounded-xl border border-gold/35 bg-gold/10 px-4 py-3 text-sm text-gold-light/90 flex gap-2">
           <AlertTriangle size={18} className="shrink-0" />
-          IBO is not seeded in the database yet. Set <code className="font-mono">IBO_CONTRACT_ADDRESS</code> and click Apply .env &amp; seed.
+          Delta is not seeded in the database yet. Set <code className="font-mono">IBO_CONTRACT_ADDRESS</code> and click Apply .env &amp; seed.
         </div>
       ) : null}
 
@@ -212,7 +212,7 @@ export default function IboPlatformTab({ onError, onOk }) {
         ) : null}
       </AdminPanel>
 
-      <AdminPanel title="Deposit & trading controls" subtitle="Users receive a unique BEP-20 address via Wallet → Deposit IBO">
+      <AdminPanel title="Deposit & trading controls" subtitle="Users receive a unique BEP-20 address via Wallet → Deposit Delta">
         <FilterBar className="!p-4 mb-4">
           <div className="flex flex-wrap gap-2 items-center">
             <TogglePill label="Deposits" on={!!tok.deposit_enabled} onClick={() => patchFlag('deposit_enabled')} disabled={!canManage} />
@@ -232,19 +232,19 @@ export default function IboPlatformTab({ onError, onOk }) {
               <span className="text-rose-300 text-sm">Set QUICKNODE_BSC_URL in backend/.env and restart API</span>
             )}
           </DetailCell>
-          <DetailCell label="Deposit scanner" value={rails.scan_group_active ? 'Active for IBO BEP-20' : 'Inactive — reseed or enable deposits'} />
+          <DetailCell label="Deposit scanner" value={rails.scan_group_active ? 'Active for Delta BEP-20' : 'Inactive — reseed or enable deposits'} />
           <DetailCell label="Scan contract" value={rails.scan_contract} mono />
           <DetailCell label="Deposit events (all time)" value={fmtNum(rails.deposit_event_count)} />
           <DetailCell label="Wallet API">
             <code className="text-xs text-cyan-300">{rails.wallet_api}</code>
           </DetailCell>
           <DetailCell label="How addresses are created">
-            <span className="text-sm text-white/75">HD-derived per user when they open Wallet → Deposit → IBO → BEP-20. Requires mnemonic + QuickNode BSC.</span>
+            <span className="text-sm text-white/75">HD-derived per user when they open Wallet → Deposit → Delta → BEP-20. Requires mnemonic + QuickNode BSC.</span>
           </DetailCell>
         </div>
       </AdminPanel>
 
-      <AdminPanel title="Environment checklist" subtitle="Required keys for live IBO deposits">
+      <AdminPanel title="Environment checklist" subtitle="Required keys for live Delta deposits">
         <ul className="space-y-2">
           {checklist.map((row) => (
             <li key={row.key} className="flex items-center justify-between gap-3 text-sm py-2 border-b border-surface-border/40 last:border-0">
@@ -258,42 +258,40 @@ export default function IboPlatformTab({ onError, onOk }) {
       </AdminPanel>
 
       {rails.recent_deposit_events?.length > 0 ? (
-        <AdminPanel title="Recent IBO deposit sightings" subtitle="From deposit poller (auto-credit if enabled)">
-          <div className="adm-table-x scrollbar-thin">
-            <table className="admin-data-table min-w-[640px]">
+        <AdminPanel title="Recent Delta deposit sightings" subtitle="From deposit poller (auto-credit if enabled)">
+          <AdminDataTable minWidth="640px" className="!border-0 !shadow-none !p-0">
               <thead>
                 <tr>
-                  <th className="px-4 py-2">Time</th>
-                  <th className="px-4 py-2">Amount</th>
-                  <th className="px-4 py-2">Address</th>
-                  <th className="px-4 py-2">Tx</th>
-                  <th className="px-4 py-2">Status</th>
+                  <th>Time</th>
+                  <th>Amount</th>
+                  <th>Address</th>
+                  <th>Tx</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
                 {rails.recent_deposit_events.map((ev) => (
                   <tr key={ev.id || ev.tx_hash}>
-                    <td className="px-4 py-2 text-xs text-white/60">{ev.last_seen_at || ev.first_seen_at || '—'}</td>
-                    <td className="px-4 py-2 font-mono text-gold-light">{ev.amount}</td>
-                    <td className="px-4 py-2 font-mono text-xs truncate max-w-[140px]" title={ev.address}>{ev.address}</td>
-                    <td className="px-4 py-2 font-mono text-xs truncate max-w-[120px]" title={ev.tx_hash}>{ev.tx_hash}</td>
-                    <td className="px-4 py-2"><StatusBadge tone={ev.status === 'credited' ? 'success' : 'neutral'}>{ev.status}</StatusBadge></td>
+                    <td className="text-xs text-white/60">{ev.last_seen_at || ev.first_seen_at || '—'}</td>
+                    <td className="font-mono text-gold-light">{ev.amount}</td>
+                    <td className="font-mono text-xs truncate max-w-[140px]" title={ev.address}>{ev.address}</td>
+                    <td className="font-mono text-xs truncate max-w-[120px]" title={ev.tx_hash}>{ev.tx_hash}</td>
+                    <td><StatusBadge tone={ev.status === 'credited' ? 'success' : 'neutral'}>{ev.status}</StatusBadge></td>
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
+          </AdminDataTable>
           <Link to="/deposit-events" className="inline-block mt-3 text-sm text-gold-light font-semibold hover:underline">
             View all deposit events →
           </Link>
         </AdminPanel>
       ) : (
-        <AdminPanel title="Deposit addresses" subtitle="No IBO deposit events yet">
+        <AdminPanel title="Deposit addresses" subtitle="No Delta deposit events yet">
           <p className="text-sm text-white/55 flex items-start gap-2">
             <Wallet size={16} className="shrink-0 mt-0.5 text-gold-light" />
             {rails.user_deposit_address_count > 0
-              ? `${rails.user_deposit_address_count} user deposit address(es) exist. Events appear when users send IBO to those addresses.`
-              : 'No user has generated a IBO deposit address yet. Log in on the exchange, open Wallet → Deposit → IBO → BEP-20 (BNB Chain).'}
+              ? `${rails.user_deposit_address_count} user deposit address(es) exist. Events appear when users send Delta to those addresses.`
+              : 'No user has generated a Delta deposit address yet. Log in on the exchange, open Wallet → Deposit → Delta → BEP-20 (BNB Chain).'}
           </p>
         </AdminPanel>
       )}

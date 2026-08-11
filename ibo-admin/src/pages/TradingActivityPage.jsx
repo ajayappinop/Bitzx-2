@@ -6,6 +6,7 @@ import UserUidSuggestInput from '@/components/UserUidSuggestInput';
 import CoinAvatar from '@/components/CoinAvatar';
 import { useListSort } from '@/lib/useListSort';
 import SortableTh from '@/components/SortableTh';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 function toInputDate(d) {
   return d.toISOString().slice(0, 10);
@@ -197,21 +198,19 @@ export default function TradingActivityPage({ embedded = false }) {
         <span>Total amount (notional USDT): <strong className="text-cyan-300 font-mono">{notionalTotal.toFixed(4)}</strong></span>
       </div>
 
-      <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden min-w-0">
-        <div>
-          <table className="w-full table-fixed text-xs">
+      <AdminDataTable>
             <thead>
-              <tr className="text-left text-[11px] font-extrabold text-white/50 uppercase tracking-wider border-b border-surface-border bg-white/[.02]">
-                <SortableTh className="px-4 py-3" sortKey="created_at" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Time</SortableTh>
-                <SortableTh className="px-4 py-3" sortKey="symbol" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Symbol</SortableTh>
-                <SortableTh className="px-4 py-3" sortKey="price" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Price</SortableTh>
-                <SortableTh className="px-4 py-3" sortKey="amount" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Amount</SortableTh>
-                <th className="px-4 py-3">Taker</th>
-                <th className="px-4 py-3">Maker</th>
-                <th className="px-4 py-3">Liquidity</th>
-                <th className="px-4 py-3">Counterparty trace</th>
-                <th className="px-4 py-3">Fees</th>
-                <th className="px-4 py-3 text-right">Details</th>
+              <tr>
+                <SortableTh sortKey="created_at" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Time</SortableTh>
+                <SortableTh sortKey="symbol" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Symbol</SortableTh>
+                <SortableTh sortKey="price" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Price</SortableTh>
+                <SortableTh sortKey="amount" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Amount</SortableTh>
+                <th>Taker</th>
+                <th>Maker</th>
+                <th>Liquidity</th>
+                <th>Counterparty trace</th>
+                <th>Fees</th>
+                <th className="text-right">Details</th>
               </tr>
             </thead>
             <tbody>
@@ -294,9 +293,7 @@ export default function TradingActivityPage({ embedded = false }) {
                 ))
               )}
             </tbody>
-          </table>
-        </div>
-      </div>
+      </AdminDataTable>
 
       <div className="flex items-center justify-between mt-4 flex-wrap gap-3">
           <p className="text-white/50 text-sm">{total} trades · page {page} / {pages}</p>

@@ -69,7 +69,7 @@ export function formatInrActivityDetail(dep) {
   if (!dep) return '—';
   const parts = [inrStatusLabel(dep.status)];
   if (dep.status === 'approved' && dep.amount_ibo != null) {
-    parts.push(`${Number(dep.amount_ibo).toFixed(4)} IBO`);
+    parts.push(`${Number(dep.amount_ibo).toFixed(4)} Delta`);
   }
   return parts.join(' · ');
 }
@@ -79,7 +79,7 @@ export function formatInrWithdrawalActivityDetail(wd) {
   const parts = [inrStatusLabel(wd.status, { rejectionReason: wd.rejection_reason })];
   if (wd.payout_reference) parts.push(`UTR ${wd.payout_reference}`);
   if (wd.status === 'approved' && wd.amount_ibo != null) {
-    parts.push(`${Number(wd.amount_ibo).toFixed(4)} IBO sold`);
+    parts.push(`${Number(wd.amount_ibo).toFixed(4)} Delta sold`);
   }
   if (wd.status === 'rejected' && wd.rejection_reason) {
     parts.push(wd.rejection_reason);
@@ -95,7 +95,7 @@ export function formatInrDepositRefTitle(row) {
   if (meta.amount_inr != null) lines.push(`Amount: ${formatInrAmount(meta.amount_inr)}`);
   const utr = meta.utr_number || row.utr_number;
   if (utr) lines.push(`UTR: ${utr}`);
-  if (meta.amount_ibo != null) lines.push(`IBO credited: ${Number(meta.amount_ibo).toFixed(4)}`);
+  if (meta.amount_ibo != null) lines.push(`Delta credited: ${Number(meta.amount_ibo).toFixed(4)}`);
   if (meta.payment_method_label) lines.push(`Method: ${meta.payment_method_label}`);
   if (row.inr_request_status || row.status) {
     lines.push(`Status: ${inrStatusLabel(row.inr_request_status || row.status)}`);

@@ -5,6 +5,7 @@ import { useListSort } from '@/lib/useListSort';
 import SortableTh from '@/components/SortableTh';
 import UserUidSuggestInput from '@/components/UserUidSuggestInput';
 import CoinAvatar from '@/components/CoinAvatar';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 function StatChip({ label, children, className = '', tone = 'neutral' }) {
   const toneMap = {
@@ -293,12 +294,11 @@ export default function LivePositionsPage({ embedded = false }) {
       </div>
 
       {/* Desktop: wide table — scroll container must clip radius; avoid w-full on table so columns don’t collapse */}
-      <div className="hidden xl:block rounded-2xl border border-surface-border bg-surface-card min-w-0">
-        <p className="px-4 py-2 text-[11px] text-white/40 border-b border-surface-border bg-white/[.02]">
+      <div className="hidden xl:block min-w-0">
+        <p className="px-4 py-2 text-[11px] text-white/40">
           Wide table — scroll horizontally if columns don’t fit.
         </p>
-        <div className="adm-table-x scrollbar-thin touch-pan-x [scrollbar-gutter:stable]">
-          <table className="text-sm w-max min-w-[1560px] border-separate border-spacing-0">
+        <AdminDataTable minWidth="1560px">
             <colgroup>
               <col className="w-[200px]" />
               <col className="w-[140px]" />
@@ -315,46 +315,46 @@ export default function LivePositionsPage({ embedded = false }) {
               <col className="w-[90px]" />
             </colgroup>
             <thead>
-              <tr className="text-left text-[11px] font-extrabold text-white/50 uppercase tracking-wider border-b border-surface-border bg-white/[.02]">
-                <SortableTh className="px-4 py-3 align-bottom" sortKey="uid" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>User</SortableTh>
-                <SortableTh className="px-4 py-3 align-bottom" sortKey="symbol" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Symbol</SortableTh>
-                <th className="px-4 py-3 align-bottom">Position</th>
-                <th className="px-4 py-3 align-bottom">Last fill</th>
-                <th className="px-4 py-3 text-right align-bottom whitespace-nowrap">Buy / sell (life)</th>
-                <SortableTh className="px-4 py-3 align-bottom text-right whitespace-nowrap" sortKey="amount" activeKey={sortBy} dir={sortDir} onSort={toggleSort} align="right">Amount</SortableTh>
-                <th className="px-4 py-3 text-right align-bottom whitespace-nowrap">Available</th>
-                <th className="px-4 py-3 text-right align-bottom whitespace-nowrap">Locked</th>
-                <th className="px-4 py-3 text-right align-bottom whitespace-nowrap">Avg cost</th>
-                <th className="px-4 py-3 text-right align-bottom whitespace-nowrap">Mark</th>
-                <SortableTh className="px-4 py-3 align-bottom text-right whitespace-nowrap" sortKey="market_value" activeKey={sortBy} dir={sortDir} onSort={toggleSort} align="right">Market value</SortableTh>
-                <SortableTh className="px-4 py-3 align-bottom text-right whitespace-nowrap" sortKey="unrealized_pnl" activeKey={sortBy} dir={sortDir} onSort={toggleSort} align="right">U.P&amp;L</SortableTh>
-                <th className="px-4 py-3 text-right align-bottom whitespace-nowrap">U.P&amp;L %</th>
+              <tr>
+                <SortableTh className="align-bottom" sortKey="uid" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>User</SortableTh>
+                <SortableTh className="align-bottom" sortKey="symbol" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Symbol</SortableTh>
+                <th className="align-bottom">Position</th>
+                <th className="align-bottom">Last fill</th>
+                <th className="text-right align-bottom whitespace-nowrap">Buy / sell (life)</th>
+                <SortableTh className="align-bottom text-right whitespace-nowrap" sortKey="amount" activeKey={sortBy} dir={sortDir} onSort={toggleSort} align="right">Amount</SortableTh>
+                <th className="text-right align-bottom whitespace-nowrap">Available</th>
+                <th className="text-right align-bottom whitespace-nowrap">Locked</th>
+                <th className="text-right align-bottom whitespace-nowrap">Avg cost</th>
+                <th className="text-right align-bottom whitespace-nowrap">Mark</th>
+                <SortableTh className="align-bottom text-right whitespace-nowrap" sortKey="market_value" activeKey={sortBy} dir={sortDir} onSort={toggleSort} align="right">Market value</SortableTh>
+                <SortableTh className="align-bottom text-right whitespace-nowrap" sortKey="unrealized_pnl" activeKey={sortBy} dir={sortDir} onSort={toggleSort} align="right">U.P&amp;L</SortableTh>
+                <th className="text-right align-bottom whitespace-nowrap">U.P&amp;L %</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={13} className="px-4 py-16 text-center text-white/50">Loading…</td></tr>
+                <tr><td colSpan={13} className="text-center text-white/50">Loading…</td></tr>
               ) : items.length === 0 ? (
-                <tr><td colSpan={13} className="px-4 py-16 text-center text-white/50">No live positions found.</td></tr>
+                <tr><td colSpan={13} className="text-center text-white/50">No live positions found.</td></tr>
               ) : (
                 items.map((p, idx) => (
-                  <tr key={`${p.uid}_${p.symbol}_${idx}`} className="border-b border-surface-border/60 hover:bg-white/[.03]">
-                    <td className="px-4 py-3 align-top max-w-[220px]">
+                  <tr key={`${p.uid}_${p.symbol}_${idx}`}>
+                    <td className="align-top max-w-[220px]">
                       <p className="text-white font-semibold break-words">{p.user_name || p.user_email || p.uid}</p>
                       <p className="text-white/50 text-xs font-mono break-all mt-0.5">{p.uid}</p>
                     </td>
-                    <td className="px-4 py-3 align-top whitespace-nowrap">
+                    <td className="align-top whitespace-nowrap">
                       <div className="flex items-center gap-2 min-w-0">
                         <CoinAvatar symbol={p.symbol} className="w-8 h-8 shrink-0" title={p.symbol} />
                         <span className="font-mono font-bold text-gold-light">{p.symbol}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 align-top whitespace-nowrap">
+                    <td className="align-top whitespace-nowrap">
                       <span className="inline-flex items-center rounded-lg bg-emerald-500/15 text-emerald-300 text-[11px] font-extrabold px-2 py-1 uppercase tracking-wide">
                         Spot · Long
                       </span>
                     </td>
-                    <td className="px-4 py-3 align-top text-xs">
+                    <td className="align-top text-xs">
                       {p.last_fill_side ? (
                         <div className="space-y-1 min-w-0">
                           <span
@@ -377,7 +377,7 @@ export default function LivePositionsPage({ embedded = false }) {
                         <span className="text-white/40 text-xs">No fills (e.g. deposit only)</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 align-top text-right font-mono text-xs">
+                    <td className="align-top text-right font-mono text-xs">
                       <div className="inline-flex flex-col items-end gap-0.5 whitespace-nowrap">
                         <span>
                           <span className="text-green-400/90">+{Number(p.lifetime_buy_qty ?? 0).toFixed(8)}</span>
@@ -387,20 +387,19 @@ export default function LivePositionsPage({ embedded = false }) {
                         <span className="text-white/40 text-[10px] normal-case">base vol.</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-right font-mono align-top whitespace-nowrap tabular-nums">{Number(p.amount || 0).toFixed(8)}</td>
-                    <td className="px-4 py-3 text-right font-mono text-green-400 align-top whitespace-nowrap tabular-nums">{Number(p.available || 0).toFixed(8)}</td>
-                    <td className="px-4 py-3 text-right font-mono text-gold-light/85 align-top whitespace-nowrap tabular-nums">{Number(p.locked || 0).toFixed(8)}</td>
-                    <td className="px-4 py-3 text-right font-mono align-top whitespace-nowrap tabular-nums">{Number(p.avg_cost || 0).toFixed(8)}</td>
-                    <td className="px-4 py-3 text-right font-mono align-top whitespace-nowrap tabular-nums">{Number(p.current_price || 0).toFixed(8)}</td>
-                    <td className="px-4 py-3 text-right font-mono align-top whitespace-nowrap tabular-nums">{Number(p.market_value_usdt || 0).toFixed(4)}</td>
-                    <td className={`px-4 py-3 text-right font-mono align-top whitespace-nowrap tabular-nums ${Number(p.unrealized_pnl || 0) >= 0 ? 'text-green-400' : 'text-red-300'}`}>{Number(p.unrealized_pnl || 0).toFixed(4)}</td>
-                    <td className={`px-4 py-3 text-right font-mono align-top whitespace-nowrap tabular-nums ${Number(p.unrealized_pnl_pct || 0) >= 0 ? 'text-green-400' : 'text-red-300'}`}>{Number(p.unrealized_pnl_pct || 0).toFixed(2)}%</td>
+                    <td className="text-right font-mono align-top whitespace-nowrap tabular-nums">{Number(p.amount || 0).toFixed(8)}</td>
+                    <td className="text-right font-mono text-green-400 align-top whitespace-nowrap tabular-nums">{Number(p.available || 0).toFixed(8)}</td>
+                    <td className="text-right font-mono text-gold-light/85 align-top whitespace-nowrap tabular-nums">{Number(p.locked || 0).toFixed(8)}</td>
+                    <td className="text-right font-mono align-top whitespace-nowrap tabular-nums">{Number(p.avg_cost || 0).toFixed(8)}</td>
+                    <td className="text-right font-mono align-top whitespace-nowrap tabular-nums">{Number(p.current_price || 0).toFixed(8)}</td>
+                    <td className="text-right font-mono align-top whitespace-nowrap tabular-nums">{Number(p.market_value_usdt || 0).toFixed(4)}</td>
+                    <td className={`text-right font-mono align-top whitespace-nowrap tabular-nums ${Number(p.unrealized_pnl || 0) >= 0 ? 'text-green-400' : 'text-red-300'}`}>{Number(p.unrealized_pnl || 0).toFixed(4)}</td>
+                    <td className={`text-right font-mono align-top whitespace-nowrap tabular-nums ${Number(p.unrealized_pnl_pct || 0) >= 0 ? 'text-green-400' : 'text-red-300'}`}>{Number(p.unrealized_pnl_pct || 0).toFixed(2)}%</td>
                   </tr>
                 ))
               )}
             </tbody>
-          </table>
-        </div>
+        </AdminDataTable>
       </div>
 
       <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between mt-4 gap-3 min-w-0">

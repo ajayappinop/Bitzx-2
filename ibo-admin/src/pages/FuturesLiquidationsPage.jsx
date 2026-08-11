@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { RefreshCw, AlertTriangle } from 'lucide-react';
 import { api } from '@/lib/api';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 const fmt = (v, dp = 4) => Number.isFinite(Number(v)) ? Number(v).toLocaleString(undefined, { maximumFractionDigits: dp }) : '—';
 
@@ -51,45 +52,43 @@ export default function FuturesLiquidationsPage() {
         </div>
       )}
 
-      <div className="rounded-2xl border border-surface-border bg-surface-card overflow-x-auto">
-        <table className="w-full text-sm min-w-[1000px]">
-          <thead className="text-[11px] uppercase tracking-wider text-white/45">
-            <tr className="border-b border-white/5">
-              <th className="text-left px-3 py-2">Time</th>
-              <th className="text-left px-3 py-2">User</th>
-              <th className="text-left px-3 py-2">Symbol</th>
-              <th className="text-left px-3 py-2">Side</th>
-              <th className="text-right px-3 py-2">Qty</th>
-              <th className="text-right px-3 py-2">Entry</th>
-              <th className="text-right px-3 py-2">Mark</th>
-              <th className="text-right px-3 py-2">Realized PnL</th>
-              <th className="text-right px-3 py-2">Fee</th>
-              <th className="text-right px-3 py-2">Margin lost</th>
+      <AdminDataTable minWidth="1000px">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>User</th>
+            <th>Symbol</th>
+            <th>Side</th>
+            <th className="text-right">Qty</th>
+            <th className="text-right">Entry</th>
+            <th className="text-right">Mark</th>
+            <th className="text-right">Realized PnL</th>
+            <th className="text-right">Fee</th>
+            <th className="text-right">Margin lost</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.length === 0 && !loading && (
+            <tr><td colSpan={10} className="text-center text-white/40">No liquidations on record.</td></tr>
+          )}
+          {rows.map((l) => (
+            <tr key={l.id}>
+              <td className="text-[12px] text-white/55 font-mono">{(l.created_at || '').slice(0, 19).replace('T', ' ')}</td>
+              <td className="text-[12px] font-mono text-white/80">{l.uid}</td>
+              <td className="font-bold">{l.symbol}</td>
+              <td className={`font-extrabold ${l.side === 'long' ? 'text-emerald-300' : 'text-rose-300'}`}>{l.side?.toUpperCase()}</td>
+              <td className="text-right font-mono">{fmt(l.qty)}</td>
+              <td className="text-right font-mono">${fmt(l.entry_price, 2)}</td>
+              <td className="text-right font-mono">${fmt(l.mark_price, 2)}</td>
+              <td className={`text-right font-mono ${Number(l.realized_pnl) < 0 ? 'text-rose-300' : 'text-emerald-300'}`}>
+                {Number(l.realized_pnl) >= 0 ? '+' : ''}{fmt(l.realized_pnl, 2)}
+              </td>
+              <td className="text-right font-mono text-gold-light">${fmt(l.fee, 2)}</td>
+              <td className="text-right font-mono">${fmt(l.isolated_margin, 2)}</td>
             </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 && !loading && (
-              <tr><td colSpan={10} className="px-4 py-10 text-center text-white/40">No liquidations on record.</td></tr>
-            )}
-            {rows.map((l) => (
-              <tr key={l.id} className="border-b border-white/5 hover:bg-white/[.02]">
-                <td className="px-3 py-2 text-[12px] text-white/55 font-mono">{(l.created_at || '').slice(0, 19).replace('T', ' ')}</td>
-                <td className="px-3 py-2 text-[12px] font-mono text-white/80">{l.uid}</td>
-                <td className="px-3 py-2 font-bold">{l.symbol}</td>
-                <td className={`px-3 py-2 font-extrabold ${l.side === 'long' ? 'text-emerald-300' : 'text-rose-300'}`}>{l.side?.toUpperCase()}</td>
-                <td className="px-3 py-2 text-right font-mono">{fmt(l.qty)}</td>
-                <td className="px-3 py-2 text-right font-mono">${fmt(l.entry_price, 2)}</td>
-                <td className="px-3 py-2 text-right font-mono">${fmt(l.mark_price, 2)}</td>
-                <td className={`px-3 py-2 text-right font-mono ${Number(l.realized_pnl) < 0 ? 'text-rose-300' : 'text-emerald-300'}`}>
-                  {Number(l.realized_pnl) >= 0 ? '+' : ''}{fmt(l.realized_pnl, 2)}
-                </td>
-                <td className="px-3 py-2 text-right font-mono text-gold-light">${fmt(l.fee, 2)}</td>
-                <td className="px-3 py-2 text-right font-mono">${fmt(l.isolated_margin, 2)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </AdminDataTable>
 
       <div className="flex items-center justify-between text-sm text-white/55">
         <span>{total} total · showing {skip + 1}–{Math.min(skip + rows.length, total)}</span>

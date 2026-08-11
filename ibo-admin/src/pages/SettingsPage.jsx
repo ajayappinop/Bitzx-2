@@ -662,7 +662,7 @@ function ReferralSection({ controls, patchControls, busy }) {
   return (
     <AdminPanel
       title="Refer & Earn"
-      subtitle="Multi-level referral rewards paid in IBO. A user is credited for every ancestor level once the referred user's KYC is approved. Level 1 = direct referral, level 2 = referral-of-referral, and so on."
+      subtitle="Multi-level referral rewards paid in Delta. A user is credited for every ancestor level once the referred user's KYC is approved. Level 1 = direct referral, level 2 = referral-of-referral, and so on."
     >
       <div className="flex items-center justify-between gap-4 mb-6 pb-5 border-b border-surface-border/70">
         <div>
@@ -682,13 +682,13 @@ function ReferralSection({ controls, patchControls, busy }) {
       <div className="mb-8">
         <h3 className="text-sm font-extrabold text-white/90 uppercase tracking-wide mb-3">Reward levels</h3>
         <p className="text-xs text-white/55 mb-3 leading-relaxed">
-          Configure distinct IBO amounts for levels 1, 2, 3, and so on. Optionally enable flat overflow below so every deeper level (4, 5, 6…) earns the same amount.
+          Configure distinct Delta amounts for levels 1, 2, 3, and so on. Optionally enable flat overflow below so every deeper level (4, 5, 6…) earns the same amount.
           If you only configure 3 levels without flat overflow, level 4+ ancestors are not tracked and earn nothing.
         </p>
         <div className="rounded-xl border border-surface-border/90 overflow-hidden bg-surface-dark/30">
           <div className="hidden sm:grid sm:grid-cols-[6rem_1fr_2.75rem] gap-2 px-3 py-2 bg-white/[0.06] text-xs font-bold text-white/60 uppercase tracking-wide border-b border-surface-border/80">
             <span>Level</span>
-            <span>Amount (IBO)</span>
+            <span>Amount (Delta)</span>
             <span className="sr-only">Remove</span>
           </div>
           <div className="p-3 space-y-2">
@@ -738,7 +738,7 @@ function ReferralSection({ controls, patchControls, busy }) {
             <div>
               <p className="text-sm font-semibold text-white">Flat overflow rate</p>
               <p className="text-xs text-white/55 mt-0.5">
-                From a chosen level onward, every deeper ancestor earns the same IBO. All distinct levels before it must be configured above.
+                From a chosen level onward, every deeper ancestor earns the same Delta. All distinct levels before it must be configured above.
               </p>
             </div>
             <button
@@ -766,7 +766,7 @@ function ReferralSection({ controls, patchControls, busy }) {
                 />
               </label>
               <label className="block">
-                <span className="block text-xs font-semibold text-white/80 mb-1">Amount for level N and deeper (IBO)</span>
+                <span className="block text-xs font-semibold text-white/80 mb-1">Amount for level N and deeper (Delta)</span>
                 <input
                   type="number"
                   min="0"
@@ -1704,7 +1704,7 @@ export default function SettingsPage() {
 
         <AdminPanel
           title="Signup bonus"
-          subtitle="IBO sent on-chain from the treasury cold wallet (TREASURY_COLD_PRIVATE_KEY) to each new user's BEP-20 deposit address. Tracked like a deposit — pending in history until confirmations and KYC (when enabled)."
+          subtitle="Delta sent on-chain from the treasury cold wallet (TREASURY_COLD_PRIVATE_KEY) to each new user's BEP-20 deposit address. Tracked like a deposit — pending in history until confirmations and KYC (when enabled)."
         >
           {!controls ? (
             <p className="text-white/55 text-sm">Loading…</p>
@@ -1718,7 +1718,7 @@ export default function SettingsPage() {
                 balance credits after RPC confirmations and KYC approval.
               </p>
               <label className="block">
-                <span className="block text-sm font-semibold text-white">Bonus amount (IBO)</span>
+                <span className="block text-sm font-semibold text-white">Bonus amount (Delta)</span>
                 <span className="block text-xs text-white/55 mt-0.5 mb-2">
                   On-chain transfer to the user&apos;s BNB Chain deposit address (same pipeline as deposits).
                 </span>
@@ -1750,11 +1750,11 @@ export default function SettingsPage() {
               </div>
               {Number(controls.signup_bonus_ibo) > 0 ? (
                 <p className="text-xs text-gold-light/90 bg-gold/10 border border-gold/25 rounded-xl px-4 py-3">
-                  Active: new users receive <strong>{Number(controls.signup_bonus_ibo).toLocaleString()} IBO</strong> on-chain from the cold treasury wallet (pending until KYC if enabled). Monitor balances on <strong>Admin wallet</strong>.
+                  Active: new users receive <strong>{Number(controls.signup_bonus_ibo).toLocaleString()} Delta</strong> on-chain from the cold treasury wallet (pending until KYC if enabled). Monitor balances on <strong>Admin wallet</strong>.
                 </p>
               ) : (
                 <p className="text-xs text-white/45 bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3">
-                  Signup bonus is off — new users receive no on-chain IBO bonus.
+                  Signup bonus is off — new users receive no on-chain Delta bonus.
                 </p>
               )}
             </div>
@@ -1938,20 +1938,20 @@ export default function SettingsPage() {
       {activeTab === 'limits' ? (
       <AdminPanel
         title="Fees, withdrawals, and deposits"
-        subtitle="Rates are percentages of trade or withdrawal notional. Settlement is always in IBO from the user’s spot wallet (except legacy in-flight withdrawals)."
+        subtitle="Rates are percentages of trade or withdrawal notional. Settlement is always in Delta from the user’s spot wallet (except legacy in-flight withdrawals)."
       >
         <div className="space-y-8">
           <p className="text-xs text-[#FE9D55]/90 bg-[#FE6C02]/10 border border-[#FE6C02]/25 rounded-xl px-4 py-3 leading-relaxed">
-            <strong className="text-white/95">IBO fee settlement:</strong> Spot maker/taker, futures, and options trading fees are charged in IBO.
-            Withdrawal platform fee and gas fee below are also deducted in IBO. Users need sufficient IBO before trading or withdrawing.
+            <strong className="text-white/95">Delta fee settlement:</strong> Spot maker/taker, futures, and options trading fees are charged in Delta.
+            Withdrawal platform fee and gas fee below are also deducted in Delta. Users need sufficient Delta before trading or withdrawing.
             Futures/options global rates are edited on their overview pages; spot uses the fields here.
           </p>
           <div>
-            <h3 className="text-sm font-extrabold text-white/90 uppercase tracking-wide mb-3">Spot trading fees (settled in IBO)</h3>
+            <h3 className="text-sm font-extrabold text-white/90 uppercase tracking-wide mb-3">Spot trading fees (settled in Delta)</h3>
             <div className="grid sm:grid-cols-2 gap-4">
               {[
-                ['maker_fee_rate', 'Maker fee rate', 'Decimal (0.001 = 0.1%). % of fill notional — debited in IBO on maker fills.'],
-                ['taker_fee_rate', 'Taker fee rate', 'Decimal (0.001 = 0.1%). % of fill notional — debited in IBO on taker fills.'],
+                ['maker_fee_rate', 'Maker fee rate', 'Decimal (0.001 = 0.1%). % of fill notional — debited in Delta on maker fills.'],
+                ['taker_fee_rate', 'Taker fee rate', 'Decimal (0.001 = 0.1%). % of fill notional — debited in Delta on taker fills.'],
               ].map(([key, title, hint]) => (
                 <label key={key} className="block">
                   <span className="block text-sm font-semibold text-white">{title}</span>
@@ -1970,15 +1970,15 @@ export default function SettingsPage() {
           </div>
 
           <div>
-            <h3 className="text-sm font-extrabold text-white/90 uppercase tracking-wide mb-3">IBO ↔ USDT swap fees (IBO)</h3>
+            <h3 className="text-sm font-extrabold text-white/90 uppercase tracking-wide mb-3">Delta ↔ USDT swap fees (Delta)</h3>
             <p className="text-xs text-white/55 mb-3 leading-relaxed">
-              Charged when users swap in Wallet. Percent applies to swap USDT notional; flat IBO is added per swap.
-              Users also need IBO for the underlying market-order trading fee (taker rate above).
+              Charged when users swap in Wallet. Percent applies to swap USDT notional; flat Delta is added per swap.
+              Users also need Delta for the underlying market-order trading fee (taker rate above).
             </p>
             <div className="grid sm:grid-cols-2 gap-4 mb-8">
               {[
-                ['swap_fee_rate', 'Swap fee rate', 'Decimal (0.001 = 0.1% of swap USDT notional). Debited in IBO on execute. 0 = rate off.'],
-                ['swap_fee_ibo_fixed', 'Swap flat fee (IBO)', 'Fixed IBO per swap (added to rate-based fee). 0 = disabled.'],
+                ['swap_fee_rate', 'Swap fee rate', 'Decimal (0.001 = 0.1% of swap USDT notional). Debited in Delta on execute. 0 = rate off.'],
+                ['swap_fee_ibo_fixed', 'Swap flat fee (Delta)', 'Fixed Delta per swap (added to rate-based fee). 0 = disabled.'],
               ].map(([key, title, hint]) => (
                 <label key={key} className="block">
                   <span className="block text-sm font-semibold text-white">{title}</span>
@@ -1997,19 +1997,19 @@ export default function SettingsPage() {
           </div>
 
           <div>
-            <h3 className="text-sm font-extrabold text-white/90 uppercase tracking-wide mb-3">Withdrawal rules (IBO fees)</h3>
+            <h3 className="text-sm font-extrabold text-white/90 uppercase tracking-wide mb-3">Withdrawal rules (Delta fees)</h3>
             <p className="text-xs text-white/55 mb-3 max-w-3xl">
-              These admin values are the only IBO fees charged on crypto withdrawals. 0 = no fee (no hidden defaults).
+              These admin values are the only Delta fees charged on crypto withdrawals. 0 = no fee (no hidden defaults).
             </p>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {[
-                ['withdraw_fee_rate', 'Withdrawal platform fee rate', 'Fraction of withdrawal USDT notional (e.g. 0.001 = 0.1%). Converted to IBO and debited from spot IBO. 0 = off.'],
-                ['withdraw_gas_fee_ibo', 'Default gas fee (IBO)', 'Used when a chain has no override. User always pays IBO; platform pays BNB/ETH/TRX on-chain. 0 = no gas fee.'],
-                ['gas_bsc', 'BSC gas fee (IBO)', 'Override for BEP-20 / BNB Chain. Blank = use default gas fee.'],
-                ['gas_eth', 'Ethereum gas fee (IBO)', 'Override for ERC-20. Blank = use default gas fee.'],
-                ['gas_tron', 'Tron gas fee (IBO)', 'Override for TRC-20. Blank = use default gas fee.'],
-                ['gas_btc', 'Bitcoin gas fee (IBO)', 'Override for BTC network. Blank = use default gas fee.'],
-                ['gas_solana', 'Solana gas fee (IBO)', 'Override for Solana. Blank = use default gas fee.'],
+                ['withdraw_fee_rate', 'Withdrawal platform fee rate', 'Fraction of withdrawal USDT notional (e.g. 0.001 = 0.1%). Converted to Delta and debited from spot Delta. 0 = off.'],
+                ['withdraw_gas_fee_ibo', 'Default gas fee (Delta)', 'Used when a chain has no override. User always pays Delta; platform pays BNB/ETH/TRX on-chain. 0 = no gas fee.'],
+                ['gas_bsc', 'BSC gas fee (Delta)', 'Override for BEP-20 / BNB Chain. Blank = use default gas fee.'],
+                ['gas_eth', 'Ethereum gas fee (Delta)', 'Override for ERC-20. Blank = use default gas fee.'],
+                ['gas_tron', 'Tron gas fee (Delta)', 'Override for TRC-20. Blank = use default gas fee.'],
+                ['gas_btc', 'Bitcoin gas fee (Delta)', 'Override for BTC network. Blank = use default gas fee.'],
+                ['gas_solana', 'Solana gas fee (Delta)', 'Override for Solana. Blank = use default gas fee.'],
                 ['withdraw_min_usdt', 'Minimum withdrawal (USDT)', '0 = no minimum.'],
                 ['withdraw_max_usdt', 'Maximum withdrawal (USDT)', '0 = no maximum.'],
                 ['withdraw_daily_limit_usdt', 'Daily limit per user (USDT)', '0 = no daily cap.'],

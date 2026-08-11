@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { api } from '@/lib/api';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 const STATUS_COLORS = {
   pending:  'text-gold-light bg-gold-light/10',
@@ -55,45 +56,43 @@ export default function IBODepositsTab() {
 
       {err && <div className="text-red-400 text-sm py-4 text-center">{err}</div>}
 
-      <div className="rounded-xl border border-white/8 overflow-hidden">
-        <table className="w-full text-sm">
+      <AdminDataTable>
           <thead>
-            <tr className="border-b border-white/8 bg-white/3">
+            <tr>
               {['Type','UID','Amount','Network','Tx Hash','Status','Date'].map((h) => (
-                <th key={h} className="text-left px-3 py-2.5 text-xs font-semibold text-white/50 uppercase tracking-wider">{h}</th>
+                <th key={h}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={7} className="text-white/30 text-sm text-center py-8">Loading…</td></tr>
+              <tr><td colSpan={7} className="text-white/30 text-sm text-center !py-8">Loading…</td></tr>
             ) : items.length === 0 ? (
-              <tr><td colSpan={7} className="text-white/30 text-sm text-center py-8">No {type !== 'all' ? type : 'deposit or withdrawal'} records found</td></tr>
+              <tr><td colSpan={7} className="text-white/30 text-sm text-center !py-8">No {type !== 'all' ? type : 'deposit or withdrawal'} records found</td></tr>
             ) : items.map((row, i) => {
               const sc = STATUS_COLORS[row.status] || 'text-white/50 bg-white/5';
               return (
-                <tr key={row.id || i} className="border-b border-white/5 last:border-0 hover:bg-white/2">
-                  <td className="px-3 py-2.5">
+                <tr key={row.id || i}>
+                  <td>
                     <span className={`px-2 py-0.5 rounded text-xs font-semibold ${row._type === 'deposit' ? 'text-green-400 bg-green-400/10' : 'text-orange-400 bg-orange-400/10'}`}>
                       {row._type}
                     </span>
                   </td>
-                  <td className="px-3 py-2.5 font-mono text-xs text-white/50">{row.uid?.slice(0, 8)}…</td>
-                  <td className="px-3 py-2.5 font-semibold text-white">
-                    {Number(row.amount || 0).toFixed(4)} {(row.asset || '—').toUpperCase()}
+                  <td className="font-mono text-xs text-white/50">{row.uid?.slice(0, 8)}…</td>
+                  <td className="font-semibold text-white">
+                    {Number(row.amount || 0).toFixed(4)} {((row.asset || '—').toUpperCase() === 'IBO' ? 'Delta' : (row.asset || '—').toUpperCase())}
                   </td>
-                  <td className="px-3 py-2.5 text-xs text-white/50">{row.network || '—'}</td>
-                  <td className="px-3 py-2.5 font-mono text-xs text-white/40 max-w-[120px] truncate">{row.tx_hash || '—'}</td>
-                  <td className="px-3 py-2.5">
+                  <td className="text-xs text-white/50">{row.network || '—'}</td>
+                  <td className="font-mono text-xs text-white/40 max-w-[120px] truncate">{row.tx_hash || '—'}</td>
+                  <td>
                     <span className={`px-2 py-0.5 rounded text-xs font-semibold ${sc}`}>{row.status}</span>
                   </td>
-                  <td className="px-3 py-2.5 text-xs text-white/40">{fmtDate(row.created_at)}</td>
+                  <td className="text-xs text-white/40">{fmtDate(row.created_at)}</td>
                 </tr>
               );
             })}
           </tbody>
-        </table>
-      </div>
+      </AdminDataTable>
 
       {pages > 1 && (
         <div className="flex items-center gap-2 justify-end text-xs text-white/50">

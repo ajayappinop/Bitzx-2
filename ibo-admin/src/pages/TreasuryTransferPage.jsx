@@ -717,7 +717,7 @@ function TransferForm({ onCreated, canManage, onAssetChange, onNetworkChange }) 
               value={asset}
               onChange={(e) => handleAssetChange(e.target.value)}
             >
-              {supportedAssets.map((a) => <option key={a} value={a}>{a}</option>)}
+              {supportedAssets.map((a) => <option key={a} value={a}>{a === 'IBO' ? 'Delta' : a}</option>)}
               <option value="__custom__">Other (type below)</option>
             </select>
           </div>
@@ -934,7 +934,7 @@ const STATUS_OPTS = [
 
 const ASSET_FILTER_OPTS = [
   { value: '', label: 'All assets' },
-  ...['USDT', 'BTC', 'ETH', 'BNB', 'IBO', 'USDC', 'TRX'].map((a) => ({ value: a, label: a })),
+  ...['USDT', 'BTC', 'ETH', 'BNB', 'IBO', 'USDC', 'TRX'].map((a) => ({ value: a, label: a === 'IBO' ? 'Delta' : a })),
 ];
 
 function HistoryTable({ canManage, newItem }) {

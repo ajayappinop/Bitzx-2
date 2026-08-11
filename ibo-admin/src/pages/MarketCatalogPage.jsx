@@ -8,6 +8,7 @@ import {
   AdminPanel,
   GradientStatCard,
   FilterBar,
+  AdminDataTable,
 } from '@/components/AdminPrimitives';
 import BscDirectoryAdminPanel from '@/components/BscDirectoryAdminPanel';
 import {
@@ -20,7 +21,7 @@ const API_BASE = (import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000').r
 const CATEGORIES = [
   { value: 'major', label: 'Major' },
   { value: 'alt', label: 'Altcoin' },
-  { value: 'ibo', label: 'IBO' },
+  { value: 'ibo', label: 'Delta' },
   { value: 'listed', label: 'Listed project' },
   { value: 'defi', label: 'DeFi' },
   { value: 'meme', label: 'Meme' },
@@ -345,7 +346,7 @@ export default function MarketCatalogPage() {
       ) : null}
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-        <GradientStatCard label="Tradable IBO" value={kpi.tradingTotal} hint="Live trading snapshot" tone="cyan" />
+        <GradientStatCard label="Tradable Delta" value={kpi.tradingTotal} hint="Live trading snapshot" tone="cyan" />
         <GradientStatCard
           label="BEP-20 directory"
           value={kpi.bscTotal != null ? kpi.bscTotal : '—'}
@@ -497,17 +498,16 @@ export default function MarketCatalogPage() {
             </>
           ) : (
             <AdminPanel title="All pairs" subtitle={`${filtered.length} markets · page ${safePage + 1}/${pageCount}`}>
-              <div className="overflow-x-auto -mx-2 sm:mx-0 [scrollbar-width:thin]">
-                <table className="w-full min-w-[720px] text-left text-sm">
+              <AdminDataTable minWidth="720px" className="!border-0 !shadow-none !p-0">
                   <thead>
-                    <tr className="border-b border-surface-border text-[10px] uppercase font-bold text-white/45">
-                      <th className="py-2.5 px-2">Pair</th>
-                      <th className="py-2.5 px-2">Name</th>
-                      <th className="py-2.5 px-2 hidden md:table-cell">Tagline</th>
-                      <th className="py-2.5 px-2">Price</th>
-                      <th className="py-2.5 px-2">24h</th>
-                      <th className="py-2.5 px-2">Cat.</th>
-                      <th className="py-2.5 px-2">Flags</th>
+                    <tr>
+                      <th>Pair</th>
+                      <th>Name</th>
+                      <th className="hidden md:table-cell">Tagline</th>
+                      <th>Price</th>
+                      <th>24h</th>
+                      <th>Cat.</th>
+                      <th>Flags</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -515,16 +515,16 @@ export default function MarketCatalogPage() {
                       const r = rowState(it);
                       const pct = parseFloat(r.priceChangePercent);
                       return (
-                        <tr key={r.symbol} className="border-b border-surface-border/50 hover:bg-white/[0.03]">
-                          <td className="py-3 px-2 font-mono font-bold text-white whitespace-nowrap">{r.symbol}</td>
-                          <td className="py-3 px-2 text-white/75 max-w-[140px] truncate">{r.token_name || '—'}</td>
-                          <td className="py-3 px-2 text-white/55 max-w-[200px] truncate hidden md:table-cell">{r.market_tagline || '—'}</td>
-                          <td className="py-3 px-2 font-mono text-white/80 whitespace-nowrap">${fmtPrice(r.price)}</td>
-                          <td className={`py-3 px-2 font-bold whitespace-nowrap ${pct >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        <tr key={r.symbol}>
+                          <td className="font-mono font-bold text-white whitespace-nowrap">{r.symbol}</td>
+                          <td className="text-white/75 max-w-[140px] truncate">{r.token_name || '—'}</td>
+                          <td className="text-white/55 max-w-[200px] truncate hidden md:table-cell">{r.market_tagline || '—'}</td>
+                          <td className="font-mono text-white/80 whitespace-nowrap">${fmtPrice(r.price)}</td>
+                          <td className={`font-bold whitespace-nowrap ${pct >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                             {fmtPct(r.priceChangePercent)}
                           </td>
-                          <td className="py-3 px-2 text-xs text-white/50 uppercase">{r.market_category || 'alt'}</td>
-                          <td className="py-3 px-2">
+                          <td className="text-xs text-white/50 uppercase">{r.market_category || 'alt'}</td>
+                          <td>
                             <div className="flex gap-1.5">
                               {r.market_visible !== false ? (
                                 <Eye size={14} className="text-emerald-400" title="Visible" />
@@ -540,8 +540,7 @@ export default function MarketCatalogPage() {
                       );
                     })}
                   </tbody>
-                </table>
-              </div>
+              </AdminDataTable>
               {pageCount > 1 ? (
                 <div className="flex flex-wrap items-center justify-center gap-3 pt-4 border-t border-surface-border/60 mt-2">
                   <button

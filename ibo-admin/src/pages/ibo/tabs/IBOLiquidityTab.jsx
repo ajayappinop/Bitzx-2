@@ -11,10 +11,12 @@ function Toggle({ checked, onChange, label, description }) {
       </div>
       <button
         type="button"
+        role="switch"
+        aria-checked={checked}
         onClick={() => onChange(!checked)}
-        className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 mt-0.5 ${checked ? 'bg-gold' : 'bg-white/20'}`}
+        className="adm-toggle adm-toggle--gold relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors flex-shrink-0 mt-0.5"
       >
-        <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${checked ? 'translate-x-5.5' : 'translate-x-0.5'}`} />
+        <span className={`adm-toggle-thumb pointer-events-none block h-5 w-5 rounded-full transition-transform ${checked ? 'translate-x-5' : 'translate-x-0'}`} />
       </button>
     </div>
   );
@@ -71,8 +73,8 @@ export default function IBOLiquidityTab() {
         <Toggle
           checked={enabled}
           onChange={setEnabled}
-          label="Enable IBO Liquidity"
-          description="When ON, the SYSTEM counterparty fills market order remainders on IBO-quoted pairs."
+          label="Enable Delta Liquidity"
+          description="When ON, the SYSTEM counterparty fills market order remainders on Delta-quoted pairs."
         />
       </div>
 
@@ -99,7 +101,7 @@ export default function IBOLiquidityTab() {
             className="w-full accent-gold"
           />
           <div className="flex justify-between text-xs text-white/30 mt-1"><span>0 bps</span><span>200 bps</span></div>
-          <p className="text-xs text-white/30 mt-1">Basis points added to SYSTEM fills on all IBO-quoted pairs (per-pair overrides on the Price tab take precedence).</p>
+          <p className="text-xs text-white/30 mt-1">Basis points added to SYSTEM fills on all Delta-quoted pairs (per-pair overrides on the Price tab take precedence).</p>
         </div>
       </div>
 

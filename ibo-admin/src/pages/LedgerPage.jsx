@@ -13,6 +13,7 @@ import {
   mergeLedgerWithInrDeposits,
   isInrWithdrawalRow,
 } from '@/lib/inrDisplay';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 const TYPE_OPTIONS = [
   '', 'deposit', 'withdraw', 'trade', 'fee', 'adjustment',
@@ -118,7 +119,7 @@ export default function LedgerPage() {
             <ScrollText className="text-gold-light" size={26} /> Ledger
           </h1>
           <p className="admin-page-lead mt-2 max-w-2xl">
-            Wallet credits and debits: on-chain deposits, INR fiat deposits (IBO credit), trades, locks, fees, and adjustments. Read-only; export to CSV for reporting.
+            Wallet credits and debits: on-chain deposits, INR fiat deposits (Delta credit), trades, locks, fees, and adjustments. Read-only; export to CSV for reporting.
           </p>
         </div>
         <div className="flex gap-2">
@@ -227,24 +228,23 @@ export default function LedgerPage() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-surface-border bg-surface-card adm-table-x scrollbar-thin">
-        <table className="w-full text-sm min-w-[960px]">
-          <thead className="text-left text-[11px] text-white/50 uppercase border-b border-surface-border bg-white/5">
+      <AdminDataTable minWidth="960px">
+          <thead>
             <tr>
-              <th className="px-3 py-2">When</th>
-              <th className="px-3 py-2">UID</th>
-              <th className="px-3 py-2">Asset</th>
-              <th className="px-3 py-2">Type</th>
-              <th className="px-3 py-2 text-right">Amt</th>
-              <th className="px-3 py-2">UTR / reference</th>
-              <th className="px-3 py-2">Status</th>
+              <th>When</th>
+              <th>UID</th>
+              <th>Asset</th>
+              <th>Type</th>
+              <th className="text-right">Amt</th>
+              <th>UTR / reference</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={7} className="px-4 py-12 text-center text-white/45">Loading…</td></tr>
+              <tr><td colSpan={7} className="text-center text-white/45 !py-12">Loading…</td></tr>
             ) : items.length === 0 ? (
-              <tr><td colSpan={7} className="px-4 py-12 text-center text-white/45">No rows.</td></tr>
+              <tr><td colSpan={7} className="text-center text-white/45 !py-12">No rows.</td></tr>
             ) : (
               items.map((row) => {
                 const isInr =
@@ -252,38 +252,37 @@ export default function LedgerPage() {
                   || row.ref_type === 'inr_withdrawal'
                   || row._ledgerKind?.startsWith('inr_');
                 return (
-                <tr key={row.id} className="border-b border-white/5">
-                  <td className="px-3 py-2 text-[11px] text-white/55 whitespace-nowrap">
+                <tr key={row.id}>
+                  <td className="text-[11px] text-white/55 whitespace-nowrap">
                     {row.created_at ? new Date(row.created_at).toLocaleString() : '—'}
                   </td>
-                  <td className="px-3 py-2 font-mono text-[11px] text-white/70">{row.uid}</td>
-                  <td className="px-3 py-2">
+                  <td className="font-mono text-[11px] text-white/70">{row.uid}</td>
+                  <td>
                     <span className="inline-flex items-center gap-1.5 font-bold">
                       <CoinAvatar asset={row.asset} className="h-5 w-5" />
                       {row.asset}
                     </span>
                   </td>
-                  <td className="px-3 py-2 text-xs font-bold text-gold-light/90">{ledgerTypeLabel(row)}</td>
-                  <td className="px-3 py-2 text-right font-mono text-xs">
+                  <td className="font-bold text-gold-light/90">{ledgerTypeLabel(row)}</td>
+                  <td className="text-right font-mono">
                     {isInr && (row._ledgerKind?.startsWith('inr_') || isInrWithdrawalRow(row))
                       ? formatLedgerAmount(row)
                       : `${row.direction === 'debit' ? '−' : '+'}${Number(row.amount || 0).toFixed(8)}`}
                   </td>
-                  <td className="px-3 py-2 min-w-0">
+                  <td className="min-w-0">
                     {isInr ? (
                       <InrLedgerRefCell row={row} />
                     ) : (
                       <span className="font-mono text-[11px] text-white/55 truncate block">{formatWalletTxnRef(row)}</span>
                     )}
                   </td>
-                  <td className="px-3 py-2 text-xs capitalize">{ledgerStatusLabel(row)}</td>
+                  <td className="capitalize">{ledgerStatusLabel(row)}</td>
                 </tr>
               );
               })
             )}
           </tbody>
-        </table>
-      </div>
+      </AdminDataTable>
 
       <div className="flex items-center justify-between text-sm text-white/60">
         <span>

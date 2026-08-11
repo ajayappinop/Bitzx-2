@@ -6,9 +6,9 @@ import {
 import { api } from '@/lib/api';
 import { useAdminAuth } from '@/context/AdminAuthContext';
 import ConfirmModal from '@/components/ConfirmModal';
-import UserUidSuggestInput from '@/components/UserUidSuggestInput';
 import CoinAvatar from '@/components/CoinAvatar';
 import { describeTreasuryGateReason, shortTreasuryGateLabel } from '@/lib/treasuryUx';
+import { AdminDataTable, AdminPageHeader } from '@/components/AdminPrimitives';
 
 // Phase 6 — admin queue for on-chain withdrawals.
 //
@@ -68,33 +68,40 @@ export default function WithdrawalsPage() {
   const [ok,      setOk]      = useState('');
 
   // Filters — most common first so the queue opens on "needs approval".
-  const [statusFilter,  setStatusFilter]  = useState(searchParams.get('status') || 'pending_approval');
-  const [uidFilter,     setUidFilter]     = useState(searchParams.get('uid') || '');
-  const [assetFilter,   setAssetFilter]   = useState('');
-  const [addrFilter,    setAddrFilter]    = useState('');
-  const [txFilter,      setTxFilter]      = useState('');
-  const [riskFilter,    setRiskFilter]    = useState('');
-  const [skip,          setSkip]          = useState(0);
-  const [limit,         setLimit]         = useState(25);
+  const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || 'pending_approval');
+  const [searchQ, setSearchQ] = useState(searchParams.get('uid') || searchParams.get('q') || '');
+  const [appliedQ, setAppliedQ] = useState(
+    () => String(searchParams.get('uid') || searchParams.get('q') || '').trim(),
+  );
+  const [assetFilter, setAssetFilter] = useState('');
+  const [riskFilter, setRiskFilter] = useState('');
+  const [skip, setSkip] = useState(0);
+  const [limit, setLimit] = useState(25);
 
   // Confirm-modal state. We reuse the same modal for approve + reject so the
   // UI stays compact; ``action`` selects behaviour and ``row`` holds context.
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [action,      setAction]      = useState('approve');
-  const [activeRow,   setActiveRow]   = useState(null);
-  const [busy,        setBusy]        = useState(false);
+  const [action, setAction] = useState('approve');
+  const [activeRow, setActiveRow] = useState(null);
+  const [busy, setBusy] = useState(false);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (override) => {
+    const active = {
+      skip: override?.skip ?? skip,
+      limit: override?.limit ?? limit,
+      statusFilter: override?.statusFilter ?? statusFilter,
+      assetFilter: override?.assetFilter ?? assetFilter,
+      riskFilter: override?.riskFilter ?? riskFilter,
+      q: override?.q ?? appliedQ,
+    };
     setLoading(true);
     setErr('');
     try {
-      const params = { skip: String(skip), limit: String(limit) };
-      if (statusFilter) params.status  = statusFilter;
-      if (uidFilter.trim())  params.uid     = uidFilter.trim();
-      if (assetFilter)       params.asset   = assetFilter;
-      if (addrFilter.trim()) params.address = addrFilter.trim();
-      if (txFilter.trim())   params.tx_hash = txFilter.trim();
-      if (riskFilter.trim()) params.risk_flag = riskFilter.trim();
+      const params = { skip: String(active.skip), limit: String(active.limit) };
+      if (active.statusFilter) params.status = active.statusFilter;
+      if (active.assetFilter) params.asset = active.assetFilter;
+      if (active.riskFilter.trim()) params.risk_flag = active.riskFilter.trim();
+      if (String(active.q || '').trim()) params.q = String(active.q).trim();
 
       const r = await api.withdrawals(params);
       const j = await r.json().catch(() => ({}));
@@ -108,9 +115,23 @@ export default function WithdrawalsPage() {
     } finally {
       setLoading(false);
     }
-  }, [skip, limit, statusFilter, uidFilter, assetFilter, addrFilter, txFilter, riskFilter]);
+  }, [skip, limit, statusFilter, assetFilter, riskFilter, appliedQ]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { load(); }, [skip, limit, statusFilter, assetFilter, riskFilter, appliedQ]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function applySearch(raw) {
+    setSkip(0);
+    setAppliedQ(String(raw || '').trim());
+  }
+
+  function clearFilters() {
+    setSkip(0);
+    setStatusFilter('pending_approval');
+    setSearchQ('');
+    setAppliedQ('');
+    setAssetFilter('');
+    setRiskFilter('');
+  }
 
   const pages = useMemo(() => Math.max(1, Math.ceil(total / limit)), [total, limit]);
   const page  = useMemo(() => Math.floor(skip / limit) + 1, [skip, limit]);
@@ -186,17 +207,21 @@ export default function WithdrawalsPage() {
 
   return (
     <div className="admin-page">
-      <h1 className="admin-title mb-2 flex flex-wrap items-center gap-2">
-        <ArrowUpCircle className="text-gold-light shrink-0" size={28} />
-        Withdrawals
-      </h1>
-      <p className="admin-page-lead mb-6">
-        Review cash-out requests. <strong className="text-white/90">Approve</strong> lets the system send crypto to the user’s address once all checks pass.
-        <strong className="text-white/90"> Reject</strong> unlocks their balance and cancels the payout.
-        If a row says <em>Waiting: payout wallet</em>, finish setup on{' '}
-        <Link to="/treasury-omnibus" className="text-gold-light font-semibold hover:underline">Hot & cold wallets</Link>
-        {' '}— no amount of approving will send coins until that matches the server.
-      </p>
+      <AdminPageHeader
+        icon={ArrowUpCircle}
+        iconClassName="text-gold-light"
+        title="Withdrawals"
+        subtitle={(
+          <>
+            Review cash-out requests. <strong className="text-white/90">Approve</strong> lets the system send crypto to the user’s address once all checks pass.
+            <strong className="text-white/90"> Reject</strong> unlocks their balance and cancels the payout.
+            If a row says <em>Waiting: payout wallet</em>, finish setup on{' '}
+            <Link to="/treasury-omnibus" className="text-gold-light font-semibold hover:underline">Hot & cold wallets</Link>
+            {' '}— no amount of approving will send coins until that matches the server.
+          </>
+        )}
+        badge={`${total.toLocaleString()} total`}
+      />
 
       {err && <p className="text-red-400 text-sm mb-4">{err}</p>}
       {ok  && <p className="text-green-400 text-sm mb-4">{ok}</p>}
@@ -211,12 +236,28 @@ export default function WithdrawalsPage() {
         </div>
       )}
 
-      <div className="admin-filter-bar mb-4">
-        <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-3">
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-surface-border bg-surface-card px-3 py-2.5 mb-4">
+          <div className="relative min-w-0 w-full sm:w-64 sm:flex-1 lg:flex-none">
+            <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/45 pointer-events-none" />
+            <input
+              value={searchQ}
+              onChange={(e) => setSearchQ(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  applySearch(e.currentTarget.value);
+                }
+              }}
+              placeholder="Search UID, address, or tx hash…"
+              className="h-9 w-full rounded-lg bg-surface-dark border border-surface-border pl-8 pr-3 text-sm text-white font-mono placeholder:text-white/35 outline-none focus:border-gold/40"
+              aria-label="Search by UID, destination address, or tx hash"
+            />
+          </div>
           <select
             value={statusFilter}
             onChange={(e) => { setSkip(0); setStatusFilter(e.target.value); }}
-            className="rounded-xl bg-surface-dark border border-surface-border px-3 py-2 text-sm text-white"
+            className="h-9 rounded-lg bg-surface-dark border border-surface-border px-3 text-sm font-semibold text-white"
+            aria-label="Filter by status"
           >
             <option value="">All statuses</option>
             <option value="pending_approval">Pending approval</option>
@@ -229,143 +270,104 @@ export default function WithdrawalsPage() {
             <option value="rejected">Rejected</option>
             <option value="failed">Failed</option>
           </select>
-          <UserUidSuggestInput
-            value={uidFilter}
-            onChange={(v) => { setSkip(0); setUidFilter(v); }}
-            placeholder="Filter UID"
-            className="w-full rounded-xl bg-surface-dark border border-surface-border px-3 py-2 text-sm text-white font-mono"
-          />
           <select
             value={assetFilter}
             onChange={(e) => { setSkip(0); setAssetFilter(e.target.value); }}
-            className="rounded-xl bg-surface-dark border border-surface-border px-3 py-2 text-sm text-white"
+            className="h-9 rounded-lg bg-surface-dark border border-surface-border px-3 text-sm font-semibold text-white"
+            aria-label="Filter by asset"
           >
             <option value="">All assets</option>
             {['USDT', 'ETH', 'USDT-ERC20', 'BTC'].map((a) => (
               <option key={a} value={a}>{a}</option>
             ))}
           </select>
-          <div className="relative">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/45 pointer-events-none" />
-            <input
-              value={addrFilter}
-              onChange={(e) => { setSkip(0); setAddrFilter(e.target.value); }}
-              placeholder="Destination address"
-              className="w-full rounded-xl bg-surface-dark border border-surface-border pl-10 pr-3 py-2 text-sm text-white font-mono"
-            />
-          </div>
-          <div className="relative lg:col-span-2">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/45 pointer-events-none" />
-            <input
-              value={txFilter}
-              onChange={(e) => { setSkip(0); setTxFilter(e.target.value); }}
-              placeholder="Tx hash"
-              className="w-full rounded-xl bg-surface-dark border border-surface-border pl-10 pr-3 py-2 text-sm text-white font-mono"
-            />
-          </div>
           <select
             value={riskFilter}
             onChange={(e) => { setSkip(0); setRiskFilter(e.target.value); }}
-            className="rounded-xl bg-surface-dark border border-surface-border px-3 py-2 text-sm text-white lg:col-span-2"
+            className="h-9 rounded-lg bg-surface-dark border border-surface-border px-3 text-sm font-semibold text-white"
+            aria-label="Filter by risk flag"
           >
             <option value="">Any risk flag</option>
             <option value="large_amount">large_amount</option>
             <option value="new_address">new_address</option>
             <option value="velocity">velocity</option>
           </select>
-        </div>
-        <div className="mt-3">
           <button
             type="button"
-            onClick={() => {
-              setSkip(0);
-              setStatusFilter('pending_approval');
-              setUidFilter('');
-              setAssetFilter('');
-              setAddrFilter('');
-              setTxFilter('');
-              setRiskFilter('');
-            }}
-            className="rounded-xl border border-surface-border px-3 py-2 text-xs font-bold text-white/80 hover:bg-white/[.04]"
+            onClick={clearFilters}
+            className="h-9 px-4 rounded-lg border border-surface-border text-sm font-bold text-white/90 shrink-0"
           >
-            Clear filters
+            Clear
           </button>
-        </div>
+          <button
+            type="button"
+            onClick={load}
+            disabled={loading}
+            className="inline-flex h-9 items-center gap-2 px-3 rounded-lg border border-surface-border text-sm font-bold text-white/90 shrink-0 disabled:opacity-40 ml-auto"
+          >
+            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
+          </button>
       </div>
 
-      <div className="flex items-center gap-3 mb-3 text-sm text-white/65">
-        <span>Total: <strong className="text-white">{total}</strong></span>
-        <button
-          type="button"
-          onClick={load}
-          className="inline-flex items-center gap-1.5 text-xs text-gold-light hover:text-gold"
-          disabled={loading}
-        >
-          <RefreshCw size={12} className={loading ? 'animate-spin' : ''} /> Refresh
-        </button>
-      </div>
-
-      <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden min-w-0">
-        <div className="adm-table-x scrollbar-thin">
-          <table className="w-full text-sm min-w-[1200px]">
+      <AdminDataTable minWidth="1200px">
             <thead>
-              <tr className="text-left text-[11px] font-extrabold text-white/50 uppercase tracking-wider border-b border-surface-border bg-white/[.02]">
-                <th className="px-4 py-3">ID</th>
-                <th className="px-4 py-3">User</th>
-                <th className="px-4 py-3">Asset</th>
-                <th className="px-4 py-3 text-right">Amount</th>
-                <th className="px-4 py-3 text-right">Fee</th>
-                <th className="px-4 py-3">Destination</th>
-                <th className="px-4 py-3">Tx hash</th>
-                <th className="px-4 py-3">Confirmations</th>
-                <th className="px-4 py-3">Risk</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 whitespace-nowrap">Created</th>
-                <th className="px-4 py-3 text-right">Actions</th>
+              <tr>
+                <th>ID</th>
+                <th>User</th>
+                <th>Asset</th>
+                <th className="text-right">Amount</th>
+                <th className="text-right">Fee</th>
+                <th>Destination</th>
+                <th>Tx hash</th>
+                <th>Confirmations</th>
+                <th>Risk</th>
+                <th>Status</th>
+                <th className="whitespace-nowrap">Created</th>
+                <th className="text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={12} className="px-4 py-16 text-center text-white/50">Loading…</td></tr>
+                <tr><td colSpan={12} className="text-center text-white/50 !py-16">Loading…</td></tr>
               ) : items.length === 0 ? (
-                <tr><td colSpan={12} className="px-4 py-16 text-center text-white/50">No withdrawals found.</td></tr>
+                <tr><td colSpan={12} className="text-center text-white/50 !py-16">No withdrawals found.</td></tr>
               ) : (
                 items.map((row) => (
-                  <tr key={row.id} className="border-b border-surface-border/60 hover:bg-white/[.03]">
-                    <td className="px-4 py-3 font-mono text-[11px] text-white/80">{row.id}</td>
-                    <td className="px-4 py-3 font-mono text-[11px] text-white">{row.uid}</td>
-                    <td className="px-4 py-3 font-bold">
+                  <tr key={row.id}>
+                    <td className="font-mono text-[11px] text-white/80">{row.id}</td>
+                    <td className="font-mono text-[11px] text-white">{row.uid}</td>
+                    <td className="font-bold">
                       <span className="inline-flex items-center gap-2">
                         <CoinAvatar asset={row.asset} className="h-5 w-5" />
                         {row.asset}
                       </span>
                       <div className="text-[10px] font-normal text-white/45 mt-0.5">{row.network}</div>
                     </td>
-                    <td className="px-4 py-3 text-right font-mono text-white">
+                    <td className="text-right font-mono text-white">
                       {Number(row.amount || 0).toFixed(6)}
                     </td>
-                    <td className="px-4 py-3 text-right font-mono text-xs text-white/65">
+                    <td className="text-right font-mono text-xs text-white/65">
                       {Number(row.fee_amount || 0).toFixed(6)}
                     </td>
-                    <td className="px-4 py-3 font-mono text-[11px] text-white/80" title={row.address}>
+                    <td className="font-mono text-[11px] text-white/80" title={row.address}>
                       {trimAddress(row.address)}
                     </td>
-                    <td className="px-4 py-3 font-mono text-[11px] text-white/65" title={row.tx_hash || ''}>
+                    <td className="font-mono text-[11px] text-white/65" title={row.tx_hash || ''}>
                       {row.tx_hash ? trimAddress(row.tx_hash) : '—'}
                     </td>
-                    <td className="px-4 py-3 text-xs font-mono text-white/75">
+                    <td className="text-xs font-mono text-white/75">
                       {Number(row.threshold) > 0
                         ? `${Math.min(Number(row.confirmations || 0), Number(row.threshold))}/${Number(row.threshold)}`
                         : Number(row.confirmations || 0)}
                     </td>
-                    <td className="px-4 py-3 text-[11px] text-white/70 max-w-[140px]">
+                    <td className="text-[11px] text-white/70 max-w-[140px]">
                       {(row.risk_flags && row.risk_flags.length)
                         ? row.risk_flags.map((f) => (
                           <span key={f} className="inline-block mr-1 mb-1 px-1.5 py-0.5 rounded bg-gold/15 text-gold-light font-bold">{f}</span>
                         ))
                         : <span className="text-white/35">—</span>}
                     </td>
-                    <td className="px-4 py-3">
+                    <td>
                       <StatusPill status={row.status} />
                       {row.auto_approved && row.status !== 'pending_approval' && (
                         <div className="text-[10px] text-white/40 mt-0.5">auto-approved</div>
@@ -390,8 +392,8 @@ export default function WithdrawalsPage() {
                         </div>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-xs text-white/55 whitespace-nowrap">{fmtTs(row.created_at)}</td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="text-xs text-white/55 whitespace-nowrap">{fmtTs(row.created_at)}</td>
+                    <td className="text-right">
                       {!privileged ? (
                         <span className="text-white/30 text-[11px]" title="Superadmin or finance role required">—</span>
                       ) : canApprove(row.status) || canReject(row.status) ? (
@@ -399,7 +401,7 @@ export default function WithdrawalsPage() {
                           {canApprove(row.status) && isPending(row.status) ? (
                             <button
                               type="button"
-                        onClick={() => openHold(row)}
+                              onClick={() => openHold(row)}
                               disabled={busy}
                               className="px-2.5 py-1 text-[11px] font-bold rounded-md border border-violet-500/30 text-violet-200 bg-violet-500/10 hover:bg-violet-500/20 disabled:opacity-40"
                             >
@@ -433,9 +435,7 @@ export default function WithdrawalsPage() {
                 ))
               )}
             </tbody>
-          </table>
-        </div>
-      </div>
+      </AdminDataTable>
 
       <div className="flex items-center justify-between mt-4 flex-wrap gap-3">
         <p className="text-white/50 text-sm">{total} rows · page {page} / {pages}</p>

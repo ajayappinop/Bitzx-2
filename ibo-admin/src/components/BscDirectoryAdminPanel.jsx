@@ -4,6 +4,7 @@ import {
   AdminPanel,
   FilterBar,
   GradientStatCard,
+  AdminDataTable,
 } from '@/components/AdminPrimitives';
 import { Globe, Loader2, RefreshCw, Search, Wallet } from 'lucide-react';
 
@@ -195,17 +196,17 @@ export default function BscDirectoryAdminPanel() {
           </div>
         ) : (
           <>
-            <div className="hidden lg:block overflow-x-auto -mx-1">
-              <table className="w-full text-sm text-left">
+            <div className="hidden lg:block -mx-4 sm:-mx-5">
+              <AdminDataTable>
                 <thead>
-                  <tr className="text-white/50 text-xs uppercase border-b border-surface-border">
-                    <th className="py-2 pr-3">Asset</th>
-                    <th className="py-2 pr-3">Name</th>
-                    <th className="py-2 pr-3">Price</th>
-                    <th className="py-2 pr-3">24h</th>
-                    <th className="py-2 pr-3">Contract</th>
-                    <th className="py-2 pr-3">Source</th>
-                    <th className="py-2">Flags</th>
+                  <tr>
+                    <th>Asset</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>24h</th>
+                    <th>Contract</th>
+                    <th>Source</th>
+                    <th>Flags</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -215,27 +216,26 @@ export default function BscDirectoryAdminPanel() {
                     return (
                       <tr
                         key={`${row.base}-${row.contract_address || row.catalog_source}`}
-                        className="border-b border-surface-border/50 hover:bg-white/[0.02]"
                       >
-                        <td className="py-2.5 pr-3 font-bold text-white">{row.base}</td>
-                        <td className="py-2.5 pr-3 text-white/70 max-w-[180px] truncate">
+                        <td className="font-bold text-white">{row.base}</td>
+                        <td className="text-white/70 max-w-[180px] truncate">
                           {row.token_name || '—'}
                         </td>
-                        <td className="py-2.5 pr-3 font-mono tabular-nums">
+                        <td className="font-mono tabular-nums">
                           {row.has_live_price ? fmtPrice(row.price) : '—'}
                         </td>
                         <td
-                          className={`py-2.5 pr-3 font-mono tabular-nums ${
+                          className={`font-mono tabular-nums ${
                             Number.isFinite(pct) ? (up ? 'text-emerald-400' : 'text-red-400') : 'text-white/40'
                           }`}
                         >
                           {row.has_live_price ? fmtPct(row.priceChangePercent) : '—'}
                         </td>
-                        <td className="py-2.5 pr-3 font-mono text-[11px] text-white/50" title={row.contract_address}>
+                        <td className="font-mono text-[11px] text-white/50" title={row.contract_address}>
                           {shortAddr(row.contract_address)}
                         </td>
-                        <td className="py-2.5 pr-3 text-xs text-white/60">{row.catalog_source || row.source}</td>
-                        <td className="py-2.5">
+                        <td className="text-xs text-white/60">{row.catalog_source || row.source}</td>
+                        <td>
                           <div className="flex flex-wrap gap-1">
                             {row.deposit_enabled ? (
                               <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300">
@@ -253,7 +253,7 @@ export default function BscDirectoryAdminPanel() {
                     );
                   })}
                 </tbody>
-              </table>
+              </AdminDataTable>
             </div>
 
             <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-3">

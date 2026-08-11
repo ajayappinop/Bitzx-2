@@ -661,7 +661,7 @@ export default function TokenListingsPage() {
       const payload = {
         ...addForm,
         token_symbol: addForm.token_symbol.trim().toUpperCase(),
-        description: desc.length >= 20 ? desc : 'Admin-created listing on Ibo Exchange.',
+        description: desc.length >= 20 ? desc : 'Admin-created listing on Delta Exchange.',
         dex_swap_link: addForm.dex_swap_link.trim() || 'https://ibo.io',
         official_website: addForm.official_website.trim() || 'https://ibo.io',
         contact_email: addForm.contact_email.trim() || 'admin@ibo.local',
@@ -714,15 +714,14 @@ export default function TokenListingsPage() {
       ) : rows.length === 0 ? (
         <p className="text-white/50 text-sm py-8 text-center">No records on this page.</p>
       ) : (
-        <div className="adm-table-x scrollbar-thin -mx-4 sm:-mx-5 max-h-[min(52vh,560px)] overflow-auto">
-          <table className="admin-data-table min-w-[640px]">
+        <AdminDataTable minWidth="640px" className="!border-0 !shadow-none !p-0 max-h-[min(52vh,560px)] overflow-auto">
             <thead>
               <tr>
-                <th className="px-4 py-3">Symbol</th>
-                <th className="px-4 py-3">Project</th>
-                <th className="px-4 py-3">Network</th>
-                <th className="px-4 py-3">Submitted</th>
-                <th className="px-4 py-3">Status</th>
+                <th>Symbol</th>
+                <th>Project</th>
+                <th>Network</th>
+                <th>Submitted</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -732,18 +731,17 @@ export default function TokenListingsPage() {
                   onClick={() => onSelect(r)}
                   className={`cursor-pointer ${selected?.id === r.id ? 'bg-gold/10' : ''}`}
                 >
-                  <td className="px-4 py-3 font-mono font-bold text-gold-light">{r.token_symbol}</td>
-                  <td className="px-4 py-3 font-semibold">{r.project_name}</td>
-                  <td className="px-4 py-3 text-white/70 text-sm">{r.blockchain_network}</td>
-                  <td className="px-4 py-3 text-white/55 text-xs">{fmtDate(r.created_at)}</td>
-                  <td className="px-4 py-3">
+                  <td className="font-mono font-bold text-gold-light">{r.token_symbol}</td>
+                  <td className="font-semibold">{r.project_name}</td>
+                  <td className="text-white/70 text-sm">{r.blockchain_network}</td>
+                  <td className="text-white/55 text-xs">{fmtDate(r.created_at)}</td>
+                  <td>
                     <StatusBadge tone={statusTone(r.status)}>{r.status}</StatusBadge>
                   </td>
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
+        </AdminDataTable>
       )}
     </>
   );
@@ -803,7 +801,7 @@ export default function TokenListingsPage() {
         <div className="admin-tabs w-full min-w-0 flex flex-wrap">
           <button type="button" className={`admin-tab-btn ${tab === 'ibo' ? 'active' : ''}`} onClick={() => switchTab('ibo')}>
             <Star size={14} />
-            Your token (IBO)
+            Your token (Delta)
           </button>
           <button type="button" className={`admin-tab-btn ${tab === 'pending' ? 'active' : ''}`} onClick={() => switchTab('pending')}>
             <Clock size={14} /> Pending
@@ -906,20 +904,20 @@ export default function TokenListingsPage() {
             <AdminDataTable className="!border-0 !shadow-none !p-0">
               <thead>
                 <tr>
-                  <th className="px-4 py-3">Token</th>
-                  <th className="px-4 py-3">Pair</th>
-                  <th className="px-4 py-3">Network</th>
-                  <th className="px-4 py-3">Deposits</th>
-                  <th className="px-4 py-3">Withdrawals</th>
-                  <th className="px-4 py-3">Trading</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
+                  <th>Token</th>
+                  <th>Pair</th>
+                  <th>Network</th>
+                  <th>Deposits</th>
+                  <th>Withdrawals</th>
+                  <th>Trading</th>
+                  <th>Status</th>
+                  <th className="text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {tokenItems.map((t) => (
                   <tr key={t.id}>
-                    <td className="px-4 py-3">
+                    <td>
                       <div className="flex items-center gap-3">
                         {t.logo_url ? (
                           <img src={mediaUrl(t.logo_url)} alt="" className="w-8 h-8 rounded-full object-cover border border-surface-border" />
@@ -932,24 +930,24 @@ export default function TokenListingsPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 font-mono text-white/80 text-sm">{t.spot_symbol || '—'}</td>
-                    <td className="px-4 py-3 text-white/65 text-sm">{t.blockchain_network}</td>
-                    <td className="px-4 py-3">
+                    <td className="font-mono text-white/80 text-sm">{t.spot_symbol || '—'}</td>
+                    <td className="text-white/65 text-sm">{t.blockchain_network}</td>
+                    <td>
                       <TogglePill disabled={!canManage} on={t.deposit_enabled} label={t.deposit_enabled ? 'On' : 'Off'} onClick={() => toggleToken(t, 'deposit_enabled')} />
                     </td>
-                    <td className="px-4 py-3">
+                    <td>
                       <TogglePill disabled={!canManage} on={t.withdraw_enabled} label={t.withdraw_enabled ? 'On' : 'Off'} onClick={() => toggleToken(t, 'withdraw_enabled')} />
                     </td>
-                    <td className="px-4 py-3">
+                    <td>
                       <TogglePill disabled={!canManage} on={t.trading_enabled} label={t.trading_enabled ? 'On' : 'Off'} onClick={() => toggleToken(t, 'trading_enabled')} />
                     </td>
-                    <td className="px-4 py-3">
+                    <td>
                       <StatusBadge tone={statusTone(t.status)}>{t.status}</StatusBadge>
                       {t.is_platform_default ? (
                         <span className="block mt-1 text-[10px] text-cyan-300/80">Platform default</span>
                       ) : null}
                     </td>
-                    <td className="px-4 py-3">
+                    <td>
                       <div className="flex justify-end gap-2 flex-wrap">
                         <button
                           type="button"

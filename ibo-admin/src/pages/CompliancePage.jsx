@@ -22,6 +22,7 @@ import { useAdminAuth } from '@/context/AdminAuthContext';
 import UserUidSuggestInput from '@/components/UserUidSuggestInput';
 import FormModal from '@/components/FormModal';
 import ConfirmModal from '@/components/ConfirmModal';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 export default function CompliancePage({ mode = 'aml' }) {
   const { admin } = useAdminAuth();
@@ -469,40 +470,49 @@ export default function CompliancePage({ mode = 'aml' }) {
         <input value={q} onChange={(e) => { setSkip(0); setQ(e.target.value); }} placeholder="Search title/uid/id" className="lg:col-span-2 rounded-xl bg-surface-card border border-surface-border px-3 py-2 text-sm text-white placeholder:text-white/35" />
       </div> : null}
 
-      {isAML ? <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden">
-        <div className="adm-table-x">
-          <table className="w-full text-sm min-w-[1050px]">
-            <thead><tr className="text-left text-[11px] text-white/45 border-b border-surface-border"><th className="px-4 py-3">Updated</th><th className="px-4 py-3">Case</th><th className="px-4 py-3">UID</th><th className="px-4 py-3">Type</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Risk</th><th className="px-4 py-3">Assignee</th><th className="px-4 py-3 text-right">Actions</th></tr></thead>
-            <tbody>
-              {loading ? (
-                <tr><td colSpan={8} className="px-4 py-14 text-center text-white/50">Loading…</td></tr>
-              ) : cases.length === 0 ? (
-                <tr><td colSpan={8} className="px-4 py-14 text-center text-white/50">No compliance cases match.</td></tr>
-              ) : cases.map((c) => (
-                <tr key={c.id} className="border-b border-surface-border/50">
-                  <td className="px-4 py-3 text-xs text-white/60">{c.updated_at ? new Date(c.updated_at).toLocaleString() : '—'}</td>
-                  <td className="px-4 py-3"><p className="font-semibold text-white">{c.title}</p><p className="text-[11px] font-mono text-white/40">{c.id}</p></td>
-                  <td className="px-4 py-3 text-xs font-mono text-blue-300">{c.uid || '—'}</td>
-                  <td className="px-4 py-3 text-xs uppercase">{c.case_type}</td>
-                  <td className="px-4 py-3 text-xs">{c.status}</td>
-                  <td className="px-4 py-3 text-xs">{c.risk_level}</td>
-                  <td className="px-4 py-3 text-xs font-mono">{c.assignee_aid || '—'}</td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="inline-flex items-center gap-2">
-                      <button type="button" onClick={() => setEditCase(c)} className="text-xs font-bold text-gold-light hover:underline">Update</button>
-                      <button type="button" onClick={() => setAttachCase(c)} className="inline-flex items-center gap-1 text-xs font-bold text-sky-300 hover:underline"><Paperclip size={12} /> Attach</button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div> : null}
+      {isAML ? (
+        <AdminDataTable minWidth="1050px">
+          <thead>
+            <tr>
+              <th>Updated</th>
+              <th>Case</th>
+              <th>UID</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Risk</th>
+              <th>Assignee</th>
+              <th className="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr><td colSpan={8} className="text-center text-white/50">Loading…</td></tr>
+            ) : cases.length === 0 ? (
+              <tr><td colSpan={8} className="text-center text-white/50">No compliance cases match.</td></tr>
+            ) : cases.map((c) => (
+              <tr key={c.id}>
+                <td className="text-xs text-white/60">{c.updated_at ? new Date(c.updated_at).toLocaleString() : '—'}</td>
+                <td><p className="font-semibold text-white">{c.title}</p><p className="text-[11px] font-mono text-white/40">{c.id}</p></td>
+                <td className="text-xs font-mono text-blue-300">{c.uid || '—'}</td>
+                <td className="text-xs uppercase">{c.case_type}</td>
+                <td className="text-xs">{c.status}</td>
+                <td className="text-xs">{c.risk_level}</td>
+                <td className="text-xs font-mono">{c.assignee_aid || '—'}</td>
+                <td className="text-right">
+                  <div className="inline-flex items-center gap-2">
+                    <button type="button" onClick={() => setEditCase(c)} className="text-xs font-bold text-gold-light hover:underline">Update</button>
+                    <button type="button" onClick={() => setAttachCase(c)} className="inline-flex items-center gap-1 text-xs font-bold text-sky-300 hover:underline"><Paperclip size={12} /> Attach</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </AdminDataTable>
+      ) : null}
 
       {isAML ? <div className="grid lg:grid-cols-2 gap-4">
-        <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden">
-          <div className="px-4 py-3 border-b border-surface-border flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <div className="px-4 py-3 flex flex-wrap items-center justify-between gap-2">
             <h3 className="text-sm font-bold text-white">Transaction monitoring</h3>
             <div className="flex items-center gap-2 text-xs">
               <span className="text-white/50">Source</span>
@@ -516,28 +526,26 @@ export default function CompliancePage({ mode = 'aml' }) {
               </select>
             </div>
           </div>
-          <div className="adm-table-x">
-            <table className="w-full text-sm min-w-[760px]">
-              <thead>
-                <tr className="text-left text-[11px] text-white/45 border-b border-surface-border">
-                  {['Event', 'UID', 'Amount USDT', 'Reason', 'Time'].map((c) => <th key={c} className="px-4 py-2">{c}</th>)}
+          <AdminDataTable minWidth="760px">
+            <thead>
+              <tr>
+                {['Event', 'UID', 'Amount USDT', 'Reason', 'Time'].map((c) => <th key={c}>{c}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {(monitoring || []).length === 0 ? (
+                <tr><td className="text-white/50" colSpan={5}>No rows.</td></tr>
+              ) : (monitoring || []).slice(0, 12).map((m, idx) => (
+                <tr key={`mon-${idx}`}>
+                  <td className="text-white/85">{m.event_type}</td>
+                  <td className="text-white/85 font-mono text-xs">{m.uid || '—'}</td>
+                  <td className="text-white/85">{m.amount_usdt ?? '—'}</td>
+                  <td className="text-white/85">{m.reason || '—'}</td>
+                  <td className="text-white/85 text-xs">{m.created_at ? new Date(m.created_at).toLocaleString() : '—'}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {(monitoring || []).length === 0 ? (
-                  <tr><td className="px-4 py-8 text-white/50" colSpan={5}>No rows.</td></tr>
-                ) : (monitoring || []).slice(0, 12).map((m, idx) => (
-                  <tr key={`mon-${idx}`} className="border-b border-surface-border/50">
-                    <td className="px-4 py-2 text-white/85">{m.event_type}</td>
-                    <td className="px-4 py-2 text-white/85 font-mono text-xs">{m.uid || '—'}</td>
-                    <td className="px-4 py-2 text-white/85">{m.amount_usdt ?? '—'}</td>
-                    <td className="px-4 py-2 text-white/85">{m.reason || '—'}</td>
-                    <td className="px-4 py-2 text-white/85 text-xs">{m.created_at ? new Date(m.created_at).toLocaleString() : '—'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </AdminDataTable>
         </div>
       </div> : null}
 
@@ -640,34 +648,34 @@ export default function CompliancePage({ mode = 'aml' }) {
         </>
       ) : null}
 
-      {isAML ? <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden mb-4">
-        <div className="px-4 py-3 border-b border-surface-border">
-          <h3 className="text-sm font-bold text-white">Compliance rules</h3>
-          <p className="text-xs text-white/50 mt-1">
-            {canManageCompliance ? 'Toggle built-in monitoring rules on or off.' : 'View only — rule changes require finance or superadmin.'}
-          </p>
-        </div>
-        <div className="adm-table-x">
-          <table className="w-full text-sm min-w-[720px]">
+      {isAML ? (
+        <div>
+          <div className="px-4 py-3">
+            <h3 className="text-sm font-bold text-white">Compliance rules</h3>
+            <p className="text-xs text-white/50 mt-1">
+              {canManageCompliance ? 'Toggle built-in monitoring rules on or off.' : 'View only — rule changes require finance or superadmin.'}
+            </p>
+          </div>
+          <AdminDataTable minWidth="720px">
             <thead>
-              <tr className="text-left text-[11px] text-white/45 border-b border-surface-border">
-                <th className="px-4 py-2">ID</th>
-                <th className="px-4 py-2">Name</th>
-                <th className="px-4 py-2">Kind</th>
-                <th className="px-4 py-2">Enabled</th>
-                <th className="px-4 py-2 text-right">Actions</th>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Kind</th>
+                <th>Enabled</th>
+                <th className="text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {(complianceRules || []).length === 0 ? (
-                <tr><td className="px-4 py-8 text-white/50" colSpan={5}>No compliance rules.</td></tr>
+                <tr><td className="text-white/50" colSpan={5}>No compliance rules.</td></tr>
               ) : complianceRules.map((rule) => (
-                <tr key={rule.id} className="border-b border-surface-border/50">
-                  <td className="px-4 py-2 font-mono text-xs text-white/70">{rule.id}</td>
-                  <td className="px-4 py-2 text-white/85">{rule.name}</td>
-                  <td className="px-4 py-2 text-xs uppercase text-white/70">{rule.rule_kind}</td>
-                  <td className="px-4 py-2 text-white/85">{rule.enabled ? 'yes' : 'no'}</td>
-                  <td className="px-4 py-2 text-right">
+                <tr key={rule.id}>
+                  <td className="font-mono text-xs text-white/70">{rule.id}</td>
+                  <td className="text-white/85">{rule.name}</td>
+                  <td className="text-xs uppercase text-white/70">{rule.rule_kind}</td>
+                  <td className="text-white/85">{rule.enabled ? 'yes' : 'no'}</td>
+                  <td className="text-right">
                     {canManageCompliance ? (
                       <button
                         type="button"
@@ -683,9 +691,9 @@ export default function CompliancePage({ mode = 'aml' }) {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </AdminDataTable>
         </div>
-      </div> : null}
+      ) : null}
 
       {isAML ? <div className="grid lg:grid-cols-2 gap-4">
         <SimpleTable
@@ -882,28 +890,26 @@ function Stat({ title, value, tone = 'blue', icon: Icon }) {
 
 function SimpleTable({ title, columns, rows }) {
   return (
-    <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden">
-      <div className="px-4 py-3 border-b border-surface-border">
+    <div>
+      <div className="px-4 py-3">
         <h3 className="text-sm font-bold text-white">{title}</h3>
       </div>
-      <div className="adm-table-x">
-        <table className="w-full text-sm min-w-[760px]">
-          <thead>
-            <tr className="text-left text-[11px] text-white/45 border-b border-surface-border">
-              {columns.map((c) => <th key={c} className="px-4 py-2">{c}</th>)}
+      <AdminDataTable minWidth="760px">
+        <thead>
+          <tr>
+            {columns.map((c) => <th key={c}>{c}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.length === 0 ? (
+            <tr><td className="text-white/50" colSpan={columns.length}>No rows.</td></tr>
+          ) : rows.map((r, idx) => (
+            <tr key={`${title}-${idx}`}>
+              {r.map((cell, i) => <td key={`${title}-${idx}-${i}`} className="text-white/85">{cell}</td>)}
             </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 ? (
-              <tr><td className="px-4 py-8 text-white/50" colSpan={columns.length}>No rows.</td></tr>
-            ) : rows.map((r, idx) => (
-              <tr key={`${title}-${idx}`} className="border-b border-surface-border/50">
-                {r.map((cell, i) => <td key={`${title}-${idx}-${i}`} className="px-4 py-2 text-white/85">{cell}</td>)}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </AdminDataTable>
     </div>
   );
 }

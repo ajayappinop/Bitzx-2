@@ -6,6 +6,7 @@ import { useListSort } from '@/lib/useListSort';
 import SortableTh from '@/components/SortableTh';
 import ConfirmModal from '@/components/ConfirmModal';
 import { ROLE_OPTIONS, ROLE_PERMISSIONS, PERMISSION_GROUPS } from '@/lib/adminAccess';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 function normalizePermissions(perms = []) {
   return [...new Set((perms || []).map((p) => String(p || '').trim()).filter(Boolean))];
@@ -385,31 +386,30 @@ export default function AdminCreatePage() {
             <span>Amount: <strong className="text-white/80">N/A (admin listing)</strong></span>
           </div>
         </div>
-        <div className="adm-table-x scrollbar-thin">
-          <table className="w-full text-sm min-w-[860px]">
+        <AdminDataTable minWidth="860px" className="!rounded-none !border-x-0 !border-b-0">
             <thead>
-              <tr className="text-left text-[11px] font-extrabold text-white/50 uppercase tracking-wider border-b border-surface-border bg-white/[.02]">
-                <SortableTh className="px-4 py-3" sortKey="name" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Admin</SortableTh>
-                <SortableTh className="px-4 py-3" sortKey="role" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Role</SortableTh>
-                <SortableTh className="px-4 py-3" sortKey="is_active" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Status</SortableTh>
-                <SortableTh className="px-4 py-3" sortKey="created_at" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Created</SortableTh>
-                <th className="px-4 py-3 text-right">Actions</th>
+              <tr>
+                <SortableTh sortKey="name" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Admin</SortableTh>
+                <SortableTh sortKey="role" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Role</SortableTh>
+                <SortableTh sortKey="is_active" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Status</SortableTh>
+                <SortableTh sortKey="created_at" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Created</SortableTh>
+                <th className="text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={5} className="px-4 py-16 text-center text-white/50">Loading…</td></tr>
+                <tr><td colSpan={5} className="text-center text-white/50 py-16">Loading…</td></tr>
               ) : items.length === 0 ? (
-                <tr><td colSpan={5} className="px-4 py-16 text-center text-white/50">No admin users match filters.</td></tr>
+                <tr><td colSpan={5} className="text-center text-white/50 py-16">No admin users match filters.</td></tr>
               ) : (
                 items.map((a) => (
-                  <tr key={a.aid} className="border-b border-surface-border/60 hover:bg-white/[.03]">
-                    <td className="px-4 py-3">
+                  <tr key={a.aid}>
+                    <td>
                       <p className="font-bold text-white">{a.name || a.email}</p>
                       <p className="text-xs text-white/55">{a.email}</p>
                       <p className="text-[11px] text-white/35 font-mono">{a.aid}</p>
                     </td>
-                    <td className="px-4 py-3">
+                    <td>
                       <select
                         value={a.role}
                         onChange={(e) => setConfirm({ open: true, type: 'role', aid: a.aid, nextRole: e.target.value, nextActive: null, email: a.email })}
@@ -422,13 +422,13 @@ export default function AdminCreatePage() {
                         {Array.isArray(a.permissions) && a.permissions.length ? `${a.permissions.length} custom permission(s)` : 'Role defaults'}
                       </p>
                     </td>
-                    <td className="px-4 py-3">
+                    <td>
                       <span className={`text-xs font-bold uppercase px-2 py-1 rounded-md ${a.is_active ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'}`}>
                         {a.is_active ? 'active' : 'disabled'}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-xs text-white/55">{a.created_at ? new Date(a.created_at).toLocaleString() : '—'}</td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="text-xs text-white/55">{a.created_at ? new Date(a.created_at).toLocaleString() : '—'}</td>
+                    <td className="text-right">
                       <div className="flex justify-end gap-2">
                         <button
                           type="button"
@@ -452,8 +452,7 @@ export default function AdminCreatePage() {
                 ))
               )}
             </tbody>
-          </table>
-        </div>
+          </AdminDataTable>
         <div className="px-5 py-3 border-t border-surface-border flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs text-white/55">
             Showing {total === 0 ? 0 : skip + 1}–{Math.min(skip + limit, total)} of {total}

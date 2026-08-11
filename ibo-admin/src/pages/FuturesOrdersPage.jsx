@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { RefreshCw, X, AlertTriangle } from 'lucide-react';
 import { api } from '@/lib/api';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 const fmt = (v, dp = 4) => Number.isFinite(Number(v)) ? Number(v).toLocaleString(undefined, { maximumFractionDigits: dp }) : '—';
 
@@ -72,54 +73,52 @@ export default function FuturesOrdersPage() {
         </div>
       )}
 
-      <div className="rounded-2xl border border-surface-border bg-surface-card overflow-x-auto">
-        <table className="w-full text-sm min-w-[1100px]">
-          <thead className="text-[11px] uppercase tracking-wider text-white/45">
-            <tr className="border-b border-white/5">
-              <th className="text-left px-3 py-2">Time</th>
-              <th className="text-left px-3 py-2">Order</th>
-              <th className="text-left px-3 py-2">User</th>
-              <th className="text-left px-3 py-2">Symbol</th>
-              <th className="text-left px-3 py-2">Type</th>
-              <th className="text-left px-3 py-2">Side</th>
-              <th className="text-right px-3 py-2">Price</th>
-              <th className="text-right px-3 py-2">Qty</th>
-              <th className="text-right px-3 py-2">Filled</th>
-              <th className="text-right px-3 py-2">Lev</th>
-              <th className="text-left px-3 py-2">Status</th>
-              <th className="text-right px-3 py-2 pr-4">Actions</th>
+      <AdminDataTable minWidth="1100px">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Order</th>
+            <th>User</th>
+            <th>Symbol</th>
+            <th>Type</th>
+            <th>Side</th>
+            <th className="text-right">Price</th>
+            <th className="text-right">Qty</th>
+            <th className="text-right">Filled</th>
+            <th className="text-right">Lev</th>
+            <th>Status</th>
+            <th className="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.length === 0 && !loading && (
+            <tr><td colSpan={12} className="text-center text-white/40">No orders.</td></tr>
+          )}
+          {rows.map((o) => (
+            <tr key={o.id}>
+              <td className="text-[12px] text-white/55 font-mono">{(o.created_at || '').slice(0, 19).replace('T', ' ')}</td>
+              <td className="text-[11px] font-mono text-white/70">{o.id?.slice(0, 14)}…</td>
+              <td className="text-[12px] font-mono text-white/80">{o.uid}</td>
+              <td className="font-bold">{o.symbol}</td>
+              <td className="capitalize text-white/70 text-[12px]">{o.type}</td>
+              <td className={`font-extrabold ${o.side === 'buy' ? 'text-emerald-300' : 'text-rose-300'}`}>{o.side?.toUpperCase()}</td>
+              <td className="text-right font-mono">{o.price ? `$${fmt(o.price, 2)}` : 'MKT'}</td>
+              <td className="text-right font-mono">{fmt(o.quantity)}</td>
+              <td className="text-right font-mono">{fmt(o.filled || 0)}</td>
+              <td className="text-right font-mono">{o.leverage}×</td>
+              <td className="text-[12px] capitalize text-white/70">{o.status?.replace('_', ' ')}</td>
+              <td className="text-right">
+                {(o.status === 'open' || o.status === 'partially_filled') && (
+                  <button disabled={busyId === o.id} onClick={() => cancel(o.id)}
+                    className="px-2 py-1 rounded bg-rose-500/15 text-rose-300 border border-rose-400/30 hover:bg-rose-500/25 text-[12px] font-bold">
+                    <X size={12} className="inline mr-0.5" /> Cancel
+                  </button>
+                )}
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 && !loading && (
-              <tr><td colSpan={12} className="px-4 py-10 text-center text-white/40">No orders.</td></tr>
-            )}
-            {rows.map((o) => (
-              <tr key={o.id} className="border-b border-white/5 hover:bg-white/[.02]">
-                <td className="px-3 py-2 text-[12px] text-white/55 font-mono">{(o.created_at || '').slice(0, 19).replace('T', ' ')}</td>
-                <td className="px-3 py-2 text-[11px] font-mono text-white/70">{o.id?.slice(0, 14)}…</td>
-                <td className="px-3 py-2 text-[12px] font-mono text-white/80">{o.uid}</td>
-                <td className="px-3 py-2 font-bold">{o.symbol}</td>
-                <td className="px-3 py-2 capitalize text-white/70 text-[12px]">{o.type}</td>
-                <td className={`px-3 py-2 font-extrabold ${o.side === 'buy' ? 'text-emerald-300' : 'text-rose-300'}`}>{o.side?.toUpperCase()}</td>
-                <td className="px-3 py-2 text-right font-mono">{o.price ? `$${fmt(o.price, 2)}` : 'MKT'}</td>
-                <td className="px-3 py-2 text-right font-mono">{fmt(o.quantity)}</td>
-                <td className="px-3 py-2 text-right font-mono">{fmt(o.filled || 0)}</td>
-                <td className="px-3 py-2 text-right font-mono">{o.leverage}×</td>
-                <td className="px-3 py-2 text-[12px] capitalize text-white/70">{o.status?.replace('_', ' ')}</td>
-                <td className="px-3 py-2 text-right pr-4">
-                  {(o.status === 'open' || o.status === 'partially_filled') && (
-                    <button disabled={busyId === o.id} onClick={() => cancel(o.id)}
-                      className="px-2 py-1 rounded bg-rose-500/15 text-rose-300 border border-rose-400/30 hover:bg-rose-500/25 text-[12px] font-bold">
-                      <X size={12} className="inline mr-0.5" /> Cancel
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </AdminDataTable>
 
       <div className="flex items-center justify-between text-sm text-white/55">
         <span>{total} total · showing {skip + 1}–{Math.min(skip + rows.length, total)}</span>

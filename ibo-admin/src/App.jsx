@@ -179,7 +179,7 @@ export default function App() {
           }
         />
 
-        {/* ── IBO Trading Ecosystem admin module ───────────────────────── */}
+        {/* ── Delta Trading Ecosystem admin module ───────────────────────── */}
         <Route
           path="/ibo"
           element={

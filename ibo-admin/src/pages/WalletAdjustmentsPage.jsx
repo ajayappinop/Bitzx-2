@@ -7,6 +7,7 @@ import SortableTh from '@/components/SortableTh';
 import ConfirmModal from '@/components/ConfirmModal';
 import UserUidSuggestInput from '@/components/UserUidSuggestInput';
 import CoinAvatar from '@/components/CoinAvatar';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 const SPOT_ASSETS = ['USDT', 'IBO', 'BTC', 'ETH', 'BNB', 'SOL', 'XRP', 'DOGE', 'ADA', 'POL', 'AVAX', 'DOT', 'LINK', 'LTC'];
 
@@ -148,7 +149,7 @@ function SpotWalletPanel() {
       });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(j.detail || 'Wallet adjustment failed');
-      setOkMsg(`${direction === 'credit' ? 'Added' : 'Reduced'} ${amt} ${asset} for ${uid.trim()}`);
+      setOkMsg(`${direction === 'credit' ? 'Added' : 'Reduced'} ${amt} ${asset === 'IBO' ? 'Delta' : asset} for ${uid.trim()}`);
       setAmount(''); setNote(''); setSkip(0);
       await load();
     } catch (e) { setErr(e.message); }
@@ -170,7 +171,7 @@ function SpotWalletPanel() {
             />
           </div>
           <select value={asset} onChange={(e) => setAsset(e.target.value)} className="rounded-xl bg-surface-dark border border-surface-border px-3 py-2 text-sm text-white">
-            {SPOT_ASSETS.map((a) => <option key={a} value={a}>{a}</option>)}
+            {SPOT_ASSETS.map((a) => <option key={a} value={a}>{a === 'IBO' ? 'Delta' : a}</option>)}
           </select>
           <select value={direction} onChange={(e) => setDirection(e.target.value)} className="rounded-xl bg-surface-dark border border-surface-border px-3 py-2 text-sm text-white">
             <option value="credit">Add (credit)</option>
@@ -208,7 +209,7 @@ function SpotWalletPanel() {
             className="w-full rounded-xl bg-surface-dark border border-surface-border px-3 py-2 text-sm text-white font-mono" />
           <select value={assetFilter} onChange={(e) => { setSkip(0); setAssetFilter(e.target.value); }} className="rounded-xl bg-surface-dark border border-surface-border px-3 py-2 text-sm text-white">
             <option value="">All assets</option>
-            {SPOT_ASSETS.map((a) => <option key={a} value={a}>{a}</option>)}
+            {SPOT_ASSETS.map((a) => <option key={a} value={a}>{a === 'IBO' ? 'Delta' : a}</option>)}
           </select>
           <select value={directionFilter} onChange={(e) => { setSkip(0); setDirectionFilter(e.target.value); }} className="rounded-xl bg-surface-dark border border-surface-border px-3 py-2 text-sm text-white">
             <option value="">All types</option>
@@ -238,61 +239,58 @@ function SpotWalletPanel() {
         <span>Net delta: <strong className={`${Number(stats.net_delta || 0) >= 0 ? 'text-green-300' : 'text-red-300'} font-mono`}>{Number(stats.net_delta || 0).toFixed(6)}</strong></span>
       </div>
 
-      <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden min-w-0">
-        <div className="adm-table-x scrollbar-thin">
-          <table className="w-full text-sm min-w-[1050px]">
+      <AdminDataTable minWidth="1050px">
             <thead>
-              <tr className="text-left text-sm font-semibold text-white/80 border-b border-surface-border bg-white/[.02]">
-                <SortableTh className="px-4 py-3" sortKey="id"         activeKey={sortBy} dir={sortDir} onSort={toggleSort}>ID</SortableTh>
-                <SortableTh className="px-4 py-3" sortKey="uid"        activeKey={sortBy} dir={sortDir} onSort={toggleSort}>User</SortableTh>
-                <SortableTh className="px-4 py-3" sortKey="asset"      activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Asset</SortableTh>
-                <SortableTh className="px-4 py-3" sortKey="direction"  activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Type</SortableTh>
-                <SortableTh className="px-4 py-3" sortKey="amount"     activeKey={sortBy} dir={sortDir} onSort={toggleSort} align="right">Amount</SortableTh>
-                <th className="px-4 py-3 text-right">Before {'->'} After</th>
-                <th className="px-4 py-3">Admin</th>
-                <th className="px-4 py-3">Note</th>
-                <SortableTh className="px-4 py-3" sortKey="created_at" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Created</SortableTh>
+              <tr>
+                <SortableTh sortKey="id"         activeKey={sortBy} dir={sortDir} onSort={toggleSort}>ID</SortableTh>
+                <SortableTh sortKey="uid"        activeKey={sortBy} dir={sortDir} onSort={toggleSort}>User</SortableTh>
+                <SortableTh sortKey="asset"      activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Asset</SortableTh>
+                <SortableTh sortKey="direction"  activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Type</SortableTh>
+                <SortableTh sortKey="amount"     activeKey={sortBy} dir={sortDir} onSort={toggleSort} align="right">Amount</SortableTh>
+                <th className="text-right">Before {'->'} After</th>
+                <th>Admin</th>
+                <th>Note</th>
+                <SortableTh sortKey="created_at" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Created</SortableTh>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={9} className="px-4 py-16 text-center text-white/50">Loading…</td></tr>
+                <tr><td colSpan={9} className="text-center text-white/50 !py-16">Loading…</td></tr>
               ) : items.length === 0 ? (
-                <tr><td colSpan={9} className="px-4 py-16 text-center text-white/50">No spot wallet adjustments found.</td></tr>
+                <tr><td colSpan={9} className="text-center text-white/50 !py-16">No spot wallet adjustments found.</td></tr>
               ) : (
                 items.map((row) => (
-                  <tr key={row.id} className="border-b border-surface-border/60 hover:bg-white/[.03]">
-                    <td className="px-4 py-3 font-mono text-xs text-white/80">{row.id}</td>
-                    <td className="px-4 py-3 font-mono text-xs text-white">{row.uid}</td>
-                    <td className="px-4 py-3 font-bold">
+                  <tr key={row.id}>
+                    <td className="font-mono text-xs text-white/80">{row.id}</td>
+                    <td className="font-mono text-xs text-white">{row.uid}</td>
+                    <td className="font-bold">
                       <span className="inline-flex items-center gap-2">
                         <CoinAvatar asset={row.asset} className="h-6 w-6" />
-                        {row.asset}
+                        {row.asset === 'IBO' ? 'Delta' : row.asset}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
+                    <td>
                       <span className={`text-xs font-bold uppercase px-2 py-1 rounded-md ${
                         row.direction === 'credit' ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-300'
                       }`}>
                         {row.direction}
                       </span>
                     </td>
-                    <td className={`px-4 py-3 text-right font-mono ${row.direction === 'credit' ? 'text-green-400' : 'text-red-300'}`}>
+                    <td className={`text-right font-mono ${row.direction === 'credit' ? 'text-green-400' : 'text-red-300'}`}>
                       {Number(row.amount).toFixed(6)}
                     </td>
-                    <td className="px-4 py-3 text-right font-mono text-xs text-white/75">
+                    <td className="text-right font-mono text-xs text-white/75">
                       {Number(row.balance_before || 0).toFixed(6)} {'->'} {Number(row.balance_after || 0).toFixed(6)}
                     </td>
-                    <td className="px-4 py-3 text-xs text-white/65">{row.admin_email || row.admin_aid || '—'}</td>
-                    <td className="px-4 py-3 text-xs text-white/65 max-w-[220px] truncate" title={row.note}>{row.note || '—'}</td>
-                    <td className="px-4 py-3 text-xs text-white/55 whitespace-nowrap">{row.created_at ? new Date(row.created_at).toLocaleString() : '—'}</td>
+                    <td className="text-xs text-white/65">{row.admin_email || row.admin_aid || '—'}</td>
+                    <td className="text-xs text-white/65 max-w-[220px] truncate" title={row.note}>{row.note || '—'}</td>
+                    <td className="text-xs text-white/55 whitespace-nowrap">{row.created_at ? new Date(row.created_at).toLocaleString() : '—'}</td>
                   </tr>
                 ))
               )}
             </tbody>
-          </table>
-        </div>
-      </div>
+          
+      </AdminDataTable>
 
       <div className="flex items-center justify-between mt-4 flex-wrap gap-3">
         <p className="text-white/50 text-sm">{total} rows · page {page} / {pages}</p>
@@ -311,7 +309,7 @@ function SpotWalletPanel() {
       <ConfirmModal
         open={confirmOpen}
         title={direction === 'debit' ? 'Reduce user spot balance' : 'Add user spot balance'}
-        message={`Confirm ${direction === 'debit' ? 'debit' : 'credit'} of ${amount || 0} ${asset} for user ${uid || '(no uid)'}.`}
+        message={`Confirm ${direction === 'debit' ? 'debit' : 'credit'} of ${amount || 0} ${asset === 'IBO' ? 'Delta' : asset} for user ${uid || '(no uid)'}.`}
         confirmText={direction === 'debit' ? 'Reduce balance' : 'Add balance'}
         danger={direction === 'debit'}
         busy={busy}
@@ -479,33 +477,32 @@ function FuturesWalletPanel() {
             <p className="text-xs font-extrabold text-white/55 uppercase tracking-wider">Margin balances</p>
             <p className="text-[11px] text-white/45">{walletsTotal} users · USDT only</p>
           </div>
-          <div className="adm-table-x scrollbar-thin">
-            <table className="w-full text-sm min-w-[640px]">
-              <thead>
-                <tr className="text-left text-[11px] text-white/50 uppercase border-b border-surface-border">
-                  <th className="px-4 py-3">User</th>
-                  <th className="px-4 py-3 text-right">Available</th>
-                  <th className="px-4 py-3 text-right">Locked</th>
-                  <th className="px-4 py-3 text-right">Total</th>
-                  <th className="px-4 py-3 text-right pr-4">Action</th>
+          <AdminDataTable minWidth="640px" className="!border-0 !rounded-none">
+            <thead>
+                <tr>
+                  <th>User</th>
+                  <th className="text-right">Available</th>
+                  <th className="text-right">Locked</th>
+                  <th className="text-right">Total</th>
+                  <th className="text-right">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {wLoading ? (
-                  <tr><td colSpan={5} className="px-4 py-12 text-center text-white/45">Loading…</td></tr>
+                  <tr><td colSpan={5} className="text-center text-white/45 !py-16">Loading…</td></tr>
                 ) : wallets.length === 0 ? (
-                  <tr><td colSpan={5} className="px-4 py-12 text-center text-white/45">No futures wallets match this filter.</td></tr>
+                  <tr><td colSpan={5} className="text-center text-white/45 !py-16">No futures wallets match this filter.</td></tr>
                 ) : wallets.map((w) => {
                   const total = Number(w.available || 0) + Number(w.locked || 0);
                   return (
-                    <tr key={`${w.uid}_${w.asset}`} className="border-b border-surface-border/60 hover:bg-white/[.03]">
-                      <td className="px-4 py-3 font-mono text-xs text-white">{w.uid}</td>
-                      <td className="px-4 py-3 text-right font-mono text-green-400">{Number(w.available || 0).toFixed(4)}</td>
-                      <td className="px-4 py-3 text-right font-mono text-gold-light/80">{Number(w.locked || 0).toFixed(4)}</td>
-                      <td className="px-4 py-3 text-right font-mono text-white">{total.toFixed(4)}</td>
-                      <td className="px-4 py-3 text-right pr-4 space-x-1">
+                    <tr key={`${w.uid}_${w.asset}`}>
+                      <td className="font-mono text-xs text-white">{w.uid}</td>
+                      <td className="text-right font-mono text-green-400">{Number(w.available || 0).toFixed(4)}</td>
+                      <td className="text-right font-mono text-gold-light/80">{Number(w.locked || 0).toFixed(4)}</td>
+                      <td className="text-right font-mono text-white">{total.toFixed(4)}</td>
+                      <td className="text-right space-x-1">
                         <button onClick={() => { setUid(w.uid); }}
-                          className="px-2 py-1 rounded text-[11px] font-bold bg-gold-light/15 text-gold-light border border-gold-light/30">
+                          className="rounded text-[11px] font-bold bg-gold-light/15 text-gold-light border border-gold-light/30">
                           Adjust
                         </button>
                         <button onClick={() => setSelectedUid(w.uid)}
@@ -521,8 +518,8 @@ function FuturesWalletPanel() {
                   );
                 })}
               </tbody>
-            </table>
-          </div>
+            
+          </AdminDataTable>
           {/* Pagination */}
           <div className="px-4 py-2 flex items-center justify-between text-[12px] text-white/55 border-t border-surface-border">
             <span>{walletsTotal} total · showing {wallets.length === 0 ? 0 : skip + 1}–{skip + wallets.length}</span>

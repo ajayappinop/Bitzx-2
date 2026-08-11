@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, Filter } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useListSort } from '@/lib/useListSort';
 import SortableTh from '@/components/SortableTh';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 function normalizeAuditRow(row) {
   const source = row.source
@@ -205,42 +206,40 @@ export default function AuditPage() {
         <span>Amount: <strong className="text-white/80">N/A (audit log)</strong></span>
       </div>
 
-      <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden min-w-0">
-        <div className="adm-table-x scrollbar-thin">
-          <table className="w-full text-sm min-w-[800px]">
+      <AdminDataTable minWidth="800px">
             <thead>
-              <tr className="text-left text-[11px] font-extrabold text-white/50 uppercase tracking-wider border-b border-surface-border bg-white/[.02]">
-                <SortableTh className="px-4 py-3" sortKey="created_at" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Time</SortableTh>
-                <SortableTh className="px-4 py-3" sortKey="action" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Action</SortableTh>
-                <SortableTh className="px-4 py-3" sortKey="admin_aid" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Admin</SortableTh>
-                <th className="px-4 py-3">Source</th>
-                <SortableTh className="px-4 py-3" sortKey="target_id" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Target</SortableTh>
-                <th className="px-4 py-3">Extra</th>
+              <tr>
+                <SortableTh sortKey="created_at" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Time</SortableTh>
+                <SortableTh sortKey="action" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Action</SortableTh>
+                <SortableTh sortKey="admin_aid" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Admin</SortableTh>
+                <th>Source</th>
+                <SortableTh sortKey="target_id" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Target</SortableTh>
+                <th>Extra</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-16 text-center text-white/50">Loading…</td>
+                  <td colSpan={6} className="text-center text-white/50 !py-16">Loading…</td>
                 </tr>
               ) : items.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-16 text-center text-white/50">No audit entries match.</td>
+                  <td colSpan={6} className="text-center text-white/50 !py-16">No audit entries match.</td>
                 </tr>
               ) : (
                 items.map(row => {
                   const href = targetLink(row);
                   return (
-                    <tr key={row.id} className="border-b border-surface-border/60 hover:bg-white/[.03]">
-                      <td className="px-4 py-3 text-white/55 text-xs whitespace-nowrap">
+                    <tr key={row.id}>
+                      <td className="text-white/55 whitespace-nowrap">
                         {row.created_at ? new Date(row.created_at).toLocaleString() : '—'}
                       </td>
-                      <td className="px-4 py-3 font-mono text-xs text-gold-light/90">{row.action}</td>
-                      <td className="px-4 py-3 text-xs">
+                      <td className="font-mono text-gold-light/90">{row.action}</td>
+                      <td>
                         <span className="text-white/80">{row.admin_email || row.admin_aid || '—'}</span>
                       </td>
-                      <td className="px-4 py-3 text-xs text-white/50">{row.source || '—'}</td>
-                      <td className="px-4 py-3 text-xs">
+                      <td className="text-white/50">{row.source || '—'}</td>
+                      <td>
                         {href ? (
                           <Link to={href} className="text-gold-light hover:underline font-mono">
                             {row.target_type}:{row.target_id}
@@ -249,7 +248,7 @@ export default function AuditPage() {
                           <span className="font-mono text-white/60">{row.target_type}:{row.target_id || '—'}</span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-xs text-white/45 max-w-[240px] truncate font-mono" title={JSON.stringify(row.extra || {})}>
+                      <td className="text-white/45 max-w-[240px] truncate font-mono" title={JSON.stringify(row.extra || {})}>
                         {Object.keys(row.extra || {}).length ? JSON.stringify(row.extra) : '—'}
                       </td>
                     </tr>
@@ -257,9 +256,7 @@ export default function AuditPage() {
                 })
               )}
             </tbody>
-          </table>
-        </div>
-      </div>
+      </AdminDataTable>
 
       <div className="flex items-center justify-between mt-4 flex-wrap gap-3">
           <p className="text-white/50 text-sm">{total} entries · page {page} / {pages}</p>

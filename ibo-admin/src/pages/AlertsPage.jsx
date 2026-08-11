@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import ConfirmModal from '@/components/ConfirmModal';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 const SEVERITY_ORDER = ['critical', 'warn', 'info'];
 
@@ -350,39 +351,38 @@ export default function AlertsPage() {
       ) : null}
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-xl border border-white/10 bg-white/[0.02]">
-        <table className="w-full text-sm">
-          <thead className="bg-white/5 text-white/60 text-left text-[11px] uppercase tracking-wider">
+      <AdminDataTable>
+          <thead>
             <tr>
-              <th className="px-3 py-2">Severity</th>
-              <th className="px-3 py-2">Title</th>
-              <th className="px-3 py-2">Source</th>
-              <th className="px-3 py-2">Status</th>
-              <th className="px-3 py-2 text-right">Occur.</th>
-              <th className="px-3 py-2">Last seen</th>
-              <th className="px-3 py-2 text-right">Actions</th>
+              <th>Severity</th>
+              <th>Title</th>
+              <th>Source</th>
+              <th>Status</th>
+              <th className="text-right">Occur.</th>
+              <th>Last seen</th>
+              <th className="text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
+          <tbody>
             {items.map((row) => (
               <tr
                 key={row.id}
-                className="hover:bg-white/[0.03] cursor-pointer"
+                className="cursor-pointer"
                 onClick={() => setDetail(row)}
               >
-                <td className="px-3 py-2"><SeverityPill severity={row.severity} /></td>
-                <td className="px-3 py-2">
+                <td><SeverityPill severity={row.severity} /></td>
+                <td>
                   <div className="font-bold text-white">{row.title}</div>
                   <div className="text-white/50 text-[11px] truncate max-w-[420px]" title={row.message}>
                     {row.message}
                   </div>
                   <div className="text-white/30 text-[10px] font-mono">{row.type}</div>
                 </td>
-                <td className="px-3 py-2 text-white/60 uppercase text-[11px] font-bold">{row.source}</td>
-                <td className="px-3 py-2"><StatusPill status={row.status} /></td>
-                <td className="px-3 py-2 text-right font-mono text-white/70">{row.occurrences}</td>
-                <td className="px-3 py-2 text-white/50 text-[11px]">{fmtDatetime(row.last_seen_at)}</td>
-                <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
+                <td className="text-white/60 uppercase text-[11px] font-bold">{row.source}</td>
+                <td><StatusPill status={row.status} /></td>
+                <td className="text-right font-mono text-white/70">{row.occurrences}</td>
+                <td className="text-white/50 text-[11px]">{fmtDatetime(row.last_seen_at)}</td>
+                <td className="text-right" onClick={(e) => e.stopPropagation()}>
                   {row.status === 'open' ? (
                     <div className="inline-flex items-center gap-1">
                       <button
@@ -412,14 +412,13 @@ export default function AlertsPage() {
             ))}
             {!items.length && !loading ? (
               <tr>
-                <td className="px-3 py-6 text-white/50 text-center" colSpan={7}>
+                <td className="text-white/50 text-center !py-6" colSpan={7}>
                   No alerts match these filters.
                 </td>
               </tr>
             ) : null}
           </tbody>
-        </table>
-      </div>
+      </AdminDataTable>
 
       {/* Pagination */}
       {(data?.pages || 0) > 1 ? (

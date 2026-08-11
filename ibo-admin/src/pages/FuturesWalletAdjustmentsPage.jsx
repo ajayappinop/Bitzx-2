@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { RefreshCw, AlertTriangle, Plus, Minus, Search } from 'lucide-react';
 import { api } from '@/lib/api';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 const fmt = (v, dp = 2) => Number.isFinite(Number(v)) ? Number(v).toLocaleString(undefined, { maximumFractionDigits: dp }) : '—';
 
@@ -139,27 +140,27 @@ export default function FuturesWalletAdjustmentsPage() {
 
       {/* Wallet list */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-        <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden lg:col-span-2">
-          <div className="px-4 py-3 border-b border-white/10 text-sm font-bold text-white">Top wallets</div>
-          <table className="w-full text-sm">
-            <thead className="text-[11px] uppercase tracking-wider text-white/45">
-              <tr className="border-b border-white/5">
-                <th className="text-left px-3 py-2">User</th>
-                <th className="text-right px-3 py-2">Available</th>
-                <th className="text-right px-3 py-2">Locked</th>
-                <th className="text-right px-3 py-2 pr-4">Actions</th>
+        <div className="lg:col-span-2 space-y-0">
+          <div className="px-4 py-3 text-sm font-bold text-white">Top wallets</div>
+          <AdminDataTable>
+            <thead>
+              <tr>
+                <th>User</th>
+                <th className="text-right">Available</th>
+                <th className="text-right">Locked</th>
+                <th className="text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {wallets.length === 0 && !loading && (
-                <tr><td colSpan={4} className="px-3 py-10 text-center text-white/40">No wallets.</td></tr>
+                <tr><td colSpan={4} className="text-center text-white/40">No wallets.</td></tr>
               )}
               {wallets.map((w) => (
-                <tr key={`${w.uid}_${w.asset}`} className="border-b border-white/5 hover:bg-white/[.02]">
-                  <td className="px-3 py-2 text-[12px] font-mono text-white/80">{w.uid}</td>
-                  <td className="px-3 py-2 text-right font-mono">{fmt(w.available)}</td>
-                  <td className="px-3 py-2 text-right font-mono">{fmt(w.locked)}</td>
-                  <td className="px-3 py-2 text-right pr-4 space-x-2">
+                <tr key={`${w.uid}_${w.asset}`}>
+                  <td className="text-[12px] font-mono text-white/80">{w.uid}</td>
+                  <td className="text-right font-mono">{fmt(w.available)}</td>
+                  <td className="text-right font-mono">{fmt(w.locked)}</td>
+                  <td className="text-right space-x-2">
                     <button onClick={() => { setUid(w.uid); }}
                       className="px-2 py-0.5 text-[12px] rounded bg-gold-light/15 text-gold-light border border-gold-light/30">
                       Adjust
@@ -172,8 +173,8 @@ export default function FuturesWalletAdjustmentsPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
-          <div className="px-4 py-2 flex items-center justify-between text-[12px] text-white/55 border-t border-white/5">
+          </AdminDataTable>
+          <div className="px-4 py-2 flex items-center justify-between text-[12px] text-white/55">
             <span>{total} total · {skip + 1}–{Math.min(skip + wallets.length, total)}</span>
             <div className="flex gap-2">
               <button disabled={skip === 0} onClick={() => setSkip((s) => Math.max(0, s - 100))}

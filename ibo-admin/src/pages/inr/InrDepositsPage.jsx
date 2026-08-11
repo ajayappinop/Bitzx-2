@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
-  IndianRupee, RefreshCw, CheckCircle, XCircle, Eye, Clock, AlertCircle, X,
+  IndianRupee, RefreshCw, CheckCircle, XCircle, Eye, Clock, AlertCircle, X, Search,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAdminAuth } from '@/context/AdminAuthContext';
 import { hasPermission } from '@/lib/adminAccess';
-import { AdminPageHeader, AdminPanel } from '@/components/AdminPrimitives';
+import { AdminPageHeader, AdminPanel, AdminDataTable } from '@/components/AdminPrimitives';
 
 const BACKEND = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
 
@@ -64,7 +64,7 @@ function fmtIboTable(n) {
       notation: 'compact',
       maximumFractionDigits: 4,
     }).format(v);
-    return { display, title: `${full} IBO` };
+    return { display, title: `${full} Delta` };
   }
   if (abs >= 10_000) {
     const display = v.toLocaleString(undefined, { maximumFractionDigits: 4 });
@@ -176,7 +176,7 @@ function useInrLiveRate(intervalMs = 1000) {
         if (!r.ok) throw new Error(j.detail || `HTTP ${r.status}`);
         if (!(j.ibo_usdt > 0)) {
           setRate(null);
-          setError('IBO price is zero or missing in platform controls.');
+          setError('Delta price is zero or missing in platform controls.');
           return;
         }
         setRate({
@@ -187,7 +187,7 @@ function useInrLiveRate(intervalMs = 1000) {
         setError('');
       } catch (e) {
         if (!alive) return;
-        setError(e.message || 'Could not load IBO rate');
+        setError(e.message || 'Could not load Delta rate');
       } finally {
         if (alive) setLoading(false);
       }
@@ -212,6 +212,11 @@ const STATUS_OPTIONS = [
   { value: 'rejected', label: 'Rejected' },
 ];
 
+const fieldClass =
+  'h-9 rounded-lg bg-surface-dark border border-surface-border px-3 text-sm font-semibold text-white';
+const searchClass =
+  'h-9 w-full min-w-[200px] sm:w-56 rounded-lg bg-surface-dark border border-surface-border pl-8 pr-3 text-sm text-white font-mono placeholder:text-white/35 outline-none focus:border-gold/40';
+
 function DetailRow({ label, children }) {
   return (
     <div>
@@ -230,7 +235,7 @@ function DepositDetailModal({ row, onClose, canAct, acting, onApprove, onReject,
   const ibo = (pending && liveRate)
     ? iboAmountFromInr(row.amount_inr, liveRate)
     : rowIboAmount(row);
-  const iboLabel = approved ? 'IBO credited' : approving ? 'IBO (processing)' : pending ? 'Est. IBO' : 'IBO';
+  const iboLabel = approved ? 'Delta credited' : approving ? 'Delta (processing)' : pending ? 'Est. Delta' : 'Delta';
   const proofSrc = row.screenshot_url ? uploadUrl(row.screenshot_url) : '';
 
   return (
@@ -321,7 +326,7 @@ function DepositDetailModal({ row, onClose, canAct, acting, onApprove, onReject,
                     )}
                     {approved && (
                       <div className="rounded-xl border border-white/10 bg-white/[.03] p-3 text-xs font-mono text-white/55 grid grid-cols-2 gap-2">
-                        <p>Locked IBO {fmtUsd(row.ibo_usdt_at_time)}</p>
+                        <p>Locked Delta {fmtUsd(row.ibo_usdt_at_time)}</p>
                         <p>INR/USDT {row.inr_per_usdt_at_time != null ? Number(row.inr_per_usdt_at_time).toFixed(2) : '—'}</p>
                       </div>
                     )}
@@ -394,7 +399,7 @@ function RateBanner({ rate, rateError, rateLoading }) {
   if (rateError && !rate?.ibo_usdt) {
     return (
       <div className="mb-4 rounded-xl border border-rose-500/35 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
-        <strong>Could not load IBO credit rate.</strong> {rateError}
+        <strong>Could not load Delta credit rate.</strong> {rateError}
       </div>
     );
   }
@@ -402,7 +407,7 @@ function RateBanner({ rate, rateError, rateLoading }) {
     if (!rateLoading) return null;
     return (
       <div className="mb-4 rounded-xl border border-cyan-500/25 bg-cyan-500/10 px-4 py-3 text-sm text-white/55 animate-pulse">
-        Loading live IBO rate…
+        Loading live Delta rate…
       </div>
     );
   }
@@ -410,11 +415,11 @@ function RateBanner({ rate, rateError, rateLoading }) {
     <div className="mb-4 rounded-xl border border-cyan-500/25 bg-cyan-500/10 px-4 py-3 text-sm">
       <span className="text-[11px] font-bold uppercase text-cyan-200/80">Live credit rate </span>
       <span className="text-white/50 mx-2">·</span>
-      <span className="text-white font-mono">{fmtUsd(rate.ibo_usdt)} IBO</span>
+      <span className="text-white font-mono">{fmtUsd(rate.ibo_usdt)} Delta</span>
       <span className="text-white/50 mx-2">·</span>
       <span className="text-white/80">INR/USDT {Number(rate.inr_per_usdt).toFixed(2)}</span>
       <span className="text-white/50 mx-2">·</span>
-      <span className="text-gold-light font-mono">1 INR ≈ {fmtIbo(rate.ibo_per_inr)} IBO</span>
+      <span className="text-gold-light font-mono">1 INR ≈ {fmtIbo(rate.ibo_per_inr)} Delta</span>
     </div>
   );
 }
@@ -497,7 +502,7 @@ export default function InrDepositsPage() {
       setApproveTarget(null);
       setDetailRow(null);
       await load({ silent: true });
-      setOk(`${row.uid} — ${fmtIbo(j.amount_ibo)} IBO credited`);
+      setOk(`${row.uid} — ${fmtIbo(j.amount_ibo)} Delta credited`);
     } catch (e) {
       const msg = e.message || 'Approve failed';
       if (/not pending|already processed|awaiting approval/i.test(msg)) {
@@ -545,16 +550,6 @@ export default function InrDepositsPage() {
         icon={IndianRupee}
         title="INR deposits"
         subtitle="Open each deposit to review proof and details, then approve or reject from the detail view."
-        actions={(
-          <button
-            type="button"
-            onClick={() => load()}
-            disabled={loading && items.length === 0}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-surface-border text-sm font-bold text-white hover:border-gold/40 disabled:opacity-40"
-          >
-            <RefreshCw size={14} className={loading && items.length === 0 ? 'animate-spin' : ''} /> Refresh
-          </button>
-        )}
       />
 
       <RateBanner rate={liveRate} rateError={liveRateError} rateLoading={liveRateLoading} />
@@ -565,35 +560,51 @@ export default function InrDepositsPage() {
         </div>
       )}
 
-      <div className="flex flex-wrap gap-3 mb-4 items-center">
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-surface-border bg-surface-card px-3 py-2.5 mb-4">
         <select
           value={statusFilter}
           onChange={(e) => { setStatusFilter(e.target.value); setSkip(0); }}
-          className="rounded-xl border border-surface-border bg-surface-dark px-3 py-2 text-sm text-white"
+          className={fieldClass}
+          aria-label="Filter by status"
         >
           {STATUS_OPTIONS.map((o) => (
             <option key={o.value || 'all'} value={o.value}>{o.label}</option>
           ))}
         </select>
-        <input
-          type="text"
-          value={uidFilter}
-          onChange={(e) => { setUidFilter(e.target.value); setSkip(0); }}
-          placeholder="Filter by user UID"
-          className="rounded-xl border border-surface-border bg-surface-dark px-3 py-2 text-sm text-white font-mono min-w-[200px] placeholder:text-white/35"
-        />
+        <div className="relative min-w-0">
+          <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/45 pointer-events-none" />
+          <input
+            type="text"
+            value={uidFilter}
+            onChange={(e) => { setUidFilter(e.target.value); setSkip(0); }}
+            placeholder="Filter by user UID"
+            className={searchClass}
+            aria-label="Filter by user UID"
+          />
+        </div>
         {uidFilter ? (
           <button
             type="button"
             onClick={() => { setUidFilter(''); setSkip(0); }}
-            className="text-xs font-bold text-white/60 hover:text-white"
+            className="h-9 px-4 rounded-lg border border-surface-border text-sm font-bold text-white/90 shrink-0"
           >
             Clear UID
           </button>
         ) : null}
-        <Link to="/inr-settings" className="text-sm font-bold text-gold-light hover:underline">
+        <Link
+          to="/inr-settings"
+          className="h-9 inline-flex items-center px-4 rounded-lg border border-surface-border text-sm font-bold text-gold-light shrink-0 hover:bg-gold/10"
+        >
           Payment methods →
         </Link>
+        <button
+          type="button"
+          onClick={() => load()}
+          disabled={loading && items.length === 0}
+          className="inline-flex h-9 items-center gap-2 px-3 rounded-lg border border-surface-border text-sm font-bold text-white/90 shrink-0 disabled:opacity-40 ml-auto"
+        >
+          <RefreshCw size={14} className={loading && items.length === 0 ? 'animate-spin' : ''} /> Refresh
+        </button>
       </div>
 
       {err && (
@@ -609,25 +620,23 @@ export default function InrDepositsPage() {
         </p>
       )}
 
-      <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden min-w-0">
-        <div className="adm-table-x scrollbar-thin">
-          <table className="w-full text-sm min-w-[680px]">
+      <AdminDataTable minWidth="680px">
             <thead>
-              <tr className="text-center text-[11px] font-extrabold text-white/50 uppercase tracking-wider border-b border-surface-border bg-white/[.02]">
-                <th className="px-4 py-3">User ID</th>
-                <th className="px-4 py-3 min-w-[7.5rem] max-w-[11rem]">INR</th>
-                <th className="px-4 py-3 min-w-[7.5rem] max-w-[11rem]">IBO</th>
-                <th className="px-4 py-3">Method</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 whitespace-nowrap">Submitted</th>
-                <th className="px-4 py-3 min-w-[5.5rem]">View</th>
+              <tr className="text-center">
+                <th>User ID</th>
+                <th className="min-w-[7.5rem] max-w-[11rem]">INR</th>
+                <th className="min-w-[7.5rem] max-w-[11rem]">Delta</th>
+                <th>Method</th>
+                <th>Status</th>
+                <th className="whitespace-nowrap">Submitted</th>
+                <th className="min-w-[5.5rem]">View</th>
               </tr>
             </thead>
             <tbody>
               {loading && items.length === 0 ? (
-                <tr><td colSpan={7} className="px-4 py-12 text-center text-white/50">Loading…</td></tr>
+                <tr><td colSpan={7} className="text-center text-white/50 !py-12">Loading…</td></tr>
               ) : items.length === 0 ? (
-                <tr><td colSpan={7} className="px-4 py-12 text-center text-white/50">No deposits found.</td></tr>
+                <tr><td colSpan={7} className="text-center text-white/50 !py-12">No deposits found.</td></tr>
               ) : (
                 items.map((row) => {
                   const st = String(row.status || '').toLowerCase();
@@ -639,8 +648,8 @@ export default function InrDepositsPage() {
                   const iboCell = fmtIboTable(ibo);
                   const methodCell = paymentMethodListCell(row);
                   return (
-                    <tr key={row.id} className="border-b border-surface-border/50 hover:bg-white/[.02]">
-                      <td className="px-4 py-3 text-center align-middle">
+                    <tr key={row.id}>
+                      <td className="text-center">
                         <Link
                           to={`/users/${row.uid}`}
                           className="inline-block font-mono text-[11px] text-gold-light hover:underline max-w-[120px] truncate"
@@ -649,14 +658,14 @@ export default function InrDepositsPage() {
                           {row.uid}
                         </Link>
                       </td>
-                      <td className="px-4 py-3 text-center align-middle max-w-[11rem]">
+                      <td className="text-center max-w-[11rem]">
                         <TableAmount
                           display={inrCell.display}
                           title={inrCell.title}
                           className="font-semibold text-white"
                         />
                       </td>
-                      <td className="px-4 py-3 text-center align-middle max-w-[11rem]">
+                      <td className="text-center max-w-[11rem]">
                         <TableAmount
                           display={iboCell.display}
                           title={iboCell.title}
@@ -666,7 +675,7 @@ export default function InrDepositsPage() {
                           ) : null}
                         />
                       </td>
-                      <td className="px-4 py-3 text-center align-middle">
+                      <td className="text-center">
                         <span
                           className="inline-block text-xs font-bold uppercase text-white/90"
                           title={methodCell.title || undefined}
@@ -674,13 +683,13 @@ export default function InrDepositsPage() {
                           {methodCell.kind}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-center align-middle">
+                      <td className="text-center">
                         <StatusPill status={row.status} />
                       </td>
-                      <td className="px-4 py-3 text-center align-middle text-xs text-white/55 whitespace-nowrap">
+                      <td className="text-center text-xs text-white/55 whitespace-nowrap">
                         {fmtTs(row.created_at)}
                       </td>
-                      <td className="px-4 py-3 text-center align-middle">
+                      <td className="text-center">
                         <button
                           type="button"
                           onClick={() => setDetailRow(row)}
@@ -694,9 +703,7 @@ export default function InrDepositsPage() {
                 })
               )}
             </tbody>
-          </table>
-        </div>
-      </div>
+      </AdminDataTable>
 
       <div className="flex items-center justify-between mt-4 text-sm text-white/60">
         <span>Page {page} / {pages} · {total} total</span>
@@ -760,14 +767,14 @@ export default function InrDepositsPage() {
               <div className="rounded-xl border border-sky-500/35 bg-sky-500/10 px-4 py-3 flex items-start gap-3">
                 <RefreshCw size={18} className="text-sky-300 shrink-0 animate-spin mt-0.5" />
                 <div className="text-sm text-sky-100/90">
-                  <p className="font-bold text-sky-200">Crediting IBO to wallet</p>
+                  <p className="font-bold text-sky-200">Crediting Delta to wallet</p>
                   <p className="text-xs text-white/55 mt-1">Do not close this window until it finishes.</p>
                 </div>
               </div>
             )}
 
             <div className={`rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-4 space-y-2 ${approveProcessing ? 'opacity-60 pointer-events-none' : ''}`}>
-              <p className="text-xs font-bold uppercase text-cyan-200/80">Live IBO price</p>
+              <p className="text-xs font-bold uppercase text-cyan-200/80">Live Delta price</p>
               {approveLivePreview ? (
                 <>
                   <p className="text-2xl font-black text-white font-mono">
@@ -776,7 +783,7 @@ export default function InrDepositsPage() {
                   <p className="text-xs text-white/55">
                     INR/USDT {Number(approveLivePreview.inr_per_usdt).toFixed(2)}
                     {' · '}
-                    1 INR ≈ {fmtIbo(approveLivePreview.ibo_per_inr)} IBO
+                    1 INR ≈ {fmtIbo(approveLivePreview.ibo_per_inr)} Delta
                   </p>
                 </>
               ) : (
@@ -785,9 +792,9 @@ export default function InrDepositsPage() {
             </div>
 
             <div className={`rounded-xl border border-gold/25 bg-gold/5 p-4 ${approveProcessing ? 'opacity-60' : ''}`}>
-              <p className="text-xs text-white/55 uppercase font-bold mb-1">IBO to credit</p>
+              <p className="text-xs text-white/55 uppercase font-bold mb-1">Delta to credit</p>
               <p className="text-2xl font-black text-gold-light font-mono">
-                {approveLivePreview?.amount_ibo != null ? `${fmtIbo(approveLivePreview.amount_ibo)} IBO` : '—'}
+                {approveLivePreview?.amount_ibo != null ? `${fmtIbo(approveLivePreview.amount_ibo)} Delta` : '—'}
               </p>
             </div>
 

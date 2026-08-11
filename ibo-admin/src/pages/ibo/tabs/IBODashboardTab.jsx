@@ -39,13 +39,13 @@ function PairRow({ pair }) {
     <div className="flex items-center gap-3 py-2.5 border-b border-white/5 last:border-0">
       <div className="flex items-center gap-2 w-28">
         {icon && <img src={icon} alt={base} className="w-5 h-5 rounded-full" />}
-        <span className="text-sm font-bold text-white">{base}<span className="text-white/40">/IBO</span></span>
+        <span className="text-sm font-bold text-white">{base}<span className="text-white/40">/Delta</span></span>
       </div>
       <div className="flex-1 text-xs text-white/50 font-mono">{pair.symbol}</div>
       <div className={`text-xs font-semibold ${change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
         {change >= 0 ? '+' : ''}{change.toFixed(2)}%
       </div>
-      <div className="text-xs text-white/50 w-24 text-right">{Number(pair.volume_ibo || 0).toLocaleString()} IBO</div>
+      <div className="text-xs text-white/50 w-24 text-right">{Number(pair.volume_ibo || 0).toLocaleString()} Delta</div>
       <div className="text-xs ml-2">
         {enabled
           ? <span className="px-2 py-0.5 rounded-full bg-green-500/15 text-green-400 font-semibold">Active</span>
@@ -73,7 +73,7 @@ export default function IBODashboardTab() {
 
   useEffect(() => { load(); }, [load]);
 
-  if (loading) return <div className="text-white/40 text-sm py-8 text-center">Loading IBO dashboard…</div>;
+  if (loading) return <div className="text-white/40 text-sm py-8 text-center">Loading Delta dashboard…</div>;
   if (err)     return <div className="text-red-400 text-sm py-8 text-center">{err}</div>;
   if (!data)   return null;
 
@@ -83,22 +83,22 @@ export default function IBODashboardTab() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-bold text-white/60 uppercase tracking-widest">IBO Ecosystem Overview</h2>
+        <h2 className="text-sm font-bold text-white/60 uppercase tracking-widest">Delta Ecosystem Overview</h2>
         <button onClick={load} className="flex items-center gap-1 text-xs text-white/40 hover:text-gold-light transition-colors">
           <RefreshCw size={12} /> Refresh
         </button>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <KpiCard icon={DollarSign} label="IBO Price" value={`$${data.ibo_price_usdt}`} sub="USDT equivalent" color="amber" />
-        <KpiCard icon={Activity}   label="24h Volume" value={`${fmtIbo(data.volume_24h_ibo)} IBO`} sub={`${data.trades_24h} trades`} color="blue" />
-        <KpiCard icon={Users}      label="IBO Holders" value={fmtIbo(data.total_user_ibo)} sub="Total user IBO" color="purple" />
+        <KpiCard icon={DollarSign} label="Delta Price" value={`$${data.ibo_price_usdt}`} sub="USDT equivalent" color="amber" />
+        <KpiCard icon={Activity}   label="24h Volume" value={`${fmtIbo(data.volume_24h_ibo)} Delta`} sub={`${data.trades_24h} trades`} color="blue" />
+        <KpiCard icon={Users}      label="Delta Holders" value={fmtIbo(data.total_user_ibo)} sub="Total user Delta" color="purple" />
         <KpiCard icon={Zap}        label="Active Pairs" value={`${data.active_pairs} / ${data.total_pairs}`} sub={data.ibo_liquidity ? 'Liquidity ON' : 'Liquidity OFF'} color="green" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="rounded-xl border border-white/8 bg-white/2 p-4">
-          <h3 className="text-xs font-bold text-white/50 uppercase tracking-wider mb-3">IBO-Quoted Pairs</h3>
+          <h3 className="text-xs font-bold text-white/50 uppercase tracking-wider mb-3">Delta-Quoted Pairs</h3>
           {(data.pairs || []).map((p) => <PairRow key={p.symbol} pair={p} />)}
         </div>
 
@@ -106,8 +106,8 @@ export default function IBODashboardTab() {
           <h3 className="text-xs font-bold text-white/50 uppercase tracking-wider mb-3">Supply Snapshot</h3>
           <div className="space-y-3">
             {[
-              { label: 'Total User IBO', value: `${fmtIbo(data.total_user_ibo)} IBO` },
-              { label: 'Treasury IBO',   value: `${fmtIbo(data.treasury_ibo)} IBO` },
+              { label: 'Total User Delta', value: `${fmtIbo(data.total_user_ibo)} Delta` },
+              { label: 'Treasury Delta',   value: `${fmtIbo(data.treasury_ibo)} Delta` },
               { label: 'Spread BPS',     value: `${data.spread_bps} bps` },
               { label: 'Liquidity',      value: data.ibo_liquidity ? 'Enabled' : 'Disabled', green: data.ibo_liquidity },
             ].map((row) => (

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { RefreshCw, Play, AlertTriangle } from 'lucide-react';
 import { api } from '@/lib/api';
 import ConfirmModal from '@/components/ConfirmModal';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 const fmtPct = (n) => Number.isFinite(Number(n)) ? `${(Number(n) * 100).toFixed(4)}%` : '—';
 const fmt = (v, dp = 4) => Number.isFinite(Number(v)) ? Number(v).toLocaleString(undefined, { maximumFractionDigits: dp }) : '—';
@@ -84,71 +85,71 @@ export default function FuturesFundingPage() {
       </div>
 
       {/* Rates */}
-      <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden">
-        <div className="px-4 py-3 border-b border-white/10 text-sm font-bold text-white">Recent rates</div>
-        <table className="w-full text-sm">
-          <thead className="text-[11px] uppercase tracking-wider text-white/45">
-            <tr className="border-b border-white/5">
-              <th className="text-left px-3 py-2">Settled at</th>
-              <th className="text-left px-3 py-2">Symbol</th>
-              <th className="text-right px-3 py-2">Mark</th>
-              <th className="text-right px-3 py-2">Rate</th>
-              <th className="text-right px-3 py-2">Annualised</th>
+      <div>
+        <div className="px-4 py-3 text-sm font-bold text-white">Recent rates</div>
+        <AdminDataTable>
+          <thead>
+            <tr>
+              <th>Settled at</th>
+              <th>Symbol</th>
+              <th className="text-right">Mark</th>
+              <th className="text-right">Rate</th>
+              <th className="text-right">Annualised</th>
             </tr>
           </thead>
           <tbody>
-            {rates.length === 0 && <tr><td colSpan={5} className="px-3 py-8 text-center text-white/40">No rates yet.</td></tr>}
+            {rates.length === 0 && <tr><td colSpan={5} className="text-center text-white/40">No rates yet.</td></tr>}
             {rates.map((r) => {
               const annual = (Number(r.rate) || 0) * (3 * 365);
               return (
-                <tr key={r.id} className="border-b border-white/5">
-                  <td className="px-3 py-2 text-[12px] text-white/55 font-mono">{(r.settled_at || '').slice(0, 19).replace('T', ' ')}</td>
-                  <td className="px-3 py-2 font-bold">{r.symbol}</td>
-                  <td className="px-3 py-2 text-right font-mono">${fmt(r.mark_price, 2)}</td>
-                  <td className={`px-3 py-2 text-right font-mono ${Number(r.rate) >= 0 ? 'text-gold-light' : 'text-emerald-300'}`}>{fmtPct(r.rate)}</td>
-                  <td className="px-3 py-2 text-right font-mono">{(annual * 100).toFixed(2)}%</td>
+                <tr key={r.id}>
+                  <td className="text-[12px] text-white/55 font-mono">{(r.settled_at || '').slice(0, 19).replace('T', ' ')}</td>
+                  <td className="font-bold">{r.symbol}</td>
+                  <td className="text-right font-mono">${fmt(r.mark_price, 2)}</td>
+                  <td className={`text-right font-mono ${Number(r.rate) >= 0 ? 'text-gold-light' : 'text-emerald-300'}`}>{fmtPct(r.rate)}</td>
+                  <td className="text-right font-mono">{(annual * 100).toFixed(2)}%</td>
                 </tr>
               );
             })}
           </tbody>
-        </table>
+        </AdminDataTable>
       </div>
 
       {/* Payments */}
-      <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden">
-        <div className="px-4 py-3 border-b border-white/10 text-sm font-bold text-white">Recent payments</div>
-        <table className="w-full text-sm min-w-[800px]">
-          <thead className="text-[11px] uppercase tracking-wider text-white/45">
-            <tr className="border-b border-white/5">
-              <th className="text-left  px-3 py-2">Time</th>
-              <th className="text-left  px-3 py-2">User</th>
-              <th className="text-left  px-3 py-2">Symbol</th>
-              <th className="text-right px-3 py-2">Position qty</th>
-              <th className="text-right px-3 py-2">Rate</th>
-              <th className="text-right px-3 py-2">Mark</th>
-              <th className="text-right px-3 py-2">Amount</th>
+      <div>
+        <div className="px-4 py-3 text-sm font-bold text-white">Recent payments</div>
+        <AdminDataTable minWidth="800px">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>User</th>
+              <th>Symbol</th>
+              <th className="text-right">Position qty</th>
+              <th className="text-right">Rate</th>
+              <th className="text-right">Mark</th>
+              <th className="text-right">Amount</th>
             </tr>
           </thead>
           <tbody>
-            {payments.length === 0 && <tr><td colSpan={7} className="px-3 py-8 text-center text-white/40">No payments yet.</td></tr>}
+            {payments.length === 0 && <tr><td colSpan={7} className="text-center text-white/40">No payments yet.</td></tr>}
             {payments.map((p) => {
               const amt = Number(p.amount || 0);
               return (
-                <tr key={p.id} className="border-b border-white/5">
-                  <td className="px-3 py-2 text-[12px] text-white/55 font-mono">{(p.settled_at || '').slice(0, 19).replace('T', ' ')}</td>
-                  <td className="px-3 py-2 text-[12px] font-mono text-white/80">{p.uid}</td>
-                  <td className="px-3 py-2 font-bold">{p.symbol}</td>
-                  <td className={`px-3 py-2 text-right font-mono ${Number(p.qty) >= 0 ? 'text-emerald-300' : 'text-rose-300'}`}>{fmt(p.qty)}</td>
-                  <td className="px-3 py-2 text-right font-mono">{fmtPct(p.rate)}</td>
-                  <td className="px-3 py-2 text-right font-mono">${fmt(p.mark_price, 2)}</td>
-                  <td className={`px-3 py-2 text-right font-mono ${amt >= 0 ? 'text-emerald-300' : 'text-rose-300'}`}>
+                <tr key={p.id}>
+                  <td className="text-[12px] text-white/55 font-mono">{(p.settled_at || '').slice(0, 19).replace('T', ' ')}</td>
+                  <td className="text-[12px] font-mono text-white/80">{p.uid}</td>
+                  <td className="font-bold">{p.symbol}</td>
+                  <td className={`text-right font-mono ${Number(p.qty) >= 0 ? 'text-emerald-300' : 'text-rose-300'}`}>{fmt(p.qty)}</td>
+                  <td className="text-right font-mono">{fmtPct(p.rate)}</td>
+                  <td className="text-right font-mono">${fmt(p.mark_price, 2)}</td>
+                  <td className={`text-right font-mono ${amt >= 0 ? 'text-emerald-300' : 'text-rose-300'}`}>
                     {amt >= 0 ? '+' : ''}{fmt(amt, 4)} USDT
                   </td>
                 </tr>
               );
             })}
           </tbody>
-        </table>
+        </AdminDataTable>
       </div>
 
       <ConfirmModal

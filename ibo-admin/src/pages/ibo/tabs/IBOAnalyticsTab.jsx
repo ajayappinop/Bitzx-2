@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { BarChart3, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { api } from '@/lib/api';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 const WINDOWS = ['1h', '24h', '7d', '30d'];
 
@@ -99,9 +100,9 @@ export default function IBOAnalyticsTab() {
       {analytics && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
-            { label: 'Total Volume', value: `${Number(analytics.totals?.volume_ibo || 0).toLocaleString(undefined, {maximumFractionDigits:2})} IBO` },
+            { label: 'Total Volume', value: `${Number(analytics.totals?.volume_ibo || 0).toLocaleString(undefined, {maximumFractionDigits:2})} Delta` },
             { label: 'Total Trades', value: Number(analytics.totals?.trade_count || 0).toLocaleString() },
-            { label: 'Fee Revenue',  value: `${Number(analytics.totals?.fee_revenue || 0).toFixed(6)} IBO` },
+            { label: 'Fee Revenue',  value: `${Number(analytics.totals?.fee_revenue || 0).toFixed(6)} Delta` },
           ].map((c) => (
             <div key={c.label} className="rounded-xl border border-white/8 bg-white/2 p-4">
               <div className="text-xs text-white/40 uppercase tracking-wider mb-1">{c.label}</div>
@@ -114,17 +115,17 @@ export default function IBOAnalyticsTab() {
       {analytics && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="rounded-xl border border-white/8 bg-white/2 p-4">
-            <h3 className="text-xs font-bold text-white/50 uppercase tracking-wider mb-3 flex items-center gap-2"><BarChart3 size={12}/> Volume by Pair (IBO)</h3>
+            <h3 className="text-xs font-bold text-white/50 uppercase tracking-wider mb-3 flex items-center gap-2"><BarChart3 size={12}/> Volume by Pair (Delta)</h3>
             {(analytics.pairs || []).map((p) => {
               const base = p.symbol?.replace('IBO', '') || p.base;
-              return <BarRow key={p.symbol} label={`${base}/IBO`} value={p.volume_ibo} max={maxVol} unit="IBO" icon={COIN_ICONS[base]} />;
+              return <BarRow key={p.symbol} label={`${base}/Delta`} value={p.volume_ibo} max={maxVol} unit="Delta" icon={COIN_ICONS[base]} />;
             })}
           </div>
           <div className="rounded-xl border border-white/8 bg-white/2 p-4">
             <h3 className="text-xs font-bold text-white/50 uppercase tracking-wider mb-3 flex items-center gap-2"><BarChart3 size={12}/> Trade Count by Pair</h3>
             {(analytics.pairs || []).map((p) => {
               const base = p.symbol?.replace('IBO', '') || p.base;
-              return <BarRow key={p.symbol} label={`${base}/IBO`} value={p.trade_count} max={maxTrades} unit="" icon={COIN_ICONS[base]} />;
+              return <BarRow key={p.symbol} label={`${base}/Delta`} value={p.trade_count} max={maxTrades} unit="" icon={COIN_ICONS[base]} />;
             })}
           </div>
         </div>
@@ -132,41 +133,39 @@ export default function IBOAnalyticsTab() {
 
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-xs font-bold text-white/50 uppercase tracking-wider">Recent IBO Pair Trades</h3>
+          <h3 className="text-xs font-bold text-white/50 uppercase tracking-wider">Recent Delta Pair Trades</h3>
           <button onClick={loadLogs} className="flex items-center gap-1 text-xs text-white/40 hover:text-gold-light transition-colors">
             <RefreshCw size={12} /> Refresh logs
           </button>
         </div>
         {logsErr && <div className="text-red-400 text-sm py-2 mb-2">{logsErr}</div>}
-        <div className="rounded-xl border border-white/8 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-white/8 bg-white/3">
-                {['Symbol','Side','Price','Amount','Fee','Date'].map((h) => (
-                  <th key={h} className="text-left px-3 py-2.5 text-xs font-semibold text-white/50 uppercase tracking-wider">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
+        <AdminDataTable>
+          <thead>
+            <tr>
+              {['Symbol','Side','Price','Amount','Fee','Date'].map((h) => (
+                <th key={h}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
               {logsLoading ? (
-                <tr><td colSpan={6} className="text-white/30 text-sm text-center py-6">Loading…</td></tr>
+                <tr><td colSpan={6} className="text-white/30 text-sm text-center !py-6">Loading…</td></tr>
               ) : logs.length === 0 ? (
-                <tr><td colSpan={6} className="text-white/30 text-sm text-center py-6">No trades yet</td></tr>
+                <tr><td colSpan={6} className="text-white/30 text-sm text-center !py-6">No trades yet</td></tr>
               ) : logs.map((t, i) => (
-                <tr key={t.id || i} className="border-b border-white/5 last:border-0 hover:bg-white/2">
-                  <td className="px-3 py-2.5 font-mono text-xs text-gold-light">{t.symbol}</td>
-                  <td className="px-3 py-2.5">
+                <tr key={t.id || i}>
+                  <td className="font-mono text-xs text-gold-light">{t.symbol}</td>
+                  <td>
                     <span className={`text-xs font-semibold ${t.side === 'buy' ? 'text-green-400' : 'text-red-400'}`}>{t.side?.toUpperCase()}</span>
                   </td>
-                  <td className="px-3 py-2.5 font-mono text-xs text-white">{Number(t.price || 0).toFixed(6)}</td>
-                  <td className="px-3 py-2.5 font-mono text-xs text-white">{Number(t.amount || 0).toFixed(4)}</td>
-                  <td className="px-3 py-2.5 font-mono text-xs text-white/40">{Number(t.fee_amount || 0).toFixed(6)}</td>
-                  <td className="px-3 py-2.5 text-xs text-white/30">{fmtDate(t.created_at)}</td>
+                  <td className="font-mono text-xs text-white">{Number(t.price || 0).toFixed(6)}</td>
+                  <td className="font-mono text-xs text-white">{Number(t.amount || 0).toFixed(4)}</td>
+                  <td className="font-mono text-xs text-white/40">{Number(t.fee_amount || 0).toFixed(6)}</td>
+                  <td className="text-xs text-white/30">{fmtDate(t.created_at)}</td>
                 </tr>
               ))}
-            </tbody>
-          </table>
-        </div>
+          </tbody>
+        </AdminDataTable>
         {logPages > 1 && (
           <div className="flex items-center gap-2 justify-end text-xs text-white/50 mt-2">
             <button onClick={() => setLogsPage((p) => Math.max(1, p - 1))} disabled={logsPage === 1} className="p-1 hover:text-white disabled:opacity-30"><ChevronLeft size={14}/></button>

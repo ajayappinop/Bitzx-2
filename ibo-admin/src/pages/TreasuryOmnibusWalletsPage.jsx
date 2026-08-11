@@ -41,7 +41,7 @@ const ALL_NETWORKS = [
 import { api } from '@/lib/api';
 import { useAdminAuth } from '@/context/AdminAuthContext';
 import { hasPermission } from '@/lib/adminAccess';
-import { AdminPageHeader, AdminPanel } from '@/components/AdminPrimitives';
+import { AdminPageHeader, AdminPanel, AdminDataTable } from '@/components/AdminPrimitives';
 import { sweepPreviewIssue } from '@/lib/treasuryUx';
 
 function fmtTs(iso) {
@@ -438,7 +438,7 @@ export default function TreasuryOmnibusWalletsPage() {
               </p>
               <p className="text-sm text-white/60 mt-0.5 max-w-xl leading-relaxed">
                 {hotWalletCount === 0
-                  ? 'Before sweeps or withdrawals work, register the server payout address here as a Hot wallet. For IBO use coin IBO and network BEP-20 (BNB Chain).'
+                  ? 'Before sweeps or withdrawals work, register the server payout address here as a Hot wallet. For Delta use coin IBO and network BEP-20 (BNB Chain).'
                   : `${hotWalletCount} active hot wallet${hotWalletCount > 1 ? 's' : ''} saved. Click below to add another (hot or cold).`}
               </p>
             </div>
@@ -500,7 +500,7 @@ export default function TreasuryOmnibusWalletsPage() {
       {canViewTreasury && (
         <AdminPanel
           title="Move deposits to the hot wallet (optional)"
-          subtitle="Preview user deposit-address balances and sweep them to your hot wallet. Supported: ETH, USDT (ERC-20), IBO (BEP-20), USDT (BEP-20). Dry run saves a report without broadcasting. Token sweeps need a small amount of ETH/BNB gas on the deposit address — see instructions if gas is missing."
+          subtitle="Preview user deposit-address balances and sweep them to your hot wallet. Supported: ETH, USDT (ERC-20), Delta (BEP-20), USDT (BEP-20). Dry run saves a report without broadcasting. Token sweeps need a small amount of ETH/BNB gas on the deposit address — see instructions if gas is missing."
           className="mb-6"
         >
           {/* ── Live Sweep Toggle ─────────────────────────────────────────── */}
@@ -588,7 +588,7 @@ export default function TreasuryOmnibusWalletsPage() {
               >
                 <option value="">All coins</option>
                 {ALL_ASSETS.filter(a => a !== '__custom__').map((a) => (
-                  <option key={a} value={a}>{a}</option>
+                  <option key={a} value={a}>{a === 'IBO' ? 'Delta' : a}</option>
                 ))}
               </select>
             </label>
@@ -660,11 +660,11 @@ export default function TreasuryOmnibusWalletsPage() {
                       onChange={(e) => setAutoGasFund(e.target.checked)}
                     />
                     <span>
-                      <strong>Auto gas-fund + IBO fee deduction</strong> — for token addresses with
+                      <strong>Auto gas-fund + Delta fee deduction</strong> — for token addresses with
                       no BNB for gas, the hot wallet sends ~0.0008 BNB, then sweeps
-                      <strong> (IBO balance − gas fee in IBO)</strong> to hot wallet.
-                      Gas cost (BNB) is recovered from the user's IBO balance using live BNB/USDT and IBO/USDT prices.
-                      Addresses with too little IBO to cover the fee are skipped.
+                      <strong> (Delta balance − gas fee in Delta)</strong> to hot wallet.
+                      Gas cost (BNB) is recovered from the user's Delta balance using live BNB/USDT and Delta/USDT prices.
+                      Addresses with too little Delta to cover the fee are skipped.
                     </span>
                   </label>
                 </div>
@@ -732,7 +732,7 @@ export default function TreasuryOmnibusWalletsPage() {
                           <li>Re-run Preview — ETH/USDT balances will appear</li>
                         </ol>
                         <p className="text-white/45 mt-1">
-                          IBO (BEP-20 / BSC) and USDT BEP-20 are unaffected — they use the BSC endpoint which is active.
+                          Delta (BEP-20 / BSC) and USDT BEP-20 are unaffected — they use the BSC endpoint which is active.
                         </p>
                       </div>
                     )}
@@ -811,7 +811,7 @@ export default function TreasuryOmnibusWalletsPage() {
                                     <li>Click <strong>Add wallet address</strong></li>
                                     <li><strong>Wallet type = Hot</strong></li>
                                     <li><strong>Coin = {g.asset}</strong>, <strong>Network = {g.network}</strong></li>
-                                    <li>Paste the server signer address (same as <code className="bg-white/10 px-1 rounded">TREASURY_ETH_PRIVATE_KEY</code> for ETH/USDT/IBO on EVM)</li>
+                                    <li>Paste the server signer address (same as <code className="bg-white/10 px-1 rounded">TREASURY_ETH_PRIVATE_KEY</code> for ETH/USDT/Delta on EVM)</li>
                                     <li>Save → re-run Preview</li>
                                   </ol>
                                 </div>
@@ -915,16 +915,15 @@ export default function TreasuryOmnibusWalletsPage() {
                 )}
 
                 {/* ── Full table ───────────────────────────────────── */}
-                <div className="overflow-x-auto rounded-xl border border-white/10">
-                  <table className="w-full text-xs sm:text-sm">
+                <AdminDataTable fullBleed={false} className="text-xs sm:text-sm">
                     <thead>
-                      <tr className="text-left text-white/55 border-b border-white/10 bg-white/[.02]">
-                        <th className="p-2 pl-3">Asset</th>
-                        <th className="p-2">Network</th>
-                        <th className="p-2">Address</th>
-                        <th className="p-2">Balance</th>
-                        <th className="p-2" title="Enough balance and payout wallet ready">Sweep?</th>
-                        <th className="p-2 pr-3">Issue</th>
+                      <tr>
+                        <th>Asset</th>
+                        <th>Network</th>
+                        <th>Address</th>
+                        <th>Balance</th>
+                        <th title="Enough balance and payout wallet ready">Sweep?</th>
+                        <th>Issue</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -933,20 +932,20 @@ export default function TreasuryOmnibusWalletsPage() {
                         return (
                         <tr
                           key={row.deposit_address_id || row.address}
-                          className={`border-b border-white/5 ${row.sweepable ? '' : 'opacity-60'}`}
+                          className={row.sweepable ? undefined : 'opacity-60'}
                         >
-                          <td className="p-2 pl-3 font-mono font-bold text-gold-light">{row.asset}</td>
-                          <td className="p-2 text-white/60 text-xs max-w-[120px] truncate" title={row.network}>{row.network || '—'}</td>
-                          <td className="p-2 font-mono text-xs text-white/75 break-all max-w-[180px]">{row.address}</td>
-                          <td className="p-2 font-mono">{row.balance_human != null ? String(row.balance_human) : '—'}</td>
-                          <td className="p-2">
+                          <td className="font-mono font-bold text-gold-light">{row.asset}</td>
+                          <td className="text-white/60 text-xs max-w-[120px] truncate" title={row.network}>{row.network || '—'}</td>
+                          <td className="font-mono text-xs text-white/75 break-all max-w-[180px]">{row.address}</td>
+                          <td className="font-mono">{row.balance_human != null ? String(row.balance_human) : '—'}</td>
+                          <td>
                             {row.sweepable
                               ? <span className="text-emerald-400 font-bold">✓ Yes</span>
                               : <span className="text-white/40">No</span>
                             }
                           </td>
                           <td
-                            className={`p-2 pr-3 text-xs max-w-[180px] ${row.sweepable ? 'text-white/35' : 'text-gold-light/90'}`}
+                            className={`text-xs max-w-[180px] ${row.sweepable ? 'text-white/35' : 'text-gold-light/90'}`}
                             title={issue.detail}
                           >
                             {row.sweepable ? '—' : issue.label}
@@ -955,8 +954,7 @@ export default function TreasuryOmnibusWalletsPage() {
                         );
                       })}
                     </tbody>
-                  </table>
-                </div>
+                </AdminDataTable>
               </div>
             );
           })()}
@@ -994,7 +992,7 @@ export default function TreasuryOmnibusWalletsPage() {
                       {[
                       { label: isLive ? 'Swept' : 'Would sweep', val: s.swept ?? 0, color: s.swept > 0 ? 'text-emerald-400' : 'text-white/40' },
                       { label: 'Dry-run previewed', val: s.dry_run_previewed ?? 0, color: 'text-blue-300' },
-                      { label: 'No gas / low IBO', val: (s.insufficient_gas ?? 0) + (s.insufficient_ibo_for_fee ?? 0), color: ((s.insufficient_gas ?? 0) + (s.insufficient_ibo_for_fee ?? 0)) > 0 ? 'text-gold' : 'text-white/30' },
+                      { label: 'No gas / low Delta', val: (s.insufficient_gas ?? 0) + (s.insufficient_ibo_for_fee ?? 0), color: ((s.insufficient_gas ?? 0) + (s.insufficient_ibo_for_fee ?? 0)) > 0 ? 'text-gold' : 'text-white/30' },
                       { label: 'Skipped/failed', val: (s.skipped ?? 0) + (s.failed ?? 0), color: 'text-white/35' },
                       ].map((item) => (
                         <div key={item.label} className="rounded-lg bg-white/[.04] p-2">
@@ -1014,10 +1012,10 @@ export default function TreasuryOmnibusWalletsPage() {
                             <span>BNB sent: <strong>{(s.gas_fund_total_wei / 1e18).toFixed(6)} BNB</strong></span>
                           )}
                           {s.total_gas_fee_ibo > 0 && (
-                            <span>Gas fee deducted: <strong>{Number(s.total_gas_fee_ibo).toFixed(6)} IBO</strong> from sweep amounts</span>
+                            <span>Gas fee deducted: <strong>{Number(s.total_gas_fee_ibo).toFixed(6)} Delta</strong> from sweep amounts</span>
                           )}
                           {s.insufficient_ibo_for_fee > 0 && (
-                            <span className="text-gold-light">{s.insufficient_ibo_for_fee} skipped (not enough IBO to cover fee)</span>
+                            <span className="text-gold-light">{s.insufficient_ibo_for_fee} skipped (not enough Delta to cover fee)</span>
                           )}
                         </div>
                       </div>
@@ -1025,32 +1023,30 @@ export default function TreasuryOmnibusWalletsPage() {
                   </>
                 )}
                 {byAsset.length > 0 && (
-                  <div className="overflow-x-auto rounded-lg border border-white/10">
-                    <table className="w-full text-xs">
+                  <AdminDataTable fullBleed={false} className="text-xs">
                       <thead>
-                        <tr className="text-left text-white/45 border-b border-white/10 bg-white/[.02]">
-                          <th className="p-2 pl-3">Coin</th>
-                          <th className="p-2">Network</th>
-                          <th className="p-2">{isLive ? 'Swept' : 'Would sweep'}</th>
-                          <th className="p-2">Amount moved</th>
-                          <th className="p-2">No gas</th>
-                          <th className="p-2 pr-3">Skipped</th>
+                        <tr>
+                          <th>Coin</th>
+                          <th>Network</th>
+                          <th>{isLive ? 'Swept' : 'Would sweep'}</th>
+                          <th>Amount moved</th>
+                          <th>No gas</th>
+                          <th>Skipped</th>
                         </tr>
                       </thead>
                       <tbody>
                         {byAsset.map((b) => (
-                          <tr key={`${b.asset}|${b.network}`} className="border-b border-white/5">
-                            <td className="p-2 pl-3 font-bold text-gold-light font-mono">{b.asset}</td>
-                            <td className="p-2 text-white/50 text-xs">{b.network}</td>
-                            <td className={`p-2 font-bold ${b.swept > 0 ? 'text-emerald-400' : 'text-white/30'}`}>{b.swept}</td>
-                            <td className="p-2 font-mono text-white/70">{b.swept_amount > 0 ? b.swept_amount : '—'}</td>
-                            <td className={`p-2 ${b.insufficient_gas > 0 ? 'text-gold font-bold' : 'text-white/30'}`}>{b.insufficient_gas || '—'}</td>
-                            <td className="p-2 pr-3 text-white/35">{(b.skipped || 0) + (b.failed || 0) || '—'}</td>
+                          <tr key={`${b.asset}|${b.network}`}>
+                            <td className="font-bold text-gold-light font-mono">{b.asset}</td>
+                            <td className="text-white/50 text-xs">{b.network}</td>
+                            <td className={`font-bold ${b.swept > 0 ? 'text-emerald-400' : 'text-white/30'}`}>{b.swept}</td>
+                            <td className="font-mono text-white/70">{b.swept_amount > 0 ? b.swept_amount : '—'}</td>
+                            <td className={b.insufficient_gas > 0 ? 'text-gold font-bold' : 'text-white/30'}>{b.insufficient_gas || '—'}</td>
+                            <td className="text-white/35">{(b.skipped || 0) + (b.failed || 0) || '—'}</td>
                           </tr>
                         ))}
                       </tbody>
-                    </table>
-                  </div>
+                  </AdminDataTable>
                 )}
               </div>
             );
@@ -1117,49 +1113,46 @@ export default function TreasuryOmnibusWalletsPage() {
                       <div className="px-4 pb-3 border-t border-white/10 pt-3 space-y-2">
                         {refused && <p className="text-sm text-rose-300">{run.refusal_reason || 'Refused'}</p>}
                         {!refused && s.by_asset && (
-                          <div className="overflow-x-auto rounded-lg border border-white/10">
-                            <table className="w-full text-xs">
-                              <thead>
-                                <tr className="text-left text-white/40 border-b border-white/10 bg-white/[.02]">
-                                  <th className="p-2 pl-3">Coin</th>
-                                  <th className="p-2">Network</th>
-                                  <th className="p-2">{isLive ? 'Swept' : 'Would sweep'}</th>
-                                  <th className="p-2">Amount</th>
-                                  <th className="p-2">No gas</th>
-                                  <th className="p-2 pr-3">Skipped</th>
+                          <AdminDataTable fullBleed={false} className="text-xs">
+                            <thead>
+                              <tr>
+                                <th>Coin</th>
+                                <th>Network</th>
+                                <th>{isLive ? 'Swept' : 'Would sweep'}</th>
+                                <th>Amount</th>
+                                <th>No gas</th>
+                                <th>Skipped</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {Object.values(s.by_asset).map((b) => (
+                                <tr key={`${b.asset}|${b.network}`}>
+                                  <td className="font-bold text-gold-light font-mono">{b.asset}</td>
+                                  <td className="text-white/45 text-xs">{b.network}</td>
+                                  <td className={`font-bold ${b.swept > 0 ? 'text-emerald-400' : 'text-white/30'}`}>{b.swept}</td>
+                                  <td className="font-mono text-white/65">{b.swept_amount > 0 ? b.swept_amount : '—'}</td>
+                                  <td className={b.insufficient_gas > 0 ? 'text-gold font-bold' : 'text-white/30'}>{b.insufficient_gas || '—'}</td>
+                                  <td className="text-white/30">{(b.skipped || 0) + (b.failed || 0) || '—'}</td>
                                 </tr>
-                              </thead>
-                              <tbody>
-                                {Object.values(s.by_asset).map((b) => (
-                                  <tr key={`${b.asset}|${b.network}`} className="border-b border-white/5">
-                                    <td className="p-2 pl-3 font-bold text-gold-light font-mono">{b.asset}</td>
-                                    <td className="p-2 text-white/45 text-xs">{b.network}</td>
-                                    <td className={`p-2 font-bold ${b.swept > 0 ? 'text-emerald-400' : 'text-white/30'}`}>{b.swept}</td>
-                                    <td className="p-2 font-mono text-white/65">{b.swept_amount > 0 ? b.swept_amount : '—'}</td>
-                                    <td className={`p-2 ${b.insufficient_gas > 0 ? 'text-gold font-bold' : 'text-white/30'}`}>{b.insufficient_gas || '—'}</td>
-                                    <td className="p-2 pr-3 text-white/30">{(b.skipped || 0) + (b.failed || 0) || '—'}</td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
+                              ))}
+                            </tbody>
+                          </AdminDataTable>
                         )}
                         {detail && Array.isArray(detail.items) && detail.items.length > 0 && (
                           <details className="mt-1">
                             <summary className="text-xs text-white/40 cursor-pointer hover:text-white/60">Show all {detail.items.length} addresses in this run</summary>
-                            <div className="mt-2 overflow-x-auto rounded-lg border border-white/10">
-                              <table className="w-full text-xs">
-                                <thead>
-                                  <tr className="text-left text-white/40 border-b border-white/10 bg-white/[.02]">
-                                    <th className="p-2 pl-3">Coin</th>
-                                    <th className="p-2">Deposit address</th>
-                                    <th className="p-2">User</th>
-                                    <th className="p-2">Balance</th>
-                                    <th className="p-2">Result</th>
-                                    <th className="p-2 pr-3">TX hash</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
+                            <AdminDataTable fullBleed={false} className="mt-2 text-xs">
+                              <thead>
+                                <tr>
+                                  <th>Coin</th>
+                                  <th>Deposit address</th>
+                                  <th>User</th>
+                                  <th>Balance</th>
+                                  <th>Result</th>
+                                  <th>TX hash</th>
+                                </tr>
+                              </thead>
+                              <tbody>
                                   {detail.items.map((it, i) => {
                                     const res = it.result || {};
                                     const gf = it.gas_fund_result || {};
@@ -1171,9 +1164,9 @@ export default function TreasuryOmnibusWalletsPage() {
                                     const explorerAddrBase = isEth ? 'https://etherscan.io/address/' : 'https://bscscan.com/address/';
                                     const uid = it.uid;
                                     return (
-                                      <tr key={it.deposit_address_id || i} className="border-b border-white/5 hover:bg-white/[.02] transition-colors">
-                                        <td className="p-2 pl-3 font-mono font-bold text-gold-light text-xs whitespace-nowrap">{it.asset}</td>
-                                        <td className="p-2 max-w-[160px]">
+                                      <tr key={it.deposit_address_id || i}>
+                                        <td className="font-mono font-bold text-gold-light text-xs whitespace-nowrap">{it.asset}</td>
+                                        <td className="max-w-[160px]">
                                           <div className="flex flex-col gap-0.5">
                                             <span className="font-mono text-xs text-white/55 break-all">{it.address}</span>
                                             <a
@@ -1186,7 +1179,7 @@ export default function TreasuryOmnibusWalletsPage() {
                                             </a>
                                           </div>
                                         </td>
-                                        <td className="p-2">
+                                        <td>
                                           {uid ? (
                                             <Link
                                               to={`/users/${uid}`}
@@ -1200,8 +1193,8 @@ export default function TreasuryOmnibusWalletsPage() {
                                             <span className="text-white/25 text-xs">—</span>
                                           )}
                                         </td>
-                                        <td className="p-2 font-mono text-xs">{it.balance_human != null ? it.balance_human : '—'}</td>
-                                        <td className={`p-2 text-xs font-bold ${
+                                        <td className="font-mono text-xs">{it.balance_human != null ? it.balance_human : '—'}</td>
+                                        <td className={`text-xs font-bold ${
                                           it.skipped_reason ? 'text-white/30'
                                           : drRun && ok ? 'text-blue-300'
                                           : ok ? 'text-emerald-400'
@@ -1217,7 +1210,7 @@ export default function TreasuryOmnibusWalletsPage() {
                                             && Math.abs(res.sweep_amount_human - res.token_balance_human) > 0.000001 && (
                                             <span className="ml-1 text-white/50 font-normal text-xs">
                                               ({Number(res.sweep_amount_human).toFixed(4)} swept
-                                              {res.gas_fee_ibo ? `, −${Number(res.gas_fee_ibo).toFixed(4)} IBO fee` : ''})
+                                              {res.gas_fee_ibo ? `, −${Number(res.gas_fee_ibo).toFixed(4)} Delta fee` : ''})
                                             </span>
                                           )}
                                           {gasFunded && (
@@ -1226,7 +1219,7 @@ export default function TreasuryOmnibusWalletsPage() {
                                             </span>
                                           )}
                                         </td>
-                                        <td className="p-2 pr-3 font-mono text-xs text-white/45 space-y-0.5 max-w-[150px]">
+                                        <td className="font-mono text-xs text-white/45 space-y-0.5 max-w-[150px]">
                                           {res.tx_hash ? (
                                             <a href={`${explorerTxBase}${res.tx_hash}`} target="_blank" rel="noopener noreferrer"
                                               className="block text-blue-400 hover:underline break-all">
@@ -1243,9 +1236,8 @@ export default function TreasuryOmnibusWalletsPage() {
                                       </tr>
                                     );
                                   })}
-                                </tbody>
-                              </table>
-                            </div>
+                              </tbody>
+                            </AdminDataTable>
                           </details>
                         )}
                       </div>
@@ -1307,7 +1299,7 @@ export default function TreasuryOmnibusWalletsPage() {
           >
             <option value="">All coins</option>
             {ALL_ASSETS.filter(a => a !== '__custom__').map((a) => (
-              <option key={a} value={a}>{a}</option>
+              <option key={a} value={a}>{a === 'IBO' ? 'Delta' : a}</option>
             ))}
           </select>
         </div>
@@ -1337,38 +1329,38 @@ export default function TreasuryOmnibusWalletsPage() {
             )}
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <>
+          <AdminDataTable fullBleed={false}>
               <thead>
-                <tr className="text-left text-[11px] uppercase tracking-wider text-white/45 border-b border-surface-border">
-                  <th className="pb-2 pr-3" title="Hot = payout from server; cold = record only">Type</th>
-                  <th className="pb-2 pr-3">Coin</th>
-                  <th className="pb-2 pr-3">Network</th>
-                  <th className="pb-2 pr-3">Public address</th>
-                  <th className="pb-2 pr-3">Note</th>
-                  <th className="pb-2 pr-3" title="Preferred hot wallet for this coin + network">Main payout?</th>
-                  <th className="pb-2 pr-3">Active</th>
-                  <th className="pb-2 pr-3">Last change</th>
-                  <th className="pb-2">Actions</th>
+                <tr>
+                  <th title="Hot = payout from server; cold = record only">Type</th>
+                  <th>Coin</th>
+                  <th>Network</th>
+                  <th>Public address</th>
+                  <th>Note</th>
+                  <th title="Preferred hot wallet for this coin + network">Main payout?</th>
+                  <th>Active</th>
+                  <th>Last change</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {items.map((row) => (
-                  <tr key={row.id} className="border-b border-surface-border/40">
-                    <td className="py-3 pr-3">
+                  <tr key={row.id}>
+                    <td>
                       <span className={`inline-flex items-center gap-1 font-bold ${row.role === 'hot' ? 'text-gold-light' : 'text-sky-300'}`}>
                         {row.role === 'hot' ? <Flame size={14} /> : <Snowflake size={14} />}
                         {row.role}
                       </span>
                     </td>
-                    <td className="py-3 pr-3 font-mono text-white">{row.asset}</td>
-                    <td className="py-3 pr-3 text-white/80 max-w-[200px] truncate" title={row.network}>{row.network}</td>
-                    <td className="py-3 pr-3 font-mono text-xs text-gold-light max-w-[220px] truncate" title={row.address}>{row.address}</td>
-                    <td className="py-3 pr-3 text-white/70">{row.label || '—'}</td>
-                    <td className="py-3 pr-3">{row.is_default_payout ? <span className="text-green-400 font-bold">Yes</span> : <span className="text-white/40">No</span>}</td>
-                    <td className="py-3 pr-3">{row.enabled ? <span className="text-green-400">Yes</span> : <span className="text-white/40">No</span>}</td>
-                    <td className="py-3 pr-3 text-white/55 text-xs whitespace-nowrap">{fmtTs(row.updated_at)}</td>
-                    <td className="py-3">
+                    <td className="font-mono text-white">{row.asset}</td>
+                    <td className="text-white/80 max-w-[200px] truncate" title={row.network}>{row.network}</td>
+                    <td className="font-mono text-xs text-gold-light max-w-[220px] truncate" title={row.address}>{row.address}</td>
+                    <td className="text-white/70">{row.label || '—'}</td>
+                    <td>{row.is_default_payout ? <span className="text-green-400 font-bold">Yes</span> : <span className="text-white/40">No</span>}</td>
+                    <td>{row.enabled ? <span className="text-green-400">Yes</span> : <span className="text-white/40">No</span>}</td>
+                    <td className="text-white/55 text-xs whitespace-nowrap">{fmtTs(row.updated_at)}</td>
+                    <td>
                       <div className="flex flex-wrap gap-2">
                         <button
                           type="button"
@@ -1401,9 +1393,9 @@ export default function TreasuryOmnibusWalletsPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+          </AdminDataTable>
             <p className="text-xs text-white/40 mt-3">{total} row(s)</p>
-          </div>
+          </>
         )}
       </AdminPanel>
 
@@ -1491,7 +1483,7 @@ export default function TreasuryOmnibusWalletsPage() {
                         className="w-full bg-surface-dark border border-surface-border rounded-xl px-3 py-2.5 text-sm text-white"
                       >
                         {ALL_ASSETS.filter(a => a !== '__custom__').map((a) => (
-                          <option key={a} value={a}>{a}</option>
+                          <option key={a} value={a}>{a === 'IBO' ? 'Delta' : a}</option>
                         ))}
                         <option value="__custom__">Other (type below)</option>
                       </select>

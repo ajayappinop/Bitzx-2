@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { Loader2, AlertCircle, RefreshCw, Search, Pause } from 'lucide-react';
 import { api } from '@/lib/api';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 const STATUS_PILL = {
   active:    'inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-extrabold uppercase text-emerald-300',
@@ -130,12 +131,9 @@ export default function P2PAdsTab() {
         {total > 0 && <span className="ml-2 text-white/40">— page {page} of {pages}</span>}
       </div>
 
-      {/* Table */}
-      <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden">
-        <div className="adm-table-x scrollbar-thin">
-          <table className="w-full text-sm min-w-[1050px]">
+      <AdminDataTable minWidth="1050px">
             <thead>
-              <tr className="border-b border-surface-border bg-white/[.02] text-left text-[11px] font-extrabold uppercase tracking-wider text-white/50">
+              <tr>
                 <Th>Ad ID</Th>
                 <Th>Maker UID</Th>
                 <Th>Side</Th>
@@ -151,41 +149,41 @@ export default function P2PAdsTab() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={11} className="px-4 py-16 text-center text-white/50"><Loader2 size={14} className="inline animate-spin mr-1" />Loading…</td></tr>
+                <tr><td colSpan={11} className="text-center text-white/50 !py-16"><Loader2 size={14} className="inline animate-spin mr-1" />Loading…</td></tr>
               ) : items.length === 0 ? (
-                <tr><td colSpan={11} className="px-4 py-16 text-center text-white/50">No ads found.</td></tr>
+                <tr><td colSpan={11} className="text-center text-white/50 !py-16">No ads found.</td></tr>
               ) : items.map((a) => (
-                <tr key={a.ad_id} className="border-b border-surface-border/60 hover:bg-white/[.025]">
-                  <td className="px-4 py-3 font-mono text-[11px] text-white/70">{a.ad_id}</td>
-                  <td className="px-4 py-3 font-mono text-[11px] text-white/60 max-w-[130px] truncate">{a.maker_id}</td>
-                  <td className="px-4 py-3">
+                <tr key={a.ad_id}>
+                  <td className="font-mono text-[11px] text-white/70">{a.ad_id}</td>
+                  <td className="font-mono text-[11px] text-white/60 max-w-[130px] truncate">{a.maker_id}</td>
+                  <td>
                     <span className={SIDE_PILL[a.side] || SIDE_PILL.buy}>{a.side} {a.asset}</span>
                   </td>
-                  <td className="px-4 py-3 text-right font-mono text-[12px] text-white/90 tabular-nums">
+                  <td className="text-right font-mono text-[12px] text-white/90 tabular-nums">
                     {Number(a.price || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
                     {a.price_type === 'floating' && (
                       <div className="text-[10px] text-white/40">{a.margin_pct}%</div>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-right font-mono text-[12px] text-white/80 tabular-nums">
+                  <td className="text-right font-mono text-[12px] text-white/80 tabular-nums">
                     {Number(a.available_amount || 0).toFixed(4)}
                   </td>
-                  <td className="px-4 py-3 text-right font-mono text-[12px] text-white/50 tabular-nums">
+                  <td className="text-right font-mono text-[12px] text-white/50 tabular-nums">
                     {Number(a.total_amount || 0).toFixed(4)}
                   </td>
-                  <td className="px-4 py-3 text-[11px] text-white/50 whitespace-nowrap">
+                  <td className="text-[11px] text-white/50 whitespace-nowrap">
                     {Number(a.min_order_inr || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                     {' – '}
                     {Number(a.max_order_inr || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                   </td>
-                  <td className="px-4 py-3 text-[11px] text-white/50">
+                  <td className="text-[11px] text-white/50">
                     {a.active_orders_count ?? 0} / {a.completed_orders_count ?? 0}
                   </td>
-                  <td className="px-4 py-3 text-[11px] text-white/50 whitespace-nowrap">{fmtDate(a.created_at)}</td>
-                  <td className="px-4 py-3">
+                  <td className="text-[11px] text-white/50 whitespace-nowrap">{fmtDate(a.created_at)}</td>
+                  <td>
                     <span className={STATUS_PILL[a.status] || STATUS_PILL.cancelled}>{a.status}</span>
                   </td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="text-right">
                     {a.status === 'active' && (
                       <button
                         type="button"
@@ -199,9 +197,7 @@ export default function P2PAdsTab() {
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
-      </div>
+      </AdminDataTable>
 
       {/* Pagination */}
       {total > 0 && (
@@ -231,5 +227,5 @@ export default function P2PAdsTab() {
 }
 
 function Th({ children, right }) {
-  return <th className={`px-4 py-3 ${right ? 'text-right' : ''}`}>{children}</th>;
+  return <th className={right ? 'text-right' : undefined}>{children}</th>;
 }

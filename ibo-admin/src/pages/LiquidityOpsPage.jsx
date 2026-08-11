@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { api } from '@/lib/api';
 import { useAdminAuth } from '@/context/AdminAuthContext';
 import { hasPermission } from '@/lib/adminAccess';
-import { AdminPageHeader, AdminPanel, GradientStatCard } from '@/components/AdminPrimitives';
+import { AdminPageHeader, AdminPanel, GradientStatCard, AdminDataTable } from '@/components/AdminPrimitives';
 
 const STATUS_FILTERS = ['all', 'pending', 'processing', 'retry_scheduled', 'resolved', 'dead_letter'];
 
@@ -184,105 +184,101 @@ export default function LiquidityOpsPage() {
           </div>
         )}
       >
-        <div className="overflow-x-auto rounded-xl border border-surface-border">
-          <table className="w-full text-sm">
-            <thead className="bg-white/5 text-white/60 text-[11px] uppercase">
-              <tr>
-                <th className="text-left px-3 py-2">Queue ID</th>
-                <th className="text-left px-3 py-2">Execution Key</th>
-                <th className="text-left px-3 py-2">Symbol</th>
-                <th className="text-left px-3 py-2">Status</th>
-                <th className="text-right px-3 py-2">Attempt</th>
-                <th className="text-left px-3 py-2">Next Retry</th>
-                <th className="text-left px-3 py-2">Last Error</th>
-                <th className="text-left px-3 py-2">Action</th>
+        <AdminDataTable fullBleed={false}>
+          <thead>
+            <tr>
+              <th>Queue ID</th>
+              <th>Execution Key</th>
+              <th>Symbol</th>
+              <th>Status</th>
+              <th className="text-right">Attempt</th>
+              <th>Next Retry</th>
+              <th>Last Error</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {!loading && !queue.length ? (
+              <tr><td className="text-center text-white/55" colSpan={8}>No queue items.</td></tr>
+            ) : null}
+            {queue.map((q) => (
+              <tr key={q.id}>
+                <td className="font-mono text-xs text-cyan-200">{q.id}</td>
+                <td className="font-mono text-xs text-white/75">{q.execution_key}</td>
+                <td className="text-white">{q.symbol || '—'}</td>
+                <td><span className="admin-pill border-white/15 bg-white/10 text-white/85">{q.status}</span></td>
+                <td className="text-right font-mono">{q.attempt ?? 0} / {q.max_attempts ?? 0}</td>
+                <td className="text-white/70">{fmtTs(q.next_retry_at)}</td>
+                <td className="text-rose-300 text-xs">{q.last_error || '—'}</td>
+                <td>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => openDetail(q.execution_key)}
+                      className="admin-btn-secondary inline-flex items-center gap-1"
+                    >
+                      <Info size={12} /> Details
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => retryQueueItem(q.id)}
+                      disabled={!canExecute || busyId === q.id}
+                      className="admin-btn-secondary inline-flex items-center gap-1 disabled:opacity-40"
+                    >
+                      <RotateCcw size={12} /> Retry now
+                    </button>
+                  </div>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {!loading && !queue.length ? (
-                <tr><td className="px-3 py-4 text-center text-white/55" colSpan={8}>No queue items.</td></tr>
-              ) : null}
-              {queue.map((q) => (
-                <tr key={q.id} className="border-t border-white/5">
-                  <td className="px-3 py-2 font-mono text-xs text-cyan-200">{q.id}</td>
-                  <td className="px-3 py-2 font-mono text-xs text-white/75">{q.execution_key}</td>
-                  <td className="px-3 py-2 text-white">{q.symbol || '—'}</td>
-                  <td className="px-3 py-2"><span className="admin-pill border-white/15 bg-white/10 text-white/85">{q.status}</span></td>
-                  <td className="px-3 py-2 text-right font-mono">{q.attempt ?? 0} / {q.max_attempts ?? 0}</td>
-                  <td className="px-3 py-2 text-white/70">{fmtTs(q.next_retry_at)}</td>
-                  <td className="px-3 py-2 text-rose-300 text-xs">{q.last_error || '—'}</td>
-                  <td className="px-3 py-2">
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => openDetail(q.execution_key)}
-                        className="admin-btn-secondary inline-flex items-center gap-1"
-                      >
-                        <Info size={12} /> Details
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => retryQueueItem(q.id)}
-                        disabled={!canExecute || busyId === q.id}
-                        className="admin-btn-secondary inline-flex items-center gap-1 disabled:opacity-40"
-                      >
-                        <RotateCcw size={12} /> Retry now
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </AdminDataTable>
       </AdminPanel>
 
       <AdminPanel title="Dead Letters" subtitle="Exhausted retry items. Use retry to requeue for processing.">
-        <div className="overflow-x-auto rounded-xl border border-surface-border">
-          <table className="w-full text-sm">
-            <thead className="bg-white/5 text-white/60 text-[11px] uppercase">
-              <tr>
-                <th className="text-left px-3 py-2">Dead ID</th>
-                <th className="text-left px-3 py-2">Execution Key</th>
-                <th className="text-left px-3 py-2">Reason</th>
-                <th className="text-left px-3 py-2">Created</th>
-                <th className="text-left px-3 py-2">Action</th>
+        <AdminDataTable fullBleed={false}>
+          <thead>
+            <tr>
+              <th>Dead ID</th>
+              <th>Execution Key</th>
+              <th>Reason</th>
+              <th>Created</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {!loading && !deadLetters.length ? (
+              <tr><td className="text-center text-white/55" colSpan={5}>No dead-letter items.</td></tr>
+            ) : null}
+            {deadLetters.map((d) => (
+              <tr key={d.id}>
+                <td className="font-mono text-xs text-gold-light">{d.id}</td>
+                <td className="font-mono text-xs text-white/75">{d.execution_key}</td>
+                <td className="text-rose-300">{d.reason || '—'}</td>
+                <td className="text-white/70">{fmtTs(d.created_at)}</td>
+                <td>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => openDetail(d.execution_key)}
+                      className="admin-btn-secondary inline-flex items-center gap-1"
+                    >
+                      <Info size={12} /> Details
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => retryDeadLetter(d.id)}
+                      disabled={!canExecute || busyId === d.id}
+                      className="admin-btn-secondary inline-flex items-center gap-1 disabled:opacity-40"
+                    >
+                      <Trash2 size={12} /> Requeue
+                    </button>
+                  </div>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {!loading && !deadLetters.length ? (
-                <tr><td className="px-3 py-4 text-center text-white/55" colSpan={5}>No dead-letter items.</td></tr>
-              ) : null}
-              {deadLetters.map((d) => (
-                <tr key={d.id} className="border-t border-white/5">
-                  <td className="px-3 py-2 font-mono text-xs text-gold-light">{d.id}</td>
-                  <td className="px-3 py-2 font-mono text-xs text-white/75">{d.execution_key}</td>
-                  <td className="px-3 py-2 text-rose-300">{d.reason || '—'}</td>
-                  <td className="px-3 py-2 text-white/70">{fmtTs(d.created_at)}</td>
-                  <td className="px-3 py-2">
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => openDetail(d.execution_key)}
-                        className="admin-btn-secondary inline-flex items-center gap-1"
-                      >
-                        <Info size={12} /> Details
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => retryDeadLetter(d.id)}
-                        disabled={!canExecute || busyId === d.id}
-                        className="admin-btn-secondary inline-flex items-center gap-1 disabled:opacity-40"
-                      >
-                        <Trash2 size={12} /> Requeue
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </AdminDataTable>
       </AdminPanel>
 
       {detailOpen ? (

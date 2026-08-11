@@ -5,6 +5,7 @@ import { api } from '@/lib/api';
 import { useListSort } from '@/lib/useListSort';
 import SortableTh from '@/components/SortableTh';
 import ConfirmModal from '@/components/ConfirmModal';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 const API_BASE = (import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000').replace(/\/$/, '');
 
@@ -138,26 +139,24 @@ export default function KycQueuePage() {
         <span>Amount: <strong className="text-white/80">N/A (KYC queue)</strong></span>
       </div>
 
-      <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden min-w-0">
-        <div className="adm-table-x scrollbar-thin">
-          <table className="w-full text-sm min-w-[800px]">
+      <AdminDataTable minWidth="800px">
             <thead>
-              <tr className="text-left text-[11px] font-extrabold text-white/50 uppercase tracking-wider border-b border-surface-border bg-white/[.02]">
-                <th className="px-4 py-3 w-10" />
-                <SortableTh className="px-4 py-3" sortKey="uid" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>User</SortableTh>
-                <SortableTh className="px-4 py-3" sortKey="submitted_at" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Submitted</SortableTh>
-                <th className="px-4 py-3">Document</th>
-                <th className="px-4 py-3 text-right">Actions</th>
+              <tr>
+                <th className="w-10" />
+                <SortableTh sortKey="uid" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>User</SortableTh>
+                <SortableTh sortKey="submitted_at" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Submitted</SortableTh>
+                <th>Document</th>
+                <th className="text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-16 text-center text-white/50">Loading…</td>
+                  <td colSpan={5} className="text-center text-white/50 !py-16">Loading…</td>
                 </tr>
               ) : items.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-16 text-center text-white/50">No pending KYC submissions.</td>
+                  <td colSpan={5} className="text-center text-white/50 !py-16">No pending KYC submissions.</td>
                 </tr>
               ) : (
                 items.map(row => {
@@ -166,8 +165,8 @@ export default function KycQueuePage() {
                   const open = expanded === uid;
                   return (
                     <Fragment key={uid}>
-                      <tr className="border-b border-surface-border/60 hover:bg-white/[.03]">
-                        <td className="px-4 py-3">
+                      <tr>
+                        <td>
                           <button
                             type="button"
                             onClick={() => setExpanded(open ? null : uid)}
@@ -177,15 +176,15 @@ export default function KycQueuePage() {
                             <FileText size={16} />
                           </button>
                         </td>
-                        <td className="px-4 py-3">
+                        <td>
                           <Link to={`/users/${uid}`} className="font-bold text-white hover:text-gold-light">{row.user_name || '—'}</Link>
                           <p className="text-xs text-white/50">{row.user_email}</p>
                           <p className="text-[11px] font-mono text-white/35">{uid}</p>
                         </td>
-                        <td className="px-4 py-3 text-white/55 text-xs whitespace-nowrap">
+                        <td className="text-white/55 text-xs whitespace-nowrap">
                           {row.submitted_at ? new Date(row.submitted_at).toLocaleString() : '—'}
                         </td>
-                        <td className="px-4 py-3 text-xs">
+                        <td className="text-xs">
                           <span className="text-white/80">{doc.document_type || '—'}</span>
                           <p className="text-white/45 font-mono truncate max-w-[180px]" title={doc.document_number}>#{doc.document_number}</p>
                           {row.pan_info?.linked && (
@@ -194,7 +193,7 @@ export default function KycQueuePage() {
                             </p>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-right">
+                        <td className="text-right">
                           <div className="flex justify-end gap-2 flex-wrap">
                             <button
                               type="button"
@@ -216,8 +215,8 @@ export default function KycQueuePage() {
                         </td>
                       </tr>
                       {open && (
-                        <tr className="bg-white/[.02] border-b border-surface-border/60">
-                          <td colSpan={5} className="px-4 py-4 text-xs text-white/80">
+                        <tr>
+                          <td colSpan={5} className="!py-4 text-xs text-white/80">
                             <div className="grid lg:grid-cols-2 gap-4">
                               <div className="rounded-xl border border-surface-border bg-surface-dark/60 p-4 space-y-2">
                                 <p className="text-[10px] font-extrabold text-white/45 uppercase tracking-wider">Personal</p>
@@ -330,9 +329,7 @@ export default function KycQueuePage() {
                 })
               )}
             </tbody>
-          </table>
-        </div>
-      </div>
+      </AdminDataTable>
 
       <div className="flex items-center justify-between mt-4 flex-wrap gap-3">
           <p className="text-white/50 text-sm">{total} pending · page {page} / {pages}</p>

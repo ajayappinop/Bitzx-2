@@ -68,17 +68,18 @@ export default function UsersPage() {
   const [exporting, setExporting] = useState(false);
   const [selectedUid, setSelectedUid] = useState('');
   const wrapRef = useRef(null);
-  const { sortBy, sortDir, sortParams, toggleSort: _toggleSort, resetSort } = useListSort(
+  const { sortBy, sortDir, sortParams, setSortBy, setSortDir, resetSort } = useListSort(
     searchParams.get('sort') || 'created_at',
     searchParams.get('dir') === 'asc' ? 'asc' : 'desc',
   );
-  const toggleSort = useCallback(
-    (key) => {
-      setSkip(0);
-      _toggleSort(key);
-    },
-    [_toggleSort],
-  );
+
+  const SORT_OPTIONS = [
+    { key: 'name', label: 'Name' },
+    { key: 'email', label: 'Email' },
+    { key: 'kyc_status', label: 'KYC' },
+    { key: 'last_login_at', label: 'Last login' },
+    { key: 'created_at', label: 'Joined' },
+  ];
 
   const selectedUser = useMemo(
     () => items.find((u) => u.uid === selectedUid) || items[0] || null,
@@ -260,15 +261,15 @@ export default function UsersPage() {
           User search and filters
         </div>
 
-        <div className="flex flex-col xl:flex-row gap-3 xl:items-start">
-          <div className="relative flex-1" ref={wrapRef}>
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/35 z-10" size={18} />
+        <div className="flex flex-col xl:flex-row gap-2.5 xl:items-center">
+          <div className="relative flex-1 min-w-0" ref={wrapRef}>
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/35 z-10" size={16} />
             <input
               value={q}
               onChange={(e) => { setSkip(0); setQ(e.target.value); setShowSuggest(true); }}
               onFocus={() => setShowSuggest(true)}
               placeholder="Search email, name, UID, phone, or deposit wallet address…"
-              className="w-full pl-10 pr-4 py-3 rounded-xl bg-surface-dark border border-surface-border text-white placeholder:text-white/35 focus:border-gold/40 outline-none"
+              className="w-full h-10 pl-10 pr-3 rounded-xl bg-surface-dark border border-surface-border text-sm text-white placeholder:text-white/35 focus:border-gold/40 outline-none"
               autoComplete="off"
             />
             {showSuggest && (q.trim().length >= 2 || suggestLoading) && (
@@ -334,12 +335,12 @@ export default function UsersPage() {
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 xl:w-[640px]">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 xl:w-[420px] shrink-0">
             <select
               value={active}
               onChange={(e) => { setSkip(0); setActive(e.target.value); }}
-              className="rounded-xl bg-surface-dark border border-surface-border px-4 py-3 text-white text-sm font-semibold"
-              title="All accounts"
+              className="h-10 rounded-xl bg-surface-dark border border-surface-border px-3 text-white text-sm font-semibold"
+              title="Account status"
             >
               {ACTIVE_OPTS.map((o) => (
                 <option key={o.value} value={o.value}>{o.label}</option>
@@ -348,8 +349,8 @@ export default function UsersPage() {
             <select
               value={kyc}
               onChange={(e) => { setSkip(0); setKyc(e.target.value); }}
-              className="rounded-xl bg-surface-dark border border-surface-border px-4 py-3 text-white text-sm font-semibold"
-              title="All KYC"
+              className="h-10 rounded-xl bg-surface-dark border border-surface-border px-3 text-white text-sm font-semibold"
+              title="KYC status"
             >
               {KYC_OPTS.map((o) => (
                 <option key={o.value} value={o.value}>{o.label}</option>
@@ -359,13 +360,10 @@ export default function UsersPage() {
               type="button"
               onClick={exportUsersExcel}
               disabled={exporting}
-              className="adm-btn-secondary"
+              className="adm-btn-secondary !h-10 !min-h-0 !py-0"
             >
               {exporting ? 'Exporting…' : 'Export'}
             </button>
-            <div className="rounded-xl border border-surface-border px-4 py-3 text-white/60 text-sm font-semibold flex items-center justify-center">
-              User actions in profile
-            </div>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -433,31 +431,33 @@ export default function UsersPage() {
       </div>
 
       <div className="rounded-lg border border-surface-border bg-surface-card overflow-hidden min-w-0">
-        <div className="flex flex-wrap items-center gap-1.5 px-3 py-2 border-b border-surface-border bg-[color:var(--ibo-thead)]">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-white/40 mr-1">Sort</span>
-          {[
-            { key: 'name', label: 'Name' },
-            { key: 'email', label: 'Email' },
-            { key: 'kyc_status', label: 'KYC' },
-            { key: 'last_login_at', label: 'Last login' },
-            { key: 'created_at', label: 'Joined' },
-          ].map(({ key, label }) => {
-            const activeSort = sortBy === key;
-            return (
-              <button
-                key={key}
-                type="button"
-                onClick={() => toggleSort(key)}
-                className={`px-2.5 py-1 rounded-md text-[11px] font-bold border transition-colors ${
-                  activeSort
-                    ? 'border-[#FE6C02]/40 bg-[#FE6C02]/10 text-[#8f3600]'
-                    : 'border-surface-border text-white/55 hover:text-white hover:bg-surface-hover'
-                }`}
-              >
-                {label}{activeSort ? (sortDir === 'asc' ? ' ↑' : ' ↓') : ''}
-              </button>
-            );
-          })}
+        <div className="flex flex-wrap items-center gap-2 px-3 py-2 border-b border-surface-border bg-[color:var(--ibo-thead)]">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-white/40">Sort</span>
+          <select
+            value={sortBy}
+            onChange={(e) => {
+              setSkip(0);
+              setSortBy(e.target.value);
+            }}
+            className="h-9 min-w-[140px] rounded-lg bg-surface-dark border border-surface-border px-3 text-sm font-semibold text-white"
+            aria-label="Sort by"
+          >
+            {SORT_OPTIONS.map(({ key, label }) => (
+              <option key={key} value={key}>{label}</option>
+            ))}
+          </select>
+          <select
+            value={sortDir}
+            onChange={(e) => {
+              setSkip(0);
+              setSortDir(e.target.value);
+            }}
+            className="h-9 min-w-[120px] rounded-lg bg-surface-dark border border-surface-border px-3 text-sm font-semibold text-white"
+            aria-label="Sort direction"
+          >
+            <option value="asc">Ascending ↑</option>
+            <option value="desc">Descending ↓</option>
+          </select>
         </div>
 
         {loading ? (

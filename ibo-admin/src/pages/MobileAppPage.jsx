@@ -6,6 +6,7 @@ import {
 import { api, getStoredToken } from '@/lib/api';
 import { useAdminAuth } from '@/context/AdminAuthContext';
 import { hasPermission } from '@/lib/adminAccess';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 const BACKEND = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
 
@@ -450,10 +451,9 @@ export default function MobileAppPage() {
             type="button"
             onClick={load}
             disabled={loading}
-            className="p-2 rounded-lg text-white/50 hover:text-white disabled:opacity-40"
-            title="Refresh"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-surface-border text-white/90 text-sm font-bold disabled:opacity-40"
           >
-            <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+            <RefreshCw size={16} className={loading ? 'animate-spin' : ''} /> Refresh
           </button>
         </div>
 
@@ -462,25 +462,24 @@ export default function MobileAppPage() {
         ) : !items.length ? (
           <div className="py-12 text-center text-white/40 text-sm">No APK uploads yet.</div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-xs uppercase tracking-wider text-white/40 border-b border-surface-border">
-                  <th className="px-5 py-3">Version</th>
-                  <th className="px-3 py-3">Code</th>
-                  <th className="px-3 py-3">Size</th>
-                  <th className="px-3 py-3">Status</th>
-                  <th className="px-3 py-3">Uploaded</th>
-                  <th className="px-5 py-3 text-right">Actions</th>
+          <AdminDataTable className="!border-0 !rounded-none">
+            <thead>
+                <tr>
+                  <th>Version</th>
+                  <th>Code</th>
+                  <th>Size</th>
+                  <th>Status</th>
+                  <th>Uploaded</th>
+                  <th className="text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {items.map((r) => (
-                  <tr key={r.id} className="border-b border-surface-border/60 hover:bg-white/[0.02]">
-                    <td className="px-5 py-3 font-mono font-bold text-white">{r.version}</td>
-                    <td className="px-3 py-3 font-mono text-white/70">{r.version_code}</td>
-                    <td className="px-3 py-3 text-white/60">{fmtBytes(r.file_size_bytes)}</td>
-                    <td className="px-3 py-3">
+                  <tr key={r.id}>
+                    <td className="font-mono font-bold text-white">{r.version}</td>
+                    <td className="font-mono text-white/70">{r.version_code}</td>
+                    <td className="text-white/60">{fmtBytes(r.file_size_bytes)}</td>
+                    <td>
                       {r.published ? (
                         <span className="inline-flex items-center gap-1 text-emerald-400 text-xs font-bold">
                           <CheckCircle size={12} /> Live
@@ -491,11 +490,11 @@ export default function MobileAppPage() {
                         </span>
                       )}
                     </td>
-                    <td className="px-3 py-3 text-white/50 text-xs">{fmtDate(r.created_at)}</td>
-                    <td className="px-5 py-3 text-right space-x-2 whitespace-nowrap">
+                    <td className="text-white/50 text-xs">{fmtDate(r.created_at)}</td>
+                    <td className="text-right space-x-2 whitespace-nowrap">
                       <a
                         href={downloadHref('/api/mobile-app/download', r.version)}
-                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold text-white/70 hover:bg-white/10"
+                        className="inline-flex items-center gap-1 rounded-lg text-xs font-bold text-white/70 hover:bg-white/10"
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -508,7 +507,7 @@ export default function MobileAppPage() {
                               type="button"
                               disabled={busy}
                               onClick={() => togglePublish(r.id, true)}
-                              className="px-2 py-1 rounded-lg text-xs font-bold text-emerald-300 hover:bg-emerald-500/15 disabled:opacity-40"
+                              className="rounded-lg text-xs font-bold text-emerald-300 hover:bg-emerald-500/15 disabled:opacity-40"
                             >
                               Publish
                             </button>
@@ -517,7 +516,7 @@ export default function MobileAppPage() {
                               type="button"
                               disabled={busy}
                               onClick={() => togglePublish(r.id, false)}
-                              className="px-2 py-1 rounded-lg text-xs font-bold text-gold-light hover:bg-gold/15 disabled:opacity-40"
+                              className="rounded-lg text-xs font-bold text-gold-light hover:bg-gold/15 disabled:opacity-40"
                             >
                               Unpublish
                             </button>
@@ -537,8 +536,8 @@ export default function MobileAppPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
+            
+          </AdminDataTable>
         )}
       </div>
     </div>

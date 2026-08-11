@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import {
-  Sparkles, RefreshCw, Save, Upload, Image as ImageIcon, Smartphone,
+  Sparkles, RefreshCw, Save, Upload, Image as ImageIcon,
 } from 'lucide-react';
 import { api, getStoredToken } from '@/lib/api';
 import { useAdminAuth } from '@/context/AdminAuthContext';
 import { hasPermission } from '@/lib/adminAccess';
+import { AdminToggle } from '@/components/AdminPrimitives';
 
 const BACKEND = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
 
@@ -13,21 +13,6 @@ function assetUrl(path) {
   if (!path) return null;
   if (path.startsWith('http')) return path;
   return `${BACKEND}${path.startsWith('/') ? '' : '/'}${path}`;
-}
-
-function Toggle({ checked, onChange, disabled }) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      disabled={disabled}
-      onClick={() => onChange(!checked)}
-      className={`relative w-11 h-6 rounded-full transition-colors ${checked ? 'bg-emerald-500' : 'bg-white/20'} ${disabled ? 'opacity-50' : ''}`}
-    >
-      <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${checked ? 'translate-x-5' : ''}`} />
-    </button>
-  );
 }
 
 function Field({ label, children }) {
@@ -165,37 +150,20 @@ export default function LandingPromoPage() {
 
   return (
     <div className="admin-page space-y-6 max-w-4xl">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
+      <div className="flex flex-wrap items-start justify-between gap-4 w-full">
+        <div className="min-w-0 flex-1">
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <Sparkles className="text-gold-light" size={24} />
             Landing promo popup
           </h1>
           <p className="text-white/55 text-sm mt-1 max-w-2xl">
-            Configure the first-visit popup on the exchange landing page: IBO coin slide and Android app slide (auto-rotates every few seconds).
+            Configure the first-visit popup on the exchange landing page: Delta coin slide and Android app slide (auto-rotates every few seconds).
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Link
-            to="/settings/mobile-app"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.06] border border-surface-border text-white/90 text-sm font-bold hover:border-gold/40"
-          >
-            <Smartphone size={16} className="text-gold-light" />
-            Manage APK
-          </Link>
+        <div className="flex flex-wrap gap-2 shrink-0 ml-auto">
           <button type="button" onClick={load} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-surface-border text-white/90 text-sm font-bold">
             <RefreshCw size={16} /> Refresh
           </button>
-          {canManage ? (
-            <button
-              type="button"
-              onClick={save}
-              disabled={busy}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gold/20 border border-gold/35 text-gold-light text-sm font-bold disabled:opacity-50"
-            >
-              <Save size={16} /> {busy ? 'Saving…' : 'Save changes'}
-            </button>
-          ) : null}
         </div>
       </div>
 
@@ -207,7 +175,7 @@ export default function LandingPromoPage() {
         <div className="grid sm:grid-cols-2 gap-4">
           <div className="flex items-center justify-between rounded-xl border border-surface-border px-4 py-3">
             <span className="text-sm text-white/80">Popup enabled</span>
-            <Toggle checked={enabled} onChange={setEnabled} disabled={!canManage} />
+            <AdminToggle checked={enabled} onChange={setEnabled} disabled={!canManage} aria-label="Popup enabled" />
           </div>
           <Field label="Auto-scroll (seconds)">
             <input type="number" min={2} max={30} className={inputCls} value={autoScroll} onChange={(e) => setAutoScroll(e.target.value)} disabled={!canManage} />
@@ -228,8 +196,8 @@ export default function LandingPromoPage() {
 
       <section className="rounded-2xl border border-gold/20 bg-gold/[0.04] p-5 space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-white">Slide 1 — IBO coin</h2>
-          <Toggle checked={coin.enabled !== false} onChange={(v) => setCoin({ ...coin, enabled: v })} disabled={!canManage} />
+          <h2 className="text-lg font-bold text-white">Slide 1 — Delta coin</h2>
+          <AdminToggle checked={coin.enabled !== false} onChange={(v) => setCoin({ ...coin, enabled: v })} disabled={!canManage} aria-label="Coin slide enabled" />
         </div>
         <div className="grid sm:grid-cols-2 gap-4">
           <Field label="Brand label"><input className={inputCls} value={coin.brand_label || ''} onChange={(e) => setCoin({ ...coin, brand_label: e.target.value })} disabled={!canManage} /></Field>
@@ -263,7 +231,7 @@ export default function LandingPromoPage() {
       <section className="rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.04] p-5 space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-white">Slide 2 — Android app</h2>
-          <Toggle checked={app.enabled !== false} onChange={(v) => setApp({ ...app, enabled: v })} disabled={!canManage} />
+          <AdminToggle checked={app.enabled !== false} onChange={(v) => setApp({ ...app, enabled: v })} disabled={!canManage} aria-label="App slide enabled" />
         </div>
         <div className="grid gap-4">
           <Field label="Headline"><input className={inputCls} value={app.headline || ''} onChange={(e) => setApp({ ...app, headline: e.target.value })} disabled={!canManage} /></Field>
@@ -293,6 +261,27 @@ export default function LandingPromoPage() {
           ) : null}
         </div>
       </section>
+
+      {canManage ? (
+        <div className="flex flex-wrap items-center justify-end gap-2 pt-2 border-t border-surface-border">
+          <button
+            type="button"
+            onClick={() => { setErr(''); setOk(''); load(); }}
+            disabled={busy}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-surface-border text-white/90 text-sm font-bold disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={save}
+            disabled={busy}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gold/20 border border-gold/35 text-gold-light text-sm font-bold disabled:opacity-50"
+          >
+            <Save size={16} /> {busy ? 'Saving…' : 'Save changes'}
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }

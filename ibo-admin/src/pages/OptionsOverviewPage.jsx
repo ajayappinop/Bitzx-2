@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { RefreshCw, AlertTriangle, Database, Info } from 'lucide-react';
 import { api } from '@/lib/api';
 import { formatAdminApiDetail } from '@/lib/adminApiDetail';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 function fmtCount(v) {
   if (v == null || v === '') return '—';
@@ -31,28 +32,26 @@ function formatSettleTick(tick) {
 
 function KvTable({ rows }) {
   return (
-    <div className="rounded-lg border border-white/10 overflow-hidden bg-surface-dark">
-      <table className="w-full text-sm table-fixed">
-        <tbody>
-          {rows.map(([k, v]) => (
-            <tr key={k} className="border-b border-white/[0.06] last:border-0">
-              <td className="px-3 py-2.5 w-[40%] sm:w-[36%] text-[11px] uppercase tracking-wider text-white/50 font-bold align-top">
-                {k}
-              </td>
-              <td className="px-3 py-2.5 text-white/90 align-top">
-                <div
-                  className={`text-sm break-words [overflow-wrap:anywhere] ${
-                    typeof v === 'string' || typeof v === 'number' ? 'font-mono tabular-nums' : ''
-                  }`}
-                >
-                  {v}
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <AdminDataTable fullBleed={false}>
+      <tbody>
+        {rows.map(([k, v]) => (
+          <tr key={k}>
+            <td className="w-[40%] sm:w-[36%] text-[11px] uppercase tracking-wider text-white/50 font-bold align-top">
+              {k}
+            </td>
+            <td className="text-white/90 align-top">
+              <div
+                className={`text-sm break-words [overflow-wrap:anywhere] ${
+                  typeof v === 'string' || typeof v === 'number' ? 'font-mono tabular-nums' : ''
+                }`}
+              >
+                {v}
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </AdminDataTable>
   );
 }
 
@@ -383,13 +382,13 @@ export default function OptionsOverviewPage() {
               <span className="text-[11px] font-bold text-white/50 uppercase tracking-wider">Fee overrides</span>
               <span
                 className="inline-flex text-white/35 hover:text-white/55 cursor-help"
-                title="Stored in platform_controls. Taker fees debit IBO from spot wallet; negative maker rates pay USDT rebate on the options ledger."
+                title="Stored in platform_controls. Taker fees debit Delta from spot wallet; negative maker rates pay USDT rebate on the options ledger."
               >
                 <Info size={13} />
               </span>
             </div>
             <p className="text-[11px] text-white/45 leading-relaxed">
-              Taker fee: % of premium — settled in IBO. Maker rebate (negative rate): USDT on options ledger.
+              Taker fee: % of premium — settled in Delta. Maker rebate (negative rate): USDT on options ledger.
             </p>
             <div className="flex flex-wrap items-end gap-3">
               <label className="block text-xs min-w-[8rem]">

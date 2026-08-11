@@ -6,6 +6,7 @@ import {
 import { api, getStoredToken } from '@/lib/api';
 import { useAdminAuth } from '@/context/AdminAuthContext';
 import { hasPermission } from '@/lib/adminAccess';
+import { AdminToggle } from '@/components/AdminPrimitives';
 
 const BACKEND = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
 
@@ -13,25 +14,6 @@ function assetUrl(path) {
   if (!path) return null;
   if (path.startsWith('http')) return path;
   return `${BACKEND}${path.startsWith('/') ? '' : '/'}${path}`;
-}
-
-/** Pill toggle — matches Token Listings / other admin settings pages */
-function TogglePill({ on, onClick, label, disabled }) {
-  return (
-    <button
-      type="button"
-      disabled={disabled}
-      onClick={onClick}
-      className={`inline-flex items-center gap-2 rounded-lg border px-3.5 py-2 text-xs font-bold transition-colors disabled:opacity-40 ${
-        on
-          ? 'border-emerald-500/40 bg-emerald-500/15 text-emerald-200'
-          : 'border-surface-border bg-white/5 text-white/55 hover:text-white/85'
-      }`}
-    >
-      <span className={`h-2 w-2 rounded-sm ${on ? 'bg-emerald-400' : 'bg-white/25'}`} />
-      {label}
-    </button>
-  );
 }
 
 const inputCls = 'w-full rounded-xl bg-white/[0.04] border border-surface-border px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-gold/40 outline-none';
@@ -278,12 +260,17 @@ export default function AppHomeBannersPage() {
         <h2 className="text-sm font-bold uppercase tracking-wide text-white/50">Carousel</h2>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <span className="text-sm text-white/80">Show carousel on web &amp; app home</span>
-          <TogglePill
-            label={settings.enabled !== false ? 'On' : 'Off'}
-            on={settings.enabled !== false}
-            disabled={!canManage}
-            onClick={() => setSettings((s) => ({ ...s, enabled: !(s.enabled !== false) }))}
-          />
+          <div className="flex items-center gap-2.5">
+            <span className={`text-xs font-bold ${settings.enabled !== false ? 'text-emerald-400' : 'text-white/45'}`}>
+              {settings.enabled !== false ? 'On' : 'Off'}
+            </span>
+            <AdminToggle
+              checked={settings.enabled !== false}
+              disabled={!canManage}
+              aria-label="Show carousel on web and app home"
+              onChange={(v) => setSettings((s) => ({ ...s, enabled: v }))}
+            />
+          </div>
         </div>
         <label className="block text-xs text-white/50">
           Auto-scroll (seconds)
@@ -374,7 +361,13 @@ export default function AppHomeBannersPage() {
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-bold uppercase tracking-wide text-white/50">Banners ({banners.length})</h2>
-          <button type="button" onClick={load} className="text-white/50 hover:text-white"><RefreshCw size={16} /></button>
+          <button
+            type="button"
+            onClick={load}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-surface-border text-white/90 text-sm font-bold"
+          >
+            <RefreshCw size={16} /> Refresh
+          </button>
         </div>
         {banners.length === 0 ? (
           <p className="text-sm text-white/40">No banners yet. Add one above.</p>
@@ -402,18 +395,22 @@ export default function AppHomeBannersPage() {
               </div>
               <div className="p-4 space-y-3">
                 <div className="flex flex-wrap gap-2 items-center">
-                  <TogglePill
-                    label={b.enabled !== false ? 'Active' : 'Hidden'}
-                    on={b.enabled !== false}
-                    disabled={!canManage}
-                    onClick={async () => {
-                      const next = b.enabled === false;
-                      try {
-                        await patchBanner(b.id, { enabled: next });
-                        await load();
-                      } catch (e) { setErr(e.message); }
-                    }}
-                  />
+                  <div className="flex items-center gap-2.5 mr-1">
+                    <span className={`text-xs font-bold ${b.enabled !== false ? 'text-emerald-400' : 'text-white/45'}`}>
+                      {b.enabled !== false ? 'Active' : 'Hidden'}
+                    </span>
+                    <AdminToggle
+                      checked={b.enabled !== false}
+                      disabled={!canManage}
+                      aria-label={b.enabled !== false ? 'Banner active' : 'Banner hidden'}
+                      onChange={async (next) => {
+                        try {
+                          await patchBanner(b.id, { enabled: next });
+                          await load();
+                        } catch (e) { setErr(e.message); }
+                      }}
+                    />
+                  </div>
                   {canManage ? (
                     <>
                       <button type="button" className="p-1 text-white/40 hover:text-white" onClick={() => moveBanner(b.id, 'up')} disabled={i === 0}><ChevronUp size={18} /></button>

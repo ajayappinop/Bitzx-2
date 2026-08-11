@@ -6,7 +6,7 @@ import {
 import { api } from '@/lib/api';
 import { useAdminAuth } from '@/context/AdminAuthContext';
 import { hasPermission } from '@/lib/adminAccess';
-import { AdminPageHeader } from '@/components/AdminPrimitives';
+import { AdminPageHeader, AdminDataTable } from '@/components/AdminPrimitives';
 
 function fmtTs(iso) {
   if (!iso) return '—';
@@ -141,7 +141,7 @@ function WithdrawalDetailModal({
             <DetailRow label="Amount (INR)">
               <span className="text-xl font-bold tabular-nums">{fmtInr(row.amount_inr)}</span>
             </DetailRow>
-            <DetailRow label="IBO locked at submit">
+            <DetailRow label="Delta locked at submit">
               <span className="font-mono text-gold-light font-bold">{fmtIbo(row.amount_ibo)}</span>
             </DetailRow>
           </div>
@@ -325,7 +325,7 @@ export default function InrWithdrawalsPage() {
       setRejectReason('');
       setDetailRow(null);
       await load({ silent: true });
-      setOk(`Rejected withdrawal for ${row.uid} — IBO unlocked`);
+      setOk(`Rejected withdrawal for ${row.uid} — Delta unlocked`);
     } catch (e) {
       setErr(e.message || 'Reject failed');
     } finally {
@@ -338,7 +338,7 @@ export default function InrWithdrawalsPage() {
       <AdminPageHeader
         icon={IndianRupee}
         title="INR withdrawals"
-        subtitle="Review payout details, send bank/UPI transfer, then approve. IBO was locked when the user submitted."
+        subtitle="Review payout details, send bank/UPI transfer, then approve. Delta was locked when the user submitted."
         actions={(
           <button
             type="button"
@@ -392,41 +392,39 @@ export default function InrWithdrawalsPage() {
         </p>
       )}
 
-      <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden min-w-0">
-        <div className="adm-table-x scrollbar-thin">
-          <table className="w-full text-sm min-w-[680px]">
+      <AdminDataTable minWidth="680px">
             <thead>
-              <tr className="text-center text-[11px] font-extrabold text-white/50 uppercase tracking-wider border-b border-surface-border bg-white/[.02]">
-                <th className="px-4 py-3">User</th>
-                <th className="px-4 py-3">INR</th>
-                <th className="px-4 py-3">IBO locked</th>
-                <th className="px-4 py-3">Payout</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Submitted</th>
-                <th className="px-4 py-3">View</th>
+              <tr className="text-center">
+                <th>User</th>
+                <th>INR</th>
+                <th>Delta locked</th>
+                <th>Payout</th>
+                <th>Status</th>
+                <th>Submitted</th>
+                <th>View</th>
               </tr>
             </thead>
             <tbody>
               {loading && items.length === 0 ? (
-                <tr><td colSpan={7} className="px-4 py-12 text-center text-white/50">Loading…</td></tr>
+                <tr><td colSpan={7} className="text-center text-white/50 !py-12">Loading…</td></tr>
               ) : items.length === 0 ? (
-                <tr><td colSpan={7} className="px-4 py-12 text-center text-white/50">No withdrawals found.</td></tr>
+                <tr><td colSpan={7} className="text-center text-white/50 !py-12">No withdrawals found.</td></tr>
               ) : (
                 items.map((row) => (
-                  <tr key={row.id} className="border-b border-surface-border/50 hover:bg-white/[.02]">
-                    <td className="px-4 py-3 text-center">
+                  <tr key={row.id}>
+                    <td className="text-center">
                       <Link to={`/users/${row.uid}`} className="font-mono text-[11px] text-gold-light hover:underline truncate inline-block max-w-[120px]" title={row.uid}>
                         {row.uid}
                       </Link>
                     </td>
-                    <td className="px-4 py-3 text-center font-semibold text-white tabular-nums">{fmtInr(row.amount_inr)}</td>
-                    <td className="px-4 py-3 text-center font-mono text-xs text-gold-light">{fmtIbo(row.amount_ibo)}</td>
-                    <td className="px-4 py-3 text-center text-xs font-bold uppercase" title={row.payout_label || ''}>
+                    <td className="text-center font-semibold text-white tabular-nums">{fmtInr(row.amount_inr)}</td>
+                    <td className="text-center font-mono text-xs text-gold-light">{fmtIbo(row.amount_ibo)}</td>
+                    <td className="text-center text-xs font-bold uppercase" title={row.payout_label || ''}>
                       {payoutTypeLabel(row.payout_type)}
                     </td>
-                    <td className="px-4 py-3 text-center"><StatusPill row={row} /></td>
-                    <td className="px-4 py-3 text-center text-xs text-white/55 whitespace-nowrap">{fmtTs(row.created_at)}</td>
-                    <td className="px-4 py-3 text-center">
+                    <td className="text-center"><StatusPill row={row} /></td>
+                    <td className="text-center text-xs text-white/55 whitespace-nowrap">{fmtTs(row.created_at)}</td>
+                    <td className="text-center">
                       <button
                         type="button"
                         onClick={() => setDetailRow(row)}
@@ -439,9 +437,7 @@ export default function InrWithdrawalsPage() {
                 ))
               )}
             </tbody>
-          </table>
-        </div>
-      </div>
+      </AdminDataTable>
 
       <div className="flex items-center justify-between mt-4 text-sm text-white/60">
         <span>Page {page} / {pages} · {total} total</span>
@@ -469,7 +465,7 @@ export default function InrWithdrawalsPage() {
             <h3 className="text-xl font-black text-white pr-10">Confirm INR payout</h3>
             <p className="text-sm text-white/60">
               After you send {fmtInr(approveTarget.amount_inr)} to the user&apos;s bank or UPI, confirm below.
-              This completes their IBO sell — reserved IBO ({fmtIbo(approveTarget.amount_ibo)}) is settled; nothing is sent on-chain.
+              This completes their Delta sell — reserved Delta ({fmtIbo(approveTarget.amount_ibo)}) is settled; nothing is sent on-chain.
             </p>
             <div className="rounded-xl border border-white/10 bg-surface-dark p-3">
               <PayoutDetailsBlock row={approveTarget} />
@@ -515,7 +511,7 @@ export default function InrWithdrawalsPage() {
               <X size={18} />
             </button>
             <h3 className="text-lg font-bold text-white pr-10">Reject withdrawal</h3>
-            <p className="text-sm text-white/60">{rejectTarget.uid} · {fmtInr(rejectTarget.amount_inr)} · IBO will be unlocked</p>
+            <p className="text-sm text-white/60">{rejectTarget.uid} · {fmtInr(rejectTarget.amount_inr)} · Delta will be unlocked</p>
             <textarea
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}

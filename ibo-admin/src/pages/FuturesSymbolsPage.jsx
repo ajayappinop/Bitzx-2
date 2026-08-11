@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { RefreshCw, AlertTriangle, Save } from 'lucide-react';
+import { api } from '@/lib/api';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 // Must mirror backend/futures/constants.py ALLOWED_LEVERAGE
 const ALLOWED_LEVERAGE = [1, 2, 3, 5, 10, 20, 25, 50, 75, 100, 125];
-import { api } from '@/lib/api';
-
-const fmt = (v) => Number.isFinite(Number(v)) ? Number(v).toLocaleString() : '—';
 
 function Row({ s, onSave, busy }) {
   const [draft, setDraft] = useState(() => ({
@@ -27,21 +26,21 @@ function Row({ s, onSave, busy }) {
   const dirty = Object.keys(draft).some((k) => draft[k] !== s[k]);
 
   return (
-    <tr className="border-b border-white/5 hover:bg-white/[.02]">
-      <td className="px-3 py-2 font-bold text-white">{s.symbol}</td>
-      <td className="px-3 py-2 text-[12px] text-white/55">{s.binance_symbol}</td>
+    <tr>
+      <td className="font-bold text-white">{s.symbol}</td>
+      <td className="text-[12px] text-white/55">{s.binance_symbol}</td>
       {[
         ['tick_size', 0.0001], ['lot_size', 0.0001],
         ['min_qty', 0.0001], ['max_qty', 1],
       ].map(([k, step]) => (
-        <td key={k} className="px-2 py-2">
+        <td key={k}>
           <input type="number" step={step} value={draft[k] ?? ''}
             onChange={(e) => setDraft((d) => ({ ...d, [k]: e.target.value === '' ? null : Number(e.target.value) }))}
             className="w-24 bg-surface-dark border border-white/10 rounded px-2 py-1 text-sm font-mono text-white" />
         </td>
       ))}
       {/* max_leverage must be one of ALLOWED_LEVERAGE — use a dropdown to prevent invalid input */}
-      <td className="px-2 py-2">
+      <td>
         <select value={draft.max_leverage ?? ''}
           onChange={(e) => setDraft((d) => ({ ...d, max_leverage: e.target.value === '' ? null : Number(e.target.value) }))}
           className="w-24 bg-surface-dark border border-white/10 rounded px-2 py-1 text-sm font-mono text-white">
@@ -51,12 +50,12 @@ function Row({ s, onSave, busy }) {
         </select>
       </td>
       {['listed', 'trading_enabled'].map((k) => (
-        <td key={k} className="px-3 py-2 text-center">
+        <td key={k} className="text-center">
           <input type="checkbox" checked={!!draft[k]}
             onChange={(e) => setDraft((d) => ({ ...d, [k]: e.target.checked }))} />
         </td>
       ))}
-      <td className="px-3 py-2 text-right pr-4">
+      <td className="text-right">
         <button disabled={!dirty || busy} onClick={() => onSave(s.symbol, draft)}
           className="px-2.5 py-1 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-400/30 hover:bg-emerald-500/25 disabled:opacity-30 text-[12px] font-bold inline-flex items-center gap-1">
           <Save size={12} /> Save
@@ -117,27 +116,25 @@ export default function FuturesSymbolsPage() {
         </div>
       )}
 
-      <div className="rounded-2xl border border-surface-border bg-surface-card overflow-x-auto">
-        <table className="w-full text-sm min-w-[1100px]">
-          <thead className="text-[11px] uppercase tracking-wider text-white/45">
-            <tr className="border-b border-white/5">
-              <th className="text-left px-3 py-2">Symbol</th>
-              <th className="text-left px-3 py-2">Index</th>
-              <th className="text-left px-2 py-2">Tick size</th>
-              <th className="text-left px-2 py-2">Lot size</th>
-              <th className="text-left px-2 py-2">Min qty</th>
-              <th className="text-left px-2 py-2">Max qty</th>
-              <th className="text-left px-2 py-2">Max lev</th>
-              <th className="text-center px-3 py-2">Listed</th>
-              <th className="text-center px-3 py-2">Trading</th>
-              <th className="text-right px-3 py-2 pr-4">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((s) => <Row key={s.symbol} s={s} onSave={onSave} busy={busy} />)}
-          </tbody>
-        </table>
-      </div>
+      <AdminDataTable minWidth="1100px">
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Index</th>
+            <th>Tick size</th>
+            <th>Lot size</th>
+            <th>Min qty</th>
+            <th>Max qty</th>
+            <th>Max lev</th>
+            <th className="text-center">Listed</th>
+            <th className="text-center">Trading</th>
+            <th className="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((s) => <Row key={s.symbol} s={s} onSave={onSave} busy={busy} />)}
+        </tbody>
+      </AdminDataTable>
 
       <p className="text-[11px] text-white/40">
         Defaults come from <code>backend/futures/constants.py</code>. Overrides are stored in the

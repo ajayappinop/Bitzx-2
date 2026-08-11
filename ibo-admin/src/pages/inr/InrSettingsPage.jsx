@@ -395,7 +395,7 @@ export default function InrSettingsPage() {
                   onChange={(e) => setGwAutoMax(e.target.value)}
                 />
                 <p className="text-[11px] text-white/40 mt-1">
-                  After a successful gateway payment, credit IBO automatically when amount is at or below this limit.
+                  After a successful gateway payment, credit Delta automatically when amount is at or below this limit.
                   Use 0 to always require admin review.
                 </p>
               </div>

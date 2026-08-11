@@ -10746,6 +10746,7 @@ async def admin_list_deposit_events(
     address: Optional[str] = None,
     tx_hash: Optional[str] = None,
     source: Optional[str] = Query(None, description="signup_bonus | onchain (regular deposits) | leave blank for all"),
+    q: Optional[str] = None,
     date_from: Optional[str] = None,
     date_to: Optional[str] = None,
     skip: int = Query(0, ge=0),
@@ -10774,6 +10775,13 @@ async def admin_list_deposit_events(
         filt["address"] = address.strip()
     if tx_hash:
         filt["tx_hash"] = tx_hash.strip()
+    qq = (q or "").strip()
+    if qq:
+        rx = {"$regex": re.escape(qq), "$options": "i"}
+        filt["$or"] = [
+            {"asset": rx},
+            {"network": rx},
+        ]
     src = (source or "").strip().lower()
     if src == "signup_bonus":
         filt["source"] = "signup_bonus"
@@ -15987,6 +15995,7 @@ async def admin_list_withdrawals(
     address: Optional[str] = None,
     tx_hash: Optional[str] = None,
     risk_flag: Optional[str] = None,
+    q: Optional[str] = None,
     date_from: Optional[str] = None,
     date_to: Optional[str] = None,
     skip: int = Query(0, ge=0),
@@ -16015,6 +16024,15 @@ async def admin_list_withdrawals(
         filt["tx_hash"] = tx_hash.strip()
     if risk_flag:
         filt["risk_flags"] = risk_flag.strip().lower()
+    qq = (q or "").strip()
+    if qq:
+        # Single search box: match UID, destination address, or tx hash.
+        rx = {"$regex": re.escape(qq), "$options": "i"}
+        filt["$or"] = [
+            {"uid": rx},
+            {"address": rx},
+            {"tx_hash": rx},
+        ]
     if date_from or date_to:
         dr: Dict[str, Any] = {}
         if date_from:

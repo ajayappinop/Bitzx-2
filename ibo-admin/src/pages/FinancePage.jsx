@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Landmark, Download, RefreshCw } from 'lucide-react';
 import { api } from '@/lib/api';
-import { AdminPageHeader, GradientStatCard, FilterBar } from '@/components/AdminPrimitives';
+import { AdminPageHeader, GradientStatCard, FilterBar, AdminDataTable } from '@/components/AdminPrimitives';
 
 function fmtUsd(v) {
   const n = Number(v);
@@ -170,45 +170,44 @@ export default function FinancePage() {
 
       <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden">
         <div className="px-4 py-3 border-b border-surface-border text-sm font-bold text-white/85 uppercase">Liabilities vs reserves by asset</div>
-        <div className="adm-table-x">
-          <table className="w-full text-sm min-w-[1100px]">
-            <thead>
-              <tr className="text-left text-[11px] text-white/45 border-b border-surface-border">
-                <th className="px-4 py-3">Asset</th><th className="px-4 py-3 text-right">Mark</th><th className="px-4 py-3 text-right">Liability qty</th><th className="px-4 py-3 text-right">Reserve qty</th><th className="px-4 py-3 text-right">Gap qty</th><th className="px-4 py-3 text-right">Liability USDT</th><th className="px-4 py-3 text-right">Reserve USDT</th><th className="px-4 py-3 text-right">Gap USDT</th><th className="px-4 py-3 text-right">Coverage</th>
+        <AdminDataTable minWidth="1100px" className="!border-0 !rounded-none">
+          <thead>
+              <tr>
+                <th>Asset</th><th className="text-right">Mark</th><th className="text-right">Liability qty</th><th className="text-right">Reserve qty</th><th className="text-right">Gap qty</th><th className="text-right">Liability USDT</th><th className="text-right">Reserve USDT</th><th className="text-right">Gap USDT</th><th className="text-right">Coverage</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={9} className="px-4 py-14 text-center text-white/50">Loading…</td></tr>
+                <tr><td colSpan={9} className="text-center text-white/50 !py-16">Loading…</td></tr>
               ) : rows.length === 0 ? (
-                <tr><td colSpan={9} className="px-4 py-14 text-center text-white/50">No rows.</td></tr>
+                <tr><td colSpan={9} className="text-center text-white/50 !py-16">No rows.</td></tr>
               ) : rows.map((r) => (
-                <tr key={r.asset} className="border-b border-surface-border/50">
-                  <td className="px-4 py-3 font-mono">{r.asset}</td>
-                  <td className="px-4 py-3 text-right font-mono">{fmtNum(r.mark_usdt, 8)}</td>
-                  <td className="px-4 py-3 text-right font-mono">{fmtNum(r.liability_qty, 8)}</td>
-                  <td className="px-4 py-3 text-right font-mono">{fmtNum(r.reserve_qty, 8)}</td>
-                  <td className={`px-4 py-3 text-right font-mono ${Number(r.gap_qty || 0) < 0 ? 'text-red-300' : 'text-emerald-300'}`}>{fmtNum(r.gap_qty, 8)}</td>
-                  <td className="px-4 py-3 text-right font-mono">{fmtUsd(r.liability_usdt)}</td>
-                  <td className="px-4 py-3 text-right font-mono">{fmtUsd(r.reserve_usdt)}</td>
-                  <td className={`px-4 py-3 text-right font-mono ${Number(r.gap_usdt || 0) < 0 ? 'text-red-300' : 'text-emerald-300'}`}>{fmtUsd(r.gap_usdt)}</td>
-                  <td className={`px-4 py-3 text-right font-mono ${Number(r.coverage_pct || 0) < 100 ? 'text-red-300' : 'text-emerald-300'}`}>{r.coverage_pct == null ? '—' : `${Number(r.coverage_pct).toFixed(2)}%`}</td>
+                <tr key={r.asset}>
+                  <td className="font-mono">{r.asset}</td>
+                  <td className="text-right font-mono">{fmtNum(r.mark_usdt, 8)}</td>
+                  <td className="text-right font-mono">{fmtNum(r.liability_qty, 8)}</td>
+                  <td className="text-right font-mono">{fmtNum(r.reserve_qty, 8)}</td>
+                  <td className={`text-right font-mono ${Number(r.gap_qty || 0) < 0 ? 'text-red-300' : 'text-emerald-300'}`}>{fmtNum(r.gap_qty, 8)}</td>
+                  <td className="text-right font-mono">{fmtUsd(r.liability_usdt)}</td>
+                  <td className="text-right font-mono">{fmtUsd(r.reserve_usdt)}</td>
+                  <td className={`text-right font-mono ${Number(r.gap_usdt || 0) < 0 ? 'text-red-300' : 'text-emerald-300'}`}>{fmtUsd(r.gap_usdt)}</td>
+                  <td className={`text-right font-mono ${Number(r.coverage_pct || 0) < 100 ? 'text-red-300' : 'text-emerald-300'}`}>{r.coverage_pct == null ? '—' : `${Number(r.coverage_pct).toFixed(2)}%`}</td>
                 </tr>
               ))}
-              <tr className="bg-white/[0.02]">
-                <td className="px-4 py-3 font-bold text-white/85">TOTAL</td>
-                <td className="px-4 py-3" />
-                <td className="px-4 py-3" />
-                <td className="px-4 py-3" />
-                <td className="px-4 py-3" />
-                <td className="px-4 py-3 text-right font-mono font-bold">{fmtUsd(totals.liabilities_usdt || 0)}</td>
-                <td className="px-4 py-3 text-right font-mono font-bold">{fmtUsd(totals.reserves_usdt || 0)}</td>
-                <td className={`px-4 py-3 text-right font-mono font-bold ${Number(totals.gap_usdt || 0) < 0 ? 'text-red-300' : 'text-emerald-300'}`}>{fmtUsd(totals.gap_usdt || 0)}</td>
-                <td className={`px-4 py-3 text-right font-mono font-bold ${Number(totals.coverage_pct || 0) < 100 ? 'text-red-300' : 'text-emerald-300'}`}>{totals.coverage_pct == null ? '—' : `${Number(totals.coverage_pct).toFixed(2)}%`}</td>
+              <tr>
+                <td className="font-bold text-white/85">TOTAL</td>
+                <td />
+                <td />
+                <td />
+                <td />
+                <td className="text-right font-mono font-bold">{fmtUsd(totals.liabilities_usdt || 0)}</td>
+                <td className="text-right font-mono font-bold">{fmtUsd(totals.reserves_usdt || 0)}</td>
+                <td className={`text-right font-mono font-bold ${Number(totals.gap_usdt || 0) < 0 ? 'text-red-300' : 'text-emerald-300'}`}>{fmtUsd(totals.gap_usdt || 0)}</td>
+                <td className={`text-right font-mono font-bold ${Number(totals.coverage_pct || 0) < 100 ? 'text-red-300' : 'text-emerald-300'}`}>{totals.coverage_pct == null ? '—' : `${Number(totals.coverage_pct).toFixed(2)}%`}</td>
               </tr>
             </tbody>
-          </table>
-        </div>
+          
+        </AdminDataTable>
       </div>
 
       <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden">
@@ -218,39 +217,38 @@ export default function FinancePage() {
             <Download size={12} /> Export revenue CSV
           </button>
         </div>
-        <div className="adm-table-x">
-          <table className="w-full text-sm min-w-[1000px]">
-            <thead>
-              <tr className="text-left text-[11px] text-white/45 border-b border-surface-border">
-                <th className="px-4 py-3">Date</th><th className="px-4 py-3 text-right">Trades</th><th className="px-4 py-3 text-right">Volume USDT</th><th className="px-4 py-3 text-right">Fees est.</th><th className="px-4 py-3 text-right">Spread PnL</th><th className="px-4 py-3 text-right">Total revenue est.</th>
+        <AdminDataTable minWidth="1000px" className="!border-0 !rounded-none">
+          <thead>
+              <tr>
+                <th>Date</th><th className="text-right">Trades</th><th className="text-right">Volume USDT</th><th className="text-right">Fees est.</th><th className="text-right">Spread PnL</th><th className="text-right">Total revenue est.</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={6} className="px-4 py-14 text-center text-white/50">Loading…</td></tr>
+                <tr><td colSpan={6} className="text-center text-white/50 !py-16">Loading…</td></tr>
               ) : revRows.length === 0 ? (
-                <tr><td colSpan={6} className="px-4 py-14 text-center text-white/50">No revenue rows.</td></tr>
+                <tr><td colSpan={6} className="text-center text-white/50 !py-16">No revenue rows.</td></tr>
               ) : revRows.map((r) => (
-                <tr key={r.date} className="border-b border-surface-border/50">
-                  <td className="px-4 py-3 font-mono">{r.date}</td>
-                  <td className="px-4 py-3 text-right font-mono">{fmtNum(r.trades, 0)}</td>
-                  <td className="px-4 py-3 text-right font-mono">{fmtUsd(r.volume_usdt)}</td>
-                  <td className="px-4 py-3 text-right font-mono">{fmtUsd(r.fees_usdt_estimate)}</td>
-                  <td className={`px-4 py-3 text-right font-mono ${Number(r.spread_pnl_usdt || 0) < 0 ? 'text-red-300' : 'text-emerald-300'}`}>{fmtUsd(r.spread_pnl_usdt)}</td>
-                  <td className={`px-4 py-3 text-right font-mono font-bold ${Number(r.total_revenue_usdt_estimate || 0) < 0 ? 'text-red-300' : 'text-emerald-300'}`}>{fmtUsd(r.total_revenue_usdt_estimate)}</td>
+                <tr key={r.date}>
+                  <td className="font-mono">{r.date}</td>
+                  <td className="text-right font-mono">{fmtNum(r.trades, 0)}</td>
+                  <td className="text-right font-mono">{fmtUsd(r.volume_usdt)}</td>
+                  <td className="text-right font-mono">{fmtUsd(r.fees_usdt_estimate)}</td>
+                  <td className={`text-right font-mono ${Number(r.spread_pnl_usdt || 0) < 0 ? 'text-red-300' : 'text-emerald-300'}`}>{fmtUsd(r.spread_pnl_usdt)}</td>
+                  <td className={`text-right font-mono font-bold ${Number(r.total_revenue_usdt_estimate || 0) < 0 ? 'text-red-300' : 'text-emerald-300'}`}>{fmtUsd(r.total_revenue_usdt_estimate)}</td>
                 </tr>
               ))}
-              <tr className="bg-white/[0.02]">
-                <td className="px-4 py-3 font-bold text-white/85">TOTAL</td>
-                <td className="px-4 py-3 text-right font-mono font-bold">{fmtNum(revTotals.trades || 0, 0)}</td>
-                <td className="px-4 py-3 text-right font-mono font-bold">{fmtUsd(revTotals.volume_usdt || 0)}</td>
-                <td className="px-4 py-3 text-right font-mono font-bold">{fmtUsd(revTotals.fees_usdt_estimate || 0)}</td>
-                <td className={`px-4 py-3 text-right font-mono font-bold ${Number(revTotals.spread_pnl_usdt || 0) < 0 ? 'text-red-300' : 'text-emerald-300'}`}>{fmtUsd(revTotals.spread_pnl_usdt || 0)}</td>
-                <td className={`px-4 py-3 text-right font-mono font-bold ${Number(revTotals.total_revenue_usdt_estimate || 0) < 0 ? 'text-red-300' : 'text-emerald-300'}`}>{fmtUsd(revTotals.total_revenue_usdt_estimate || 0)}</td>
+              <tr>
+                <td className="font-bold text-white/85">TOTAL</td>
+                <td className="text-right font-mono font-bold">{fmtNum(revTotals.trades || 0, 0)}</td>
+                <td className="text-right font-mono font-bold">{fmtUsd(revTotals.volume_usdt || 0)}</td>
+                <td className="text-right font-mono font-bold">{fmtUsd(revTotals.fees_usdt_estimate || 0)}</td>
+                <td className={`text-right font-mono font-bold ${Number(revTotals.spread_pnl_usdt || 0) < 0 ? 'text-red-300' : 'text-emerald-300'}`}>{fmtUsd(revTotals.spread_pnl_usdt || 0)}</td>
+                <td className={`text-right font-mono font-bold ${Number(revTotals.total_revenue_usdt_estimate || 0) < 0 ? 'text-red-300' : 'text-emerald-300'}`}>{fmtUsd(revTotals.total_revenue_usdt_estimate || 0)}</td>
               </tr>
             </tbody>
-          </table>
-        </div>
+          
+        </AdminDataTable>
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import UserUidSuggestInput from '@/components/UserUidSuggestInput';
 import CoinAvatar from '@/components/CoinAvatar';
 import { useListSort } from '@/lib/useListSort';
 import SortableTh from '@/components/SortableTh';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 export default function OrdersPage({ embedded = false, compact = false }) {
   const [uid, setUid] = useState('');
@@ -180,53 +181,49 @@ export default function OrdersPage({ embedded = false, compact = false }) {
 
       {err ? <p className="text-red-400 text-sm mb-4">{err}</p> : null}
 
-      <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden min-w-0">
-        <div className="adm-table-x scrollbar-thin">
-          <table className="w-full text-sm min-w-[1080px]">
+      <AdminDataTable minWidth="1080px">
             <thead>
-              <tr className="text-left text-[11px] font-extrabold text-white/50 uppercase tracking-wider border-b border-surface-border bg-white/[.02]">
-                <SortableTh className="px-4 py-3" sortKey="created_at" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Time</SortableTh>
-                <SortableTh className="px-4 py-3" sortKey="id" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Order</SortableTh>
-                <SortableTh className="px-4 py-3" sortKey="uid" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>UID</SortableTh>
-                <SortableTh className="px-4 py-3" sortKey="symbol" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Symbol</SortableTh>
-                <SortableTh className="px-4 py-3" sortKey="side" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Side</SortableTh>
-                <SortableTh className="px-4 py-3" sortKey="type" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Type</SortableTh>
-                <SortableTh className="px-4 py-3" sortKey="price" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Price</SortableTh>
-                <SortableTh className="px-4 py-3" sortKey="amount" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Amount</SortableTh>
-                <SortableTh className="px-4 py-3" sortKey="status" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Status</SortableTh>
+              <tr>
+                <SortableTh sortKey="created_at" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Time</SortableTh>
+                <SortableTh sortKey="id" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Order</SortableTh>
+                <SortableTh sortKey="uid" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>UID</SortableTh>
+                <SortableTh sortKey="symbol" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Symbol</SortableTh>
+                <SortableTh sortKey="side" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Side</SortableTh>
+                <SortableTh sortKey="type" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Type</SortableTh>
+                <SortableTh sortKey="price" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Price</SortableTh>
+                <SortableTh sortKey="amount" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Amount</SortableTh>
+                <SortableTh sortKey="status" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Status</SortableTh>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={9} className="px-4 py-16 text-center text-white/50">Loading…</td></tr>
+                <tr><td colSpan={9} className="text-center text-white/50 !py-16">Loading…</td></tr>
               ) : items.length === 0 ? (
-                <tr><td colSpan={9} className="px-4 py-16 text-center text-white/50">No orders match.</td></tr>
+                <tr><td colSpan={9} className="text-center text-white/50 !py-16">No orders match.</td></tr>
               ) : (
                 items.map((o, idx) => (
-                  <tr key={o.id || `${o.uid}-${o.created_at}-${idx}`} className="border-b border-surface-border/60 hover:bg-white/[.03]">
-                    <td className="px-4 py-3 text-white/55 text-xs whitespace-nowrap">{o.created_at ? new Date(o.created_at).toLocaleString() : '—'}</td>
-                    <td className="px-4 py-3 font-mono text-xs text-gold-light/90">{o.id}</td>
-                    <td className="px-4 py-3 text-xs font-mono">
+                  <tr key={o.id || `${o.uid}-${o.created_at}-${idx}`}>
+                    <td className="text-white/55 text-xs whitespace-nowrap">{o.created_at ? new Date(o.created_at).toLocaleString() : '—'}</td>
+                    <td className="font-mono text-xs text-gold-light/90">{o.id}</td>
+                    <td className="text-xs font-mono">
                       <Link to={`/users/${o.uid}`} className="text-blue-300 hover:underline">{o.uid}</Link>
                     </td>
-                    <td className="px-4 py-3">
+                    <td>
                       <span className="inline-flex items-center gap-2 font-mono font-bold text-white/90">
                         <CoinAvatar symbol={o.symbol} className="h-6 w-6" />
                         {o.symbol}
                       </span>
                     </td>
-                    <td className={`px-4 py-3 text-xs font-bold uppercase ${String(o.side).toLowerCase() === 'buy' ? 'text-green-400' : 'text-red-300'}`}>{o.side}</td>
-                    <td className="px-4 py-3 text-xs uppercase text-white/75">{o.type}</td>
-                    <td className="px-4 py-3 text-right font-mono">{Number(o.price || 0).toFixed(8)}</td>
-                    <td className="px-4 py-3 text-right font-mono">{Number(o.amount || 0).toFixed(8)}</td>
-                    <td className="px-4 py-3 text-xs font-mono text-white/70">{o.status}</td>
+                    <td className={`text-xs font-bold uppercase ${String(o.side).toLowerCase() === 'buy' ? 'text-green-400' : 'text-red-300'}`}>{o.side}</td>
+                    <td className="text-xs uppercase text-white/75">{o.type}</td>
+                    <td className="text-right font-mono">{Number(o.price || 0).toFixed(8)}</td>
+                    <td className="text-right font-mono">{Number(o.amount || 0).toFixed(8)}</td>
+                    <td className="text-xs font-mono text-white/70">{o.status}</td>
                   </tr>
                 ))
               )}
             </tbody>
-          </table>
-        </div>
-      </div>
+      </AdminDataTable>
 
       <div className="flex items-center justify-between mt-4 flex-wrap gap-3">
         <p className="text-white/50 text-sm">{total} orders · page {page} / {pages}</p>

@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Search, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 import { api } from '@/lib/api';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 export default function IBOHoldingsTab() {
   const [items, setItems]       = useState([]);
@@ -55,33 +56,31 @@ export default function IBOHoldingsTab() {
 
       {err && <div className="text-red-400 text-sm py-4 text-center">{err}</div>}
 
-      <div className="rounded-xl border border-white/8 overflow-hidden">
-        <table className="w-full text-sm">
+      <AdminDataTable>
           <thead>
-            <tr className="border-b border-white/8 bg-white/3">
-              {['User ID', 'Available IBO', 'Locked IBO', 'Total IBO', 'USDT Equiv', 'Updated'].map((h) => (
-                <th key={h} className="text-left px-4 py-2.5 text-xs font-semibold text-white/50 uppercase tracking-wider">{h}</th>
+            <tr>
+              {['User ID', 'Available Delta', 'Locked Delta', 'Total Delta', 'USDT Equiv', 'Updated'].map((h) => (
+                <th key={h}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={6} className="text-white/30 text-sm text-center py-8">Loading…</td></tr>
+              <tr><td colSpan={6} className="text-white/30 text-sm text-center !py-8">Loading…</td></tr>
             ) : items.length === 0 ? (
-              <tr><td colSpan={6} className="text-white/30 text-sm text-center py-8">No IBO holders found</td></tr>
+              <tr><td colSpan={6} className="text-white/30 text-sm text-center !py-8">No Delta holders found</td></tr>
             ) : items.map((row) => (
-              <tr key={row.uid} className="border-b border-white/5 last:border-0 hover:bg-white/2">
-                <td className="px-4 py-2.5 font-mono text-xs text-white/60">{row.uid?.slice(0, 16)}…</td>
-                <td className="px-4 py-2.5 text-white font-semibold">{fmt(row.available)}</td>
-                <td className="px-4 py-2.5 text-gold-light">{fmt(row.locked)}</td>
-                <td className="px-4 py-2.5 text-gold-light font-bold">{fmt(row.total_ibo)}</td>
-                <td className="px-4 py-2.5 text-white/50">${fmt(row.usdt_equiv, 2)}</td>
-                <td className="px-4 py-2.5 text-xs text-white/30">{row.updated_at ? new Date(row.updated_at).toLocaleDateString() : '—'}</td>
+              <tr key={row.uid}>
+                <td className="font-mono text-xs text-white/60">{row.uid?.slice(0, 16)}…</td>
+                <td className="text-white font-semibold">{fmt(row.available)}</td>
+                <td className="text-gold-light">{fmt(row.locked)}</td>
+                <td className="text-gold-light font-bold">{fmt(row.total_ibo)}</td>
+                <td className="text-white/50">${fmt(row.usdt_equiv, 2)}</td>
+                <td className="text-xs text-white/30">{row.updated_at ? new Date(row.updated_at).toLocaleDateString() : '—'}</td>
               </tr>
             ))}
           </tbody>
-        </table>
-      </div>
+      </AdminDataTable>
 
       {pages > 1 && (
         <div className="flex items-center gap-2 justify-end text-xs text-white/50">

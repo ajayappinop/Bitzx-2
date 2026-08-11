@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Radar, RefreshCw } from 'lucide-react';
 import { api } from '@/lib/api';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 export default function SurveillancePage() {
   const [dateFrom, setDateFrom] = useState('');
@@ -118,29 +119,28 @@ function LogTable({ title, rows }) {
   return (
     <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden">
       <div className="px-4 py-3 border-b border-surface-border text-xs font-bold text-white/55 uppercase">{title}</div>
-      <div className="adm-table-x">
-        <table className="w-full text-sm min-w-[850px]">
-          <thead>
-            <tr className="text-left text-[11px] text-white/45 border-b border-surface-border">
-              <th className="px-4 py-3">Time</th><th className="px-4 py-3">Trade</th><th className="px-4 py-3">Symbol</th><th className="px-4 py-3">Taker</th><th className="px-4 py-3">Maker</th><th className="px-4 py-3 text-right">Notional</th>
+      <AdminDataTable minWidth="850px" className="!border-0 !rounded-none">
+        <thead>
+            <tr>
+              <th>Time</th><th>Trade</th><th>Symbol</th><th>Taker</th><th>Maker</th><th className="text-right">Notional</th>
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 ? (
-              <tr><td colSpan={6} className="px-4 py-10 text-center text-white/45">No rows.</td></tr>
+              <tr><td colSpan={6} className="text-center text-white/45 !py-16">No rows.</td></tr>
             ) : rows.map((r) => (
-              <tr key={r.id} className="border-b border-surface-border/50">
-                <td className="px-4 py-3 text-xs text-white/60">{r.created_at ? new Date(r.created_at).toLocaleString() : '—'}</td>
-                <td className="px-4 py-3 text-xs font-mono text-gold-light/90">{r.id}</td>
-                <td className="px-4 py-3 text-xs font-mono">{r.symbol}</td>
-                <td className="px-4 py-3 text-xs font-mono">{r.taker_uid}</td>
-                <td className="px-4 py-3 text-xs font-mono">{r.maker_uid}</td>
-                <td className="px-4 py-3 text-right text-xs font-mono">{(Number(r.price || 0) * Number(r.amount || 0)).toFixed(4)}</td>
+              <tr key={r.id}>
+                <td className="text-xs text-white/60">{r.created_at ? new Date(r.created_at).toLocaleString() : '—'}</td>
+                <td className="text-xs font-mono text-gold-light/90">{r.id}</td>
+                <td className="text-xs font-mono">{r.symbol}</td>
+                <td className="text-xs font-mono">{r.taker_uid}</td>
+                <td className="text-xs font-mono">{r.maker_uid}</td>
+                <td className="text-right text-xs font-mono">{(Number(r.price || 0) * Number(r.amount || 0)).toFixed(4)}</td>
               </tr>
             ))}
           </tbody>
-        </table>
-      </div>
+        
+      </AdminDataTable>
     </div>
   );
 }

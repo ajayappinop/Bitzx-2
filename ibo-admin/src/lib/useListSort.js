@@ -29,5 +29,5 @@ export function useListSort(defaultKey = 'created_at', defaultDir = 'desc') {
     setSortDir(defaultDir);
   }, [defaultKey, defaultDir]);
 
-  return { sortBy, sortDir, toggleSort, sortParams, resetSort };
+  return { sortBy, sortDir, setSortBy, setSortDir, toggleSort, sortParams, resetSort };
 }

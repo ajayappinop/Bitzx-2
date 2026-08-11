@@ -1001,7 +1001,7 @@ export const api = {
     },
   },
 
-  // ── IBO Trading Ecosystem ──────────────────────────────────────────────────
+  // ── Delta Trading Ecosystem ──────────────────────────────────────────────────
   ibo: {
     dashboard: () => adminFetch('/api/admin/ibo/dashboard'),
 

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { RefreshCw, AlertTriangle } from 'lucide-react';
 import { api } from '@/lib/api';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 const fmt = (v, dp = 4) => Number.isFinite(Number(v)) ? Number(v).toLocaleString(undefined, { maximumFractionDigits: dp }) : '—';
 
@@ -60,47 +61,45 @@ export default function FuturesTradesPage() {
         </div>
       )}
 
-      <div className="rounded-2xl border border-surface-border bg-surface-card overflow-x-auto">
-        <table className="w-full text-sm min-w-[1100px]">
-          <thead className="text-[11px] uppercase tracking-wider text-white/45">
-            <tr className="border-b border-white/5">
-              <th className="text-left px-3 py-2">Time</th>
-              <th className="text-left px-3 py-2">Trade ID</th>
-              <th className="text-left px-3 py-2">Symbol</th>
-              <th className="text-left px-3 py-2">Side</th>
-              <th className="text-right px-3 py-2">Price</th>
-              <th className="text-right px-3 py-2">Qty</th>
-              <th className="text-right px-3 py-2">Notional</th>
-              <th className="text-left px-3 py-2">Taker UID</th>
-              <th className="text-left px-3 py-2">Maker UID</th>
-              <th className="text-left px-3 py-2">Source</th>
+      <AdminDataTable minWidth="1100px">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Trade ID</th>
+            <th>Symbol</th>
+            <th>Side</th>
+            <th className="text-right">Price</th>
+            <th className="text-right">Qty</th>
+            <th className="text-right">Notional</th>
+            <th>Taker UID</th>
+            <th>Maker UID</th>
+            <th>Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.length === 0 && !loading && (
+            <tr><td colSpan={10} className="text-center text-white/40">No trades.</td></tr>
+          )}
+          {rows.map((t) => (
+            <tr key={t.id}>
+              <td className="text-[12px] text-white/55 font-mono">{(t.created_at || '').slice(0, 19).replace('T', ' ')}</td>
+              <td className="text-[11px] font-mono text-white/70">{t.id?.slice(0, 14)}…</td>
+              <td className="font-bold">{t.symbol}</td>
+              <td className={`font-extrabold ${t.side === 'buy' ? 'text-emerald-300' : 'text-rose-300'}`}>{t.side?.toUpperCase()}</td>
+              <td className="text-right font-mono">${fmt(t.price, 2)}</td>
+              <td className="text-right font-mono">{fmt(t.qty)}</td>
+              <td className="text-right font-mono">${fmt(Number(t.price) * Number(t.qty), 2)}</td>
+              <td className="text-[12px] font-mono text-white/80">{t.taker_uid}</td>
+              <td className="text-[12px] font-mono text-white/80">{t.maker_uid}</td>
+              <td className="text-[11px]">
+                {t.synthetic
+                  ? <span className="text-gold-light font-bold">SYNTH</span>
+                  : <span className="text-emerald-300 font-bold">BOOK</span>}
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 && !loading && (
-              <tr><td colSpan={10} className="px-4 py-10 text-center text-white/40">No trades.</td></tr>
-            )}
-            {rows.map((t) => (
-              <tr key={t.id} className="border-b border-white/5 hover:bg-white/[.02]">
-                <td className="px-3 py-2 text-[12px] text-white/55 font-mono">{(t.created_at || '').slice(0, 19).replace('T', ' ')}</td>
-                <td className="px-3 py-2 text-[11px] font-mono text-white/70">{t.id?.slice(0, 14)}…</td>
-                <td className="px-3 py-2 font-bold">{t.symbol}</td>
-                <td className={`px-3 py-2 font-extrabold ${t.side === 'buy' ? 'text-emerald-300' : 'text-rose-300'}`}>{t.side?.toUpperCase()}</td>
-                <td className="px-3 py-2 text-right font-mono">${fmt(t.price, 2)}</td>
-                <td className="px-3 py-2 text-right font-mono">{fmt(t.qty)}</td>
-                <td className="px-3 py-2 text-right font-mono">${fmt(Number(t.price) * Number(t.qty), 2)}</td>
-                <td className="px-3 py-2 text-[12px] font-mono text-white/80">{t.taker_uid}</td>
-                <td className="px-3 py-2 text-[12px] font-mono text-white/80">{t.maker_uid}</td>
-                <td className="px-3 py-2 text-[11px]">
-                  {t.synthetic
-                    ? <span className="text-gold-light font-bold">SYNTH</span>
-                    : <span className="text-emerald-300 font-bold">BOOK</span>}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </AdminDataTable>
 
       <div className="flex items-center justify-between text-sm text-white/55">
         <span>{total} total · showing {skip + 1}–{Math.min(skip + rows.length, total)}</span>

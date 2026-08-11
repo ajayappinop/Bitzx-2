@@ -4,6 +4,7 @@ import {
   TrendingUp, TrendingDown, Banknote, Scale, Zap, BarChart3,
 } from 'lucide-react';
 import { api } from '@/lib/api';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 // ── Helpers ─────────────────────────────────────────────────────────────
 function fmtUsd(n) {
@@ -40,11 +41,13 @@ function ToggleRow({ label, hint, value, onChange, danger }) {
       </div>
       <button
         type="button"
+        role="switch"
+        aria-checked={value}
         onClick={() => onChange(!value)}
-        className={`w-11 h-6 rounded-full relative transition-colors ${value ? (danger ? 'bg-rose-500' : 'bg-emerald-500') : 'bg-white/15'}`}
+        className={`adm-toggle ${danger ? 'adm-toggle--rose' : 'adm-toggle--emerald'} relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors`}
       >
         <span
-          className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${value ? 'translate-x-5' : ''}`}
+          className={`adm-toggle-thumb pointer-events-none block h-5 w-5 rounded-full transition-transform ${value ? 'translate-x-5' : 'translate-x-0'}`}
         />
       </button>
     </label>
@@ -150,51 +153,51 @@ export default function FuturesOverviewPage() {
       </div>
 
       {/* Per-symbol */}
-      <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden">
-        <div className="px-4 py-3 border-b border-white/10 text-sm font-bold text-white">Per-symbol breakdown</div>
-        <table className="w-full text-sm">
-          <thead className="text-[11px] uppercase tracking-wider text-white/45">
-            <tr className="border-b border-white/5">
-              <th className="text-left  px-4 py-2">Symbol</th>
-              <th className="text-right px-4 py-2">Open positions</th>
-              <th className="text-right px-4 py-2">Long OI</th>
-              <th className="text-right px-4 py-2">Short OI</th>
-              <th className="text-right px-4 py-2">Total OI</th>
-              <th className="text-right px-4 py-2">24h volume</th>
-              <th className="text-right px-4 py-2">24h trades</th>
+      <div>
+        <div className="px-4 py-3 text-sm font-bold text-white">Per-symbol breakdown</div>
+        <AdminDataTable>
+          <thead>
+            <tr>
+              <th>Symbol</th>
+              <th className="text-right">Open positions</th>
+              <th className="text-right">Long OI</th>
+              <th className="text-right">Short OI</th>
+              <th className="text-right">Total OI</th>
+              <th className="text-right">24h volume</th>
+              <th className="text-right">24h trades</th>
             </tr>
           </thead>
           <tbody>
             {Object.entries(overview?.per_symbol || {}).map(([sym, s]) => (
-              <tr key={sym} className="border-b border-white/5 hover:bg-white/[.02]">
-                <td className="px-4 py-2 font-bold text-white">{sym}</td>
-                <td className="px-4 py-2 text-right font-mono">{fmtNum(s.open_positions)}</td>
-                <td className="px-4 py-2 text-right font-mono text-emerald-300">{fmtUsd(s.long_oi)}</td>
-                <td className="px-4 py-2 text-right font-mono text-rose-300">{fmtUsd(s.short_oi)}</td>
-                <td className="px-4 py-2 text-right font-mono">{fmtUsd(s.open_interest)}</td>
-                <td className="px-4 py-2 text-right font-mono">{fmtUsd(s.volume_24h)}</td>
-                <td className="px-4 py-2 text-right font-mono">{fmtNum(s.trades_24h)}</td>
+              <tr key={sym}>
+                <td className="font-bold text-white">{sym}</td>
+                <td className="text-right font-mono">{fmtNum(s.open_positions)}</td>
+                <td className="text-right font-mono text-emerald-300">{fmtUsd(s.long_oi)}</td>
+                <td className="text-right font-mono text-rose-300">{fmtUsd(s.short_oi)}</td>
+                <td className="text-right font-mono">{fmtUsd(s.open_interest)}</td>
+                <td className="text-right font-mono">{fmtUsd(s.volume_24h)}</td>
+                <td className="text-right font-mono">{fmtNum(s.trades_24h)}</td>
               </tr>
             ))}
           </tbody>
-        </table>
+        </AdminDataTable>
       </div>
 
       {/* Live mark prices */}
       {marks.length > 0 && (
-        <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden">
-          <div className="px-4 py-3 border-b border-white/10 text-sm font-bold text-white flex items-center justify-between">
+        <div>
+          <div className="px-4 py-3 text-sm font-bold text-white flex items-center justify-between">
             <span>Live mark prices</span>
             <span className="text-[11px] text-white/40 font-normal">Updated every ~5 s by the mark-price worker</span>
           </div>
-          <table className="w-full text-sm">
-            <thead className="text-[11px] uppercase tracking-wider text-white/45">
-              <tr className="border-b border-white/5">
-                <th className="text-left  px-4 py-2">Symbol</th>
-                <th className="text-right px-4 py-2">Mark price</th>
-                <th className="text-right px-4 py-2">Index price</th>
-                <th className="text-right px-4 py-2">Basis (mark−index)</th>
-                <th className="text-right px-4 py-2">Age</th>
+          <AdminDataTable>
+            <thead>
+              <tr>
+                <th>Symbol</th>
+                <th className="text-right">Mark price</th>
+                <th className="text-right">Index price</th>
+                <th className="text-right">Basis (mark−index)</th>
+                <th className="text-right">Age</th>
               </tr>
             </thead>
             <tbody>
@@ -205,25 +208,25 @@ export default function FuturesOverviewPage() {
                 const basisPct = index > 0 && basis !== null ? (basis / index) * 100 : null;
                 const ageSec = m.ts ? Math.round(Date.now() / 1000 - m.ts) : null;
                 return (
-                  <tr key={m.symbol} className="border-b border-white/5 hover:bg-white/[.02]">
-                    <td className="px-4 py-2 font-bold text-white">{m.symbol}</td>
-                    <td className="px-4 py-2 text-right font-mono text-gold-light">
+                  <tr key={m.symbol}>
+                    <td className="font-bold text-white">{m.symbol}</td>
+                    <td className="text-right font-mono text-gold-light">
                       ${fmtUsd(mark).replace('$', '')}
                     </td>
-                    <td className="px-4 py-2 text-right font-mono text-white/70">
+                    <td className="text-right font-mono text-white/70">
                       {index > 0 ? `$${fmtUsd(index).replace('$', '')}` : '—'}
                     </td>
-                    <td className={`px-4 py-2 text-right font-mono ${basis !== null ? (basis >= 0 ? 'text-emerald-300' : 'text-rose-300') : ''}`}>
+                    <td className={`text-right font-mono ${basis !== null ? (basis >= 0 ? 'text-emerald-300' : 'text-rose-300') : ''}`}>
                       {basis !== null ? `${basis >= 0 ? '+' : ''}${basis.toFixed(2)} (${basisPct >= 0 ? '+' : ''}${basisPct?.toFixed(4)}%)` : '—'}
                     </td>
-                    <td className={`px-4 py-2 text-right text-[12px] ${ageSec !== null && ageSec > 30 ? 'text-rose-300' : 'text-white/50'}`}>
+                    <td className={`text-right text-[12px] ${ageSec !== null && ageSec > 30 ? 'text-rose-300' : 'text-white/50'}`}>
                       {ageSec !== null ? `${ageSec}s ago` : '—'}
                     </td>
                   </tr>
                 );
               })}
             </tbody>
-          </table>
+          </AdminDataTable>
         </div>
       )}
 
@@ -291,7 +294,7 @@ export default function FuturesOverviewPage() {
               />
               <NumField
                 label="Maker fee rate"
-                hint="% of fill notional — debited in IBO from spot wallet."
+                hint="% of fill notional — debited in Delta from spot wallet."
                 value={controls.futures_maker_fee_rate}
                 onChange={(v) => patch({ futures_maker_fee_rate: v })}
                 step={0.0001}
@@ -299,7 +302,7 @@ export default function FuturesOverviewPage() {
               />
               <NumField
                 label="Taker fee rate"
-                hint="% of fill notional — debited in IBO from spot wallet."
+                hint="% of fill notional — debited in Delta from spot wallet."
                 value={controls.futures_taker_fee_rate}
                 onChange={(v) => patch({ futures_taker_fee_rate: v })}
                 step={0.0001}
@@ -307,7 +310,7 @@ export default function FuturesOverviewPage() {
               />
               <NumField
                 label="Liquidation fee rate"
-                hint="% of position notional at liquidation — debited in IBO."
+                hint="% of position notional at liquidation — debited in Delta."
                 value={controls.futures_liquidation_fee_rate}
                 onChange={(v) => patch({ futures_liquidation_fee_rate: v })}
                 step={0.0001}

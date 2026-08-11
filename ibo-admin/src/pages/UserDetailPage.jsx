@@ -14,6 +14,7 @@ import ConfirmModal from '@/components/ConfirmModal';
 import CoinAvatar from '@/components/CoinAvatar';
 import InrLedgerRefCell from '@/components/InrLedgerRefCell';
 import AdminReferralNetworkTree from '@/components/AdminReferralNetworkTree';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 import {
   formatInrAmount,
   formatInrActivityDetail,
@@ -94,7 +95,7 @@ const TABS = [
   { id: 'live_trading', label: 'Live Trading', icon: CirclePause, description: 'Live positions and manual trading actions.' },
   { id: 'orders', label: 'Orders', icon: ListOrdered, description: 'Open/closed orders with sorting and inspection.' },
   { id: 'trades', label: 'Trades', icon: ArrowRightLeft, description: 'Executed trade history and fill details.' },
-  { id: 'referral', label: 'Refer & Earn', icon: Gift, description: 'Referral code, sponsor, downstream tree, and IBO earnings.' },
+  { id: 'referral', label: 'Refer & Earn', icon: Gift, description: 'Referral code, sponsor, downstream tree, and Delta earnings.' },
 ];
 
 export default function UserDetailPage() {
@@ -347,7 +348,7 @@ export default function UserDetailPage() {
 
       const mins = j.impersonation?.expires_in_minutes ?? IMPERSONATE_SESSION_MINUTES;
       const email = data?.user?.email || uid;
-      setNotice(`Opened IBO Exchange as ${email}. Session expires in ${mins} minutes.`);
+      setNotice(`Opened Delta Exchange as ${email}. Session expires in ${mins} minutes.`);
     } catch (e) {
       if (preOpenedTab && !preOpenedTab.closed) {
         try { preOpenedTab.close(); } catch { /* ignore */ }
@@ -1129,7 +1130,7 @@ export default function UserDetailPage() {
               />
               <select value={adjAsset} onChange={(e) => setAdjAsset(e.target.value)} className="rounded-xl bg-surface-dark border border-surface-border px-3 py-2 text-sm text-white">
                 {['USDT', 'IBO', 'BTC', 'ETH', 'BNB', 'SOL', 'XRP', 'DOGE', 'ADA', 'POL', 'AVAX', 'DOT', 'LINK', 'LTC'].map((a) => (
-                  <option key={a} value={a}>{a}</option>
+                  <option key={a} value={a}>{a === 'IBO' ? 'Delta' : a}</option>
                 ))}
               </select>
               <select value={adjDirection} onChange={(e) => setAdjDirection(e.target.value)} className="rounded-xl bg-surface-dark border border-surface-border px-3 py-2 text-sm text-white">
@@ -1166,61 +1167,61 @@ export default function UserDetailPage() {
             />
           </div>
 
-          <div className="rounded-2xl border border-surface-border bg-surface-card adm-table-x scrollbar-thin">
+          <div>
             <div className="px-4 py-3 border-b border-surface-border flex items-center justify-between">
               <p className="text-xs font-extrabold text-white/55 uppercase tracking-wider">Spot wallets</p>
               <p className="text-[11px] text-white/45">Live balances per asset</p>
             </div>
-            <table className="w-full text-sm min-w-[480px]">
+            <AdminDataTable minWidth="480px">
               <thead>
-                <tr className="text-left text-[11px] text-white/50 uppercase border-b border-surface-border">
-                  <th className="px-4 py-3">Asset</th>
-                  <th className="px-4 py-3 text-right">Available</th>
-                  <th className="px-4 py-3 text-right">Locked</th>
+                <tr>
+                  <th>Asset</th>
+                  <th className="text-right">Available</th>
+                  <th className="text-right">Locked</th>
                 </tr>
               </thead>
               <tbody>
                 {(data.wallets || []).length === 0 ? (
-                  <tr><td colSpan={3} className="px-4 py-8 text-center text-white/45">No wallet rows</td></tr>
+                  <tr><td colSpan={3} className="text-center text-white/45 py-8">No wallet rows</td></tr>
                 ) : (
                   data.wallets.map(w => (
-                    <tr key={w.asset} className="border-b border-surface-border/50">
-                      <td className="px-4 py-3 font-bold">
+                    <tr key={w.asset}>
+                      <td className="font-bold">
                         <span className="inline-flex items-center gap-2">
                           <CoinAvatar asset={w.asset} className="h-6 w-6" />
                           {w.asset}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-right font-mono text-green-400">{Number(w.available).toFixed(6)}</td>
-                      <td className="px-4 py-3 text-right font-mono text-gold-light/80">{Number(w.locked).toFixed(6)}</td>
+                      <td className="text-right font-mono text-green-400">{Number(w.available).toFixed(6)}</td>
+                      <td className="text-right font-mono text-gold-light/80">{Number(w.locked).toFixed(6)}</td>
                     </tr>
                   ))
                 )}
               </tbody>
-            </table>
+            </AdminDataTable>
           </div>
 
-          <div className="rounded-2xl border border-surface-border bg-surface-card adm-table-x scrollbar-thin">
+          <div>
             <div className="px-4 py-3 border-b border-surface-border flex items-center justify-between gap-2 flex-wrap">
               <div>
                 <p className="text-xs font-extrabold text-white/55 uppercase tracking-wider">HD deposit addresses</p>
                 <p className="text-[11px] text-white/45">Per-user deposit addresses for this account (private keys never shown).</p>
               </div>
             </div>
-            <table className="w-full text-sm min-w-[640px]">
+            <AdminDataTable minWidth="640px">
               <thead>
-                <tr className="text-left text-[11px] text-white/50 uppercase border-b border-surface-border">
-                  <th className="px-4 py-3">Asset</th>
-                  <th className="px-4 py-3">Network</th>
-                  <th className="px-4 py-3">Address</th>
-                  <th className="px-4 py-3">Path / index</th>
-                  <th className="px-4 py-3 w-16" />
+                <tr>
+                  <th>Asset</th>
+                  <th>Network</th>
+                  <th>Address</th>
+                  <th>Path / index</th>
+                  <th className="w-16" />
                 </tr>
               </thead>
               <tbody>
                 {(data.deposit_addresses || []).length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-white/45">
+                    <td colSpan={5} className="text-center text-white/45 py-8">
                       No HD deposit addresses yet — they appear after the user opens Deposit for an asset.
                     </td>
                   </tr>
@@ -1229,24 +1230,24 @@ export default function UserDetailPage() {
                     const key = `${row.asset}:${row.network}:${row.address}`;
                     const copied = copiedAddr === key;
                     return (
-                      <tr key={row.id || key} className="border-b border-surface-border/50">
-                        <td className="px-4 py-3 font-bold">
+                      <tr key={row.id || key}>
+                        <td className="font-bold">
                           <span className="inline-flex items-center gap-2">
                             <CoinAvatar asset={row.asset} className="h-6 w-6" />
                             {row.asset}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-white/80">{row.network || '—'}</td>
-                        <td className="px-4 py-3 font-mono text-xs text-white/90 break-all max-w-[280px]">
+                        <td className="text-white/80">{row.network || '—'}</td>
+                        <td className="font-mono text-xs text-white/90 break-all max-w-[280px]">
                           {row.address || '—'}
                         </td>
-                        <td className="px-4 py-3 font-mono text-[11px] text-white/50">
+                        <td className="font-mono text-[11px] text-white/50">
                           {row.derivation_path || '—'}
                           {row.derivation_index != null ? (
                             <span className="block text-white/35">idx {row.derivation_index}</span>
                           ) : null}
                         </td>
-                        <td className="px-4 py-3">
+                        <td>
                           {row.address ? (
                             <button
                               type="button"
@@ -1269,7 +1270,7 @@ export default function UserDetailPage() {
                   })
                 )}
               </tbody>
-            </table>
+            </AdminDataTable>
           </div>
 
           {/* Futures margin wallet — separate ledger (futures_wallets/futures_wallet_txns). */}
@@ -1313,87 +1314,85 @@ export default function UserDetailPage() {
               </div>
             )}
             {futWalletTxns.length > 0 && (
-              <div className="adm-table-x scrollbar-thin border-t border-surface-border">
-                <table className="w-full text-sm min-w-[600px]">
+              <AdminDataTable minWidth="600px" className="!rounded-none !border-x-0 !border-b-0 border-t">
                   <thead>
-                    <tr className="text-left text-[11px] text-white/50 uppercase border-b border-surface-border">
-                      <th className="px-4 py-3">Time</th>
-                      <th className="px-4 py-3">Type</th>
-                      <th className="px-4 py-3">Direction</th>
-                      <th className="px-4 py-3 text-right">Amount</th>
-                      <th className="px-4 py-3 text-right">After</th>
-                      <th className="px-4 py-3">Ref</th>
+                    <tr>
+                      <th>Time</th>
+                      <th>Type</th>
+                      <th>Direction</th>
+                      <th className="text-right">Amount</th>
+                      <th className="text-right">After</th>
+                      <th>Ref</th>
                     </tr>
                   </thead>
                   <tbody>
                     {futWalletTxns.slice(0, 12).map((t) => (
-                      <tr key={t.id} className="border-b border-surface-border/60">
-                        <td className="px-4 py-2 text-[12px] text-white/55 font-mono whitespace-nowrap">{(t.created_at || '').slice(0, 19).replace('T', ' ')}</td>
-                        <td className="px-4 py-2 text-[12px] capitalize text-white/80">{t.type}</td>
-                        <td className="px-4 py-2 text-[12px]">
+                      <tr key={t.id}>
+                        <td className="text-[12px] text-white/55 font-mono whitespace-nowrap">{(t.created_at || '').slice(0, 19).replace('T', ' ')}</td>
+                        <td className="text-[12px] capitalize text-white/80">{t.type}</td>
+                        <td className="text-[12px]">
                           <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase ${
                             t.direction === 'credit' ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-300'
                           }`}>{t.direction}</span>
                         </td>
-                        <td className={`px-4 py-2 text-right font-mono ${t.direction === 'credit' ? 'text-green-400' : 'text-red-300'}`}>
+                        <td className={`text-right font-mono ${t.direction === 'credit' ? 'text-green-400' : 'text-red-300'}`}>
                           {Number(t.amount || 0).toFixed(4)}
                         </td>
-                        <td className="px-4 py-2 text-right font-mono text-xs text-white/75">
+                        <td className="text-right font-mono text-xs text-white/75">
                           {Number(t.balance_after?.available ?? 0).toFixed(4)}
                         </td>
-                        <td className="px-4 py-2 text-[11px] text-white/55">{t.ref_type || '—'}</td>
+                        <td className="text-[11px] text-white/55">{t.ref_type || '—'}</td>
                       </tr>
                     ))}
                   </tbody>
-                </table>
-              </div>
+              </AdminDataTable>
             )}
           </div>
 
-          <div className="rounded-2xl border border-surface-border bg-surface-card adm-table-x scrollbar-thin">
+          <div>
             <div className="px-4 py-3 border-b border-surface-border flex items-center justify-between gap-3">
               <p className="text-xs font-extrabold text-white/55 uppercase tracking-wider">Wallet adjustment history</p>
               <Link to={`/wallet-adjustments?uid=${uid}`} className="text-gold-light text-xs font-bold hover:underline">Open full history</Link>
             </div>
-            <table className="w-full text-sm min-w-[700px]">
+            <AdminDataTable minWidth="700px">
               <thead>
-                <tr className="text-left text-[11px] text-white/50 uppercase border-b border-surface-border">
-                  <th className="px-4 py-3">Time</th>
-                  <th className="px-4 py-3">Asset</th>
-                  <th className="px-4 py-3">Type</th>
-                  <th className="px-4 py-3 text-right">Amount</th>
-                  <th className="px-4 py-3 text-right">Before {'->'} After</th>
-                  <th className="px-4 py-3">Admin</th>
+                <tr>
+                  <th>Time</th>
+                  <th>Asset</th>
+                  <th>Type</th>
+                  <th className="text-right">Amount</th>
+                  <th className="text-right">Before {'->'} After</th>
+                  <th>Admin</th>
                 </tr>
               </thead>
               <tbody>
                 {adjLoading ? (
-                  <tr><td colSpan={6} className="px-4 py-8 text-center text-white/45">Loading adjustments…</td></tr>
+                  <tr><td colSpan={6} className="text-center text-white/45 py-8">Loading adjustments…</td></tr>
                 ) : walletAdjustments.length === 0 ? (
-                  <tr><td colSpan={6} className="px-4 py-8 text-center text-white/45">No wallet adjustments for this user.</td></tr>
+                  <tr><td colSpan={6} className="text-center text-white/45 py-8">No wallet adjustments for this user.</td></tr>
                 ) : (
                   walletAdjustments.map((row) => (
-                    <tr key={row.id} className="border-b border-surface-border/50">
-                      <td className="px-4 py-3 text-xs text-white/60 whitespace-nowrap">{row.created_at ? new Date(row.created_at).toLocaleString() : '—'}</td>
-                      <td className="px-4 py-3 font-bold">
+                    <tr key={row.id}>
+                      <td className="text-xs text-white/60 whitespace-nowrap">{row.created_at ? new Date(row.created_at).toLocaleString() : '—'}</td>
+                      <td className="font-bold">
                         <span className="inline-flex items-center gap-2">
                           <CoinAvatar asset={row.asset} className="h-6 w-6" />
                           {row.asset}
                         </span>
                       </td>
-                      <td className="px-4 py-3">
+                      <td>
                         <span className={`text-xs font-bold uppercase px-2 py-1 rounded-md ${row.direction === 'credit' ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-300'}`}>
                           {row.direction}
                         </span>
                       </td>
-                      <td className={`px-4 py-3 text-right font-mono ${row.direction === 'credit' ? 'text-green-400' : 'text-red-300'}`}>{Number(row.amount || 0).toFixed(6)}</td>
-                      <td className="px-4 py-3 text-right font-mono text-xs text-white/70">{Number(row.balance_before || 0).toFixed(6)} {'->'} {Number(row.balance_after || 0).toFixed(6)}</td>
-                      <td className="px-4 py-3 text-xs text-white/60">{row.admin_email || row.admin_aid || '—'}</td>
+                      <td className={`text-right font-mono ${row.direction === 'credit' ? 'text-green-400' : 'text-red-300'}`}>{Number(row.amount || 0).toFixed(6)}</td>
+                      <td className="text-right font-mono text-xs text-white/70">{Number(row.balance_before || 0).toFixed(6)} {'->'} {Number(row.balance_after || 0).toFixed(6)}</td>
+                      <td className="text-xs text-white/60">{row.admin_email || row.admin_aid || '—'}</td>
                     </tr>
                   ))
                 )}
               </tbody>
-            </table>
+            </AdminDataTable>
           </div>
         </div>
       )}
@@ -1477,7 +1476,7 @@ export default function UserDetailPage() {
                         : confirm.type === 'reset2fa'
                           ? 'Remove 2FA for this user? They can re-enroll from the exchange.'
                           : confirm.type === 'impersonate'
-                            ? `You are about to open IBO Exchange in a new tab as ${u?.email || uid}. This support session will automatically expire in ${IMPERSONATE_SESSION_MINUTES} minutes. The user's own login session will not be affected and they will not be notified. All actions are logged for audit.`
+                            ? `You are about to open Delta Exchange in a new tab as ${u?.email || uid}. This support session will automatically expire in ${IMPERSONATE_SESSION_MINUTES} minutes. The user's own login session will not be affected and they will not be notified. All actions are logged for audit.`
                             : `Send password-reset email to ${u.email}?`
         }
         inputLabel={confirm.type === 'kycReject' ? 'Rejection reason' : ''}
@@ -1557,7 +1556,7 @@ export default function UserDetailPage() {
       <ConfirmModal
         open={adjConfirmOpen}
         title={adjDirection === 'debit' ? 'Reduce wallet balance' : 'Add wallet balance'}
-        message={`Confirm ${adjDirection === 'debit' ? 'debit' : 'credit'} of ${adjAmount || 0} ${adjAsset} for UID ${adjUid || '(empty)'}.`}
+        message={`Confirm ${adjDirection === 'debit' ? 'debit' : 'credit'} of ${adjAmount || 0} ${adjAsset === 'IBO' ? 'Delta' : adjAsset} for UID ${adjUid || '(empty)'}.`}
         confirmText={adjDirection === 'debit' ? 'Reduce balance' : 'Add balance'}
         danger={adjDirection === 'debit'}
         busy={adjBusy}
@@ -1652,28 +1651,27 @@ function UserOverviewRecentActivity({ uid }) {
           <Link to={`/trading?uid=${uid}`} className="text-gold-light hover:underline">Trades</Link>
         </div>
       </div>
-      <div className="rounded-xl border border-surface-border overflow-hidden">
-        <table className="w-full text-sm min-w-[640px]">
+      <AdminDataTable minWidth="640px">
           <thead>
-            <tr className="text-left text-[11px] text-white/50 uppercase border-b border-surface-border bg-white/[.02]">
-              <th className="px-3 py-2">Time</th>
-              <th className="px-3 py-2">Type</th>
-              <th className="px-3 py-2">Activity</th>
-              <th className="px-3 py-2">Details</th>
+            <tr>
+              <th>Time</th>
+              <th>Type</th>
+              <th>Activity</th>
+              <th>Details</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={4} className="px-3 py-10 text-center text-white/45">Loading recent activity…</td></tr>
+              <tr><td colSpan={4} className="text-center text-white/45 py-10">Loading recent activity…</td></tr>
             ) : rows.length === 0 ? (
-              <tr><td colSpan={4} className="px-3 py-10 text-center text-white/45">No recent activity found.</td></tr>
+              <tr><td colSpan={4} className="text-center text-white/45 py-10">No recent activity found.</td></tr>
             ) : (
               rows.map((r) => (
-                <tr key={r.id} className="border-b border-surface-border/50">
-                  <td className="px-3 py-2 text-[11px] text-white/55 whitespace-nowrap">{r.created_at ? new Date(r.created_at).toLocaleString() : '—'}</td>
-                  <td className="px-3 py-2 text-xs font-bold text-gold-light">{r.type}</td>
-                  <td className="px-3 py-2 font-semibold text-white">{r.title}</td>
-                  <td className="px-3 py-2 text-xs text-white/70">
+                <tr key={r.id}>
+                  <td className="text-[11px] text-white/55 whitespace-nowrap">{r.created_at ? new Date(r.created_at).toLocaleString() : '—'}</td>
+                  <td className="text-xs font-bold text-gold-light">{r.type}</td>
+                  <td className="font-semibold text-white">{r.title}</td>
+                  <td className="text-xs text-white/70">
                     {r.utr ? (
                       <div className="space-y-0.5 min-w-0">
                         <p>{r.detail}</p>
@@ -1687,8 +1685,7 @@ function UserOverviewRecentActivity({ uid }) {
               ))
             )}
           </tbody>
-        </table>
-      </div>
+      </AdminDataTable>
     </div>
   );
 }
@@ -1941,7 +1938,7 @@ function UserLiveTradingPanel({ uid }) {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-surface-border bg-surface-card adm-table-x scrollbar-thin">
+      <div>
         <div className="px-4 py-3 border-b border-surface-border flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs font-extrabold text-white/50 uppercase tracking-wider">Live open positions</p>
           <div className="flex flex-wrap items-center gap-3">
@@ -1958,42 +1955,42 @@ function UserLiveTradingPanel({ uid }) {
             <p className="text-xs text-white/50">Last update: {updatedAt ? new Date(updatedAt).toLocaleTimeString() : '—'}</p>
           </div>
         </div>
-        <table className="w-full text-sm min-w-[1000px]">
+        <AdminDataTable minWidth="1000px">
           <thead>
-            <tr className="text-left text-[11px] text-white/50 uppercase border-b border-surface-border">
-              <th className="px-3 py-2">Symbol</th>
-              <th className="px-3 py-2 text-right">Amount</th>
-              <th className="px-3 py-2 text-right">Available</th>
-              <th className="px-3 py-2 text-right">Locked</th>
-              <th className="px-3 py-2 text-right">Avg cost</th>
-              <th className="px-3 py-2 text-right">Mark</th>
-              <th className="px-3 py-2 text-right">Market value</th>
-              <th className="px-3 py-2 text-right">U.P&amp;L</th>
-              <th className="px-3 py-2 text-right whitespace-nowrap">Action</th>
+            <tr>
+              <th>Symbol</th>
+              <th className="text-right">Amount</th>
+              <th className="text-right">Available</th>
+              <th className="text-right">Locked</th>
+              <th className="text-right">Avg cost</th>
+              <th className="text-right">Mark</th>
+              <th className="text-right">Market value</th>
+              <th className="text-right">U.P&amp;L</th>
+              <th className="text-right whitespace-nowrap">Action</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={9} className="px-3 py-10 text-center text-white/45">Loading live positions…</td></tr>
+              <tr><td colSpan={9} className="text-center text-white/45 py-10">Loading live positions…</td></tr>
             ) : positions.length === 0 ? (
-              <tr><td colSpan={9} className="px-3 py-10 text-center text-white/45">No open positions.</td></tr>
+              <tr><td colSpan={9} className="text-center text-white/45 py-10">No open positions.</td></tr>
             ) : (
               positions.map((p) => (
-                <tr key={p.symbol} className="border-b border-surface-border/50">
-                  <td className="px-3 py-2">
+                <tr key={p.symbol}>
+                  <td>
                     <span className="inline-flex items-center gap-2 font-mono font-bold text-gold-light/80">
                       <CoinAvatar symbol={p.symbol} className="h-6 w-6" />
                       {p.symbol}
                     </span>
                   </td>
-                  <td className="px-3 py-2 text-right font-mono">{Number(p.amount || 0).toFixed(8)}</td>
-                  <td className="px-3 py-2 text-right font-mono text-green-400">{Number(p.available || 0).toFixed(8)}</td>
-                  <td className="px-3 py-2 text-right font-mono text-gold-light/85">{Number(p.locked || 0).toFixed(8)}</td>
-                  <td className="px-3 py-2 text-right font-mono">{Number(p.avg_cost || 0).toFixed(8)}</td>
-                  <td className="px-3 py-2 text-right font-mono">{Number(p.current_price || 0).toFixed(8)}</td>
-                  <td className="px-3 py-2 text-right font-mono">{Number(p.market_value_usdt || 0).toFixed(4)}</td>
-                  <td className={`px-3 py-2 text-right font-mono ${Number(p.unrealized_pnl || 0) >= 0 ? 'text-green-400' : 'text-red-300'}`}>{Number(p.unrealized_pnl || 0).toFixed(4)}</td>
-                  <td className="px-3 py-2 text-right">
+                  <td className="text-right font-mono">{Number(p.amount || 0).toFixed(8)}</td>
+                  <td className="text-right font-mono text-green-400">{Number(p.available || 0).toFixed(8)}</td>
+                  <td className="text-right font-mono text-gold-light/85">{Number(p.locked || 0).toFixed(8)}</td>
+                  <td className="text-right font-mono">{Number(p.avg_cost || 0).toFixed(8)}</td>
+                  <td className="text-right font-mono">{Number(p.current_price || 0).toFixed(8)}</td>
+                  <td className="text-right font-mono">{Number(p.market_value_usdt || 0).toFixed(4)}</td>
+                  <td className={`text-right font-mono ${Number(p.unrealized_pnl || 0) >= 0 ? 'text-green-400' : 'text-red-300'}`}>{Number(p.unrealized_pnl || 0).toFixed(4)}</td>
+                  <td className="text-right">
                     <button
                       type="button"
                       disabled={busy}
@@ -2007,7 +2004,7 @@ function UserLiveTradingPanel({ uid }) {
               ))
             )}
           </tbody>
-        </table>
+        </AdminDataTable>
       </div>
       <ConfirmModal
         open={closeConfirm.open}
@@ -2116,68 +2113,68 @@ function UserAnalyticsPanel({ uid }) {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-surface-border bg-surface-card adm-table-x scrollbar-thin">
+      <div>
         <p className="text-xs font-extrabold text-white/50 uppercase tracking-wider px-4 pt-4 mb-2">Realized P&amp;L by symbol</p>
-        <table className="w-full text-sm min-w-[360px]">
+        <AdminDataTable minWidth="360px">
           <thead>
-            <tr className="text-left text-[11px] text-white/50 uppercase border-b border-surface-border">
-              <th className="px-4 py-2">Symbol</th>
-              <th className="px-4 py-2 text-right">Realized USDT</th>
+            <tr>
+              <th>Symbol</th>
+              <th className="text-right">Realized USDT</th>
             </tr>
           </thead>
           <tbody>
             {(a.realized_pnl_by_symbol || []).length === 0 ? (
-              <tr><td colSpan={2} className="px-4 py-8 text-center text-white/45">No realized sells yet</td></tr>
+              <tr><td colSpan={2} className="text-center text-white/45 py-8">No realized sells yet</td></tr>
             ) : (
               a.realized_pnl_by_symbol.map(row => (
-                <tr key={row.symbol} className="border-b border-surface-border/50">
-                  <td className="px-4 py-2">
+                <tr key={row.symbol}>
+                  <td>
                     <span className="inline-flex items-center gap-2 font-mono font-bold text-gold-light/80">
                       <CoinAvatar symbol={row.symbol} className="h-6 w-6" />
                       {row.symbol}
                     </span>
                   </td>
-                  <td className={`px-4 py-2 text-right font-mono ${pnlClass(row.realized_pnl)}`}>{fmt(row.realized_pnl)}</td>
+                  <td className={`text-right font-mono ${pnlClass(row.realized_pnl)}`}>{fmt(row.realized_pnl)}</td>
                 </tr>
               ))
             )}
           </tbody>
-        </table>
+        </AdminDataTable>
       </div>
 
-      <div className="rounded-2xl border border-surface-border bg-surface-card adm-table-x scrollbar-thin">
+      <div>
         <p className="text-xs font-extrabold text-white/50 uppercase tracking-wider px-4 pt-4 mb-2">Open positions (unrealized)</p>
-        <table className="w-full text-sm min-w-[720px]">
+        <AdminDataTable minWidth="720px">
           <thead>
-            <tr className="text-left text-[11px] text-white/50 uppercase border-b border-surface-border">
-              <th className="px-3 py-2">Symbol</th>
-              <th className="px-3 py-2 text-right">Qty</th>
-              <th className="px-3 py-2 text-right">Avg cost</th>
-              <th className="px-3 py-2 text-right">Mark</th>
-              <th className="px-3 py-2 text-right">U.P&amp;L</th>
+            <tr>
+              <th>Symbol</th>
+              <th className="text-right">Qty</th>
+              <th className="text-right">Avg cost</th>
+              <th className="text-right">Mark</th>
+              <th className="text-right">U.P&amp;L</th>
             </tr>
           </thead>
           <tbody>
             {(a.open_positions || []).length === 0 ? (
-              <tr><td colSpan={5} className="px-4 py-8 text-center text-white/45">No open spot positions</td></tr>
+              <tr><td colSpan={5} className="text-center text-white/45 py-8">No open spot positions</td></tr>
             ) : (
               a.open_positions.map(p => (
-                <tr key={p.symbol} className="border-b border-surface-border/50">
-                  <td className="px-3 py-2">
+                <tr key={p.symbol}>
+                  <td>
                     <span className="inline-flex items-center gap-2 font-mono">
                       <CoinAvatar symbol={p.symbol} className="h-6 w-6" />
                       {p.symbol}
                     </span>
                   </td>
-                  <td className="px-3 py-2 text-right font-mono">{Number(p.amount).toFixed(8)}</td>
-                  <td className="px-3 py-2 text-right font-mono">{Number(p.avg_cost).toFixed(8)}</td>
-                  <td className="px-3 py-2 text-right font-mono">{Number(p.current_price).toFixed(8)}</td>
-                  <td className={`px-3 py-2 text-right font-mono ${pnlClass(p.unrealized_pnl)}`}>{fmt(p.unrealized_pnl)}</td>
+                  <td className="text-right font-mono">{Number(p.amount).toFixed(8)}</td>
+                  <td className="text-right font-mono">{Number(p.avg_cost).toFixed(8)}</td>
+                  <td className="text-right font-mono">{Number(p.current_price).toFixed(8)}</td>
+                  <td className={`text-right font-mono ${pnlClass(p.unrealized_pnl)}`}>{fmt(p.unrealized_pnl)}</td>
                 </tr>
               ))
             )}
           </tbody>
-        </table>
+        </AdminDataTable>
       </div>
 
       <p className="text-[11px] text-white/40 leading-relaxed">{a.methodology}</p>
@@ -2236,49 +2233,47 @@ function UserOrdersPanel({ uid }) {
           <option value="cancelled">cancelled</option>
         </select>
       </div>
-      <div className="rounded-2xl border border-surface-border bg-surface-card adm-table-x scrollbar-thin">
-        <table className="w-full text-sm min-w-[900px]">
+      <AdminDataTable minWidth="900px">
           <thead>
-            <tr className="text-left text-[11px] text-white/50 uppercase border-b border-surface-border">
-              <SortableTh className="px-3 py-2" sortKey="id" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>ID</SortableTh>
-              <SortableTh className="px-3 py-2" sortKey="symbol" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Symbol</SortableTh>
-              <SortableTh className="px-3 py-2" sortKey="side" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Side</SortableTh>
-              <SortableTh className="px-3 py-2" sortKey="type" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Type</SortableTh>
-              <SortableTh className="px-3 py-2" sortKey="status" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Status</SortableTh>
-              <SortableTh className="px-3 py-2" sortKey="price" activeKey={sortBy} dir={sortDir} onSort={toggleSort} align="right">Price</SortableTh>
-              <SortableTh className="px-3 py-2" sortKey="amount" activeKey={sortBy} dir={sortDir} onSort={toggleSort} align="right">Amount</SortableTh>
-              <th className="px-3 py-2 text-right">Filled</th>
-              <SortableTh className="px-3 py-2" sortKey="created_at" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Created</SortableTh>
+            <tr>
+              <SortableTh sortKey="id" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>ID</SortableTh>
+              <SortableTh sortKey="symbol" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Symbol</SortableTh>
+              <SortableTh sortKey="side" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Side</SortableTh>
+              <SortableTh sortKey="type" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Type</SortableTh>
+              <SortableTh sortKey="status" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Status</SortableTh>
+              <SortableTh sortKey="price" activeKey={sortBy} dir={sortDir} onSort={toggleSort} align="right">Price</SortableTh>
+              <SortableTh sortKey="amount" activeKey={sortBy} dir={sortDir} onSort={toggleSort} align="right">Amount</SortableTh>
+              <th className="text-right">Filled</th>
+              <SortableTh sortKey="created_at" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Created</SortableTh>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={9} className="px-4 py-12 text-center text-white/45">Loading…</td></tr>
+              <tr><td colSpan={9} className="text-center text-white/45 py-12">Loading…</td></tr>
             ) : items.length === 0 ? (
-              <tr><td colSpan={9} className="px-4 py-12 text-center text-white/45">No orders.</td></tr>
+              <tr><td colSpan={9} className="text-center text-white/45 py-12">No orders.</td></tr>
             ) : (
               items.map(o => (
-                <tr key={o.id} className="border-b border-surface-border/50">
-                  <td className="px-3 py-2 font-mono text-[11px] text-white/70">{o.id}</td>
-                  <td className="px-3 py-2">
+                <tr key={o.id}>
+                  <td className="font-mono text-[11px] text-white/70">{o.id}</td>
+                  <td>
                     <span className="inline-flex items-center gap-2 font-mono">
                       <CoinAvatar symbol={o.symbol} className="h-6 w-6" />
                       {o.symbol}
                     </span>
                   </td>
-                  <td className="px-3 py-2">{o.side}</td>
-                  <td className="px-3 py-2">{o.type}</td>
-                  <td className="px-3 py-2">{o.status}</td>
-                  <td className="px-3 py-2 text-right font-mono">{Number(o.price || 0).toFixed(8)}</td>
-                  <td className="px-3 py-2 text-right font-mono">{Number(o.amount).toFixed(8)}</td>
-                  <td className="px-3 py-2 text-right font-mono">{Number(o.filled || 0).toFixed(8)}</td>
-                  <td className="px-3 py-2 text-[11px] text-white/50">{o.created_at ? new Date(o.created_at).toLocaleString() : '—'}</td>
+                  <td>{o.side}</td>
+                  <td>{o.type}</td>
+                  <td>{o.status}</td>
+                  <td className="text-right font-mono">{Number(o.price || 0).toFixed(8)}</td>
+                  <td className="text-right font-mono">{Number(o.amount).toFixed(8)}</td>
+                  <td className="text-right font-mono">{Number(o.filled || 0).toFixed(8)}</td>
+                  <td className="text-[11px] text-white/50">{o.created_at ? new Date(o.created_at).toLocaleString() : '—'}</td>
                 </tr>
               ))
             )}
           </tbody>
-        </table>
-      </div>
+      </AdminDataTable>
       {total > limit && (
         <p className="text-white/50 text-sm mt-3">
           Showing {skip + 1}–{Math.min(skip + limit, total)} of {total}
@@ -2374,42 +2369,42 @@ function UserReferralPanel({ uid }) {
             </div>
             <div>
               <p className="text-[11px] font-extrabold text-white/40 uppercase tracking-wider mb-1">Total earned</p>
-              <p className="text-lg font-extrabold text-gold-light">{Number(summary.total_earned_ibo || 0).toFixed(4)} IBO</p>
+              <p className="text-lg font-extrabold text-gold-light">{Number(summary.total_earned_ibo || 0).toFixed(4)} Delta</p>
             </div>
             <div>
               <p className="text-[11px] font-extrabold text-white/40 uppercase tracking-wider mb-1">Pending (awaiting KYC)</p>
-              <p className="text-lg font-extrabold text-gold">{Number(summary.total_pending_ibo || 0).toFixed(4)} IBO</p>
+              <p className="text-lg font-extrabold text-gold">{Number(summary.total_pending_ibo || 0).toFixed(4)} Delta</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden">
+      <div>
         <div className="px-5 py-3 border-b border-surface-border">
           <h3 className="text-sm font-extrabold text-white/90 uppercase tracking-wide">Per-level breakdown</h3>
         </div>
-        <table className="w-full text-sm">
+        <AdminDataTable>
           <thead>
-            <tr className="text-left text-[11px] text-white/50 uppercase border-b border-surface-border">
-              <th className="px-4 py-2">Level</th>
-              <th className="px-4 py-2">Reward / referral</th>
-              <th className="px-4 py-2">Referral count</th>
-              <th className="px-4 py-2">Earned (IBO)</th>
-              <th className="px-4 py-2">Pending (IBO)</th>
+            <tr>
+              <th>Level</th>
+              <th>Reward / referral</th>
+              <th>Referral count</th>
+              <th>Earned (Delta)</th>
+              <th>Pending (Delta)</th>
             </tr>
           </thead>
           <tbody>
             {(summary.levels || []).map((lvl) => (
-              <tr key={lvl.level} className="border-b border-surface-border/60 last:border-0">
-                <td className="px-4 py-2 font-bold text-white">L{lvl.level}</td>
-                <td className="px-4 py-2 text-white/75">{Number(lvl.amount_ibo || 0).toFixed(4)} IBO</td>
-                <td className="px-4 py-2 text-white/75">{lvl.referral_count ?? 0}</td>
-                <td className="px-4 py-2 text-gold-light font-semibold">{Number(lvl.earned_ibo || 0).toFixed(4)}</td>
-                <td className="px-4 py-2 text-gold font-semibold">{Number(lvl.pending_ibo || 0).toFixed(4)}</td>
+              <tr key={lvl.level}>
+                <td className="font-bold text-white">L{lvl.level}</td>
+                <td className="text-white/75">{Number(lvl.amount_ibo || 0).toFixed(4)} Delta</td>
+                <td className="text-white/75">{lvl.referral_count ?? 0}</td>
+                <td className="text-gold-light font-semibold">{Number(lvl.earned_ibo || 0).toFixed(4)}</td>
+                <td className="text-gold font-semibold">{Number(lvl.pending_ibo || 0).toFixed(4)}</td>
               </tr>
             ))}
           </tbody>
-        </table>
+        </AdminDataTable>
       </div>
 
       <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden">
@@ -2480,39 +2475,38 @@ function UserTradesPanel({ uid }) {
           className="rounded-xl bg-surface-card border border-surface-border px-4 py-2 text-white text-sm font-mono uppercase flex-1 max-w-xs"
         />
       </div>
-      <div className="rounded-2xl border border-surface-border bg-surface-card adm-table-x scrollbar-thin">
-        <table className="w-full text-sm min-w-[880px]">
+      <AdminDataTable minWidth="880px">
           <thead>
-            <tr className="text-left text-[11px] text-white/50 uppercase border-b border-surface-border">
-              <SortableTh className="px-3 py-2" sortKey="created_at" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Time</SortableTh>
-              <SortableTh className="px-3 py-2" sortKey="symbol" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Symbol</SortableTh>
-              <SortableTh className="px-3 py-2" sortKey="price" activeKey={sortBy} dir={sortDir} onSort={toggleSort} align="right">Price</SortableTh>
-              <SortableTh className="px-3 py-2" sortKey="amount" activeKey={sortBy} dir={sortDir} onSort={toggleSort} align="right">Amount</SortableTh>
-              <th className="px-3 py-2">Role</th>
-              <th className="px-3 py-2">Fees</th>
+            <tr>
+              <SortableTh sortKey="created_at" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Time</SortableTh>
+              <SortableTh sortKey="symbol" activeKey={sortBy} dir={sortDir} onSort={toggleSort}>Symbol</SortableTh>
+              <SortableTh sortKey="price" activeKey={sortBy} dir={sortDir} onSort={toggleSort} align="right">Price</SortableTh>
+              <SortableTh sortKey="amount" activeKey={sortBy} dir={sortDir} onSort={toggleSort} align="right">Amount</SortableTh>
+              <th>Role</th>
+              <th>Fees</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={6} className="px-4 py-12 text-center text-white/45">Loading…</td></tr>
+              <tr><td colSpan={6} className="text-center text-white/45 py-12">Loading…</td></tr>
             ) : items.length === 0 ? (
-              <tr><td colSpan={6} className="px-4 py-12 text-center text-white/45">No trades.</td></tr>
+              <tr><td colSpan={6} className="text-center text-white/45 py-12">No trades.</td></tr>
             ) : (
               items.map(t => {
                 const isTaker = t.taker_uid === uid;
                 return (
-                  <tr key={t.id} className="border-b border-surface-border/50">
-                    <td className="px-3 py-2 text-[11px] text-white/55 whitespace-nowrap">{t.created_at ? new Date(t.created_at).toLocaleString() : '—'}</td>
-                    <td className="px-3 py-2">
+                  <tr key={t.id}>
+                    <td className="text-[11px] text-white/55 whitespace-nowrap">{t.created_at ? new Date(t.created_at).toLocaleString() : '—'}</td>
+                    <td>
                       <span className="inline-flex items-center gap-2 font-mono font-bold text-gold-light/80">
                         <CoinAvatar symbol={t.symbol} className="h-6 w-6" />
                         {t.symbol}
                       </span>
                     </td>
-                    <td className="px-3 py-2 text-right font-mono">{Number(t.price).toFixed(8)}</td>
-                    <td className="px-3 py-2 text-right font-mono">{Number(t.amount).toFixed(8)}</td>
-                    <td className="px-3 py-2 text-xs">{isTaker ? `Taker (${t.taker_side})` : `Maker (${t.maker_side})`}</td>
-                    <td className="px-3 py-2 text-[11px] font-mono text-white/60">
+                    <td className="text-right font-mono">{Number(t.price).toFixed(8)}</td>
+                    <td className="text-right font-mono">{Number(t.amount).toFixed(8)}</td>
+                    <td className="text-xs">{isTaker ? `Taker (${t.taker_side})` : `Maker (${t.maker_side})`}</td>
+                    <td className="text-[11px] font-mono text-white/60">
                       {isTaker
                         ? `${Number(t.taker_fee || 0).toFixed(6)} ${t.taker_fee_asset || ''}`
                         : `${Number(t.maker_fee || 0).toFixed(6)} ${t.maker_fee_asset || ''}`}
@@ -2522,8 +2516,7 @@ function UserTradesPanel({ uid }) {
               })
             )}
           </tbody>
-        </table>
-      </div>
+      </AdminDataTable>
       {total > limit && (
         <p className="text-white/50 text-sm mt-3">
           Showing {skip + 1}–{Math.min(skip + limit, total)} of {total}
@@ -2609,27 +2602,26 @@ function UserMoneyPanel({ uid }) {
             {creditError}
           </div>
         )}
-        <div className="rounded-xl border border-surface-border adm-table-x">
-          <table className="w-full text-xs">
+        <AdminDataTable>
             <thead>
-              <tr className="text-left text-white/45 border-b border-surface-border">
-                <th className="px-2 py-2">When</th>
-                <th className="px-2 py-2">Asset</th>
-                <th className="px-2 py-2 text-right">Amt</th>
-                <th className="px-2 py-2">Conf</th>
-                <th className="px-2 py-2">St</th>
-                <th className="px-2 py-2"></th>
+              <tr>
+                <th>When</th>
+                <th>Asset</th>
+                <th className="text-right">Amt</th>
+                <th>Conf</th>
+                <th>St</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
               {deps.length === 0 ? (
-                <tr><td colSpan={6} className="px-2 py-6 text-center text-white/40">None</td></tr>
+                <tr><td colSpan={6} className="text-center text-white/40 py-6">None</td></tr>
               ) : deps.map(d => {
                 const isBonus = d.source === 'signup_bonus';
                 return (
-                <tr key={d.id} className={`border-b border-surface-border/40 ${isBonus ? 'bg-gold/5' : ''}`}>
-                  <td className="px-2 py-2 text-white/55 whitespace-nowrap">{d.created_at ? new Date(d.created_at).toLocaleString() : '—'}</td>
-                  <td className="px-2 py-2 font-bold">
+                <tr key={d.id} className={isBonus ? 'bg-gold/5' : undefined}>
+                  <td className="text-white/55 whitespace-nowrap">{d.created_at ? new Date(d.created_at).toLocaleString() : '—'}</td>
+                  <td className="font-bold">
                     {isBonus ? (
                       <span className="inline-flex items-center gap-1 text-gold-light">
                         <CoinAvatar asset={d.asset} className="h-5 w-5" />
@@ -2642,14 +2634,14 @@ function UserMoneyPanel({ uid }) {
                       </span>
                     )}
                   </td>
-                  <td className="px-2 py-2 text-right font-mono text-green-400">{Number(d.amount).toFixed(4)}</td>
-                  <td className="px-2 py-2 font-mono text-white/70 whitespace-nowrap">
+                  <td className="text-right font-mono text-green-400">{Number(d.amount).toFixed(4)}</td>
+                  <td className="font-mono text-white/70 whitespace-nowrap">
                     {Number(d.threshold) > 0
                       ? `${Math.min(Number(d.confirmations || 0), Number(d.threshold))}/${Number(d.threshold)}`
                       : Number(d.confirmations || 0)}
                   </td>
-                  <td className="px-2 py-2 whitespace-nowrap">{d.status}</td>
-                  <td className="px-2 py-2 text-right">
+                  <td className="whitespace-nowrap">{d.status}</td>
+                  <td className="text-right">
                     {canCredit(d.status) && !isBonus && (
                       <button
                         type="button"
@@ -2669,8 +2661,7 @@ function UserMoneyPanel({ uid }) {
                 );
               })}
             </tbody>
-          </table>
-        </div>
+        </AdminDataTable>
       </div>
       <div>
         <h3 className="text-sm font-extrabold text-white/80 uppercase tracking-wider mb-2">Recent withdrawals</h3>
@@ -2678,45 +2669,43 @@ function UserMoneyPanel({ uid }) {
           <Link to={`/withdrawals?uid=${encodeURIComponent(uid)}`} className="text-gold-light font-bold hover:underline">Open withdrawal queue</Link>
           {' '}for approve / hold / reject.
         </p>
-        <div className="rounded-xl border border-surface-border adm-table-x">
-          <table className="w-full text-xs">
+        <AdminDataTable>
             <thead>
-              <tr className="text-left text-white/45 border-b border-surface-border">
-                <th className="px-2 py-2">When</th>
-                <th className="px-2 py-2">Asset</th>
-                <th className="px-2 py-2 text-right">Amt</th>
-                <th className="px-2 py-2">St</th>
-                <th className="px-2 py-2">To</th>
+              <tr>
+                <th>When</th>
+                <th>Asset</th>
+                <th className="text-right">Amt</th>
+                <th>St</th>
+                <th>To</th>
               </tr>
             </thead>
             <tbody>
               {wds.length === 0 ? (
-                <tr><td colSpan={5} className="px-2 py-6 text-center text-white/40">None</td></tr>
+                <tr><td colSpan={5} className="text-center text-white/40 py-6">None</td></tr>
               ) : wds.map((w) => {
                 const addr = String(w.address || '');
                 const short = addr.length > 18 ? `${addr.slice(0, 10)}…${addr.slice(-6)}` : addr || '—';
                 const flags = Array.isArray(w.risk_flags) ? w.risk_flags.filter(Boolean).join(', ') : '';
                 return (
-                  <tr key={w.id} className="border-b border-surface-border/40">
-                    <td className="px-2 py-2 text-white/55 whitespace-nowrap">{w.created_at ? new Date(w.created_at).toLocaleString() : '—'}</td>
-                    <td className="px-2 py-2 font-bold">
+                  <tr key={w.id}>
+                    <td className="text-white/55 whitespace-nowrap">{w.created_at ? new Date(w.created_at).toLocaleString() : '—'}</td>
+                    <td className="font-bold">
                       <span className="inline-flex items-center gap-1.5">
                         <CoinAvatar asset={w.asset} className="h-5 w-5" />
                         {w.asset}
                       </span>
                     </td>
-                    <td className="px-2 py-2 text-right font-mono text-gold-light/90">{Number(w.amount ?? w.net_amount ?? 0).toFixed(4)}</td>
-                    <td className="px-2 py-2 whitespace-nowrap">
+                    <td className="text-right font-mono text-gold-light/90">{Number(w.amount ?? w.net_amount ?? 0).toFixed(4)}</td>
+                    <td className="whitespace-nowrap">
                       <span className="font-mono">{w.status}</span>
                       {flags ? <span className="block text-[10px] text-rose-300/90 mt-0.5">{flags}</span> : null}
                     </td>
-                    <td className="px-2 py-2 font-mono text-white/60 break-all max-w-[140px]" title={addr}>{short}</td>
+                    <td className="font-mono text-white/60 break-all max-w-[140px]" title={addr}>{short}</td>
                   </tr>
                 );
               })}
             </tbody>
-          </table>
-        </div>
+        </AdminDataTable>
       </div>
       <ConfirmModal
         open={!!creditPrompt}
@@ -2745,34 +2734,32 @@ function UserMoneyPanel({ uid }) {
             Open INR queue
           </Link>
         </div>
-        <div className="rounded-xl border border-surface-border adm-table-x">
-          <table className="w-full text-xs">
+        <AdminDataTable>
             <thead>
-              <tr className="text-left text-white/45 border-b border-surface-border">
-                <th className="px-2 py-2">When</th>
-                <th className="px-2 py-2 text-right">INR</th>
-                <th className="px-2 py-2 text-right">IBO</th>
-                <th className="px-2 py-2">UTR</th>
-                <th className="px-2 py-2">St</th>
+              <tr>
+                <th>When</th>
+                <th className="text-right">INR</th>
+                <th className="text-right">Delta</th>
+                <th>UTR</th>
+                <th>St</th>
               </tr>
             </thead>
             <tbody>
               {inrDeps.length === 0 ? (
-                <tr><td colSpan={5} className="px-2 py-6 text-center text-white/40">None</td></tr>
+                <tr><td colSpan={5} className="text-center text-white/40 py-6">None</td></tr>
               ) : inrDeps.map((d) => (
-                <tr key={d.id} className="border-b border-surface-border/40">
-                  <td className="px-2 py-2 text-white/55 whitespace-nowrap">{d.created_at ? new Date(d.created_at).toLocaleString() : '—'}</td>
-                  <td className="px-2 py-2 text-right font-mono text-gold-light/90/90">{formatInrAmount(d.amount_inr)}</td>
-                  <td className="px-2 py-2 text-right font-mono text-green-400/90">
+                <tr key={d.id}>
+                  <td className="text-white/55 whitespace-nowrap">{d.created_at ? new Date(d.created_at).toLocaleString() : '—'}</td>
+                  <td className="text-right font-mono text-gold-light/90/90">{formatInrAmount(d.amount_inr)}</td>
+                  <td className="text-right font-mono text-green-400/90">
                     {d.status === 'approved' && d.amount_ibo != null ? Number(d.amount_ibo).toFixed(4) : '—'}
                   </td>
-                  <td className="px-2 py-2 font-mono text-white/60 max-w-[120px] truncate" title={d.utr_number}>{d.utr_number || '—'}</td>
-                  <td className="px-2 py-2 whitespace-nowrap font-mono">{d.status}</td>
+                  <td className="font-mono text-white/60 max-w-[120px] truncate" title={d.utr_number}>{d.utr_number || '—'}</td>
+                  <td className="whitespace-nowrap font-mono">{d.status}</td>
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
+        </AdminDataTable>
       </div>
 
       <div>
@@ -2785,35 +2772,34 @@ function UserMoneyPanel({ uid }) {
             Open INR payout queue
           </Link>
         </div>
-        <div className="rounded-xl border border-surface-border adm-table-x">
-          <table className="w-full text-xs">
+        <AdminDataTable>
             <thead>
-              <tr className="text-left text-white/45 border-b border-surface-border">
-                <th className="px-2 py-2">When</th>
-                <th className="px-2 py-2 text-right">INR</th>
-                <th className="px-2 py-2 text-right">IBO</th>
-                <th className="px-2 py-2">Payout UTR</th>
-                <th className="px-2 py-2">St</th>
+              <tr>
+                <th>When</th>
+                <th className="text-right">INR</th>
+                <th className="text-right">Delta</th>
+                <th>Payout UTR</th>
+                <th>St</th>
               </tr>
             </thead>
             <tbody>
               {inrWds.length === 0 ? (
-                <tr><td colSpan={5} className="px-2 py-6 text-center text-white/40">None</td></tr>
+                <tr><td colSpan={5} className="text-center text-white/40 py-6">None</td></tr>
               ) : inrWds.map((w) => (
-                <tr key={w.id} className="border-b border-surface-border/40">
-                  <td className="px-2 py-2 text-white/55 whitespace-nowrap">
+                <tr key={w.id}>
+                  <td className="text-white/55 whitespace-nowrap">
                     {(w.reviewed_at || w.updated_at || w.created_at)
                       ? new Date(w.reviewed_at || w.updated_at || w.created_at).toLocaleString()
                       : '—'}
                   </td>
-                  <td className="px-2 py-2 text-right font-mono text-gold-light/90/90">{formatInrAmount(w.amount_inr)}</td>
-                  <td className="px-2 py-2 text-right font-mono text-gold-light/80">
+                  <td className="text-right font-mono text-gold-light/90/90">{formatInrAmount(w.amount_inr)}</td>
+                  <td className="text-right font-mono text-gold-light/80">
                     {w.amount_ibo != null ? Number(w.amount_ibo).toFixed(4) : '—'}
                   </td>
-                  <td className="px-2 py-2 font-mono text-white/60 max-w-[120px] truncate" title={w.payout_reference}>
+                  <td className="font-mono text-white/60 max-w-[120px] truncate" title={w.payout_reference}>
                     {w.payout_reference || '—'}
                   </td>
-                  <td className="px-2 py-2 whitespace-nowrap capitalize">
+                  <td className="whitespace-nowrap capitalize">
                     {ledgerStatusLabel({
                       status: w.status,
                       inr_request_status: w.status,
@@ -2823,8 +2809,7 @@ function UserMoneyPanel({ uid }) {
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
+        </AdminDataTable>
       </div>
     </div>
   );
@@ -2916,23 +2901,22 @@ function UserLedgerPanel({ uid }) {
         </div>
       </div>
       {err ? <div className="p-3 rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-300 text-sm">{err}</div> : null}
-      <div className="rounded-xl border border-surface-border adm-table-x overflow-hidden">
-        <table className="w-full text-xs min-w-[720px]">
+      <AdminDataTable minWidth="720px">
           <thead>
-            <tr className="text-left text-white/45 border-b border-surface-border bg-white/[.02]">
-              <th className="px-3 py-2">Time</th>
-              <th className="px-3 py-2">Asset</th>
-              <th className="px-3 py-2">Type</th>
-              <th className="px-3 py-2">Dir / status</th>
-              <th className="px-3 py-2 text-right">Amount</th>
-              <th className="px-3 py-2">Reference</th>
+            <tr>
+              <th>Time</th>
+              <th>Asset</th>
+              <th>Type</th>
+              <th>Dir / status</th>
+              <th className="text-right">Amount</th>
+              <th>Reference</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={6} className="px-3 py-10 text-center text-white/45">Loading…</td></tr>
+              <tr><td colSpan={6} className="text-center text-white/45 py-10">Loading…</td></tr>
             ) : items.length === 0 ? (
-              <tr><td colSpan={6} className="px-3 py-10 text-center text-white/45">No ledger rows.</td></tr>
+              <tr><td colSpan={6} className="text-center text-white/45 py-10">No ledger rows.</td></tr>
             ) : (
               items.map((row) => {
                 const isInrRequest = row._ledgerKind?.startsWith('inr_');
@@ -2942,20 +2926,20 @@ function UserLedgerPanel({ uid }) {
                   || row.ref_type === 'inr_withdrawal'
                   || isInrWithdrawalRow(row);
                 return (
-                <tr key={row.id} className="border-b border-surface-border/40">
-                  <td className="px-3 py-2 text-white/55 whitespace-nowrap">{row.created_at ? new Date(row.created_at).toLocaleString() : '—'}</td>
-                  <td className="px-3 py-2 font-bold">
+                <tr key={row.id}>
+                  <td className="text-white/55 whitespace-nowrap">{row.created_at ? new Date(row.created_at).toLocaleString() : '—'}</td>
+                  <td className="font-bold">
                     <span className="inline-flex items-center gap-1.5">
                       {row.asset !== 'INR' ? <CoinAvatar asset={row.asset} className="h-5 w-5" /> : null}
                       {row.asset}
                     </span>
                   </td>
-                  <td className="px-3 py-2 font-mono text-white/75">{ledgerTypeLabel(row)}</td>
-                  <td className="px-3 py-2 uppercase text-white/60 capitalize">
+                  <td className="font-mono text-white/75">{ledgerTypeLabel(row)}</td>
+                  <td className="uppercase text-white/60 capitalize">
                     {isInrRequest || row.inr_request_status ? ledgerStatusLabel(row) : row.direction}
                   </td>
-                  <td className="px-3 py-2 text-right font-mono text-white/85">{formatLedgerAmount(row)}</td>
-                  <td className="px-3 py-2 min-w-0">
+                  <td className="text-right font-mono text-white/85">{formatLedgerAmount(row)}</td>
+                  <td className="min-w-0">
                     {isInr ? (
                       <InrLedgerRefCell row={row} />
                     ) : (
@@ -2967,8 +2951,7 @@ function UserLedgerPanel({ uid }) {
               })
             )}
           </tbody>
-        </table>
-      </div>
+      </AdminDataTable>
       {total > limit ? (
         <p className="text-white/50 text-sm">
           Showing {skip + 1}–{Math.min(skip + limit, total)} of {total}
@@ -3033,34 +3016,32 @@ function UserSessionsPanel({ uid }) {
         </button>
       </div>
       {err ? <div className="p-3 rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-300 text-sm">{err}</div> : null}
-      <div className="rounded-xl border border-surface-border adm-table-x overflow-hidden">
-        <table className="w-full text-xs min-w-[560px]">
+      <AdminDataTable minWidth="560px">
           <thead>
-            <tr className="text-left text-white/45 border-b border-surface-border bg-white/[.02]">
-              <th className="px-3 py-2">JTI (masked)</th>
-              <th className="px-3 py-2">Epoch</th>
-              <th className="px-3 py-2">Created</th>
-              <th className="px-3 py-2">Expires</th>
+            <tr>
+              <th>JTI (masked)</th>
+              <th>Epoch</th>
+              <th>Created</th>
+              <th>Expires</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={4} className="px-3 py-10 text-center text-white/45">Loading…</td></tr>
+              <tr><td colSpan={4} className="text-center text-white/45 py-10">Loading…</td></tr>
             ) : rows.length === 0 ? (
-              <tr><td colSpan={4} className="px-3 py-10 text-center text-white/45">No active refresh sessions.</td></tr>
+              <tr><td colSpan={4} className="text-center text-white/45 py-10">No active refresh sessions.</td></tr>
             ) : (
               rows.map((s, i) => (
-                <tr key={`${s.jti_masked}-${i}`} className="border-b border-surface-border/40">
-                  <td className="px-3 py-2 font-mono text-white/75">{s.jti_masked}</td>
-                  <td className="px-3 py-2 font-mono">{s.epoch}</td>
-                  <td className="px-3 py-2 text-white/55 whitespace-nowrap">{s.created_at ? new Date(s.created_at).toLocaleString() : '—'}</td>
-                  <td className="px-3 py-2 text-white/55 whitespace-nowrap">{s.expires_at ? new Date(s.expires_at).toLocaleString() : '—'}</td>
+                <tr key={`${s.jti_masked}-${i}`}>
+                  <td className="font-mono text-white/75">{s.jti_masked}</td>
+                  <td className="font-mono">{s.epoch}</td>
+                  <td className="text-white/55 whitespace-nowrap">{s.created_at ? new Date(s.created_at).toLocaleString() : '—'}</td>
+                  <td className="text-white/55 whitespace-nowrap">{s.expires_at ? new Date(s.expires_at).toLocaleString() : '—'}</td>
                 </tr>
               ))
             )}
           </tbody>
-        </table>
-      </div>
+      </AdminDataTable>
     </div>
   );
 }

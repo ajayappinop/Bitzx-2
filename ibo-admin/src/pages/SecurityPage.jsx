@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ShieldAlert, Plus, RefreshCw } from 'lucide-react';
 import { api } from '@/lib/api';
 import FormModal from '@/components/FormModal';
+import { AdminDataTable } from '@/components/AdminPrimitives';
 
 export default function SecurityPage() {
   const [dash, setDash] = useState(null);
@@ -124,20 +125,19 @@ export default function SecurityPage() {
       {activeTab === 'rate-limits' ? (
         <div className="rounded-2xl border border-surface-border bg-surface-card overflow-hidden">
           <div className="px-4 py-3 border-b border-surface-border text-sm font-semibold text-white/85">Traffic limits hit in the last 24 hours</div>
-          <div className="adm-table-x">
-            <table className="w-full text-sm min-w-[500px]">
-              <thead><tr className="text-left text-[11px] text-white/45 border-b border-surface-border"><th className="px-4 py-3">Scope</th><th className="px-4 py-3 text-right">Hits</th></tr></thead>
+          <AdminDataTable minWidth="500px" className="!border-0 !rounded-none">
+            <thead><tr><th>Scope</th><th className="text-right">Hits</th></tr></thead>
               <tbody>
                 {rateHits.length === 0 ? (
-                  <tr><td colSpan={2} className="px-4 py-10 text-center text-white/50">No rate-limit hits in this window.</td></tr>
+                  <tr><td colSpan={2} className="text-center text-white/50 !py-16">No rate-limit hits in this window.</td></tr>
                 ) : (
                   rateHits.map((r) => (
-                    <tr key={r.scope} className="border-b border-surface-border/50"><td className="px-4 py-3 font-mono text-xs">{r.scope}</td><td className="px-4 py-3 text-right font-mono">{r.hits}</td></tr>
+                    <tr key={r.scope}><td className="font-mono text-xs">{r.scope}</td><td className="text-right font-mono">{r.hits}</td></tr>
                   ))
                 )}
               </tbody>
-            </table>
-          </div>
+            
+          </AdminDataTable>
         </div>
       ) : null}
 
@@ -168,24 +168,23 @@ export default function SecurityPage() {
               </div>
             </div>
           </div>
-          <div className="adm-table-x">
-            <table className="w-full text-sm min-w-[700px]">
-              <thead>
-                <tr className="text-left text-[11px] text-white/45 border-b border-surface-border">
-                  <th className="px-4 py-3">Type</th><th className="px-4 py-3">Value</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Reason</th><th className="px-4 py-3 text-right">Action</th>
+          <AdminDataTable minWidth="700px" className="!border-0 !rounded-none">
+            <thead>
+                <tr>
+                  <th>Type</th><th>Value</th><th>Status</th><th>Reason</th><th className="text-right">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {visibleBlocks.length === 0 ? (
-                  <tr><td colSpan={5} className="px-4 py-10 text-center text-white/50">No blocks found for selected filters.</td></tr>
+                  <tr><td colSpan={5} className="text-center text-white/50 !py-16">No blocks found for selected filters.</td></tr>
                 ) : (
                   visibleBlocks.map((b) => (
-                    <tr key={b.id} className="border-b border-surface-border/50">
-                      <td className="px-4 py-3 text-xs uppercase font-bold">{b.type}</td>
-                      <td className="px-4 py-3 font-mono text-xs">{b.value}</td>
-                      <td className="px-4 py-3 text-xs">{b.is_active ? 'active' : 'inactive'}</td>
-                      <td className="px-4 py-3 text-xs text-white/60">{b.reason || '—'}</td>
-                      <td className="px-4 py-3 text-right">
+                    <tr key={b.id}>
+                      <td className="text-xs uppercase font-bold">{b.type}</td>
+                      <td className="font-mono text-xs">{b.value}</td>
+                      <td className="text-xs">{b.is_active ? 'active' : 'inactive'}</td>
+                      <td className="text-xs text-white/60">{b.reason || '—'}</td>
+                      <td className="text-right">
                         <button type="button" onClick={() => toggleBlock(b)} className="text-xs font-bold text-gold-light hover:underline">
                           {b.is_active ? 'Disable' : 'Enable'}
                         </button>
@@ -194,8 +193,8 @@ export default function SecurityPage() {
                   ))
                 )}
               </tbody>
-            </table>
-          </div>
+            
+          </AdminDataTable>
         </div>
       ) : null}
 
